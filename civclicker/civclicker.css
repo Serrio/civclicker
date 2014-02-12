@@ -1,0 +1,915 @@
+/**
+ * CivClicker
+ * Copyright (C) 2014 David Holley <dhmholley@gmail.com>
+
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program (if you are reading this on the original
+ * author's website, you can find a copy at
+ * <http://dhmholley.co.uk/gpl.txt>). If not, see
+ * <http://www.gnu.org/licenses/>.
+ */
+
+body{
+	font-family: sans-serif;
+	/*font-weight:600;*/
+	background-image:url('constable.jpg');
+	background-repeat:no-repeat;
+	background-attachment:fixed;
+	background-size:100% 100%;
+	/*text-shadow: 3px 0 0 #fff, -3px 0 0 #fff, 0 3px 0 #fff, 0 -3px 0 #fff, 2px 2px 0 #fff, -2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff;*/
+	text-shadow:none;
+}
+#strip{
+	text-shadow:none;
+}
+
+.icon-lg{
+	height:42px;
+	width:42px;
+}
+.icon-sm{
+	height:16px;
+	width:16px;
+	margin: 2px 0 -2px 0;
+}
+
+#header{
+	position:relative;
+}
+
+h1{
+	float:left;
+	bottom:0;
+}
+#ruler{
+	position:absolute;
+	float:left;
+	padding-left:1em;
+	bottom:0;
+}
+
+#impexp{
+	display:none;
+	position:absolute;
+	top:0;
+	right:0;
+	width:40%;
+	border:1px solid black;
+	background-color:#fff;
+	z-index:1;
+}
+#impexpField{
+	display:block;
+	width:90%;
+	height:10em;
+	margin:1em auto;
+}
+#expButton{
+	width:7em;
+	float:left;
+	margin-left:5%;
+	margin-bottom:1em;
+}
+#expSelect{
+	width:7em;
+	float:left;
+	margin-left:1em;
+	margin-bottom:1em;
+}
+#impButton{
+	width:7em;
+	float:right;
+	margin-right:1em;
+	margin-bottom:1em;
+}
+#impexpClose{
+	width:7em;
+	float:right;
+	margin-right:5%;
+	margin-bottom:1em;
+}
+
+#tips{
+	display:none;
+	position:absolute;
+	top:0;
+	right:0;
+	border:1px solid black;
+	background-color:#fff;
+	z-index:2;
+	padding:1em 0;
+	text-align:center;
+}
+#bitcoin{
+	margin:0.5em 1em;
+}
+#dogecoin{
+	margin:0.5em 1em;
+}
+#tips p{
+	width:20em;
+	margin:0 auto 1em auto;
+}
+#tips form{
+	margin:0 auto;
+	text-align:center;
+}
+#tips form *{
+	margin:0 auto;
+	text-align:center;
+}
+#tipsClose{
+	width:7em;
+	margin:0 auto;
+}
+
+.net{
+	padding-left:1em;
+}
+
+h3{
+	clear:both;
+}
+button{
+	width:190px;
+	border:2px solid black;
+	background-color:#fff;
+	margin-right:10px;
+	padding:0.1em;
+	font-size:1.0em;
+	font-weight:500;
+}
+button:hover{
+	background-color:#eee;
+}
+button:disabled{
+	color:#ccc;
+	font-weight:normal;
+}
+#jobs button{
+	width:48px;
+	text-shadow:none;
+	font-weight:normal;
+	font-size:0.9em;
+	margin-right:5px;
+}
+#jobs .jobCustom button{
+	width:90px;
+}
+#party .jobCustom button{
+	width:90px;
+}
+.buildCustom button{
+	width:90px;
+}
+#party button{
+	width:48px;
+	text-shadow:none;
+	font-weight:normal;
+	font-size:0.9em;
+	margin-right:5px;
+}
+
+.paneSelector{
+	width:15%;
+	float:left;
+	text-align:center;
+	margin:1em 0;
+	line-height:2em;
+	border:2px solid black;
+	background-color:#fff;
+}
+.paneSelector:hover{
+	text-decoration:underline;
+	text-shadow: none;
+	cursor:pointer;
+}
+.selected{
+	border-bottom:none;
+	background:none;
+	color:white;
+	text-shadow: 2px 0 0 #000, -2px 0 0 #000, 0 2px 0 #000, 0 -2px 0 #000, 1px 1px #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
+}
+.selected:hover{
+	text-decoration:none;
+	cursor:auto;
+	background:none;
+	text-shadow: 2px 0 0 #000, -2px 0 0 #000, 0 2px 0 #000, 0 -2px 0 #000, 1px 1px #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
+}
+.devcost{
+	padding-right:1em;
+}
+#upgradesPane{
+	display:none;
+}
+#deityPane{
+	display:none;
+}
+#conquestPane{
+	display:none;
+}
+#tradePane{
+	display:none;
+}
+#conquest{
+	display:none;
+}
+.job{
+	width:120px;
+}
+.note{
+	/*width: 380px;*/
+	text-align:right;
+	font-style:italic;
+	color:#555;
+	padding-left:1em;
+}
+.cost{
+	white-space:nowrap;
+	text-align:right;
+	font-style:italic;
+	color:#555;
+	padding-left:1em;
+	margin-right:-1em;
+}
+#jobs .note{
+	width:300px;
+}
+.number{
+	text-align:right;
+	padding-right:5px;
+}
+.icon{
+	padding-right:10px;
+}
+#resources{
+	float:left;
+	width:50%;
+}
+#population{
+	float:left;
+	width:50%;
+}
+#spawn10{
+	display:none;
+}
+#spawn100{
+	display:none;
+}
+#spawn1000{
+	display:none;
+}
+.job10{
+	display:none;
+}
+.job100{
+	display:none;
+}
+.jobAll{
+	display:none;
+}
+.jobNone{
+	display:none;
+}
+.deityType{
+	padding-right:20px;
+}
+.removeDeity{
+	margin-left:20px;
+	width:30px;
+	display:none;
+}
+#oldDeities{
+	display:none;
+}
+#oldDeities td{
+	padding-right:1em;
+}
+#pastWonders td{
+	padding-right:1em;
+}
+#deitySpecialisation{
+	display:none;
+}
+#battleUpgrades{
+	display:none;
+}
+#fieldsUpgrades{
+	display:none;
+}
+#underworldUpgrades{
+	display:none;
+}
+#catsUpgrades{
+	display:none;
+}
+.enemy{
+	color:red;
+	font-weight:bold;
+}
+#customJobIncrement{
+	display:none;
+}
+#customBuildIncrement{
+	margin-left:1em;
+	display:none;
+}
+#customArmyIncrement{
+	display:none;
+}
+#customSpawnIncrement{
+	display:none;
+}
+.jobCustom{
+	display:none;
+}
+.buildCustom{
+	display:none;
+}
+#tannergroup{
+	display:none;
+}
+#blacksmithgroup{
+	display:none;
+}
+#apothecarygroup{
+	display:none;
+}
+#clericgroup{
+	display:none;
+}
+#labourergroup{
+	display:none;
+}
+#soldiergroup{
+	display:none;
+}
+#cavalrygroup{
+	display:none;
+}
+#wolfgroup{
+	display:none;
+}
+#banditgroup{
+	display:none;
+}
+#barbariangroup{
+	display:none;
+}
+#esiegegroup{
+	display:none;
+}
+#fcavalrygroup{
+	display:none;
+}
+#fsiegegroup{
+	display:none;
+}
+#esoldiergroup{
+	display:none;
+}
+#efortgroup{
+	display:none;
+}
+#victoryGroup{
+	display:none;
+}
+.buildingnames{
+	padding-left:5px;
+}
+.buildingten{
+	display:none;
+}
+.buildinghundred{
+	display:none;
+}
+.buildingthousand{
+	display:none;
+}
+#buildings button{
+	margin-right:3px;
+}
+.x10{
+	width:48px;
+	text-shadow:none;
+	font-weight:normal;
+	font-size:0.9em;
+}
+.x100{
+	width:48px;
+	text-shadow:none;
+	font-weight:normal;
+	font-size:0.9em;
+}
+.x1000{
+	width:48px;
+	text-shadow:none;
+	font-weight:normal;
+	font-size:0.9em;
+}
+#zombieWorkers{
+	display:none;
+}
+
+#pLure{
+	display:none;
+}
+#pCompanion{
+	display:none;
+}
+#pComfort{
+	display:none;
+}
+#pBlessing{
+	display:none;
+}
+#pRiddle{
+	display:none;
+}
+#pThrone{
+	display:none;
+}
+#pBook{
+	display:none;
+}
+#pFeast{
+	display:none;
+}
+#pSecrets{
+	display:none;
+}
+#pLament{
+	display:none;
+}
+#pStay{
+	display:none;
+}
+#pWaste{
+	display:none;
+}
+#logTable td{
+    padding-right:20px;
+}
+
+#stats{
+	width:50%;
+	float:left;
+}
+#gravesTotal{
+	display:none;
+}
+#settings{
+	width:50%;
+	float:left;
+}
+
+#strip{
+	width:100%;
+	height:1.5em;
+	margin-bottom:-2em;
+	text-align:right;
+}
+#stripInner{
+	position:relative;
+	z-index:1;
+	width:100%;
+}
+#sickGroup{
+	display:none;
+}
+#shadesgroup{
+	display:none;
+}
+
+.achievement{
+	display:block;
+	float:left;
+	width:50px;
+	height:50px;
+	border:2px solid black;
+	background-color:#aaa;
+	background-image:url('achLocked.jpg');
+}
+.break{
+	display:block;
+	float:left;
+	width:20px;
+}
+.achUnlocked{
+	box-sizing:border-box;
+	width:100%;
+	height:100%;
+	padding:0.2em;
+	font-size:0.9em;
+	text-shadow:none;
+	font-weight:normal;
+	background-color:#fff;
+	padding-top:0.2em;
+}
+#achHamlet{
+	display:none;
+}
+#achVillage{
+	display:none;
+}
+#achSmallTown{
+	display:none;
+}
+#achLargeTown{
+	display:none;
+}
+#achSmallCity{
+	display:none;
+}
+#achLargeCity{
+	display:none;
+}
+#achMetropolis{
+	display:none;
+}
+#achSmallNation{
+	display:none;
+}
+#achNation{
+	display:none;
+}
+#achLargeNation{
+	display:none;
+}
+#achEmpire{
+	display:none;
+}
+#achRaider{
+	display:none;
+}
+#achEngineer{
+	display:none;
+}
+#achDomination{
+	display:none;
+}
+#achHated{
+	display:none;
+}
+#achLoved{
+	display:none;
+}
+#achCat{
+	display:none;
+}
+#achGlaring{
+	display:none;
+}
+#achClowder{
+	display:none;
+}
+#achBattle{
+	display:none;
+}
+#achCats{
+	display:none;
+}
+#achFields{
+	display:none;
+}
+#achUnderworld{
+	display:none;
+}
+#achFullHouse{
+	display:none;
+}
+#achPlague{
+	display:none;
+}
+#achGhostTown{
+	display:none;
+}
+#achWonder{
+	display:none;
+}
+#achSeven{
+	display:none;
+}
+#achMerchant{
+	display:none;
+}
+#achRushed{
+	display:none;
+}
+#achNeverclick{
+	display:none;
+}
+
+#constructionLine{
+	display:none;
+}
+#architectureLine{
+	display:none;
+}
+
+#masonryTech{
+	display:none;
+}
+#tenementsLine{
+	display:none;
+}
+#slumsLine{
+	display:none;
+}
+#granariesLine{
+	display:none;
+}
+#palisadeLine{
+	display:none;
+}
+#wonderLine{
+	display:none;
+}
+#writingTech{
+	display:none;
+}
+#civilserviceLine{
+	display:none;
+}
+#civilTech{
+	display:none;
+}
+#cottageRow{
+	display:none;
+}
+#houseRow{
+	display:none;
+}
+#mansionRow{
+	display:none;
+}
+#tanneryRow{
+	display:none;
+}
+#smithyRow{
+	display:none;
+}
+#apothecaryRow{
+	display:none;
+}
+#templeRow{
+	display:none;
+}
+#barracksRow{
+	display:none;
+}
+#stableRow{
+	display:none;
+}
+#millRow{
+	display:none;
+}
+#fortificationRow{
+	display:none;
+}
+#specFreq{
+	display:none;
+}
+#gloryGroup{
+	display:none;
+}
+#happiness{
+	color:#0d0;
+}
+#wondersContainer{
+	display:none;
+	padding-top:1.5em;
+	padding-bottom:0.5em;
+}
+.wonderTitle{
+	font-weight:bold;
+	margin-bottom:1em;
+}
+#renameWonder{
+	width:5em;
+}
+#progressContainer{
+	width:50%;
+	border:1px solid black;
+}
+#progressBar{
+	height:1em;
+	background-color:green;
+	width:0%;
+}
+#inProgress{
+	display:none;
+}
+#completed{
+	display:none;
+}
+.wonderBonus{
+	width:5em;
+}
+#lowResources{
+	display:none;
+	color:red;
+}
+#goldRow{
+	display:none;
+}
+#tradeContainer{
+	display:none;
+	padding:0.5em 0 0.8em 0;
+	margin:0.8em 0;
+	width:50%;
+	text-align:center;
+	background-color:#9d9;
+	border-radius:1.5em;
+}
+#trade{
+	height:2em;
+	width:70%;
+}
+#tradeUpgradeContainer{
+	display:none;
+}
+#speedWonderGroup{
+	display:none;
+}
+#iconoclasmGroup{
+	display:none;
+}
+#iconoclasmList{
+	padding-left:2em;
+}
+#versionAlert{
+	display:none;
+}
+#newVersionText{
+	color:#f00;
+	text-decoration:underline;
+}
+#newVersionText:hover{
+	cursor:pointer;
+}
+
+#basicResources{
+	margin-left:0.5em;
+}
+#basicResources button{
+	padding:0.3em;
+}
+#specialResourcesContainer{
+	margin-bottom:0.5em;
+}
+#specialResourcesContainer .number{
+	padding:0 0.5em 0.3em 0.5em;
+}
+#specialResourcesContainer img{
+	padding-right:5em;
+}
+
+#walkGroup{
+	display:none;
+}
+
+#basicFarming{
+	display:none;
+}
+#specialFarming{
+	display:none;
+}
+#improvedFarming{
+	display:none;
+}
+
+#purchased{
+	margin-left:1em;
+}
+#purchased *{
+	line-height:1.5em;
+}
+#Pskinning{
+	display:none;
+}
+#Pharvesting{
+	display:none;
+}
+#Pprospecting{
+	display:none;
+}
+#Pdomestication{
+	display:none;
+}
+#Pploughshares{
+	display:none;
+}
+#Pirrigation{
+	display:none;
+}
+#Pbutchering{
+	display:none;
+}
+#Pgardening{
+	display:none;
+}
+#Pextraction{
+	display:none;
+}
+#Pflensing{
+	display:none;
+}
+#Pmacerating{
+	display:none;
+}
+#Pcroprotation{
+	display:none;
+}
+#Pselectivebreeding{
+	display:none;
+}
+#Pfertilisers{
+	display:none;
+}
+#Pmasonry{
+	display:none;
+}
+#Pconstruction{
+	display:none;
+}
+#Parchitecture{
+	display:none;
+}
+#Ptenements{
+	display:none;
+}
+#Pslums{
+	display:none;
+}
+#Pgranaries{
+	display:none;
+}
+#Ppalisade{
+	display:none;
+}
+#Pweaponry{
+	display:none;
+}
+#Pshields{
+	display:none;
+}
+#Phorseback{
+	display:none;
+}
+#Pwheel{
+	display:none;
+}
+#Pwriting{
+	display:none;
+}
+#Padministration{
+	display:none;
+}
+#Pcodeoflaws{
+	display:none;
+}
+#Pmathematics{
+	display:none;
+}
+#Paesthetics{
+	display:none;
+}
+#Pcivilservice{
+	display:none;
+}
+#Pfeudalism{
+	display:none;
+}
+#Pserfs{
+	display:none;
+}
+#Pguilds{
+	display:none;
+}
+#Pnationalism{
+	display:none;
+}
+
+#resetNote{
+	display:none;
+}
+#resetDeity{
+	display:none;
+}
+#resetBoth{
+	display:none;
+}
+#resetWonder{
+	display:none;
+}
