@@ -6985,3 +6985,4 @@ function ruinFun(){
 	updateUpgrades();
 	updateBuildingTotals();
 };
+
