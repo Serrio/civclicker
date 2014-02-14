@@ -1046,7 +1046,7 @@ load('localStorage');//immediately attempts to load
 
 body.style.fontSize = size + "em";
 if (!worksafe){
-	body.style.backgroundImage = "url('constable.jpg')";
+	body.style.backgroundImage = "url('images/constable.jpg')";
 } else {
 	body.style.backgroundImage = "none";
 	if (!usingWords){
@@ -4528,7 +4528,6 @@ function save(savetype){
 			console.log('Manual Save');
 			gameLog('Saved game');
 		}
-		_gaq.push(['_trackEvent', 'CivClicker', 'Save', savetype]);
 	};
 	try {
 		xmlhttp = new XMLHttpRequest();
@@ -6819,14 +6818,6 @@ function impExp(){
 	}
 }
 
-function tips(){
-	if (document.getElementById('tips').style.display == 'block'){
-		document.getElementById('tips').style.display = 'none';
-	} else {
-		document.getElementById('tips').style.display = 'block';
-	}
-}
-
 function versionAlert(){
 	console.log('New Version Available');
 	document.getElementById('versionAlert').style.display = 'inline';
@@ -6909,7 +6900,7 @@ function toggleDelimiters(){
 function toggleWorksafe(){
 	if (body.style.backgroundImage == 'none'){
 		worksafe = false;
-		body.style.backgroundImage = 'url("constable.jpg")';
+		body.style.backgroundImage = 'url("images/constable.jpg")';
 		var elems = document.getElementsByClassName('icon');
 		if (!usingWords){
 			for(var i = 0; i < elems.length; i++) {

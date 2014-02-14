@@ -1,47 +1,33 @@
 <!DOCTYPE html>
+<!--
+	CivClicker
+	Copyright (C) 2014 David Holley
+
+	This program is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
+
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
+
+	You should have received a copy of the GNU General Public License
+	along with this program (if you are reading this on the original
+	author's website, you can find a copy at <http://dhmholley.co.uk/gpl.txt>). 
+	If not, see <http://www.gnu.org/licenses/>.
+-->
 <html>
 <head>
 	<title>CivClicker</title>
+	<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 	<link rel="stylesheet" type="text/css" href="civclicker.css" />
-	<link href='http://fonts.googleapis.com/css?family=Open+Sans+Condensed:300' rel='stylesheet' type='text/css'>
-	<link rel="canonical" href="http://dhmholley.co.uk/civclicker.html" />
-	<meta name="description" content="CivClicker: Click to build a Civilisation - dhmholley.co.uk" />
+	<link href='http://fonts.googleapis.com/css?family=Open+Sans+Condensed:300' rel='stylesheet' type='text/css' />
+	<link rel="canonical" href="http://civclicker.sourceforge.net/civclicker/civclicker.html" />
+	<meta name="description" content="CivClicker: Click to Build a Civilization" />
 
-	<script language="javascript" src="lz-string.js"></script>
-	<script type="text/javascript">
-
-	  var _gaq = _gaq || [];
-	  _gaq.push(['_setAccount', 'UA-33914917-1']);
-	  _gaq.push(['_setDomainName', 'dhmholley.co.uk']);
-	  _gaq.push(['_trackPageview']);
-
-	  (function() {
-		var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-		ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-		var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-	  })();
-
-	</script>
-	<!--
-		CivClicker
-		Copyright (C) 2014 David Holley
-
-		This program is free software: you can redistribute it and/or modify
-		it under the terms of the GNU General Public License as published by
-		the Free Software Foundation, either version 3 of the License, or
-		(at your option) any later version.
-
-		This program is distributed in the hope that it will be useful,
-		but WITHOUT ANY WARRANTY; without even the implied warranty of
-		MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-		GNU General Public License for more details.
-
-		You should have received a copy of the GNU General Public License
-		along with this program (if you are reading this on the original
-		author's website, you can find a copy at
-		<http://dhmholley.co.uk/gpl.txt>). If not, see
-		<http://www.gnu.org/licenses/>.
-	-->
+	<script src="lz-string.js" type="text/javascript"></script>
 </head>
 <body>
 
@@ -49,7 +35,6 @@
 	<div id="stripInner">
 		<a href="civFAQ.html" target="_blank">FAQ / Instructions / Bugfixing</a> - 
 		<a href="civUpdates.html" target="_blank">Game Updates Log</a> - 
-		<a href="#" onclick="tips()">Tips</a> -
 		<a href="#" onclick="impExp()">Import/Export Save</a>
 		<span id="versionAlert"> - <span id="newVersionText" onclick="location.reload()">New Version Available</span></span>
 	</div>
@@ -61,31 +46,6 @@
 	<button id="expSelect" onclick="document.getElementById('impexpField').select();">Select All</button>
 	<button id="impexpClose" onclick="impExp()">Close</button>
 	<button id="impButton" onclick="load('import')">Import</button>
-</div>
-<div id="tips">
-	<p>I hope you've enjoyed playing! If you want to donate to webhosting costs or buy me a beer, feel free to send something to one of the addresses below. :)</p>
-	<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
-		<input type="hidden" name="cmd" value="_s-xclick">
-		<input type="hidden" name="hosted_button_id" value="QJHN5ZWZRESF2">
-		<table>
-		<tr><td><input type="hidden" name="on0" value="Tip Amount"></td></tr><tr><td><select name="os0">
-			<option value="Thank You">Thank You £0.30 GBP</option>
-			<option value="Tip">Tip £1.00 GBP</option>
-			<option value="Beer">Beer £3.00 GBP</option>
-			<option value="Hosting Donation">Hosting Donation £10.00 GBP</option>
-		</select> </td></tr>
-		</table>
-		<input type="hidden" name="currency_code" value="GBP">
-		<input type="image" src="https://www.paypalobjects.com/en_GB/i/btn/btn_paynow_LG.gif" border="0" name="submit" alt="PayPal – The safer, easier way to pay online.">
-		<img alt="" border="0" src="https://www.paypalobjects.com/en_GB/i/scr/pixel.gif" width="1" height="1">
-	</form>
-	<div id="bitcoin">
-		<table><tr><td><a href="https://coinbase.com/checkouts/e684d9d2ea7c07fdbf9389bc4756225a" target="_blank"><img src="Bitcoin.png" height="50" ></a><td>1MyRahTh5bc3pbLeY6xmjgfgvZFXwDCVG3</td></tr></table>
-	</div>
-	<div id="dogecoin">
-		<table><tr><td><a href="https://www.dogevault.com/wallet/send"><img src="dogecoin.png" height="50" ></a><td>DAoP6rNY43Wq27xyY2ofUdHL63k5bqtSUZ</td></tr></table>
-	</div>
-	<button id="tipsClose" onclick="tips()">Close</button>
 </div>
 
 <div id="header">
@@ -103,7 +63,7 @@
 					<td><button onmousedown="increment(food)">Gather Food</button></td>
 					<td>Food: </td>
 					<td class="number"><span id="food">0</span></td>
-					<td class="icon"><img src="food.png" class="icon icon-lg" /></td>
+					<td class="icon"><img src="images/food.png" class="icon icon-lg" alt="Food"/></td>
 					<td class="number">(Max storage: <span id="maxfood">200</span>)</td>
 					<td class="number net"><span id="netFood">0</span>/s</td>
 				</tr>
@@ -111,7 +71,7 @@
 					<td><button onmousedown="increment(wood)">Cut Wood</button></td>
 					<td>Wood: </td>
 					<td class="number"><span id="wood">0</span></td>
-					<td class="icon"><img src="wood.png" class="icon icon-lg" /></td>
+					<td class="icon"><img src="images/wood.png" class="icon icon-lg" alt="Wood"/></td>
 					<td class="number">(Max storage: <span id="maxwood">200</span>)</td>
 					<td class="number net"><span id="netWood">0</span>/s</td>
 				</tr>
@@ -119,7 +79,7 @@
 					<td><button onmousedown="increment(stone)">Mine Stone</button></td>
 					<td>Stone: </td>
 					<td class="number"><span id="stone">0</span></td>
-					<td class="icon"><img src="stone.png" class="icon icon-lg" /></td>
+					<td class="icon"><img src="images/stone.png" class="icon icon-lg" alt="Stone"/></td>
 					<td class="number">(Max storage: <span id="maxstone">200</span>)</td>
 					<td class="number net"><span id="netStone">0</span>/s</td>
 				</tr>
@@ -131,31 +91,32 @@
 				<tr>
 					<td>Skins: </td>
 					<td class="number"><span id="skins">0</span></td>
-					<td><img src="skins.png" class="icon icon-lg" /></td>
+					<td><img src="images/skins.png" class="icon icon-lg" alt="Skins"/></td>
 					<td>Leather: </td>
 					<td class="number"><span id="leather">0</span></td>
-					<td class="icon"><img src="leather.png" class="icon icon-lg" /></td>
+					<td class="icon"><img src="images/leather.png" class="icon icon-lg" alt="Leather"/></td>
 				</tr>
 				<tr>
 					<td>Herbs: </td>
 					<td class="number"><span id="herbs">0</span></td>
-					<td><img src="herbs.png" class="icon icon-lg" /></td>
+					<td><img src="images/herbs.png" class="icon icon-lg" alt="Herbs"/></td>
 					<td>Piety: </td>
 					<td class="number"><span id="piety">0</span></td>
-					<td class="icon"><img src="piety.png" class="icon icon-lg" /></td>
+					<td class="icon"><img src="images/piety.png" class="icon icon-lg" alt="Piety"/></td>
 				</tr>
 				<tr>
 					<td>Ore: </td>
 					<td class="number"><span id="ore">0</span></td>
-					<td><img src="ore.png" class="icon icon-lg" /></td>
+					<td><img src="images/ore.png" class="icon icon-lg" alt="Ore"/></td>
 					<td>Metal: </td>
 					<td class="number"><span id="metal">0</span></td>
-					<td class="icon"><img src="metal.png" class="icon icon-lg" /></td>
+					<td class="icon"><img src="images/metal.png" class="icon icon-lg" alt="Metal"/></td>
 				</tr>
 				<tr id="goldRow">
 					<td>Gold: </td>
 					<td class="number"><span id="gold">0</span></td>
-					<td class="icon"><img src="gold.png" class="icon icon-lg" /></td>
+					<td class="icon"><img src="images/gold.png" class="icon icon-lg" alt="Gold"/></td>
+					<td colspan="3"></td>
 				</tr>
 			</table>
 		</div>
@@ -173,7 +134,7 @@
 		<div id="buildingsPane">
 		<h3>Buildings</h3>
 			<p id="customBuildIncrement">
-				Increment: <input id="buildCustom" type="number" min="1" step="1" value="1">
+				Increment: <input id="buildCustom" type="number" min="1" step="1" value="1" />
 			</p>
 			<table id="buildings">
 				<tr id="tentRow">
@@ -410,7 +371,7 @@
 			<span id="slumsLine"><button id="slums" onmousedown="upgrade('slums')">Slums<br />(500 food, 1000 wood, 1000 stone)</button><span class="note">Houses support +2 workers</span><br /></span>
 			<span id="granariesLine"><button id="granaries" onmousedown="upgrade('granaries')">Granaries<br />(1000 wood, 1000 stone)</button><span class="note">Barns store double the amount of food</span><br /></span>
 			<span id="palisadeLine"><button id="palisade" onmousedown="upgrade('palisade')">Palisade<br />(2000 wood, 1000 stone)</button><span class="note">Enemies do less damage</span><br /><br /></span>
-			<span id="masonryTech">
+			<div id="masonryTech">
 				<span id="weaponryLine"><button id="weaponry" onmousedown="upgrade('weaponry')">Basic Weaponry<br />(500 wood, 500 metal)</button><span class="note">Improve soldiers</span><br /></span>
 				<span id="shieldsLine"><button id="shields" onmousedown="upgrade('shields')">Basic Shields<br />(500 wood, 500 leather)</button><span class="note">Improve soldiers</span><br /><br /></span>
 				<span id="horsebackLine"><button id="horseback" onmousedown="upgrade('horseback')">Horseback Riding<br />(500 food, 500 wood)</button><span class="note">Build stables</span><br /></span>
@@ -430,7 +391,7 @@
 					<span id="nationalismLine"><button id="nationalism" onmousedown="upgrade('nationalism')">Nationalism<br />(50&#8239;000 piety)</button><span class="note">Soldiers increase basic resources from clicking</span><br /></span>
 				</div>
 				<span id="wonderLine"><br /><button id="startWonder" onmousedown="startWonder()">Start Building Wonder</button><br /></span>
-			</span>
+			</div>
 			<h3>Purchased Upgrades</h3>
 			<div id="purchased">
 				<span id="Pskinning"><b>Skinning</b> - Farmers can collect skins</span>
@@ -496,8 +457,8 @@
 					</tr>
 					<tr>
 						<td class="devcost">10d&nbsp;</td>
-						<td><span id="battleDevotion10"><button id="riddle" onmousedown="upgrade('riddle')" disabled>Riddle of Steel</button></td>
-						<td><span class="cost">1000 piety</span><span class="note">: improve soldiers</span></span></td>
+						<td><button id="riddle" onmousedown="upgrade('riddle')" disabled>Riddle of Steel</button></td>
+						<td><span class="cost">1000 piety</span><span class="note">: improve soldiers</span></td>
 					</tr>
 					<tr>
 						<td class="devcost">20d&nbsp;</td>
@@ -506,8 +467,8 @@
 					</tr>
 					<tr>
 						<td class="devcost">30d&nbsp;</td>
-						<td><span id="battleDevotion30"><button id="throne" onmousedown="upgrade('throne')" disabled>Throne of Skulls</button></td>
-						<td><span class="cost">1000 piety</span><span class="note">: slaying enemies creates temples</span></span></td>
+						<td><button id="throne" onmousedown="upgrade('throne')" disabled>Throne of Skulls</button></td>
+						<td><span class="cost">1000 piety</span><span class="note">: slaying enemies creates temples</span></td>
 					</tr>
 					<tr>
 						<td class="devcost">40d&nbsp;</td>
@@ -516,8 +477,8 @@
 					</tr>
 					<tr>
 						<td class="devcost">50d&nbsp;</td>
-						<td><span id="battleDevotion50"><button id="lament" onmousedown="upgrade('lament')" disabled>Lament of the Defeated</button></td>
-						<td><span class="cost">5000 piety</span><span class="note">: Successful raids delay future invasions</span></span></td>
+						<td><button id="lament" onmousedown="upgrade('lament')" disabled>Lament of the Defeated</button></td>
+						<td><span class="cost">5000 piety</span><span class="note">: Successful raids delay future invasions</span></td>
 					</tr>
 				</table>
 			</div>
@@ -531,8 +492,8 @@
 					</tr>
 					<tr>
 						<td class="devcost">10d&nbsp;</td>
-						<td><span id="fieldsDevotion10"><button id="blessing" onmousedown="upgrade('blessing')" disabled>Blessing of Abundance</button></td>
-						<td><span class="cost">1000 piety</span><span class="note">: increase farmer food output</span></span></td>
+						<td><button id="blessing" onmousedown="upgrade('blessing')" disabled>Blessing of Abundance</button></td>
+						<td><span class="cost">1000 piety</span><span class="note">: increase farmer food output</span></td>
 					</tr>
 					<tr>
 						<td class="devcost">20d&nbsp;</td>
@@ -541,8 +502,8 @@
 					</tr>
 					<tr>
 						<td class="devcost">30d&nbsp;</td>
-						<td><span id="fieldsDevotion30"><button id="waste" onmousedown="upgrade('waste')" disabled>Abide No Waste</button></td>
-						<td><span class="cost">1000 piety</span><span class="note">: workers will eat corpses if there is no food left</span></span></td>
+						<td><button id="waste" onmousedown="upgrade('waste')" disabled>Abide No Waste</button></td>
+						<td><span class="cost">1000 piety</span><span class="note">: workers will eat corpses if there is no food left</span></td>
 					</tr>
 					<tr>
 						<td class="devcost">40d&nbsp;</td>
@@ -551,8 +512,8 @@
 					</tr>
 					<tr>
 						<td class="devcost">50d&nbsp;</td>
-						<td><span id="fieldsDevotion50"><button id="stay" onmousedown="upgrade('stay')" disabled>Stay With Us</button></td>
-						<td><span class="cost">5000 piety</span><span class="note">: traders stay longer</span></span></td>
+						<td><button id="stay" onmousedown="upgrade('stay')" disabled>Stay With Us</button></td>
+						<td><span class="cost">5000 piety</span><span class="note">: traders stay longer</span></td>
 					</tr>
 				</table>
 			</div>
@@ -566,8 +527,8 @@
 					</tr>
 					<tr>
 						<td class="devcost">10d&nbsp;</td>
-						<td><span id="underworldDevotion10"><button id="book" onmousedown="upgrade('book')" disabled>The Book of the Dead</button></td>
-						<td><span class="cost">1000 piety</span><span class="note">: gain piety with deaths</span></span></td>
+						<td><button id="book" onmousedown="upgrade('book')" disabled>The Book of the Dead</button></td>
+						<td><span class="cost">1000 piety</span><span class="note">: gain piety with deaths</span></td>
 					</tr>
 					<tr>
 						<td class="devcost">20d&nbsp;</td>
@@ -576,8 +537,8 @@
 					</tr>
 					<tr>
 						<td class="devcost">30d&nbsp;</td>
-						<td><span id="underworldDevotion30"><button id="feast" onmousedown="upgrade('feast')" disabled>A Feast for Crows</button></td>
-						<td><span class="cost">1000 piety</span><span class="note">: corpses are less likely to cause illness</span></span></td>
+						<td><button id="feast" onmousedown="upgrade('feast')" disabled>A Feast for Crows</button></td>
+						<td><span class="cost">1000 piety</span><span class="note">: corpses are less likely to cause illness</span></td>
 					</tr>
 					<tr>
 						<td class="devcost">40d&nbsp;</td>
@@ -586,8 +547,8 @@
 					</tr>
 					<tr>
 						<td class="devcost">50d&nbsp;</td>
-						<td><span id="underworldDevotion50"><button id="secrets" onmousedown="upgrade('secrets')" disabled>Secrets of the Tombs</button></td>
-						<td><span class="cost">5000 piety</span><span class="note">: graveyards increase cleric piety generation</span></span></td>
+						<td><button id="secrets" onmousedown="upgrade('secrets')" disabled>Secrets of the Tombs</button></td>
+						<td><span class="cost">5000 piety</span><span class="note">: graveyards increase cleric piety generation</span></td>
 					</tr>
 				</table>
 			</div>
@@ -601,28 +562,28 @@
 					</tr>
 					<tr>
 						<td class="devcost">10d&nbsp;</td>
-						<td><span id="catDevotion10"><button id="lure" onmousedown="upgrade('lure')" disabled>Lure of Civilisation</button>
-						<td><span class="cost">1000 piety</span><span class="note">: increase chance to get cats</span></span></td>
+						<td><button id="lure" onmousedown="upgrade('lure')" disabled>Lure of Civilisation</button></td>
+						<td><span class="cost">1000 piety</span><span class="note">: increase chance to get cats</span></td>
 					</tr>
 					<tr>
 						<td class="devcost">20d&nbsp;</td>
-						<td><button onmousedown="pestControl(10)" id="pestControl" disabled>Pest Control</button>
+						<td><button onmousedown="pestControl(10)" id="pestControl" disabled>Pest Control</button></td>
 						<td><span class="cost">100 piety</span><span class="note">: Give temporary boost to food production</span></td>
 					</tr>
 					<tr>
 						<td class="devcost">30d&nbsp;</td>
-						<td><span id="catDevotion30"><button id="companion" onmousedown="upgrade('companion')" disabled>Warmth of the Companion</button>
-						<td><span class="cost">1000 piety</span><span class="note">: cats help heal the sick</span></span></td>
+						<td><button id="companion" onmousedown="upgrade('companion')" disabled>Warmth of the Companion</button></td>
+						<td><span class="cost">1000 piety</span><span class="note">: cats help heal the sick</span></td>
 					</tr>
 					<tr>
 						<td class="devcost">40d&nbsp;</td>
-						<td><button onmousedown="grace(0.1)" id="grace" disabled>Grace</button>
+						<td><button onmousedown="grace(0.1)" id="grace" disabled>Grace</button></td>
 						<td><span class="cost"><span id="graceCost">1000</span> piety</span><span class="note">: Increase Happiness</span></td>
 					</tr>
 					<tr>
 						<td class="devcost">50d&nbsp;</td>
-						<td><span id="catDevotion50"><button id="comfort" onmousedown="upgrade('comfort')" disabled>Comfort of the Hearthfires</button>
-						<td><span class="cost">5000 piety</span><span class="note">: traders marginally more frequent</span></span></td>
+						<td><button id="comfort" onmousedown="upgrade('comfort')" disabled>Comfort of the Hearthfires</button></td>
+						<td><span class="cost">5000 piety</span><span class="note">: traders marginally more frequent</span></td>
 					</tr>
 				</table>
 			</div>
@@ -634,7 +595,7 @@
 		</div>
 		<div id="conquestPane">
 		<h3>Conquest</h3>
-			<span id="standardLine"><button id="standard" onmousedown="upgrade('standard')" disabled>Battle Standard<br />(1000 metal & leather)</button><span class="note">Lets you build an army (requires barracks)</span><br /></span>
+			<span id="standardLine"><button id="standard" onmousedown="upgrade('standard')" disabled>Battle Standard<br />(1000 metal &amp; leather)</button><span class="note">Lets you build an army (requires barracks)</span><br /></span>
 			<div id="conquest">
 				<h4>Army</h4>
 				<table id="party">
@@ -645,7 +606,7 @@
 					<td class="job10"></td>
 					<td></td>
 					<td>Increment:</td>
-					<td><input id="armyCustom" type="number" min="1" step="1" value="1"></td>
+					<td><input id="armyCustom" type="number" min="1" step="1" value="1" /></td>
 					<td></td>
 					<td class="job10"></td>
 					<td class="job100"></td>
@@ -730,7 +691,7 @@
 				</tr>
 				</table>
 				<br />
-				<span id="raidGroup">
+				<div id="raidGroup">
 					<h4>To War!</h4>
 					<p id="gloryGroup">
 						Glory: <span id="gloryTimer">0</span> seconds remain
@@ -747,11 +708,11 @@
 					<button id="raidNation" onmousedown="invade('nation')" disabled>Raid Nation</button><br />
 					<button id="raidLargeNation" onmousedown="invade('largeNation')" disabled>Raid Large Nation</button><br />
 					<button id="raidEmpire" onmousedown="invade('empire')" disabled>Raid Empire</button><br />
-				</span>
-				<span id="victoryGroup">
+				</div>
+				<div id="victoryGroup">
 					<h4>Victory!</h4>
 					<button id="plunder" onmousedown="plunder()">Plunder Resources</button><br />
-				</span>
+				</div>
 			</div>
 		</div>
 		<div id="tradePane">
@@ -796,7 +757,7 @@
 			<div id='spawn10'><button id="spawn10button" onmousedown="spawn(10)">Create 10 Workers</button><span class="cost"><span id="workerCost10">200</span> food</span><span class="note">: Create 10 new workers</span></div>
 			<div id='spawn100'><button id="spawn100button" onmousedown="spawn(100)">Create 100 Workers</button><span class="cost"><span id="workerCost100">2000</span> food</span><span class="note">: Create 100 new workers</span></div>
 			<div id='spawn1000'><button id="spawn1000button" onmousedown="spawn(1000)">Create 1000 Workers</button><span class="cost"><span id="workerCost1000">20000</span> food</span><span class="note">: Create 1000 new workers</span></div>
-			<div id="customSpawnIncrement"><input id="spawnCustom" type="number" min="1" step="1" value="1"><button id="spawnCustomButton" onmousedown="spawnCustom()">Create Workers</button></div>
+			<div id="customSpawnIncrement"><input id="spawnCustom" type="number" min="1" step="1" value="1" /><button id="spawnCustomButton" onmousedown="spawnCustom()">Create Workers</button></div>
 		</div>
 	</div>
 	<div id="jobsContainer">
@@ -809,7 +770,7 @@
 				<td class="job10"></td>
 				<td></td>
 				<td>Increment:</td>
-				<td><input id="jobCustom" type="number" min="1" step="1" value="1"></td>
+				<td><input id="jobCustom" type="number" min="1" step="1" value="1" /></td>
 				<td></td>
 				<td class="job10"></td>
 				<td class="job100"></td>
@@ -1103,15 +1064,15 @@
 		<h3>Events</h3>
         <table id="logTable">
             <tr id="log0"><td id="logT"></td><td id="logL"></td><td id="logR"></td></tr>
-	        <tr id="log1"></tr>
-	        <tr id="log2"></tr>
-	        <tr id="log3"></tr>
-	        <tr id="log4"></tr>
-	        <!--<tr id="log5"></tr>
-	        <tr id="log6"></tr>
-	        <tr id="log7"></tr>
-	        <tr id="log8"></tr>
-	        <tr id="log9"></tr>-->
+	        <tr id="log1"><td colspan="3"></td></tr>
+	        <tr id="log2"><td colspan="3"></td></tr>
+	        <tr id="log3"><td colspan="3"></td></tr>
+	        <tr id="log4"><td colspan="3"></td></tr>
+	        <!-- <tr id="log5"><td colspan="3"></td></tr>
+	        <tr id="log6"><td colspan="3"></td></tr>
+	        <tr id="log7"><td colspan="3"></td></tr>
+	        <tr id="log8"><td colspan="3"></td></tr>
+	        <tr id="log9"><td colspan="3"></td></tr> -->
         </table>
 	</div>
 	<div id="pantheonContainer">
@@ -1124,7 +1085,7 @@
 			</tr>
 		</table>
 		<br />
-		<table id="oldDeities"></table>
+		<table id="oldDeities"><tr><td></td></tr></table>
 	</div>
 	<div id="permaUpgradeContainer">
 		<h3>Pantheon Upgrades</h3>
@@ -1145,7 +1106,7 @@
 	</div>
 	<div id="pastWondersContainer">
 		<h3>Wonders</h3>
-		<table id="pastWonders"></table>
+		<table id="pastWonders"><tr><td></td></tr></table>
 	</div>
 	<div id="settings">
 		<h3>Settings</h3>
@@ -1171,14 +1132,14 @@
 	</div>
 	<div id="stats">
 		<h3>Stats</h3>
-		Resource clicks: <span id="clicks">0</span></br>
+		Resource clicks: <span id="clicks">0</span><br />
 		<br />
-		Happiness: <span id="happiness">Content</span></br>
+		Happiness: <span id="happiness">Content</span><br />
 		<br />
 		Total Land: <span id="totalLand">100</span><br />
 		Total Buildings: <span id="totalBuildings">0</span><br />
 		Free Land: <span id="freeLand">100</span><br />
-		</br />
+		<br />
 		Enemies Slain: <span id="enemiesSlain">0</span><br />
 		Corpses: <span id="corpses">0</span><br />
 		<span id="gravesTotal">Unfilled Graves: <span id="graves">0</span><br /></span>

@@ -22,7 +22,7 @@
 body{
 	font-family: sans-serif;
 	/*font-weight:600;*/
-	background-image:url('constable.jpg');
+	background-image:url('images/constable.jpg');
 	background-repeat:no-repeat;
 	background-attachment:fixed;
 	background-size:100% 100%;
@@ -97,40 +97,6 @@ h1{
 	float:right;
 	margin-right:5%;
 	margin-bottom:1em;
-}
-
-#tips{
-	display:none;
-	position:absolute;
-	top:0;
-	right:0;
-	border:1px solid black;
-	background-color:#fff;
-	z-index:2;
-	padding:1em 0;
-	text-align:center;
-}
-#bitcoin{
-	margin:0.5em 1em;
-}
-#dogecoin{
-	margin:0.5em 1em;
-}
-#tips p{
-	width:20em;
-	margin:0 auto 1em auto;
-}
-#tips form{
-	margin:0 auto;
-	text-align:center;
-}
-#tips form *{
-	margin:0 auto;
-	text-align:center;
-}
-#tipsClose{
-	width:7em;
-	margin:0 auto;
 }
 
 .net{
