@@ -2852,7 +2852,7 @@ function spawn(number){
 	if (food.total >= totalCost && population.current + (1 * number) <= population.cap){
 		//Increment population numbers, reduce food
 		population.current += number;
-		population.unemployed += number;
+		population.farmers += number; // New workers start as farmers
 		food.total -= totalCost;
 		//Potentially create a cat
 		//This is intentionally independent of the number of workers spawned
@@ -3094,8 +3094,8 @@ function hireAll(job){
 		population.cavalry += diff;
 		population.cavalryCas += diff;
 		population.unemployed -= diff;
-		food.total -= (diff * 10);
-		leather.total -= (diff * 10);
+		food.total -= (diff * 20);
+		leather.total -= (diff * 20);
 	}
 	updateJobs();
 }
@@ -3138,6 +3138,8 @@ function fire(job,number){
 	if (job == 'soldiers' && population.soldiers >= number){
 		population.soldiers -= number;
 		population.soldiersCas -= number;
+		metal.total += (10 * number); // Return equipment to armory
+		leather.total += (10 * number);
 		//It's possible that firing the last soldier, if injured, could put population.soldiersCas negative
 		if (population.soldiersCas < 0){
 			population.soldiersCas = 0;
@@ -3147,6 +3149,8 @@ function fire(job,number){
 	if (job == 'cavalry' && population.cavalry >= number){
 		population.cavalry -= number;
 		population.cavalryCas -= number;
+		food.total += (20 * number); // Return equipment to armory
+		leather.total += (20 * number);
 		//It's possible that firing the last cavalry, if injured, could put population.cavalryCas negative
 		if (population.cavalryCas < 0){
 			population.cavalryCas = 0;
@@ -3192,11 +3196,15 @@ function fireAll(job){
 	}
 	if (job == 'soldiers'){
 		population.unemployed += population.soldiers;
+		metal.total += (10 * population.soldiers); // Return equipment to armory
+		leather.total += (10 * population.soldiers);
 		population.soldiers = 0;
 		population.soldiersCas = 0;
 	}
 	if (job == 'cavalry'){
 		population.unemployed += population.cavalry;
+		food.total += (20 * population.cavalry); // Return equipment to armory
+		leather.total += (20 * population.cavalry);
 		population.cavalry = 0;
 		population.cavalryCas = 0;
 	}
@@ -5275,36 +5283,21 @@ window.setInterval(function(){
 	if (population.current > 0 || population.zombies > 0) millMod = population.current / (population.current + population.zombies);
 	food.total += population.farmers * (1 + (efficiency.farmers * efficiency.happiness)) * (1 + efficiency.pestBonus) * (1 + (wonder.food/10)) * (1 + walkTotal/120) * (1 + mill.total * millMod / 200); //Farmers farm food
 	if (upgrades.skinning == 1 && population.farmers > 0){ //and sometimes get skins
-		x = Math.random();
-		if (x < food.specialchance){
-			z = 0;
-			if (upgrades.butchering == 1){
-				z = population.farmers / 15
-			};
-			skins.total += ((food.increment + z) * (1 + (wonder.skins/10)));
-		}
+		num_skins = food.specialchance * (food.increment + (upgrades.butchering * population.farmers / 15.0)) * (1 + (wonder.skins/10));
+		skins.total += Math.floor(num_skins);
+		if (Math.random() < (num_skins - Math.floor(num_skins))) ++skins.total;
 	}
 	wood.total += population.woodcutters * (efficiency.woodcutters * efficiency.happiness) * (1 + (wonder.wood/10)); //Woodcutters cut wood
 	if (upgrades.harvesting == 1 && population.woodcutters > 0){ //and sometimes get herbs
-		x = Math.random();
-		if (x < wood.specialchance){
-			z = 0;
-			if (upgrades.gardening == 1){
-				z = population.woodcutters / 5
-			};
-			herbs.total += (wood.increment + z) * (1 + (wonder.herbs/10));
-		}
+		num_herbs = wood.specialchance * (wood.increment + (upgrades.gardening * population.woodcutters / 5.0)) * (1 + (wonder.wood/10));
+		herbs.total += Math.floor(num_herbs);
+		if (Math.random() < (num_herbs - Math.floor(num_herbs))) ++herbs.total;
 	}
 	stone.total += population.miners * (efficiency.miners * efficiency.happiness) * (1 + (wonder.stone/10)); //Miners mine stone
 	if (upgrades.prospecting == 1 && population.miners > 0){ //and sometimes get ore
-		x = Math.random();
-		if (x < stone.specialchance){
-			z = 0;
-			if (upgrades.extraction == 1){
-				z = population.miners / 5
-			};
-			ore.total += (stone.increment + z) * (1 + (wonder.ore/10));
-		}
+		num_ore = stone.specialchance * (stone.increment + (upgrades.extraction * population.miners / 5.0)) * (1 + (wonder.ore/10));
+		ore.total += Math.floor(num_ore);
+		if (Math.random() < (num_ore - Math.floor(num_ore))) ++ore.total;
 	}
 	food.total -= population.current; //The living population eats food.
 	if (food.total < 0) { //and will starve if they don't have enough
@@ -5332,16 +5325,6 @@ window.setInterval(function(){
 		food.total = 0;
 		updatePopulation(); //Called because jobCull doesn't. May just change jobCull?
 	}
-	//Resources occasionally go above their caps.
-	if (food.total > 200 + ((barn.total + (barn.total * upgrades.granaries)) * 200)){
-		food.total = 200 + ((barn.total + (barn.total * upgrades.granaries)) * 200);
-	};
-	if (wood.total > 200 + (woodstock.total * 200)){
-		wood.total = 200 + (woodstock.total * 200);
-	};
-	if (stone.total > 200 + (stonestock.total * 200)){
-		stone.total = 200 + (stonestock.total * 200);
-	};
 	//Workers convert secondary resources into tertiary resources
 	if (ore.total >= population.blacksmiths * (efficiency.blacksmiths * efficiency.happiness)){
 		metal.total += population.blacksmiths * (efficiency.blacksmiths * efficiency.happiness) * (1 + (wonder.metal/10));
@@ -5357,6 +5340,19 @@ window.setInterval(function(){
 		leather.total += skins.total * (1 + (wonder.leather/10));
 		skins.total = 0;
 	};
+
+	//Resources occasionally go above their caps.
+	//Cull the excess /after/ the blacksmiths and tanners take their inputs.
+	if (food.total > 200 + ((barn.total + (barn.total * upgrades.granaries)) * 200)){
+		food.total = 200 + ((barn.total + (barn.total * upgrades.granaries)) * 200);
+	};
+	if (wood.total > 200 + (woodstock.total * 200)){
+		wood.total = 200 + (woodstock.total * 200);
+	};
+	if (stone.total > 200 + (stonestock.total * 200)){
+		stone.total = 200 + (stonestock.total * 200);
+	};
+
 	//Clerics generate piety
 	piety.total += population.clerics * (efficiency.clerics + (efficiency.clerics * upgrades.writing)) * (1 + (upgrades.secrets * (1 - 100/(graveyard.total + 100)))) * efficiency.happiness * (1 + (wonder.piety/10));
 	
