@@ -1,3 +1,4 @@
+"use strict";
 /**
  * CivClicker
  * Copyright (C) 2014 David Holley <dhmholley@gmail.com>
@@ -25,6 +26,7 @@
  */
 
 var version = 19;
+var logRepeat = 1;
 console.log('running');
 
 function bake_cookie(name, value) {
@@ -35,7 +37,8 @@ function bake_cookie(name, value) {
 }
 function read_cookie(name) {
 	var result = document.cookie.match(new RegExp(name + '=([^;]+)'));
-	result && (result = JSON.parse(result[1]));
+	if (result) { result = JSON.parse(result[1]); }
+
 	return result;
 }
 
@@ -60,32 +63,32 @@ stone = {
 },
 skins = {
 	name:'skins',
-	total:0,
+	total:0
 },
 herbs = {
 	name:'herbs',
-	total:0,
+	total:0
 },
 ore = {
 	name:'ore',
-	total:0,
+	total:0
 },
 leather = {
 	name:'leather',
-	total:0,
+	total:0
 },
 metal = {
 	name:'metal',
-	total:0,
+	total:0
 },
 piety = {
 	name:'piety',
-	total:0,
+	total:0
 },
 gold = {
 	name:'gold',
-	total:0,
-}
+	total:0
+},
 land = 1000,
 totalBuildings = 0,
 tent = {
@@ -492,7 +495,7 @@ population = {
 	barbariansCas:0,
 	esiege:0,
 	enemiesSlain:0,
-	shades:0,
+	shades:0
 },
 efficiency = {
 	happiness:1,
@@ -621,7 +624,6 @@ trader = {
 	oldDeities = "",
 	deityArray = [],
 	resourceClicks = 0,
-	logRepeat = 1,
 	attackCounter = 0,
 	tradeCounter = 0,
 	throneCount = 0,
@@ -633,7 +635,6 @@ trader = {
 	autosave = "on",
 	autosaveCounter = 1,
 	customIncrements = false,
-	delimiters = true,
 	usingWords = false,
 	worksafe = false,
 	size = 1,
@@ -656,7 +657,7 @@ function load(loadType){
 	var loadVar = {},
 		loadVar2 = {};
 		
-	if (loadType == 'cookie'){
+	if (loadType === 'cookie'){
 		//check for cookies
 		if (read_cookie('civ') && read_cookie('civ2')){
 			//set variables to load from
@@ -668,30 +669,32 @@ function load(loadType){
 		} else {
 			console.log('Unable to find cookie');
 			return false;
-		};
+		}
 	}
 	
-	if (loadType == 'localStorage'){
+	if (loadType === 'localStorage'){
 		//check for local storage
+		var string1;
+		var string2;
 		try {
 			string1 = localStorage.getItem('civ');
 			string2 = localStorage.getItem('civ2');
 		} catch(err) {
-			console.log('Cannot access localStorage - browser may not support localStorage, or storage may be corrupt')
+			console.log('Cannot access localStorage - browser may not support localStorage, or storage may be corrupt');
 		}
 		if (string1 && string2){
 			loadVar = JSON.parse(string1);
 			loadVar2 = JSON.parse(string2);
 			//notify user
-			gameLog('Loaded saved game from localStorage')
+			gameLog('Loaded saved game from localStorage');
 		} else {
-			console.log('Unable to find variables in localStorage. Attempting to load cookie.')
+			console.log('Unable to find variables in localStorage. Attempting to load cookie.');
 			load('cookie');
 			return false;
 		}
 	}
 	
-	if (loadType == 'import'){
+	if (loadType === 'import'){
 		//take the import string, decompress and parse it
 		var compressed = document.getElementById('impexpField').value;
 		var decompressed = LZString.decompressFromBase64(compressed);
@@ -705,313 +708,313 @@ function load(loadType){
 		//impexp();
 	}
 	
-	if (loadVar.food.name != null) food.name = loadVar.food.name;
-	if (loadVar.food.total != null) food.total = loadVar.food.total;
-	if (loadVar.food.increment != null)	food.increment = loadVar.food.increment;
-	if (loadVar.food.specialchance != null)	food.specialchance = loadVar.food.specialchance;
-	if (loadVar.wood.name != null) wood.name = loadVar.wood.name;
-	if (loadVar.wood.total != null)	wood.total = loadVar.wood.total;
-	if (loadVar.wood.increment != null)	wood.increment = loadVar.wood.increment;
-	if (loadVar.wood.specialchance != null)	wood.specialchance = loadVar.wood.specialchance;
-	if (loadVar.stone.name != null) stone.name = loadVar.stone.name;
-	if (loadVar.stone.total != null) stone.total = loadVar.stone.total;
-	if (loadVar.stone.increment != null) stone.increment = loadVar.stone.increment;
-	if (loadVar.stone.specialchance != null) stone.specialchance = loadVar.stone.specialchance;
-	if (loadVar.skins.name != null) skins.name = loadVar.skins.name;
-	if (loadVar.skins.total != null) skins.total = loadVar.skins.total;
-	if (loadVar.herbs.name != null) herbs.name = loadVar.herbs.name;
-	if (loadVar.herbs.total != null) herbs.total = loadVar.herbs.total;
-	if (loadVar.ore.name != null) ore.name = loadVar.ore.name;
-	if (loadVar.ore.total != null) ore.total = loadVar.ore.total;
-	if (loadVar.leather.name != null) leather.name = loadVar.leather.name;
-	if (loadVar.leather.total != null) leather.total = loadVar.leather.total;
-	if (loadVar.metal.name != null) metal.name = loadVar.metal.name;
-	if (loadVar.metal.total != null) metal.total = loadVar.metal.total;
-	if (loadVar.piety.name != null) piety.name = loadVar.piety.name;
-	if (loadVar.piety.total != null) piety.total = loadVar.piety.total;
-	if (loadVar.gold != null){
-		if (loadVar.gold.name != null) gold.name = loadVar.gold.name;
-		if (loadVar.gold.total != null) gold.total = loadVar.gold.total;
+	if (loadVar.food.name !== null) { food.name = loadVar.food.name; }
+	if (loadVar.food.total !== null) { food.total = loadVar.food.total; }
+	if (loadVar.food.increment !== null) { food.increment = loadVar.food.increment; }
+	if (loadVar.food.specialchance !== null) { food.specialchance = loadVar.food.specialchance; }
+	if (loadVar.wood.name !== null) { wood.name = loadVar.wood.name; }
+	if (loadVar.wood.total !== null) { wood.total = loadVar.wood.total; }
+	if (loadVar.wood.increment !== null) { wood.increment = loadVar.wood.increment; }
+	if (loadVar.wood.specialchance !== null) { wood.specialchance = loadVar.wood.specialchance; }
+	if (loadVar.stone.name !== null) { stone.name = loadVar.stone.name; }
+	if (loadVar.stone.total !== null) { stone.total = loadVar.stone.total; }
+	if (loadVar.stone.increment !== null) { stone.increment = loadVar.stone.increment; }
+	if (loadVar.stone.specialchance !== null) { stone.specialchance = loadVar.stone.specialchance; }
+	if (loadVar.skins.name !== null) { skins.name = loadVar.skins.name; }
+	if (loadVar.skins.total !== null) { skins.total = loadVar.skins.total; }
+	if (loadVar.herbs.name !== null) { herbs.name = loadVar.herbs.name; }
+	if (loadVar.herbs.total !== null) { herbs.total = loadVar.herbs.total; }
+	if (loadVar.ore.name !== null) { ore.name = loadVar.ore.name; }
+	if (loadVar.ore.total !== null) { ore.total = loadVar.ore.total; }
+	if (loadVar.leather.name !== null) { leather.name = loadVar.leather.name; }
+	if (loadVar.leather.total !== null) { leather.total = loadVar.leather.total; }
+	if (loadVar.metal.name !== null) { metal.name = loadVar.metal.name; }
+	if (loadVar.metal.total !== null) { metal.total = loadVar.metal.total; }
+	if (loadVar.piety.name !== null) { piety.name = loadVar.piety.name; }
+	if (loadVar.piety.total !== null) { piety.total = loadVar.piety.total; }
+	if (loadVar.gold !== null){
+		if (loadVar.gold.name !== null) { gold.name = loadVar.gold.name; }
+		if (loadVar.gold.total !== null) { gold.total = loadVar.gold.total; }
 	}
-	if (loadVar2.wonder != null){
-			if (loadVar2.wonder.total != null) wonder.total = loadVar2.wonder.total;
-			if (loadVar2.wonder.food != null) wonder.food = loadVar2.wonder.food;
-			if (loadVar2.wonder.wood != null) wonder.wood = loadVar2.wonder.wood;
-			if (loadVar2.wonder.stone != null) wonder.stone = loadVar2.wonder.stone;
-			if (loadVar2.wonder.skins != null) wonder.skins = loadVar2.wonder.skins;
-			if (loadVar2.wonder.herbs != null) wonder.herbs = loadVar2.wonder.herbs;
-			if (loadVar2.wonder.ore != null) wonder.ore = loadVar2.wonder.ore;
-			if (loadVar2.wonder.leather != null) wonder.leather = loadVar2.wonder.leather;
-			if (loadVar2.wonder.metal != null) wonder.metal = loadVar2.wonder.metal;
-			if (loadVar2.wonder.piety != null) wonder.piety = loadVar2.wonder.piety;
-			if (loadVar2.wonder.array != null) wonder.array = loadVar2.wonder.array;
-			if (loadVar2.wonder.name != null) wonder.name = loadVar2.wonder.name;
-			if (loadVar2.wonder.building != null) wonder.building = loadVar2.wonder.building;
-			if (loadVar2.wonder.completed != null) wonder.completed = loadVar2.wonder.completed;
-			if (loadVar2.wonder.progress != null) wonder.progress = loadVar2.wonder.progress;
+	if (loadVar2.wonder !== null){
+			if (loadVar2.wonder.total !== null) { wonder.total = loadVar2.wonder.total; }
+			if (loadVar2.wonder.food !== null) { wonder.food = loadVar2.wonder.food; }
+			if (loadVar2.wonder.wood !== null) { wonder.wood = loadVar2.wonder.wood; }
+			if (loadVar2.wonder.stone !== null) { wonder.stone = loadVar2.wonder.stone; }
+			if (loadVar2.wonder.skins !== null) { wonder.skins = loadVar2.wonder.skins; }
+			if (loadVar2.wonder.herbs !== null) { wonder.herbs = loadVar2.wonder.herbs; }
+			if (loadVar2.wonder.ore !== null) { wonder.ore = loadVar2.wonder.ore; }
+			if (loadVar2.wonder.leather !== null) { wonder.leather = loadVar2.wonder.leather; }
+			if (loadVar2.wonder.metal !== null) { wonder.metal = loadVar2.wonder.metal; }
+			if (loadVar2.wonder.piety !== null) { wonder.piety = loadVar2.wonder.piety; }
+			if (loadVar2.wonder.array !== null) { wonder.array = loadVar2.wonder.array; }
+			if (loadVar2.wonder.name !== null) { wonder.name = loadVar2.wonder.name; }
+			if (loadVar2.wonder.building !== null) { wonder.building = loadVar2.wonder.building; }
+			if (loadVar2.wonder.completed !== null) { wonder.completed = loadVar2.wonder.completed; }
+			if (loadVar2.wonder.progress !== null) { wonder.progress = loadVar2.wonder.progress; }
 	}
-	if (loadVar2.land != null) land = loadVar2.land;
-	if (loadVar2.tent.total != null) tent.total = loadVar2.tent.total;
-	if (loadVar2.whut.total != null) whut.total = loadVar2.whut.total;
-	if (loadVar2.cottage.total != null) cottage.total = loadVar2.cottage.total;
-	if (loadVar2.house.total != null) house.total = loadVar2.house.total;
-	if (loadVar2.mansion != null){
-		if (loadVar2.mansion.total != null) mansion.total = loadVar2.mansion.total;
+	if (loadVar2.land !== null) { land = loadVar2.land; }
+	if (loadVar2.tent.total !== null) { tent.total = loadVar2.tent.total; }
+	if (loadVar2.whut.total !== null) { whut.total = loadVar2.whut.total; }
+	if (loadVar2.cottage.total !== null) { cottage.total = loadVar2.cottage.total; }
+	if (loadVar2.house.total !== null) { house.total = loadVar2.house.total; }
+	if (loadVar2.mansion !== null){
+		if (loadVar2.mansion.total !== null) { mansion.total = loadVar2.mansion.total; }
 	}
-	if (loadVar2.barn.total != null) barn.total = loadVar2.barn.total;
-	if (loadVar2.woodstock.total != null) woodstock.total = loadVar2.woodstock.total;
-	if (loadVar2.stonestock.total != null) stonestock.total = loadVar2.stonestock.total;
-	if (loadVar2.tannery.total != null) tannery.total = loadVar2.tannery.total;
-	if (loadVar2.smithy.total != null) smithy.total = loadVar2.smithy.total;
-	if (loadVar2.apothecary.total != null) apothecary.total = loadVar2.apothecary.total;
-	if (loadVar2.temple.total != null) temple.total = loadVar2.temple.total;
-	if (loadVar2.barracks.total != null) barracks.total = loadVar2.barracks.total;
-	if (loadVar2.stable != null){
-		if (loadVar2.stable.total != null) stable.total = loadVar2.stable.total;
+	if (loadVar2.barn.total !== null) { barn.total = loadVar2.barn.total; }
+	if (loadVar2.woodstock.total !== null) { woodstock.total = loadVar2.woodstock.total; }
+	if (loadVar2.stonestock.total !== null) { stonestock.total = loadVar2.stonestock.total; }
+	if (loadVar2.tannery.total !== null) { tannery.total = loadVar2.tannery.total; }
+	if (loadVar2.smithy.total !== null) { smithy.total = loadVar2.smithy.total; }
+	if (loadVar2.apothecary.total !== null) { apothecary.total = loadVar2.apothecary.total; }
+	if (loadVar2.temple.total !== null) { temple.total = loadVar2.temple.total; }
+	if (loadVar2.barracks.total !== null) { barracks.total = loadVar2.barracks.total; }
+	if (loadVar2.stable !== null){
+		if (loadVar2.stable.total !== null) { stable.total = loadVar2.stable.total; }
 	}
-	if (loadVar2.mill != null){
-		if (loadVar2.mill.total != null) mill.total = loadVar2.mill.total;
-		if (loadVar2.mill.require != null){
-			if (loadVar2.mill.require.wood != null){
+	if (loadVar2.mill !== null){
+		if (loadVar2.mill.total !== null) { mill.total = loadVar2.mill.total; }
+		if (loadVar2.mill.require !== null){
+			if (loadVar2.mill.require.wood !== null){
 				mill.require.wood = loadVar2.mill.require.wood;
 				document.getElementById('millCostW').innerHTML = mill.require.wood;
 			}
-			if (loadVar2.mill.require.stone != null){
+			if (loadVar2.mill.require.stone !== null){
 				mill.require.stone = loadVar2.mill.require.stone;
 				document.getElementById('millCostS').innerHTML = mill.require.stone;
 			}
 		}
 	}
-	if (loadVar2.graveyard != null){
-		if (loadVar2.graveyard.total != null) graveyard.total = loadVar2.graveyard.total;
+	if (loadVar2.graveyard !== null){
+		if (loadVar2.graveyard.total !== null) { graveyard.total = loadVar2.graveyard.total; }
 	}
-	if (loadVar2.fortification != null){
-		if (loadVar2.fortification.total != null) fortification.total = loadVar2.fortification.total;
-		if (loadVar2.fortification.require != null){
-			if (loadVar2.fortification.require.stone != null){
+	if (loadVar2.fortification !== null){
+		if (loadVar2.fortification.total !== null) { fortification.total = loadVar2.fortification.total; }
+		if (loadVar2.fortification.require !== null){
+			if (loadVar2.fortification.require.stone !== null){
 				fortification.require.stone = loadVar2.fortification.require.stone;
 				document.getElementById('fortCost').innerHTML = fortification.require.stone;
 			}
 		}
 	}
-	if (loadVar2.battleAltar != null){
-		if (loadVar2.battleAltar.total != null) battleAltar.total = loadVar2.battleAltar.total;
-		if (loadVar2.battleAltar.require != null){
-			if (loadVar2.battleAltar.require.metal != null){
+	if (loadVar2.battleAltar !== null){
+		if (loadVar2.battleAltar.total !== null) { battleAltar.total = loadVar2.battleAltar.total; }
+		if (loadVar2.battleAltar.require !== null){
+			if (loadVar2.battleAltar.require.metal !== null){
 				battleAltar.require.metal = loadVar2.battleAltar.require.metal;
 				document.getElementById('battleAltarCost').innerHTML = battleAltar.require.metal;
 			}
 		}
 	}
-	if (loadVar2.fieldsAltar != null){
-		if (loadVar2.fieldsAltar.total != null) fieldsAltar.total = loadVar2.fieldsAltar.total;
-		if (loadVar2.fieldsAltar.require != null){
-			if (loadVar2.fieldsAltar.require.food != null){
+	if (loadVar2.fieldsAltar !== null){
+		if (loadVar2.fieldsAltar.total !== null) { fieldsAltar.total = loadVar2.fieldsAltar.total; }
+		if (loadVar2.fieldsAltar.require !== null){
+			if (loadVar2.fieldsAltar.require.food !== null){
 				fieldsAltar.require.food = loadVar2.fieldsAltar.require.food;
-				document.getElementById('fieldsAltarFoodCost').innerHTML = fieldsAltar.require.food;
+				document.getElementById('fieldsAltarFoodCost').innerHTML = fieldsAltar.require.food; 
 			}
-			if (loadVar2.fieldsAltar.require.wood != null){
+			if (loadVar2.fieldsAltar.require.wood !== null){
 				fieldsAltar.require.wood = loadVar2.fieldsAltar.require.wood;
-				document.getElementById('fieldsAltarWoodCost').innerHTML = fieldsAltar.require.wood;
+				document.getElementById('fieldsAltarWoodCost').innerHTML = fieldsAltar.require.wood; 
 			}
 		}
 	}
-	if (loadVar2.underworldAltar != null){
-		if (loadVar2.underworldAltar.total != null) underworldAltar.total = loadVar2.underworldAltar.total;
-		if (loadVar2.underworldAltar.require != null){
-			if (loadVar2.underworldAltar.require.corpses != null){
+	if (loadVar2.underworldAltar !== null){
+		if (loadVar2.underworldAltar.total !== null) { underworldAltar.total = loadVar2.underworldAltar.total; }
+		if (loadVar2.underworldAltar.require !== null){
+			if (loadVar2.underworldAltar.require.corpses !== null){
 				underworldAltar.require.corpses = loadVar2.underworldAltar.require.corpses;
 				document.getElementById('underworldAltarCost').innerHTML = underworldAltar.require.corpses;
 			}
 		}
 	}
-	if (loadVar2.catAltar != null){
-		if (loadVar2.catAltar.total != null) catAltar.total = loadVar2.catAltar.total;
-		if (loadVar2.catAltar.require != null){
-			if (loadVar2.catAltar.require.herbs != null){
+	if (loadVar2.catAltar !== null){
+		if (loadVar2.catAltar.total !== null) { catAltar.total = loadVar2.catAltar.total; }
+		if (loadVar2.catAltar.require !== null){
+			if (loadVar2.catAltar.require.herbs !== null){
 				catAltar.require.herbs = loadVar2.catAltar.require.herbs;
 				document.getElementById('catAltarCost').innerHTML = catAltar.require.herbs;
 			}
 		}
 	}
-	if (loadVar2.resourceClicks != null){
+	if (loadVar2.resourceClicks !== null){
 		resourceClicks = loadVar2.resourceClicks;
 	} else if (loadVar2){
-		resourceClicks = 999 //stops people getting the achievement with an old save version
+		resourceClicks = 999; //stops people getting the achievement with an old save version
 	}
-	if (loadVar2.worksafe != null) worksafe = loadVar2.worksafe;
-	if (loadVar.population.current != null) population.current = loadVar.population.current;
-	if (loadVar.population.cap != null) population.cap = loadVar.population.cap;
-	if (loadVar.population.cats != null) population.cats = loadVar.population.cats;
-	if (loadVar.population.corpses != null) population.corpses = loadVar.population.corpses;
-	if (loadVar.population.graves != null) population.graves = loadVar.population.graves;
-	if (loadVar.population.zombies != null) population.zombies = loadVar.population.zombies;
-	if (loadVar.population.unemployed != null) population.unemployed = loadVar.population.unemployed;
-	if (loadVar.population.farmers != null) population.farmers = loadVar.population.farmers;
-	if (loadVar.population.woodcutters != null) population.woodcutters = loadVar.population.woodcutters;
-	if (loadVar.population.miners != null) population.miners = loadVar.population.miners;
-	if (loadVar.population.tanners != null) population.tanners = loadVar.population.tanners;
-	if (loadVar.population.blacksmiths != null) population.blacksmiths = loadVar.population.blacksmiths;
-	if (loadVar.population.apothecaries != null) population.apothecaries = loadVar.population.apothecaries;
-	if (loadVar.population.clerics != null) population.clerics = loadVar.population.clerics;
-	if (loadVar.population.labourers != null) population.labourers = loadVar.population.labourers;
-	if (loadVar.population.soldiers != null) population.soldiers = loadVar.population.soldiers;
-	if (loadVar.population.soldiersParty != null) population.soldiersParty = loadVar.population.soldiersParty;
-	if (loadVar.population.soldiersPartyCas != null) population.soldiersPartyCas = loadVar.population.soldiersPartyCas;
-	if (loadVar.population.cavalry != null) population.cavalry = loadVar.population.cavalry;
-	if (loadVar.population.cavalryParty != null) population.cavalryParty = loadVar.population.cavalryParty;
-	if (loadVar.population.cavalryPartyCas != null) population.cavalryPartyCas = loadVar.population.cavalryPartyCas;
-	if (loadVar.population.siege != null) population.siege = loadVar.population.siege;
-	if (loadVar.population.esoldiers != null) population.esoldiers = loadVar.population.esoldiers;
-	if (loadVar.population.esoldiersCas != null) population.esoldiersCas = loadVar.population.esoldiersCas;
-	if (loadVar.population.eforts != null) population.eforts = loadVar.population.eforts;
-	if (loadVar.population.healthy != null) population.healthy = loadVar.population.healthy;
-	if (loadVar.population.totalSick != null) population.totalSick = loadVar.population.totalSick;
-	if (loadVar.population.unemployedIll != null) population.unemployedIll = loadVar.population.unemployedIll;
-	if (loadVar.population.farmersIll != null) population.farmersIll = loadVar.population.farmersIll;
-	if (loadVar.population.woodcuttersIll != null) population.woodcuttersIll = loadVar.population.woodcuttersIll;
-	if (loadVar.population.minersIll != null) population.minersIll = loadVar.population.minersIll;
-	if (loadVar.population.tannersIll != null) population.tannersIll = loadVar.population.tannersIll;
-	if (loadVar.population.blacksmithsIll != null) population.blacksmithsIll = loadVar.population.blacksmithsIll;
-	if (loadVar.population.apothecariesIll != null) population.apothecariesIll = loadVar.population.apothecariesIll;
-	if (loadVar.population.clericsIll != null) population.clericsIll = loadVar.population.clericsIll;
-	if (loadVar.population.labourersIll != null) population.labourersIll = loadVar.population.labourersIll;
-	if (loadVar.population.soldiersIll != null) population.soldiersIll = loadVar.population.soldiersIll;
-	if (loadVar.population.soldiersCasIll != null) population.soldiersCasIll = loadVar.population.soldiersCasIll;
-	if (loadVar.population.cavalryIll != null) population.cavalryIll = loadVar.population.cavalryIll;
-	if (loadVar.population.cavalryCasIll != null) population.cavalryCasIll = loadVar.population.cavalryCasIll;
-	if (loadVar.population.wolves != null) population.wolves = loadVar.population.wolves;
-	if (loadVar.population.bandits != null) population.bandits = loadVar.population.bandits;
-	if (loadVar.population.barbarians != null) population.barbarians = loadVar.population.barbarians;
-	if (loadVar.population.soldiersCas != null) population.soldiersCas = loadVar.population.soldiersCas;
-	if (loadVar.population.cavalryCas != null) population.cavalryCas = loadVar.population.cavalryCas;
-	if (loadVar.population.wolvesCas != null) population.wolvesCas = loadVar.population.wolvesCas;
-	if (loadVar.population.banditsCas != null) population.banditsCas = loadVar.population.banditsCas;
-	if (loadVar.population.barbariansCas != null) population.barbariansCas = loadVar.population.barbariansCas;
-	if (loadVar.population.esiege != null) population.esiege = loadVar.population.esiege;
-	if (loadVar.population.enemiesSlain != null) population.enemiesSlain = loadVar.population.enemiesSlain;
-	if (loadVar.population.shades != null) population.shades = loadVar.population.shades;
-	if (loadVar.efficiency.happiness != null) efficiency.happiness = loadVar.efficiency.happiness;
-	if (loadVar.efficiency.farmers != null) efficiency.farmers = loadVar.efficiency.farmers;
-	if (loadVar.efficiency.woodcutters != null) efficiency.woodcutters = loadVar.efficiency.woodcutters;
-	if (loadVar.efficiency.miners != null) efficiency.miners = loadVar.efficiency.miners;
-	if (loadVar.efficiency.tanners != null) efficiency.tanners = loadVar.efficiency.tanners;
-	if (loadVar.efficiency.blacksmiths != null) efficiency.blacksmiths = loadVar.efficiency.blacksmiths;
-	if (loadVar.efficiency.apothecaries != null) efficiency.apothecaries = loadVar.efficiency.apothecaries;
-	//if (loadVar.efficiency.clerics != null) efficiency.clerics = loadVar.efficiency.clerics;
-	if (loadVar.efficiency.soldiers != null) efficiency.soldiers = loadVar.efficiency.soldiers;
-	if (loadVar.efficiency.cavalry != null) efficiency.cavalry = loadVar.efficiency.cavalry;
-	if (loadVar.upgrades.domestication != null) upgrades.domestication = loadVar.upgrades.domestication;
-	if (loadVar.upgrades.ploughshares != null) upgrades.ploughshares = loadVar.upgrades.ploughshares;
-	if (loadVar.upgrades.irrigation != null) upgrades.irrigation = loadVar.upgrades.irrigation;
-	if (loadVar.upgrades.skinning != null) upgrades.skinning = loadVar.upgrades.skinning;
-	if (loadVar.upgrades.harvesting != null) upgrades.harvesting = loadVar.upgrades.harvesting;
-	if (loadVar.upgrades.prospecting != null) upgrades.prospecting = loadVar.upgrades.prospecting;
-	if (loadVar.upgrades.butchering != null) upgrades.butchering = loadVar.upgrades.butchering;
-	if (loadVar.upgrades.gardening != null) upgrades.gardening = loadVar.upgrades.gardening;
-	if (loadVar.upgrades.extraction != null) upgrades.extraction = loadVar.upgrades.extraction;
-	if (loadVar.upgrades.croprotation != null) upgrades.croprotation = loadVar.upgrades.croprotation;
-	if (loadVar.upgrades.selectivebreeding != null) upgrades.selectivebreeding = loadVar.upgrades.selectivebreeding;
-	if (loadVar.upgrades.fertilisers != null) upgrades.fertilisers = loadVar.upgrades.fertilisers;
-	if (loadVar.upgrades.masonry != null) upgrades.masonry = loadVar.upgrades.masonry;
-	if (loadVar.upgrades.construction != null) upgrades.construction = loadVar.upgrades.construction;
-	if (loadVar.upgrades.architecture != null) upgrades.architecture = loadVar.upgrades.architecture;
-	if (loadVar.upgrades.wheel != null) upgrades.wheel = loadVar.upgrades.wheel;
-	if (loadVar.upgrades.horseback != null) upgrades.horseback = loadVar.upgrades.horseback;
-	if (loadVar.upgrades.tenements != null) upgrades.tenements = loadVar.upgrades.tenements;
-	if (loadVar.upgrades.slums != null) upgrades.slums = loadVar.upgrades.slums;
-	if (loadVar.upgrades.granaries != null) upgrades.granaries = loadVar.upgrades.granaries;
-	if (loadVar.upgrades.palisade != null) upgrades.palisade = loadVar.upgrades.palisade;
-	if (loadVar.upgrades.weaponry != null) upgrades.weaponry = loadVar.upgrades.weaponry;
-	if (loadVar.upgrades.shields != null) upgrades.shields = loadVar.upgrades.shields;
-	if (loadVar.upgrades.writing != null) upgrades.writing = loadVar.upgrades.writing;
-	if (loadVar.upgrades.administration != null) upgrades.administration = loadVar.upgrades.administration
-	if (loadVar.upgrades.codeoflaws != null) upgrades.codeoflaws = loadVar.upgrades.codeoflaws;
-	if (loadVar.upgrades.mathematics != null) upgrades.mathematics = loadVar.upgrades.mathematics;
-	if (loadVar.upgrades.aesthetics != null) upgrades.aesthetics = loadVar.upgrades.aesthetics;
-	if (loadVar.upgrades.civilservice != null) upgrades.civilservice = loadVar.upgrades.civilservice;
-	if (loadVar.upgrades.feudalism != null) upgrades.feudalism = loadVar.upgrades.feudalism;
-	if (loadVar.upgrades.guilds != null) upgrades.guilds = loadVar.upgrades.guilds;
-	if (loadVar.upgrades.serfs != null) upgrades.serfs = loadVar.upgrades.serfs;
-	if (loadVar.upgrades.nationalism != null) upgrades.nationalism = loadVar.upgrades.nationalism;
-	if (loadVar.upgrades.flensing != null) upgrades.flensing = loadVar.upgrades.flensing;
-	if (loadVar.upgrades.macerating != null) upgrades.macerating = loadVar.upgrades.macerating;
-	if (loadVar.upgrades.standard != null) upgrades.standard = loadVar.upgrades.standard;
-	if (loadVar.upgrades.deity != null) upgrades.deity = loadVar.upgrades.deity;
-	if (loadVar.upgrades.deityType != null) upgrades.deityType = loadVar.upgrades.deityType;
-	if (loadVar.upgrades.lure != null) upgrades.lure = loadVar.upgrades.lure;
-	if (loadVar.upgrades.companion != null) upgrades.companion = loadVar.upgrades.companion;
-	if (loadVar.upgrades.comfort != null) upgrades.comfort = loadVar.upgrades.comfort;
-	if (loadVar.upgrades.blessing != null) upgrades.blessing = loadVar.upgrades.blessing;
-	if (loadVar.upgrades.waste != null) upgrades.waste = loadVar.upgrades.waste;
-	if (loadVar.upgrades.stay != null) upgrades.stay = loadVar.upgrades.stay;
-	if (loadVar.upgrades.riddle != null) upgrades.riddle = loadVar.upgrades.riddle;
-	if (loadVar.upgrades.throne != null) upgrades.throne = loadVar.upgrades.throne;
-	if (loadVar.upgrades.lament != null) upgrades.lament = loadVar.upgrades.lament;
-	if (loadVar.upgrades.book != null) upgrades.book = loadVar.upgrades.book;
-	if (loadVar.upgrades.feast != null) upgrades.feast = loadVar.upgrades.feast;
-	if (loadVar.upgrades.secrets != null) upgrades.secrets = loadVar.upgrades.secrets;
-	if (loadVar.deity != null) {
-		if (loadVar.deity.name != null) deity.name = loadVar.deity.name;
-		if (loadVar.deity.type != null) deity.type = loadVar.deity.type;
-		if (loadVar.deity.seniority != null) deity.seniority = loadVar.deity.seniority;
+	if (loadVar2.worksafe !== null) { worksafe = loadVar2.worksafe; }
+	if (loadVar.population.current !== null) { population.current = loadVar.population.current; }
+	if (loadVar.population.cap !== null) { population.cap = loadVar.population.cap; }
+	if (loadVar.population.cats !== null) { population.cats = loadVar.population.cats; }
+	if (loadVar.population.corpses !== null) { population.corpses = loadVar.population.corpses; }
+	if (loadVar.population.graves !== null) { population.graves = loadVar.population.graves; }
+	if (loadVar.population.zombies !== null) { population.zombies = loadVar.population.zombies; }
+	if (loadVar.population.unemployed !== null) { population.unemployed = loadVar.population.unemployed; }
+	if (loadVar.population.farmers !== null) { population.farmers = loadVar.population.farmers; }
+	if (loadVar.population.woodcutters !== null) { population.woodcutters = loadVar.population.woodcutters; }
+	if (loadVar.population.miners !== null) { population.miners = loadVar.population.miners; }
+	if (loadVar.population.tanners !== null) { population.tanners = loadVar.population.tanners; }
+	if (loadVar.population.blacksmiths !== null) { population.blacksmiths = loadVar.population.blacksmiths; }
+	if (loadVar.population.apothecaries !== null) { population.apothecaries = loadVar.population.apothecaries; }
+	if (loadVar.population.clerics !== null) { population.clerics = loadVar.population.clerics; }
+	if (loadVar.population.labourers !== null) { population.labourers = loadVar.population.labourers; }
+	if (loadVar.population.soldiers !== null) { population.soldiers = loadVar.population.soldiers; }
+	if (loadVar.population.soldiersParty !== null) { population.soldiersParty = loadVar.population.soldiersParty; }
+	if (loadVar.population.soldiersPartyCas !== null) { population.soldiersPartyCas = loadVar.population.soldiersPartyCas; }
+	if (loadVar.population.cavalry !== null) { population.cavalry = loadVar.population.cavalry; }
+	if (loadVar.population.cavalryParty !== null) { population.cavalryParty = loadVar.population.cavalryParty; }
+	if (loadVar.population.cavalryPartyCas !== null) { population.cavalryPartyCas = loadVar.population.cavalryPartyCas; }
+	if (loadVar.population.siege !== null) { population.siege = loadVar.population.siege; }
+	if (loadVar.population.esoldiers !== null) { population.esoldiers = loadVar.population.esoldiers; }
+	if (loadVar.population.esoldiersCas !== null) { population.esoldiersCas = loadVar.population.esoldiersCas; }
+	if (loadVar.population.eforts !== null) { population.eforts = loadVar.population.eforts; }
+	if (loadVar.population.healthy !== null) { population.healthy = loadVar.population.healthy; }
+	if (loadVar.population.totalSick !== null) { population.totalSick = loadVar.population.totalSick; }
+	if (loadVar.population.unemployedIll !== null) { population.unemployedIll = loadVar.population.unemployedIll; }
+	if (loadVar.population.farmersIll !== null) { population.farmersIll = loadVar.population.farmersIll; }
+	if (loadVar.population.woodcuttersIll !== null) { population.woodcuttersIll = loadVar.population.woodcuttersIll; }
+	if (loadVar.population.minersIll !== null) { population.minersIll = loadVar.population.minersIll; }
+	if (loadVar.population.tannersIll !== null) { population.tannersIll = loadVar.population.tannersIll; }
+	if (loadVar.population.blacksmithsIll !== null) { population.blacksmithsIll = loadVar.population.blacksmithsIll; }
+	if (loadVar.population.apothecariesIll !== null) { population.apothecariesIll = loadVar.population.apothecariesIll; }
+	if (loadVar.population.clericsIll !== null) { population.clericsIll = loadVar.population.clericsIll; }
+	if (loadVar.population.labourersIll !== null) { population.labourersIll = loadVar.population.labourersIll; }
+	if (loadVar.population.soldiersIll !== null) { population.soldiersIll = loadVar.population.soldiersIll; }
+	if (loadVar.population.soldiersCasIll !== null) { population.soldiersCasIll = loadVar.population.soldiersCasIll; }
+	if (loadVar.population.cavalryIll !== null) { population.cavalryIll = loadVar.population.cavalryIll; }
+	if (loadVar.population.cavalryCasIll !== null) { population.cavalryCasIll = loadVar.population.cavalryCasIll; }
+	if (loadVar.population.wolves !== null) { population.wolves = loadVar.population.wolves; }
+	if (loadVar.population.bandits !== null) { population.bandits = loadVar.population.bandits; }
+	if (loadVar.population.barbarians !== null) { population.barbarians = loadVar.population.barbarians; }
+	if (loadVar.population.soldiersCas !== null) { population.soldiersCas = loadVar.population.soldiersCas; }
+	if (loadVar.population.cavalryCas !== null) { population.cavalryCas = loadVar.population.cavalryCas; }
+	if (loadVar.population.wolvesCas !== null) { population.wolvesCas = loadVar.population.wolvesCas; }
+	if (loadVar.population.banditsCas !== null) { population.banditsCas = loadVar.population.banditsCas; }
+	if (loadVar.population.barbariansCas !== null) { population.barbariansCas = loadVar.population.barbariansCas; }
+	if (loadVar.population.esiege !== null) { population.esiege = loadVar.population.esiege; }
+	if (loadVar.population.enemiesSlain !== null) { population.enemiesSlain = loadVar.population.enemiesSlain; }
+	if (loadVar.population.shades !== null) { population.shades = loadVar.population.shades; }
+	if (loadVar.efficiency.happiness !== null) { efficiency.happiness = loadVar.efficiency.happiness; }
+	if (loadVar.efficiency.farmers !== null) { efficiency.farmers = loadVar.efficiency.farmers; }
+	if (loadVar.efficiency.woodcutters !== null) { efficiency.woodcutters = loadVar.efficiency.woodcutters; }
+	if (loadVar.efficiency.miners !== null) { efficiency.miners = loadVar.efficiency.miners; }
+	if (loadVar.efficiency.tanners !== null) { efficiency.tanners = loadVar.efficiency.tanners; }
+	if (loadVar.efficiency.blacksmiths !== null) { efficiency.blacksmiths = loadVar.efficiency.blacksmiths; }
+	if (loadVar.efficiency.apothecaries !== null) { efficiency.apothecaries = loadVar.efficiency.apothecaries; }
+	//if (loadVar.efficiency.clerics !== null) { efficiency.clerics = loadVar.efficiency.clerics; }
+	if (loadVar.efficiency.soldiers !== null) { efficiency.soldiers = loadVar.efficiency.soldiers; }
+	if (loadVar.efficiency.cavalry !== null) { efficiency.cavalry = loadVar.efficiency.cavalry; }
+	if (loadVar.upgrades.domestication !== null) { upgrades.domestication = loadVar.upgrades.domestication; }
+	if (loadVar.upgrades.ploughshares !== null) { upgrades.ploughshares = loadVar.upgrades.ploughshares; }
+	if (loadVar.upgrades.irrigation !== null) { upgrades.irrigation = loadVar.upgrades.irrigation; }
+	if (loadVar.upgrades.skinning !== null) { upgrades.skinning = loadVar.upgrades.skinning; }
+	if (loadVar.upgrades.harvesting !== null) { upgrades.harvesting = loadVar.upgrades.harvesting; }
+	if (loadVar.upgrades.prospecting !== null) { upgrades.prospecting = loadVar.upgrades.prospecting; }
+	if (loadVar.upgrades.butchering !== null) { upgrades.butchering = loadVar.upgrades.butchering; }
+	if (loadVar.upgrades.gardening !== null) { upgrades.gardening = loadVar.upgrades.gardening; }
+	if (loadVar.upgrades.extraction !== null) { upgrades.extraction = loadVar.upgrades.extraction; }
+	if (loadVar.upgrades.croprotation !== null) { upgrades.croprotation = loadVar.upgrades.croprotation; }
+	if (loadVar.upgrades.selectivebreeding !== null) { upgrades.selectivebreeding = loadVar.upgrades.selectivebreeding; }
+	if (loadVar.upgrades.fertilisers !== null) { upgrades.fertilisers = loadVar.upgrades.fertilisers; }
+	if (loadVar.upgrades.masonry !== null) { upgrades.masonry = loadVar.upgrades.masonry; }
+	if (loadVar.upgrades.construction !== null) { upgrades.construction = loadVar.upgrades.construction; }
+	if (loadVar.upgrades.architecture !== null) { upgrades.architecture = loadVar.upgrades.architecture; }
+	if (loadVar.upgrades.wheel !== null) { upgrades.wheel = loadVar.upgrades.wheel; }
+	if (loadVar.upgrades.horseback !== null) { upgrades.horseback = loadVar.upgrades.horseback; }
+	if (loadVar.upgrades.tenements !== null) { upgrades.tenements = loadVar.upgrades.tenements; }
+	if (loadVar.upgrades.slums !== null) { upgrades.slums = loadVar.upgrades.slums; }
+	if (loadVar.upgrades.granaries !== null) { upgrades.granaries = loadVar.upgrades.granaries; }
+	if (loadVar.upgrades.palisade !== null) { upgrades.palisade = loadVar.upgrades.palisade; }
+	if (loadVar.upgrades.weaponry !== null) { upgrades.weaponry = loadVar.upgrades.weaponry; }
+	if (loadVar.upgrades.shields !== null) { upgrades.shields = loadVar.upgrades.shields; }
+	if (loadVar.upgrades.writing !== null) { upgrades.writing = loadVar.upgrades.writing; }
+	if (loadVar.upgrades.administration !== null) { upgrades.administration = loadVar.upgrades.administration; }
+	if (loadVar.upgrades.codeoflaws !== null) { upgrades.codeoflaws = loadVar.upgrades.codeoflaws; }
+	if (loadVar.upgrades.mathematics !== null) { upgrades.mathematics = loadVar.upgrades.mathematics; }
+	if (loadVar.upgrades.aesthetics !== null) { upgrades.aesthetics = loadVar.upgrades.aesthetics; }
+	if (loadVar.upgrades.civilservice !== null) { upgrades.civilservice = loadVar.upgrades.civilservice; }
+	if (loadVar.upgrades.feudalism !== null) { upgrades.feudalism = loadVar.upgrades.feudalism; }
+	if (loadVar.upgrades.guilds !== null) { upgrades.guilds = loadVar.upgrades.guilds; }
+	if (loadVar.upgrades.serfs !== null) { upgrades.serfs = loadVar.upgrades.serfs; }
+	if (loadVar.upgrades.nationalism !== null) { upgrades.nationalism = loadVar.upgrades.nationalism; }
+	if (loadVar.upgrades.flensing !== null) { upgrades.flensing = loadVar.upgrades.flensing; }
+	if (loadVar.upgrades.macerating !== null) { upgrades.macerating = loadVar.upgrades.macerating; }
+	if (loadVar.upgrades.standard !== null) { upgrades.standard = loadVar.upgrades.standard; }
+	if (loadVar.upgrades.deity !== null) { upgrades.deity = loadVar.upgrades.deity; }
+	if (loadVar.upgrades.deityType !== null) { upgrades.deityType = loadVar.upgrades.deityType; }
+	if (loadVar.upgrades.lure !== null) { upgrades.lure = loadVar.upgrades.lure; }
+	if (loadVar.upgrades.companion !== null) { upgrades.companion = loadVar.upgrades.companion; }
+	if (loadVar.upgrades.comfort !== null) { upgrades.comfort = loadVar.upgrades.comfort; }
+	if (loadVar.upgrades.blessing !== null) { upgrades.blessing = loadVar.upgrades.blessing; }
+	if (loadVar.upgrades.waste !== null) { upgrades.waste = loadVar.upgrades.waste; }
+	if (loadVar.upgrades.stay !== null) { upgrades.stay = loadVar.upgrades.stay; }
+	if (loadVar.upgrades.riddle !== null) { upgrades.riddle = loadVar.upgrades.riddle; }
+	if (loadVar.upgrades.throne !== null) { upgrades.throne = loadVar.upgrades.throne; }
+	if (loadVar.upgrades.lament !== null) { upgrades.lament = loadVar.upgrades.lament; }
+	if (loadVar.upgrades.book !== null) { upgrades.book = loadVar.upgrades.book; }
+	if (loadVar.upgrades.feast !== null) { upgrades.feast = loadVar.upgrades.feast; }
+	if (loadVar.upgrades.secrets !== null) { upgrades.secrets = loadVar.upgrades.secrets; }
+	if (loadVar.deity !== null) {
+		if (loadVar.deity.name !== null) { deity.name = loadVar.deity.name; }
+		if (loadVar.deity.type !== null) { deity.type = loadVar.deity.type; }
+		if (loadVar.deity.seniority !== null) { deity.seniority = loadVar.deity.seniority; }
 		if (deity.seniority > 1){
-			document.getElementById('activeDeity').innerHTML = '<tr id="deity' + deity.seniority + '"><td><strong><span id="deity' + deity.seniority + 'Name">No deity</span></strong><span id="deity' + deity.seniority + 'Type" class="deityType"></span></td><td>Devotion: <span id="devotion' + deity.seniority + '">0</span></td><td class="removeDeity"><button class="removeDeity" onclick="removeDeity(deity' + deity.seniority + ')">X</button></td></tr>'
+			document.getElementById('activeDeity').innerHTML = '<tr id="deity' + deity.seniority + '"><td><strong><span id="deity' + deity.seniority + 'Name">No deity</span></strong><span id="deity' + deity.seniority + 'Type" class="deityType"></span></td><td>Devotion: <span id="devotion' + deity.seniority + '">0</span></td><td class="removeDeity"><button class="removeDeity" onclick="removeDeity(deity' + deity.seniority + ')">X</button></td></tr>';
 		}
-		if (loadVar.deity.devotion != null) deity.devotion = loadVar.deity.devotion;
-		if (loadVar.deity.battle != null) deity.battle = loadVar.deity.battle;
-		if (loadVar.deity.fields != null) deity.fields = loadVar.deity.fields;
-		if (loadVar.deity.underworld != null) deity.underworld = loadVar.deity.underworld;
-		if (loadVar.deity.cats != null) deity.cats = loadVar.deity.cats;
+		if (loadVar.deity.devotion !== null) { deity.devotion = loadVar.deity.devotion; }
+		if (loadVar.deity.battle !== null) { deity.battle = loadVar.deity.battle; }
+		if (loadVar.deity.fields !== null) { deity.fields = loadVar.deity.fields; }
+		if (loadVar.deity.underworld !== null) { deity.underworld = loadVar.deity.underworld; }
+		if (loadVar.deity.cats !== null) { deity.cats = loadVar.deity.cats; }
 	}
-	if (loadVar.upgrades.trade != null) upgrades.trade = loadVar.upgrades.trade;
-	if (loadVar.upgrades.currency != null) upgrades.currency = loadVar.upgrades.currency;
-	if (loadVar.upgrades.commerce != null) upgrades.commerce = loadVar.upgrades.commerce;
-	if (loadVar.achievements != null){
-		if (loadVar.achievements.hamlet != null) achievements.hamlet = loadVar.achievements.hamlet;
-		if (loadVar.achievements.village != null) achievements.village = loadVar.achievements.village;
-		if (loadVar.achievements.smallTown != null) achievements.smallTown = loadVar.achievements.smallTown;
-		if (loadVar.achievements.largeTown != null) achievements.largeTown = loadVar.achievements.largeTown;
-		if (loadVar.achievements.smallCity != null) achievements.smallCity = loadVar.achievements.smallCity;
-		if (loadVar.achievements.largeCity != null) achievements.largeCity = loadVar.achievements.largeCity;
-		if (loadVar.achievements.metropolis != null) achievements.metropolis = loadVar.achievements.metropolis;
-		if (loadVar.achievements.smallNation != null) achievements.smallNation = loadVar.achievements.smallNation;
-		if (loadVar.achievements.nation != null) achievements.nation = loadVar.achievements.nation;
-		if (loadVar.achievements.largeNation != null) achievements.largeNation = loadVar.achievements.largeNation;
-		if (loadVar.achievements.empire != null) achievements.empire = loadVar.achievements.empire;
-		if (loadVar.achievements.raider != null) achievements.raider = loadVar.achievements.raider;
-		if (loadVar.achievements.engineer != null) achievements.engineer = loadVar.achievements.engineer;
-		if (loadVar.achievements.domination != null) achievements.domination = loadVar.achievements.domination;
-		if (loadVar.achievements.hated != null) achievements.hated = loadVar.achievements.hated;
-		if (loadVar.achievements.loved != null) achievements.loved = loadVar.achievements.loved;
-		if (loadVar.achievements.cat != null) achievements.cat = loadVar.achievements.cat;
-		if (loadVar.achievements.glaring != null) achievements.glaring = loadVar.achievements.glaring;
-		if (loadVar.achievements.clowder != null) achievements.clowder = loadVar.achievements.clowder;
-		if (loadVar.achievements.battle != null) achievements.battle = loadVar.achievements.battle;
-		if (loadVar.achievements.cats != null) achievements.cats = loadVar.achievements.cats;
-		if (loadVar.achievements.fields != null) achievements.fields = loadVar.achievements.fields;
-		if (loadVar.achievements.underworld != null) achievements.underworld = loadVar.achievements.underworld;
-		if (loadVar.achievements.fullHouse != null) achievements.fullHouse = loadVar.achievements.fullHouse;
-		if (loadVar.achievements.plague != null) achievements.plague = loadVar.achievements.plague;
-		if (loadVar.achievements.ghostTown != null) achievements.ghostTown = loadVar.achievements.ghostTown;
-		if (loadVar.achievements.wonder != null) achievements.wonder = loadVar.achievements.wonder;
-		if (loadVar.achievements.seven != null) achievements.seven = loadVar.achievements.seven;
-		if (loadVar.achievements.merchant != null) achievements.merchant = loadVar.achievements.merchant;
-		if (loadVar.achievements.rushed != null) achievements.rushed = loadVar.achievements.rushed;
-		if (loadVar.achievements.neverclick != null) achievements.neverclick = loadVar.achievements.neverclick;
+	if (loadVar.upgrades.trade !== null) { upgrades.trade = loadVar.upgrades.trade; }
+	if (loadVar.upgrades.currency !== null) { upgrades.currency = loadVar.upgrades.currency; }
+	if (loadVar.upgrades.commerce !== null) { upgrades.commerce = loadVar.upgrades.commerce; }
+	if (loadVar.achievements !== null){
+		if (loadVar.achievements.hamlet !== null) { achievements.hamlet = loadVar.achievements.hamlet; }
+		if (loadVar.achievements.village !== null) { achievements.village = loadVar.achievements.village; }
+		if (loadVar.achievements.smallTown !== null) { achievements.smallTown = loadVar.achievements.smallTown; }
+		if (loadVar.achievements.largeTown !== null) { achievements.largeTown = loadVar.achievements.largeTown; }
+		if (loadVar.achievements.smallCity !== null) { achievements.smallCity = loadVar.achievements.smallCity; }
+		if (loadVar.achievements.largeCity !== null) { achievements.largeCity = loadVar.achievements.largeCity; }
+		if (loadVar.achievements.metropolis !== null) { achievements.metropolis = loadVar.achievements.metropolis; }
+		if (loadVar.achievements.smallNation !== null) { achievements.smallNation = loadVar.achievements.smallNation; }
+		if (loadVar.achievements.nation !== null) { achievements.nation = loadVar.achievements.nation; }
+		if (loadVar.achievements.largeNation !== null) { achievements.largeNation = loadVar.achievements.largeNation; }
+		if (loadVar.achievements.empire !== null) { achievements.empire = loadVar.achievements.empire; }
+		if (loadVar.achievements.raider !== null) { achievements.raider = loadVar.achievements.raider; }
+		if (loadVar.achievements.engineer !== null) { achievements.engineer = loadVar.achievements.engineer; }
+		if (loadVar.achievements.domination !== null) { achievements.domination = loadVar.achievements.domination; }
+		if (loadVar.achievements.hated !== null) { achievements.hated = loadVar.achievements.hated; }
+		if (loadVar.achievements.loved !== null) { achievements.loved = loadVar.achievements.loved; }
+		if (loadVar.achievements.cat !== null) { achievements.cat = loadVar.achievements.cat; }
+		if (loadVar.achievements.glaring !== null) { achievements.glaring = loadVar.achievements.glaring; }
+		if (loadVar.achievements.clowder !== null) { achievements.clowder = loadVar.achievements.clowder; }
+		if (loadVar.achievements.battle !== null) { achievements.battle = loadVar.achievements.battle; }
+		if (loadVar.achievements.cats !== null) { achievements.cats = loadVar.achievements.cats; }
+		if (loadVar.achievements.fields !== null) { achievements.fields = loadVar.achievements.fields; }
+		if (loadVar.achievements.underworld !== null) { achievements.underworld = loadVar.achievements.underworld; }
+		if (loadVar.achievements.fullHouse !== null) { achievements.fullHouse = loadVar.achievements.fullHouse; }
+		if (loadVar.achievements.plague !== null) { achievements.plague = loadVar.achievements.plague; }
+		if (loadVar.achievements.ghostTown !== null) { achievements.ghostTown = loadVar.achievements.ghostTown; }
+		if (loadVar.achievements.wonder !== null) { achievements.wonder = loadVar.achievements.wonder; }
+		if (loadVar.achievements.seven !== null) { achievements.seven = loadVar.achievements.seven; }
+		if (loadVar.achievements.merchant !== null) { achievements.merchant = loadVar.achievements.merchant; }
+		if (loadVar.achievements.rushed !== null) { achievements.rushed = loadVar.achievements.rushed; }
+		if (loadVar.achievements.neverclick !== null) { achievements.neverclick = loadVar.achievements.neverclick; }
 	}
-	if (loadVar.raiding != null){
-		if (loadVar.raiding.raiding) raiding.raiding = loadVar.raiding.raiding;
-		if (loadVar.raiding.iterations) raiding.iterations = loadVar.raiding.iterations;
-		if (loadVar.raiding.last) raiding.last = loadVar.raiding.last;
+	if (loadVar.raiding !== null){
+		if (loadVar.raiding.raiding) { raiding.raiding = loadVar.raiding.raiding; }
+		if (loadVar.raiding.iterations) { raiding.iterations = loadVar.raiding.iterations; }
+		if (loadVar.raiding.last) { raiding.last = loadVar.raiding.last; }
 	}
-	if (loadVar.targetMax) targetMax = loadVar.targetMax;
-	if (loadVar.oldDeities) oldDeities = loadVar.oldDeities;
-	if (loadVar.deityArray) deityArray = loadVar.deityArray;
-	if (loadVar.graceCost) graceCost = loadVar.graceCost;
-	if (loadVar.walkTotal) walkTotal = loadVar.walkTotal;
-	if (loadVar.autosave) autosave = loadVar.autosave;
-	if (loadVar.size) size = loadVar.size;
+	if (loadVar.targetMax) { targetMax = loadVar.targetMax; }
+	if (loadVar.oldDeities) { oldDeities = loadVar.oldDeities; }
+	if (loadVar.deityArray) { deityArray = loadVar.deityArray; }
+	if (loadVar.graceCost) { graceCost = loadVar.graceCost; }
+	if (loadVar.walkTotal) { walkTotal = loadVar.walkTotal; }
+	if (loadVar.autosave) { autosave = loadVar.autosave; }
+	if (loadVar.size) { size = loadVar.size; }
 	civName = loadVar.civName;
 	rulerName = loadVar.rulerName;
 	updateResourceTotals();
@@ -1051,7 +1054,8 @@ if (!worksafe){
 	body.style.backgroundImage = "none";
 	if (!usingWords){
 		var elems = document.getElementsByClassName('icon');
-		for(var i = 0; i < elems.length; i++) {
+		var i;
+		for(i = 0; i < elems.length; i++) {
 			elems[i].style.visibility = 'hidden';
 		}
 	}
@@ -1073,13 +1077,14 @@ function updateResourceTotals(){
 	document.getElementById('gold').innerHTML = prettify(Math.floor(gold.total));
 	if (Math.round(gold.total) > 0){
 		document.getElementById('goldRow').style.display = 'table-row';
-		if (!upgrades.trade) document.getElementById('tradeUpgrade').disabled = false;
+		if (!upgrades.trade) { document.getElementById('tradeUpgrade').disabled = false; }
 	}
 	//Calculate and update net production values for primary resources
+	var netFood = 0;
 	if (population.current > 0 || population.zombies > 0){ //don't want to divide by zero
-		var netFood = (population.farmers * (1 + (efficiency.farmers * efficiency.happiness)) * (1 + efficiency.pestBonus)) * (1 + (wonder.food/10)) * (1 + walkTotal/120) * (1 + (mill.total/200) * (population.current/(population.current + population.zombies))) - population.current;
+		netFood = (population.farmers * (1 + (efficiency.farmers * efficiency.happiness)) * (1 + efficiency.pestBonus)) * (1 + (wonder.food/10)) * (1 + walkTotal/120) * (1 + (mill.total/200) * (population.current/(population.current + population.zombies))) - population.current;
 	} else {
-		var netFood = (population.farmers * (1 + (efficiency.farmers * efficiency.happiness)) * (1 + efficiency.pestBonus)) * (1 + (wonder.food/10)) * (1 + walkTotal/120) * (1 + (mill.total/200)) - population.current;
+		netFood = (population.farmers * (1 + (efficiency.farmers * efficiency.happiness)) * (1 + efficiency.pestBonus)) * (1 + (wonder.food/10)) * (1 + walkTotal/120) * (1 + (mill.total/200)) - population.current;
 	}
 	var netWood = population.woodcutters * (efficiency.woodcutters * efficiency.happiness) * (1 + (wonder.wood/10));
 	var netStone = population.miners * (efficiency.miners * efficiency.happiness) * (1 + (wonder.stone/10));
@@ -1135,12 +1140,12 @@ function updateBuildingTotals(){
 	document.getElementById('totalBuildings').innerHTML = prettify(Math.round(totalBuildings));
 	document.getElementById('freeLand').innerHTML = prettify(Math.round(freeLand));
 	//Unlock jobs predicated on having certain buildings
-	if (smithy.total > 0) document.getElementById('blacksmithgroup').style.display = 'table-row';
-	if (tannery.total > 0) document.getElementById('tannergroup').style.display = 'table-row';
-	if (apothecary.total > 0) document.getElementById('apothecarygroup').style.display = 'table-row';
-	if (temple.total > 0) document.getElementById('clericgroup').style.display = 'table-row';
-	if (barracks.total > 0) document.getElementById('soldiergroup').style.display = 'table-row';
-	if (stable.total > 0) document.getElementById('cavalrygroup').style.display = 'table-row';
+	if (smithy.total > 0) { document.getElementById('blacksmithgroup').style.display = 'table-row'; }
+	if (tannery.total > 0) { document.getElementById('tannergroup').style.display = 'table-row'; }
+	if (apothecary.total > 0) { document.getElementById('apothecarygroup').style.display = 'table-row'; }
+	if (temple.total > 0) { document.getElementById('clericgroup').style.display = 'table-row'; }
+	if (barracks.total > 0) { document.getElementById('soldiergroup').style.display = 'table-row'; }
+	if (stable.total > 0) { document.getElementById('cavalrygroup').style.display = 'table-row'; }
 	//Unlock upgrades predicated on having certain buildings
 	if (temple.total > 0 && upgrades.deity != 1){ //At least one Temple is required to unlock Worship
 		document.getElementById('deity').disabled = false;
@@ -1278,11 +1283,13 @@ function updatePopulation(){
 	}
 	document.getElementById('civType').innerHTML = civType;
 	//Unlocking interface elements as population increases to reduce unnecessary clicking
+	var elems;
+	var i;
 	if (population.current + population.zombies >= 10) {
 		if (!customIncrements){	
 			document.getElementById('spawn10').style.display="inline";
-			var elems = document.getElementsByClassName('job10');
-			for(var i = 0; i < elems.length; i++) {
+			elems = document.getElementsByClassName('job10');
+			for(i = 0; i < elems.length; i++) {
 				elems[i].style.display = 'table-cell';
 			}
 		}
@@ -1290,12 +1297,12 @@ function updatePopulation(){
 	if (population.current + population.zombies >= 100) {
 		if (!customIncrements){
 			document.getElementById('spawn100').style.display="block";
-			var elems = document.getElementsByClassName('buildingten');
-			for(var i = 0; i < elems.length; i++) {
+			elems = document.getElementsByClassName('buildingten');
+			for(i = 0; i < elems.length; i++) {
 				elems[i].style.display = 'table-cell';
 			}
-			var elems = document.getElementsByClassName('job100');
-			for(var i = 0; i < elems.length; i++) {
+			elems = document.getElementsByClassName('job100');
+			for(i = 0; i < elems.length; i++) {
 				elems[i].style.display = 'table-cell';
 			}
 		}
@@ -1303,24 +1310,24 @@ function updatePopulation(){
 	if (population.current + population.zombies >= 1000) {
 		if (!customIncrements){
 			document.getElementById('spawn1000').style.display="block";
-			var elems = document.getElementsByClassName('buildinghundred');
-			for(var i = 0; i < elems.length; i++) {
+			elems = document.getElementsByClassName('buildinghundred');
+			for(i = 0; i < elems.length; i++) {
 				elems[i].style.display = 'table-cell';
 			}
 		}
-		var elems = document.getElementsByClassName('jobAll');
-		for(var i = 0; i < elems.length; i++) {
+		elems = document.getElementsByClassName('jobAll');
+		for(i = 0; i < elems.length; i++) {
 			elems[i].style.display = 'table-cell';
 		}
-		var elems = document.getElementsByClassName('jobNone');
-		for(var i = 0; i < elems.length; i++) {
+		elems = document.getElementsByClassName('jobNone');
+		for(i = 0; i < elems.length; i++) {
 			elems[i].style.display = 'table-cell';
 		}
 	}
 	if (population.current + population.zombies >= 10000) {
 		if (!customIncrements){
-			var elems = document.getElementsByClassName('buildingthousand');
-			for(var i = 0; i < elems.length; i++) {
+			elems = document.getElementsByClassName('buildingthousand');
+			for(i = 0; i < elems.length; i++) {
 				elems[i].style.display = 'table-cell';
 			}
 		}
@@ -2005,9 +2012,9 @@ function updateUpgrades(){
 		document.getElementById('Pworship').style.display = 'block';
 		document.getElementById('renameDeity').disabled = false;
 		if (deity.type == ""){
-			document.getElementById('deitySpecialisation').style.display = "inline"
+			document.getElementById('deitySpecialisation').style.display = "inline";
 		} else {
-			document.getElementById('deitySpecialisation').style.display = "none"
+			document.getElementById('deitySpecialisation').style.display = "none";
 		}
 		if (deity.type == "Battle"){
 			document.getElementById('battleUpgrades').style.display = 'inline';
@@ -2025,12 +2032,12 @@ function updateUpgrades(){
 		} else {
 			document.getElementById('underworldUpgrades').style.display = 'none';
 			document.getElementById('zombieWorkers').style.display = 'none';
-		};
+		}
 		if (deity.type == "Cats"){
 			document.getElementById('catsUpgrades').style.display = 'inline';
 		} else {
 			document.getElementById('catsUpgrades').style.display = 'none';
-		};
+		}
 	} else {
 		document.getElementById('deityLine').style.display = 'block';
 		document.getElementById('Pworship').style.display = 'none';
@@ -2152,8 +2159,8 @@ function updateDeity(){
 		if (deity.type) {
 			document.getElementById('deity' + deity.seniority + 'Type').innerHTML = ", deity of " + deity.type;
 		} else {
-			document.getElementById('deity' + deity.seniority + 'Type').innerHTML = ""
-		};
+			document.getElementById('deity' + deity.seniority + 'Type').innerHTML = "";
+		}
 		document.getElementById('devotion' + deity.seniority).innerHTML = deity.devotion;
 		//Toggles deity types on for later playthroughs.
 		if (deity.type == 'Battle'){
@@ -2197,6 +2204,7 @@ function updateDeity(){
 }
 
 function updateOldDeities(){
+	var i,j;
 	if (deityArray.length > 0){
 		document.getElementById('oldDeities').style.display = 'table';
 		document.getElementById('iconoclasmGroup').style.display = 'block';
@@ -2205,16 +2213,16 @@ function updateOldDeities(){
 		document.getElementById('oldDeities').innerHTML = oldDeities;
 	} else {
 		var append = '<tr><td><b>Name</b></td><td><b>Domain</b></td><td><b>Devotion</b></td></tr>';
-		for (var i=(deityArray.length - 1);i>=0;i--){
-			append += '<tr>'
-				for (var j=0;j<deityArray[i].length;j++){
+		for (i=(deityArray.length - 1);i>=0;i--){
+			append += '<tr>';
+				for (j=0;j<deityArray[i].length;j++){
 					if (j > 0){
-						append += '<td>'
+						append += '<td>';
 						append += deityArray[i][j];
-						append += '</td>'
+						append += '</td>';
 					}
 				}
-			append += '</tr>'
+			append += '</tr>';
 		}
 		document.getElementById('oldDeities').innerHTML = append;
 	}
@@ -2228,31 +2236,31 @@ function updateMobs(){
 		document.getElementById('wolves').innerHTML = prettify(population.wolves);
 	} else {
 		document.getElementById('wolfgroup').style.display = 'none';
-	};
+	}
 	if (population.bandits > 0){
 		document.getElementById('banditgroup').style.display = 'table-row';
 		document.getElementById('bandits').innerHTML = prettify(population.bandits);
 	} else {
 		document.getElementById('banditgroup').style.display = 'none';
-	};
+	}
 	if (population.barbarians > 0){
 		document.getElementById('barbariangroup').style.display = 'table-row';
 		document.getElementById('barbarians').innerHTML = prettify(population.barbarians);
 	} else {
 		document.getElementById('barbariangroup').style.display = 'none';
-	};
+	}
 	if (population.esiege > 0){
 		document.getElementById('esiegegroup').style.display = 'table-row';
 		document.getElementById('esiege').innerHTML = prettify(population.esiege);
 	} else {
 		document.getElementById('esiegegroup').style.display = 'none';
-	};
+	}
 	if (population.shades > 0){
 		document.getElementById('shadesgroup').style.display = 'table-row';
 		document.getElementById('shades').innerHTML = prettify(population.shades);
 	} else {
 		document.getElementById('shadesgroup').style.display = 'none';
-	};
+	}
 }
 
 function updateDevotion(){
@@ -2357,45 +2365,45 @@ function updateRequirements(building){
 function updateAchievements(){
 	//Displays achievements if they are unlocked
 	//civ size
-	if (achievements.hamlet) document.getElementById('achHamlet').style.display = "block";
-	if (achievements.village) document.getElementById('achVillage').style.display = "block";
-	if (achievements.smallTown) document.getElementById('achSmallTown').style.display = "block";
-	if (achievements.largeTown) document.getElementById('achLargeTown').style.display = "block";
-	if (achievements.smallCity) document.getElementById('achSmallCity').style.display = "block";
-	if (achievements.largeCity) document.getElementById('achLargeCity').style.display = "block";
-	if (achievements.metropolis) document.getElementById('achMetropolis').style.display = "block";
-	if (achievements.smallNation) document.getElementById('achSmallNation').style.display = "block";
-	if (achievements.nation) document.getElementById('achNation').style.display = "block";
-	if (achievements.largeNation) document.getElementById('achLargeNation').style.display = "block";
-	if (achievements.empire) document.getElementById('achEmpire').style.display = "block";
+	if (achievements.hamlet) { document.getElementById('achHamlet').style.display = "block"; }
+	if (achievements.village) { document.getElementById('achVillage').style.display = "block"; }
+	if (achievements.smallTown) { document.getElementById('achSmallTown').style.display = "block"; }
+	if (achievements.largeTown) { document.getElementById('achLargeTown').style.display = "block"; }
+	if (achievements.smallCity) { document.getElementById('achSmallCity').style.display = "block"; }
+	if (achievements.largeCity) { document.getElementById('achLargeCity').style.display = "block"; }
+	if (achievements.metropolis) { document.getElementById('achMetropolis').style.display = "block"; }
+	if (achievements.smallNation) { document.getElementById('achSmallNation').style.display = "block"; }
+	if (achievements.nation) { document.getElementById('achNation').style.display = "block"; }
+	if (achievements.largeNation) { document.getElementById('achLargeNation').style.display = "block"; }
+	if (achievements.empire) { document.getElementById('achEmpire').style.display = "block"; }
 	//conquest
-	if (achievements.raider) document.getElementById('achRaider').style.display = "block";
-	if (achievements.engineer) document.getElementById('achEngineer').style.display = "block";
-	if (achievements.domination) document.getElementById('achDomination').style.display = "block";
+	if (achievements.raider) { document.getElementById('achRaider').style.display = "block"; }
+	if (achievements.engineer) { document.getElementById('achEngineer').style.display = "block"; }
+	if (achievements.domination) { document.getElementById('achDomination').style.display = "block"; }
 	//happiness
-	if (achievements.hated) document.getElementById('achHated').style.display = "block";
-	if (achievements.loved) document.getElementById('achLoved').style.display = "block";
+	if (achievements.hated) { document.getElementById('achHated').style.display = "block"; }
+	if (achievements.loved) { document.getElementById('achLoved').style.display = "block"; }
 	//other population
-	if (achievements.plague) document.getElementById('achPlague').style.display = "block";
-	if (achievements.ghostTown) document.getElementById('achGhostTown').style.display = "block";
+	if (achievements.plague) { document.getElementById('achPlague').style.display = "block"; }
+	if (achievements.ghostTown) { document.getElementById('achGhostTown').style.display = "block"; }
 	//cats
-	if (achievements.cat) document.getElementById('achCat').style.display = "block";
-	if (achievements.glaring) document.getElementById('achGlaring').style.display = "block";
-	if (achievements.clowder) document.getElementById('achClowder').style.display = "block";
+	if (achievements.cat) { document.getElementById('achCat').style.display = "block"; }
+	if (achievements.glaring) { document.getElementById('achGlaring').style.display = "block"; }
+	if (achievements.clowder) { document.getElementById('achClowder').style.display = "block"; }
 	//deities
-	if (achievements.battle) document.getElementById('achBattle').style.display = "block";
-	if (achievements.cats) document.getElementById('achCats').style.display = "block";
-	if (achievements.fields) document.getElementById('achFields').style.display = "block";
-	if (achievements.underworld) document.getElementById('achUnderworld').style.display = "block";
-	if (achievements.fullHouse) document.getElementById('achFullHouse').style.display = "block";
+	if (achievements.battle) { document.getElementById('achBattle').style.display = "block"; }
+	if (achievements.cats) { document.getElementById('achCats').style.display = "block"; }
+	if (achievements.fields) { document.getElementById('achFields').style.display = "block"; }
+	if (achievements.underworld) { document.getElementById('achUnderworld').style.display = "block"; }
+	if (achievements.fullHouse) { document.getElementById('achFullHouse').style.display = "block"; }
 	//wonders
-	if (achievements.wonder) document.getElementById('achWonder').style.display = "block";
-	if (achievements.seven) document.getElementById('achSeven').style.display = "block";
+	if (achievements.wonder) { document.getElementById('achWonder').style.display = "block"; }
+	if (achievements.seven) { document.getElementById('achSeven').style.display = "block"; }
 	//trading
-	if (achievements.merchant) document.getElementById('achMerchant').style.display = "block";
-	if (achievements.rushed) document.getElementById('achRushed').style.display = "block";
+	if (achievements.merchant) { document.getElementById('achMerchant').style.display = "block"; }
+	if (achievements.rushed) { document.getElementById('achRushed').style.display = "block"; }
 	//other
-	if (achievements.neverclick) document.getElementById('achNeverclick').style.display = "block";
+	if (achievements.neverclick) { document.getElementById('achNeverclick').style.display = "block"; }
 }
 
 function updateParty(){
@@ -2522,17 +2530,17 @@ function updatePartyButtons(){
 }
 
 function updateTargets(){
-	if (targetMax == 'hamlet' || targetMax == 'village' || targetMax == 'smallTown' || targetMax == 'largeTown' || targetMax == 'smallCity' || targetMax == 'largeCity' || targetMax == 'metropolis' || targetMax == 'smallNation' || targetMax == 'nation' || targetMax == 'largeNation' || targetMax == 'empire') document.getElementById('raidHamlet').disabled = false;
-	if (targetMax == 'village' || targetMax == 'smallTown' || targetMax == 'largeTown' || targetMax == 'smallCity' || targetMax == 'largeCity' || targetMax == 'metropolis' || targetMax == 'smallNation' || targetMax == 'nation' || targetMax == 'largeNation' || targetMax == 'empire') document.getElementById('raidVillage').disabled = false;
-	if (targetMax == 'smallTown' || targetMax == 'largeTown' || targetMax == 'smallCity' || targetMax == 'largeCity' || targetMax == 'metropolis' || targetMax == 'smallNation' || targetMax == 'nation' || targetMax == 'largeNation' || targetMax == 'empire') document.getElementById('raidSmallTown').disabled = false;
-	if (targetMax == 'largeTown' || targetMax == 'smallCity' || targetMax == 'largeCity' || targetMax == 'metropolis' || targetMax == 'smallNation' || targetMax == 'nation' || targetMax == 'largeNation' || targetMax == 'empire') document.getElementById('raidLargeTown').disabled = false;
-	if (targetMax == 'smallCity' || targetMax == 'largeCity' || targetMax == 'metropolis' || targetMax == 'smallNation' || targetMax == 'nation' || targetMax == 'largeNation' || targetMax == 'empire') document.getElementById('raidSmallCity').disabled = false;
-	if (targetMax == 'largeCity' || targetMax == 'metropolis' || targetMax == 'smallNation' || targetMax == 'nation' || targetMax == 'largeNation' || targetMax == 'empire') document.getElementById('raidLargeCity').disabled = false;
-	if (targetMax == 'metropolis' || targetMax == 'smallNation' || targetMax == 'nation' || targetMax == 'largeNation' || targetMax == 'empire') document.getElementById('raidMetropolis').disabled = false;
-	if (targetMax == 'smallNation' || targetMax == 'nation' || targetMax == 'largeNation' || targetMax == 'empire') document.getElementById('raidSmallNation').disabled = false;
-	if (targetMax == 'nation' || targetMax == 'largeNation' || targetMax == 'empire') document.getElementById('raidNation').disabled = false;
-	if (targetMax == 'largeNation' || targetMax == 'empire') document.getElementById('raidLargeNation').disabled = false;
-	if (targetMax == 'empire') document.getElementById('raidEmpire').disabled = false;
+	if (targetMax == 'hamlet' || targetMax == 'village' || targetMax == 'smallTown' || targetMax == 'largeTown' || targetMax == 'smallCity' || targetMax == 'largeCity' || targetMax == 'metropolis' || targetMax == 'smallNation' || targetMax == 'nation' || targetMax == 'largeNation' || targetMax == 'empire') { document.getElementById('raidHamlet').disabled = false; }
+	if (targetMax == 'village' || targetMax == 'smallTown' || targetMax == 'largeTown' || targetMax == 'smallCity' || targetMax == 'largeCity' || targetMax == 'metropolis' || targetMax == 'smallNation' || targetMax == 'nation' || targetMax == 'largeNation' || targetMax == 'empire') { document.getElementById('raidVillage').disabled = false; }
+	if (targetMax == 'smallTown' || targetMax == 'largeTown' || targetMax == 'smallCity' || targetMax == 'largeCity' || targetMax == 'metropolis' || targetMax == 'smallNation' || targetMax == 'nation' || targetMax == 'largeNation' || targetMax == 'empire') { document.getElementById('raidSmallTown').disabled = false; }
+	if (targetMax == 'largeTown' || targetMax == 'smallCity' || targetMax == 'largeCity' || targetMax == 'metropolis' || targetMax == 'smallNation' || targetMax == 'nation' || targetMax == 'largeNation' || targetMax == 'empire') { document.getElementById('raidLargeTown').disabled = false; }
+	if (targetMax == 'smallCity' || targetMax == 'largeCity' || targetMax == 'metropolis' || targetMax == 'smallNation' || targetMax == 'nation' || targetMax == 'largeNation' || targetMax == 'empire') { document.getElementById('raidSmallCity').disabled = false; }
+	if (targetMax == 'largeCity' || targetMax == 'metropolis' || targetMax == 'smallNation' || targetMax == 'nation' || targetMax == 'largeNation' || targetMax == 'empire') { document.getElementById('raidLargeCity').disabled = false; }
+	if (targetMax == 'metropolis' || targetMax == 'smallNation' || targetMax == 'nation' || targetMax == 'largeNation' || targetMax == 'empire') { document.getElementById('raidMetropolis').disabled = false; }
+	if (targetMax == 'smallNation' || targetMax == 'nation' || targetMax == 'largeNation' || targetMax == 'empire') { document.getElementById('raidSmallNation').disabled = false; }
+	if (targetMax == 'nation' || targetMax == 'largeNation' || targetMax == 'empire') { document.getElementById('raidNation').disabled = false; }
+	if (targetMax == 'largeNation' || targetMax == 'empire') { document.getElementById('raidLargeNation').disabled = false; }
+	if (targetMax == 'empire') { document.getElementById('raidEmpire').disabled = false; }
 }
 
 function updateHappiness(){
@@ -2540,25 +2548,25 @@ function updateHappiness(){
 	//first checks there's someone to be happy or unhappy, not including zombies
 	if (population.current > 0){
 		if (efficiency.happiness > 1.4){
-			document.getElementById('happiness').innerHTML = "Blissful"
-			document.getElementById('happiness').style.color = "#f0f"
+			document.getElementById('happiness').innerHTML = "Blissful";
+			document.getElementById('happiness').style.color = "#f0f";
 		} else if (efficiency.happiness > 1.2){
-			document.getElementById('happiness').innerHTML = "Happy"
-			document.getElementById('happiness').style.color = "#00f"
+			document.getElementById('happiness').innerHTML = "Happy";
+			document.getElementById('happiness').style.color = "#00f";
 		} else if (efficiency.happiness > 0.8){
-			document.getElementById('happiness').innerHTML = "Content"
-			document.getElementById('happiness').style.color = "#0b0"
+			document.getElementById('happiness').innerHTML = "Content";
+			document.getElementById('happiness').style.color = "#0b0";
 		} else if (efficiency.happiness > 0.6){
-			document.getElementById('happiness').innerHTML = "Unhappy"
-			document.getElementById('happiness').style.color = "#880"
+			document.getElementById('happiness').innerHTML = "Unhappy";
+			document.getElementById('happiness').style.color = "#880";
 		} else {
-			document.getElementById('happiness').innerHTML = "Angry"
-			document.getElementById('happiness').style.color = "#f00"
+			document.getElementById('happiness').innerHTML = "Angry";
+			document.getElementById('happiness').style.color = "#f00";
 		}
 	} else {
 		efficiency.happiness = 1;
-		document.getElementById('happiness').innerHTML = "Content"
-		document.getElementById('happiness').style.color = "#0d0"
+		document.getElementById('happiness').innerHTML = "Content";
+		document.getElementById('happiness').style.color = "#0d0";
 	}
 }
 
@@ -2588,13 +2596,14 @@ function updateWonder(){
 }
 
 function updateWonderList(){
+	var i,j;
 	if (wonder.total > 0){
 		//update wonder list
 		var wonderhtml = '<tr><td><strong>Name</strong></td><td><strong>Type</strong></td></tr>';
-		for (var i=(wonder.array.length - 1); i >= 0; i--){
+		for (i=(wonder.array.length - 1); i >= 0; i--){
 			try {
 				wonderhtml += '<tr>';
-				for (var j=0; j < wonder.array[i].length; j++){
+				for (j=0; j < wonder.array[i].length; j++){
 					wonderhtml += '<td>';
 					wonderhtml += wonder.array[i][j];
 					wonderhtml += '</td>';
@@ -2644,19 +2653,21 @@ function updateBuildingButtons(){
 	updateBuildingRow(catAltar,'cat');
 }
 function updateBuildingRow(building,name){
+	var i;
+	var number;
 	//this works by trying to access the children of the table rows containing the buttons in sequence
-	for (var i=0;i<4;i++){
+	for (i=0;i<4;i++){
 		//fortunately the index numbers of the children map directly onto the powers of 10 used by the buttons
-		var number = Math.pow(10,i);
+		number = Math.pow(10,i);
 		//check resources based on this number
 		if (food.total >= (building.require.food * number) && wood.total >= (building.require.wood * number) && stone.total >= (building.require.stone * number) && skins.total >= (building.require.skins * number) && herbs.total >= (building.require.herbs * number) && ore.total >= (building.require.ore * number) && leather.total >= (building.require.leather * number) && metal.total >= (building.require.metal * number) && piety.total >= (building.require.piety * number) && population.corpses >= (building.require.corpses * number)){
 			try { //try-catch required because fortifications and mills do not have more than one child button. This should probably be cleaned up in the future.
 				document.getElementById(name + 'Row').children[i].children[0].disabled = false;
-			} catch(err){}
+			} catch(ignore){}
 		} else {
 			try {
 				document.getElementById(name + 'Row').children[i].children[0].disabled = true;
-			} catch(err){}
+			} catch(ignore){}
 		}		
 	}	
 	//document.getElementById(name + 'Row').children[4].children[0].disabled = false; //Custom button (do something with this later)
@@ -2733,7 +2744,7 @@ function increment(material){
 	document.getElementById("clicks").innerHTML = prettify(Math.round(resourceClicks));
 	material.total = material.total + material.increment + (material.increment * 9 * upgrades.civilservice) + (material.increment * 40 * upgrades.feudalism) + (upgrades.serfs * Math.floor(Math.log(population.unemployed * 10 + 1))) + (upgrades.nationalism * Math.floor(Math.log((population.soldiers + population.cavalry) * 10 + 1)));
 	//Handles random collection of special resources.
-	x = Math.random();
+	var x = Math.random();
 	if (material == food){
 		if (x < material.specialchance){
 			skins.total = skins.total + food.increment + (upgrades.guilds * 9 * food.increment);
@@ -2781,7 +2792,7 @@ function createBuilding(building,number){
 		//Increase devotion if the building was an altar.
 		deity.devotion += building.devotion * number;
 		//If building was graveyard, create graves
-		if (building == graveyard) digGraves(number);
+		if (building == graveyard) { digGraves(number); }
 		//if building was temple and aesthetics has been activated, increase happiness
 		if (building == temple && upgrades.aesthetics == 1){
 			var templeProp = number * 25 / population.current; //if population is large, temples have less effect
@@ -2816,7 +2827,7 @@ function buildCustom(building){
 	custom = custom - 0;
 	//then we make sure it's an integer and at least 0
 	custom = Math.floor(custom);
-	if (custom < 1) custom = NaN;
+	if (custom < 1) { custom = NaN; }
 	//finally, check the above operations haven't returned NaN
 	if (!isNaN(custom)){
 		createBuilding(building,custom);
@@ -2833,8 +2844,9 @@ function calcCost(number){
 	var aggCost = 0,
 		currentPrice = 0,
 		popCurrentTemp = population.current;
+	var i;
 	//Then iterate through adding workers, and increment temporary values
-	for (var i=0; i<number; i++){
+	for (i=0; i<number; i++){
 			currentPrice = 20 + Math.floor(popCurrentTemp / 100); //CURRENT FOOD COST CALCULATION
 			//currentPrice = Math.floor(20 * Math.pow(1.005,popCurrentTemp / 1500) + popCurrentTemp / 100); //POTENTIAL NEW COST CALCULATION
 			aggCost += currentPrice;
@@ -2856,7 +2868,7 @@ function spawn(number){
 		food.total -= totalCost;
 		//Potentially create a cat
 		//This is intentionally independent of the number of workers spawned
-		c = Math.random() * 100;
+		var c = Math.random() * 100;
 		if (c < 1 + upgrades.lure) {
 			population.cats += 1;
 			if (population.cats >= 1 && !achievements.cat){
@@ -2888,7 +2900,7 @@ function spawnCustom(){
 	custom = custom - 0;
 	//then we make sure it's an integer and at least 0
 	custom = Math.floor(custom);
-	if (custom < 1) custom = NaN;
+	if (custom < 1) { custom = NaN; }
 	//finally, check the above operations haven't returned NaN
 	if (!isNaN(custom)){
 		spawn(custom);
@@ -2901,69 +2913,51 @@ function spawnCustom(){
 
 function jobCull(){
 	//This should probably be renamed the starve function. Culls workers when they starve, in a specific order.
-	if (population.unemployedIll > 0){
-		population.unemployedIll -= 1;
-	} else if (population.blacksmithsIll > 0){
-		population.blacksmithsIll -= 1;
-	} else if (population.tannersIll > 0){
-		population.tannersIll -= 1;
-	} else if (population.minersIll > 0){
-		population.minersIll -= 1;
-	} else if (population.woodcuttersIll > 0){
-		population.woodcuttersIll -= 1;
-	} else if (population.clericsIll > 0){
-		population.clericsIll -= 1;
-	} else if (population.cavalryIll > 0){
+	if (population.unemployedIll > 0){ population.unemployedIll -= 1; }
+	else if (population.blacksmithsIll > 0){ population.blacksmithsIll -= 1; }
+	else if (population.tannersIll > 0){ population.tannersIll -= 1; }
+	else if (population.minersIll > 0){ population.minersIll -= 1; }
+	else if (population.woodcuttersIll > 0){ population.woodcuttersIll -= 1; }
+	else if (population.clericsIll > 0){ population.clericsIll -= 1; }
+	else if (population.cavalryIll > 0){
 		population.cavalryIll -= 1;
 		population.cavalryCasIll -= 1;
-		if (population.cavalryCasIll < 0) population.cavalryCasIll = 0;
+		if (population.cavalryCasIll < 0) { population.cavalryCasIll = 0; }
 	} else if (population.soldiersIll > 0){
 		population.soldiersIll -= 1;
 		population.soldiersCasIll -= 1;
-		if (population.soldiersCasIll < 0) population.soldiersCasIll = 0;
-	} else if (population.apothecariesIll > 0){
-		population.apothecariesIll -= 1;
-	} else if (population.labourersIll > 0){
-		population.labourersIll -= 1;
-	} else if (population.farmersIll > 0){
-		population.farmersIll -= 1;
-	} else if (population.unemployed > 0){
-		population.unemployed -= 1;
-	} else if (population.blacksmiths > 0){
-		population.blacksmiths -= 1;
-	} else if (population.tanners > 0){
-		population.tanners -= 1;
-	} else if (population.miners > 0){
-		population.miners -= 1;
-	} else if (population.woodcutters > 0){
-		population.woodcutters -= 1;
-	} else if (population.labourers > 0){
-		population.labourers -= 1;
-	} else if (population.clerics > 0){
-		population.clerics -= 1;
-	} else if (population.cavalry > 0){
+		if (population.soldiersCasIll < 0) { population.soldiersCasIll = 0; }
+	} else if (population.apothecariesIll > 0){ population.apothecariesIll -= 1; }
+	else if (population.labourersIll > 0){ population.labourersIll -= 1; }
+	else if (population.farmersIll > 0){ population.farmersIll -= 1; }
+	else if (population.unemployed > 0){ population.unemployed -= 1; }
+	else if (population.blacksmiths > 0){ population.blacksmiths -= 1; }
+	else if (population.tanners > 0){ population.tanners -= 1; }
+	else if (population.miners > 0){ population.miners -= 1; }
+	else if (population.woodcutters > 0){ population.woodcutters -= 1; }
+	else if (population.labourers > 0){ population.labourers -= 1; }
+	else if (population.clerics > 0){ population.clerics -= 1; }
+	else if (population.cavalry > 0){
 		population.cavalry -= 1;
 		population.cavalryCas -= 1;
-		if (population.cavalryCas < 0) population.cavalryCas = 0;
+		if (population.cavalryCas < 0) { population.cavalryCas = 0; }
 	} else if (population.soldiers > 0){
 		population.soldiers -= 1;
 		population.soldiersCas -= 1;
-		if (population.soldiersCas < 0) population.soldiersCas = 0;
-	} else if (population.apothecaries > 0){
-		population.apothecaries -= 1;
-	} else if (population.farmers > 0){
-		population.farmers -= 1;
-	} else if (population.cavalryParty > 0){
+		if (population.soldiersCas < 0) { population.soldiersCas = 0; }
+	} else if (population.apothecaries > 0){ population.apothecaries -= 1; }
+	else if (population.farmers > 0){ population.farmers -= 1; }
+	else if (population.cavalryParty > 0){
 		population.cavalryParty -= 1;
 		population.cavalryPartyCas -= 1;
-		if (population.cavalryPartyCas < 0) population.cavalryPartyCas = 0;
+		if (population.cavalryPartyCas < 0) { population.cavalryPartyCas = 0; }
 		updateParty();
 	} else if (population.soldiersParty > 0) {
 		population.soldiersParty -= 1;
 		population.soldiersPartyCas -= 1;
-		if (population.soldiersPartyCas < 0) population.soldiersPartyCas = 0;
+		if (population.soldiersPartyCas < 0) { population.soldiersPartyCas = 0; }
 		updateParty();
-	};
+	}
 	//Increments corpse number
 	population.corpses += 1;
 	//Workers dying may trigger Book of the Dead
@@ -3081,8 +3075,9 @@ function hireAll(job){
 		population.labourers += num;
 		population.unemployed -= num;
 	}
+	var diff;
 	if (job == 'soldiers' && population.unemployed > 0){
-		var diff = Math.min((num),((barracks.total * 10) - (population.soldiers + population.soldiersIll + population.soldiersParty)),(Math.floor(leather.total / 10)),(Math.floor(metal.total / 10)));
+		diff = Math.min(num,((barracks.total * 10) - (population.soldiers + population.soldiersIll + population.soldiersParty)),(Math.floor(leather.total / 10)),(Math.floor(metal.total / 10)));
 		population.soldiers += diff;
 		population.soldiersCas += diff;
 		population.unemployed -= diff;
@@ -3090,7 +3085,7 @@ function hireAll(job){
 		leather.total -= (diff * 10);
 	}
 	if (job == 'cavalry' && population.unemployed > 0){
-		var diff = Math.min((num),((stable.total * 10) - (population.cavalry + population.cavalryIll + population.cavalryParty)),(Math.floor(leather.total / 10)),(Math.floor(food.total / 10)));
+		diff = Math.min(num,((stable.total * 10) - (population.cavalry + population.cavalryIll + population.cavalryParty)),(Math.floor(leather.total / 10)),(Math.floor(food.total / 10)));
 		population.cavalry += diff;
 		population.cavalryCas += diff;
 		population.unemployed -= diff;
@@ -3220,7 +3215,7 @@ function fireCustom(worker){
 	custom = custom - 0;
 	//then we make sure it's an integer and at least 0
 	custom = Math.floor(custom);
-	if (custom < 1) custom = NaN;
+	if (custom < 1)  { custom = NaN; }
 	//finally, check the above operations haven't returned NaN
 	if (!isNaN(custom)){
 		fire(worker,custom);
@@ -3236,7 +3231,7 @@ function hireCustom(worker){
 	var custom = document.getElementById('jobCustom').value;
 	custom = custom - 0;
 	custom = Math.floor(custom);
-	if (custom < 1) custom = NaN;
+	if (custom < 1) { custom = NaN; }
 	if (!isNaN(custom)){
 		hire(worker,custom);
 		document.getElementById('jobCustom').value = custom;
@@ -3249,7 +3244,7 @@ function hireCustom(worker){
 function raiseDead(num){
 	//Attempts to convert corpses into zombies
 	if (num == "max"){
-		maximum = Math.min(population.corpses,Math.floor(piety.total/100));
+		var maximum = Math.min(population.corpses,Math.floor(piety.total/100));
 		population.corpses -= maximum;
 		population.zombies += maximum;
 		population.unemployed += maximum;
@@ -3262,9 +3257,9 @@ function raiseDead(num){
 		piety.total -= (100 * num);
 		//Notify player
 		if (num == 1) {
-			gameLog("A corpse rises, eager to do your bidding.")
+			gameLog("A corpse rises, eager to do your bidding.");
 		} else {
-			gameLog("The corpses rise, eager to do your bidding.")
+			gameLog("The corpses rise, eager to do your bidding.");
 		}
 	} else if (population.corpses >= num){
 		gameLog('Not enough piety');
@@ -3485,7 +3480,7 @@ function upgrade(name){
 	//Deity specialisation upgrades
 	if (name == 'deityBattle' && piety.total >= 500){
 		deity.type = "Battle";
-		deity.battle == 1;
+		deity.battle = 1;
 		piety.total -= 500;
 		document.getElementById('deitySpecialisation').style.display = "none";
 		document.getElementById('battleUpgrades').style.display = "inline";
@@ -3493,7 +3488,7 @@ function upgrade(name){
 	}
 	if (name == 'deityFields' && piety.total >= 500){
 		deity.type = "the Fields";
-		deity.fields == 1;
+		deity.fields = 1;
 		piety.total -= 500;
 		document.getElementById('deitySpecialisation').style.display = "none";
 		document.getElementById('fieldsUpgrades').style.display = "inline";
@@ -3501,7 +3496,7 @@ function upgrade(name){
 	}
 	if (name == 'deityUnderworld' && piety.total >= 500){
 		deity.type = "the Underworld";
-		deity.underworld == 1;
+		deity.underworld = 1;
 		piety.total -= 500;
 		document.getElementById('deitySpecialisation').style.display = "none";
 		document.getElementById('underworldUpgrades').style.display = "inline";
@@ -3509,7 +3504,7 @@ function upgrade(name){
 	}
 	if (name == 'deityCats' && piety.total >= 500){
 		deity.type = "Cats";
-		deity.cats == 1;
+		deity.cats = 1;
 		piety.total -= 500;
 		document.getElementById('deitySpecialisation').style.display = "none";
 		document.getElementById('catsUpgrades').style.display = "inline";
@@ -3630,31 +3625,30 @@ function randomWorker(){
 		pApothecary = population.apothecaries / population.healthy,
 		pCleric = population.clerics / population.healthy,
 		pLabourer = population.labourers / population.healthy,
+		pCavalry = population.cavalry / population.healthy,
 		pSoldier = population.soldiers / population.healthy;
-		pCavalry = population.cavalry / population.healthy;
-	if (num <= pUnemployed) {
-		return 'unemployed';
-	} else if (num <= pUnemployed + pFarmer){
-		return 'farmer';
-	} else if (num <= pUnemployed + pFarmer + pWoodcutter){
-		return 'woodcutter';
-	} else if (num <= pUnemployed + pFarmer + pWoodcutter + pMiner){
-		return 'miner';
-	} else if (num <= pUnemployed + pFarmer + pWoodcutter + pMiner + pTanner){
-		return 'tanner';
-	} else if (num <= pUnemployed + pFarmer + pWoodcutter + pMiner + pTanner + pBlacksmith){
-		return 'blacksmith';
-	} else if (num <= pUnemployed + pFarmer + pWoodcutter + pMiner + pTanner + pBlacksmith + pApothecary){
-		return 'apothecary';
-	} else if (num <= pUnemployed + pFarmer + pWoodcutter + pMiner + pTanner + pBlacksmith + pApothecary + pCleric){
-		return 'cleric';
-	} else if (num <= pUnemployed + pFarmer + pWoodcutter + pMiner + pTanner + pBlacksmith + pApothecary + pCleric + pLabourer){
-		return 'labourer';
-	} else if (num <= pUnemployed + pFarmer + pWoodcutter + pMiner + pTanner + pBlacksmith + pApothecary + pCleric + pLabourer + pCavalry){
-		return 'cavalry';
-	} else {
-		return 'soldier';
-	}
+	if (num <= pUnemployed) 
+		{ return 'unemployed'; }
+	if (num <= pUnemployed + pFarmer)
+		{ return 'farmer'; }
+	if (num <= pUnemployed + pFarmer + pWoodcutter)
+		{ return 'woodcutter'; } 
+	if (num <= pUnemployed + pFarmer + pWoodcutter + pMiner)
+		{ return 'miner'; } 
+	if (num <= pUnemployed + pFarmer + pWoodcutter + pMiner + pTanner)
+		{ return 'tanner'; } 
+	if (num <= pUnemployed + pFarmer + pWoodcutter + pMiner + pTanner + pBlacksmith)
+		{ return 'blacksmith'; } 
+	if (num <= pUnemployed + pFarmer + pWoodcutter + pMiner + pTanner + pBlacksmith + pApothecary)
+		{ return 'apothecary'; } 
+	if (num <= pUnemployed + pFarmer + pWoodcutter + pMiner + pTanner + pBlacksmith + pApothecary + pCleric)
+		{ return 'cleric'; } 
+	if (num <= pUnemployed + pFarmer + pWoodcutter + pMiner + pTanner + pBlacksmith + pApothecary + pCleric + pLabourer)
+		{ return 'labourer'; } 
+	if (num <= pUnemployed + pFarmer + pWoodcutter + pMiner + pTanner + pBlacksmith + pApothecary + pCleric + pLabourer + pCavalry)
+		{ return 'cavalry'; } 
+
+	return 'soldier';
 }
 
 function wickerman(){
@@ -3693,12 +3687,12 @@ function wickerman(){
 			population.soldiers -= 1;
 			population.soldiersCas -= 1;
 			//Killing the last soldier can send population.soldiersCas negative
-			if (population.soldiersCas < 0) population.soldiersCas = 0;
+			if (population.soldiersCas < 0) { population.soldiersCas = 0; }
 		}
 		if (selected == 'cavalry'){
 			population.cavalry -= 1;
 			population.cavalryCas -= 1;
-			if (population.cavalryCas < 0) population.cavalryCas = 0;
+			if (population.cavalryCas < 0) { population.cavalryCas = 0; }
 		}
 		//Remove wood
 		wood.total -= 500;
@@ -3727,8 +3721,8 @@ function wickerman(){
 			gameLog("Burned a " + selected + ". The tanneries are productive!");
 		} else {
 			metal.total += Math.floor((Math.random() * 1000));
-			gameLog("Burned a " + selected + ". The steel runs pure.")
-		};
+			gameLog("Burned a " + selected + ". The steel runs pure.");
+		}
 		updateResourceTotals(); //Adds new resources
 		updatePopulation(); //Removes killed worker
 	}
@@ -3754,7 +3748,7 @@ function pestControl(length){
 		efficiency.pestBonus = 0.1;
 		pestTimer = length * population.cats;
 		//Inform player
-		gameLog("The vermin are exterminated.")
+		gameLog("The vermin are exterminated.");
 		//Deduct piety
 		piety.total -= 100;
 	}
@@ -3763,11 +3757,14 @@ function pestControl(length){
 function plague(sickNum){
 	//Selects random workers, transfers them to their Ill variants
 	var actualNum = 0;
+	var i;
+	var selected;
+
 	updatePopulation();
-	for (var i=0;i<sickNum;i++){
+	for (i=0;i<sickNum;i++){
 		if (population.healthy > 0){ //Makes sure there is someone healthy to get ill.
 			if (population.current > 0){ //Makes sure zombies aren't getting ill.
-				var selected = randomWorker();
+				selected = randomWorker();
 				actualNum += 1;
 				if (selected == 'unemployed' && population.unemployed > 0){
 					population.unemployed -= 1;
@@ -3837,20 +3834,21 @@ function plague(sickNum){
 /* Iconoclasm */
 
 function iconoclasmList(){
+	var i;
 	//Lists the deities for removing
 	if (piety.total >= 1000){
 		piety.total -= 1000;
 		updateResourceTotals();
 		document.getElementById('iconoclasm').disabled = true;
 		var append = '<br />';
-		for (var i=(deityArray.length - 1);i>=0;i--){
+		for (i=(deityArray.length - 1);i>=0;i--){
 			if (deityArray[i][0]){
-				append += '<button onclick="iconoclasm(' + i + ')">'
+				append += '<button onclick="iconoclasm(' + i + ')">';
 				append += deityArray[i][1];
 				append += '</button><br />';
 			}
 		}
-		append += '<br /><button onclick=\'iconoclasm("cancel")\'>Cancel</button>'
+		append += '<br /><button onclick=\'iconoclasm("cancel")\'>Cancel</button>';
 		document.getElementById('iconoclasmList').innerHTML = append;
 	}
 }
@@ -3864,7 +3862,7 @@ function iconoclasm(index){
 		piety.total += 1000;
 	} else {
 		//give gold
-		if (deityArray[index][3]) gold.total += Math.floor(Math.pow(deityArray[index][3],1/1.25));
+		if (deityArray[index][3]) { gold.total += Math.floor(Math.pow(deityArray[index][3],1/1.25)); }
 		//remove the deity
 		deityArray.splice(index,1);
 		if (deityArray.length == 0){
@@ -3885,27 +3883,28 @@ function summonMob(mobtype){
 }
 
 function spawnMob(mobtype){
+	var num, pop, tot, clt, nus, tos, cls;
 	//Creates enemies based on current population
 	if (mobtype == 'wolf'){
 		//Calculates appropriate number
-		var num = Math.random(),
-			pop = (population.current / 50),
-			tot = num * pop,
-			clt = Math.ceil(tot);
+		num = Math.random();
+		pop = (population.current / 50);
+		tot = num * pop;
+		clt = Math.ceil(tot);
 		population.wolves += clt;
 		population.wolvesCas += clt;
 		//Informs player
-        if (clt > 0) gameLog(prettify(clt) + ' wolves attacked');
+        if (clt > 0) { gameLog(prettify(clt) + ' wolves attacked'); }
 		document.getElementById('wolfgroup').style.display = 'table-row';
 	}
 	if(mobtype == 'bandit'){
-		var num = Math.random(),
-			pop = ((population.current + population.zombies) / 50),
-			tot = num * pop,
-			clt = Math.ceil(tot),
-			nus = Math.random(),
-			tos = nus * clt/500,
-			cls = Math.floor(tos);
+		num = Math.random();
+		pop = ((population.current + population.zombies) / 50);
+		tot = num * pop;
+		clt = Math.ceil(tot);
+		nus = Math.random();
+		tos = nus * clt/500;
+		cls = Math.floor(tos);
 		population.bandits += clt;
 		population.banditsCas += clt;
 		population.esiege += cls;
@@ -3919,13 +3918,13 @@ function spawnMob(mobtype){
 		}
 	}
 	if (mobtype == 'barbarian'){
-		var num = Math.random(),
-			pop = ((population.current + population.zombies) / 50),
-			tot = num * pop,
-			clt = Math.ceil(tot),
-			nus = Math.random(),
-			tos = nus * clt/100,
-			cls = Math.floor(tos);
+		num = Math.random();
+		pop = ((population.current + population.zombies) / 50);
+		tot = num * pop;
+		clt = Math.ceil(tot);
+		nus = Math.random();
+		tos = nus * clt/100;
+		cls = Math.floor(tos);
 		population.barbarians += clt;
 		population.barbariansCas += clt;
 		population.esiege += cls;
@@ -3942,26 +3941,27 @@ function spawnMob(mobtype){
 }
 
 function smite(){
+	var num;
 	if (population.barbarians > 0){
 		if (piety.total >= population.barbarians * 100){
 			piety.total -= population.barbarians * 100;
 			population.enemiesSlain += population.barbarians;
 			population.corpses += population.barbarians;
 			gameLog('Struck down ' + population.barbarians + ' barbarians');
-			if (upgrades.throne) throneCount += population.barbarians;
-			if (upgrades.book) piety.total += population.barbarians * 10;
+			if (upgrades.throne) { throneCount += population.barbarians; }
+			if (upgrades.book) { piety.total += population.barbarians * 10; }
 			population.barbarians = 0;
 			population.barbariansCas = 0;
 		} else if (piety.total >= 100){
-			var num = Math.floor(piety.total/100);
+			num = Math.floor(piety.total/100);
 			gameLog('Struck down ' + num + ' barbarians');
 			population.barbarians -= num;
 			population.barbariansCas -= num;
 			population.enemiesSlain += num;
 			population.corpses += num;
 			piety.total -= num * 100;
-			if (upgrades.throne) throneCount += num;
-			if (upgrades.book) piety.total += num * 10;
+			if (upgrades.throne) { throneCount += num; }
+			if (upgrades.book) { piety.total += num * 10; }
 		}
 	}
 	if (population.bandits > 0){
@@ -3970,20 +3970,20 @@ function smite(){
 			population.enemiesSlain += population.bandits;
 			population.corpses += population.bandits;
 			gameLog('Struck down ' + population.bandits + ' bandits');
-			if (upgrades.throne) throneCount += population.bandits;
-			if (upgrades.book) piety.total += population.bandits * 10;
+			if (upgrades.throne) { throneCount += population.bandits; }
+			if (upgrades.book) { piety.total += population.bandits * 10; }
 			population.bandits = 0;
 			population.banditsCas = 0;
 		} else if (piety.total >= 100){
-			var num = Math.floor(piety.total/100);
+			num = Math.floor(piety.total/100);
 			gameLog('Struck down ' + num + ' bandits');
 			population.bandits -= num;
 			population.banditsCas -= num;
 			population.enemiesSlain += num;
 			population.corpses += num;
 			piety.total -= num * 100;
-			if (upgrades.throne) throneCount += num;
-			if (upgrades.book) piety.total += num * 10;
+			if (upgrades.throne) { throneCount += num; }
+			if (upgrades.book) { piety.total += num * 10; }
 		}
 	}
 	if (population.wolves > 0){
@@ -3992,20 +3992,20 @@ function smite(){
 			population.enemiesSlain += population.wolves;
 			population.corpses += population.wolves;
 			gameLog('Struck down ' + population.wolves + ' wolves');
-			if (upgrades.throne) throneCount += population.wolves;
-			if (upgrades.book) piety.total += population.wolves * 10;
+			if (upgrades.throne) { throneCount += population.wolves; }
+			if (upgrades.book) { piety.total += population.wolves * 10; }
 			population.wolves = 0;
 			population.wolvesCas = 0;
 		} else if (piety.total >= 100){
-			var num = Math.floor(piety.total/100);
+			num = Math.floor(piety.total/100);
 			gameLog('Struck down ' + num + ' wolves');
 			population.wolves -= num;
 			population.wolvesCas -= num;
 			population.enemiesSlain += num;
 			population.corpses += num;
 			piety.total -= num * 100;
-			if (upgrades.throne) throneCount += num;
-			if (upgrades.book) piety.total += num * 10;
+			if (upgrades.throne) { throneCount += num; }
+			if (upgrades.book) { piety.total += num * 10; }
 		}
 	}
 	updateResourceTotals();
@@ -4081,7 +4081,7 @@ function party(member,number){
 				population.cavalryCas -= number;
 			} else {
 				var cName = 'Cavalry';
-				if (upgrades.chivalry) cName = 'Knights';
+				if (upgrades.chivalry) { cName = 'Knights'; }
 				gameLog('Insufficient ' + cName);
 			}
 		}
@@ -4121,7 +4121,7 @@ function partyCustom(member,multiplier){
 	custom = custom - 0;
 	//then we make sure it's an integer and at least 0
 	custom = Math.floor(custom);
-	if (custom < 1) custom = NaN;
+	if (custom < 1) { custom = NaN; }
 	//Now we multiply it by the multiplier (so it will either add or remove)
 	custom = custom * multiplier;
 	//finally, check the above operations haven't returned NaN
@@ -4197,13 +4197,13 @@ function invade(ecivtype){
 		raiding.last = 'empire';
 		iterations = 50000;
 	}
-	if (gloryTimer > 0) iterations = (iterations * 2); //doubles soldiers fought
+	if (gloryTimer > 0) { iterations = (iterations * 2); } //doubles soldiers fought
 	var esoldierRes = iterations + Math.floor(Math.random() * iterations * 4);
 	var efortsRes = Math.floor(Math.random() * iterations / 250);
 	population.esoldiers += esoldierRes;
 	population.esoldiersCas += esoldierRes;
 	population.eforts += efortsRes;
-	if (gloryTimer > 0) iterations = (iterations * 2); //quadruples rewards (doubled here because doubled already above)
+	if (gloryTimer > 0) { iterations = (iterations * 2); } //quadruples rewards (doubled here because doubled already above)
 	raiding.iterations = iterations;
 	updateTargets(); //updates largest raid target
 	updateParty();
@@ -4224,18 +4224,18 @@ function plunder(){
 		plunderMetal = Math.round(Math.random() * raiding.iterations * 10),
 		//create message to notify player
 		prettyLast = '';
-	if (raiding.last == 'thorp') prettyLast = 'a Thorp';
-	if (raiding.last == 'hamlet') prettyLast = 'a Hamlet';
-	if (raiding.last == 'village') prettyLast = 'a Village';
-	if (raiding.last == 'smallTown') prettyLast = 'a Small Town';
-	if (raiding.last == 'largeTown') prettyLast = 'a Large Town';
-	if (raiding.last == 'smallCity') prettyLast = 'a Small City';
-	if (raiding.last == 'largeCity') prettyLast = 'a Large City';
-	if (raiding.last == 'metropolis') prettyLast = 'a Metropolis';
-	if (raiding.last == 'smallNation') prettyLast = 'a Small Nation';
-	if (raiding.last == 'nation') prettyLast = 'a Nation';
-	if (raiding.last == 'largeNation') prettyLast = 'a Large Nation';
-	if (raiding.last == 'empire') prettyLast = 'an Empire';
+	if (raiding.last == 'thorp') { prettyLast = 'a Thorp'; }
+	if (raiding.last == 'hamlet') { prettyLast = 'a Hamlet'; }
+	if (raiding.last == 'village') { prettyLast = 'a Village'; }
+	if (raiding.last == 'smallTown') { prettyLast = 'a Small Town'; }
+	if (raiding.last == 'largeTown') { prettyLast = 'a Large Town'; }
+	if (raiding.last == 'smallCity') { prettyLast = 'a Small City'; }
+	if (raiding.last == 'largeCity') { prettyLast = 'a Large City'; }
+	if (raiding.last == 'metropolis') { prettyLast = 'a Metropolis'; }
+	if (raiding.last == 'smallNation') { prettyLast = 'a Small Nation'; }
+	if (raiding.last == 'nation') { prettyLast = 'a Nation'; }
+	if (raiding.last == 'largeNation') { prettyLast = 'a Large Nation'; }
+	if (raiding.last == 'empire') { prettyLast = 'an Empire'; }
 	var plunderMessage = "Defeated " + prettyLast + ". Plundered " + prettify(plunderFood) + " food, " + prettify(plunderWood) + " wood, " + prettify(plunderStone) + " stone, " + prettify(plunderSkins) + " skins, " + prettify(plunderHerbs) + " herbs, " + prettify(plunderOre) + " ore, " + prettify(plunderLeather) + " leather, and " + prettify(plunderMetal) + " metal. Captured " + prettify(landCaptured) + " land.";
 	//add loot
 	land += landCaptured;
@@ -4297,7 +4297,7 @@ function mood(delta){
 			efficiency.happiness = 1 + (0.5 * fraction);
 		} else if (efficiency.happiness < 1 - (0.5 * fraction)){
 			efficiency.happiness = 1 - (0.5 * fraction);
-		};
+		}
 		updateHappiness(); //update to player
 	}
 }
@@ -4315,22 +4315,22 @@ function startWonder(){
 }
 
 function renameWonder(){
-	n = prompt('Please name your Wonder:',wonder.name);
+	var n = prompt('Please name your Wonder:',wonder.name);
 	wonder.name = n;
 	document.getElementById('wonderNameP').innerHTML = wonder.name;
 	document.getElementById('wonderNameC').innerHTML = wonder.name;
 }
 
 function wonderBonus(material){
-	if (material == 'Food') wonder.food += 1;
-	if (material == 'Wood') wonder.wood += 1;
-	if (material == 'Stone') wonder.stone += 1;
-	if (material == 'Skins') wonder.skins += 1;
-	if (material == 'Herbs') wonder.herbs += 1;
-	if (material == 'Ore') wonder.ore += 1;
-	if (material == 'Leather') wonder.leather += 1;
-	if (material == 'Metal') wonder.metal += 1;
-	if (material == 'Piety') wonder.piety += 1;
+	if (material == 'Food') { wonder.food += 1; }
+	if (material == 'Wood') { wonder.wood += 1; }
+	if (material == 'Stone') { wonder.stone += 1; }
+	if (material == 'Skins') { wonder.skins += 1; }
+	if (material == 'Herbs') { wonder.herbs += 1; }
+	if (material == 'Ore') { wonder.ore += 1; }
+	if (material == 'Leather') { wonder.leather += 1; }
+	if (material == 'Metal') { wonder.metal += 1; }
+	if (material == 'Piety') { wonder.piety += 1; }
 	gameLog('You now have a permanent bonus to ' + material + ' production.');
 	wonder.array.push([wonder.name,material]);
 	wonder.total = Math.max(wonder.food,wonder.wood,wonder.stone,wonder.skins,wonder.herbs,wonder.ore,wonder.leather,wonder.metal,wonder.piety);
@@ -4360,7 +4360,7 @@ function updateWonderLimited(){
 	} else if (metal.total < 1){
 		document.getElementById('limited').innerHTML = " by low metal";
 	}
-};
+}
 
 /* Trade functions */
 
@@ -4368,9 +4368,9 @@ function tradeTimer(){
 	//first set timer length
 	trader.timer = 10;
 	//add the upgrades
-	if (upgrades.currency) trader.timer += 5;
-	if (upgrades.commerce) trader.timer += 5;
-	if (upgrades.stay) trader.timer += 5;
+	if (upgrades.currency) { trader.timer += 5; }
+	if (upgrades.commerce) { trader.timer += 5; }
+	if (upgrades.stay) { trader.timer += 5; }
 	//then set material and requested values
 	var random = Math.random();
 	if (random < 1/8){
@@ -4412,23 +4412,23 @@ function trade(){
 			trader.material.total -= trader.requested;
 			gold.total += 1;
 			updateResourceTotals();
-			gameLog('Traded ' + trader.requested + ' ' + trader.material.name)
+			gameLog('Traded ' + trader.requested + ' ' + trader.material.name);
 			if (!achievements.merchant){
 				gameLog('Achievement Unlocked: Merchant');
 				achievements.merchant = 1;
 				updateAchievements();
 			}
 		} else {
-			gameLog('Not enough resources to trade.')
+			gameLog('Not enough resources to trade.');
 		}
 	}
 }
 
 function buy(material){
 	if (gold.total >= 1){
-		if (material == food || material == wood || material == stone) material.total += 5000;
-		if (material == skins || material == herbs || material == ore) material.total += 500;
-		if (material == leather || material == metal) material.total += 250;
+		if (material == food || material == wood || material == stone) { material.total += 5000; }
+		if (material == skins || material == herbs || material == ore) { material.total += 500; }
+		if (material == leather || material == metal) { material.total += 250; }
 		gold.total -= 1;
 		updateResourceTotals();
 	}
@@ -4450,10 +4450,11 @@ function speedWonder(){
 /* Settings functions */
 
 function save(savetype){
+	var xmlhttp;
 	//Create objects and populate them with the variables, these will be stored in cookies
 	//Each individual cookie stores only ~4000 characters, therefore split currently across two cookies
 	//Save files now also stored in localStorage, cookies relegated to backup
-	saveVar = {
+	var saveVar = {
 		food:food,
 		wood:wood,
 		stone:stone,
@@ -4478,8 +4479,8 @@ function save(savetype){
 		walkTotal:walkTotal,
 		targetMax:targetMax,
 		size:size
-	}
-	saveVar2 = {
+	};
+	var saveVar2 = {
 		land:land,
 		wonder:wonder,
 		tent:tent,
@@ -4504,8 +4505,8 @@ function save(savetype){
 		underworldAltar:underworldAltar,
 		catAltar:catAltar,
 		resourceClicks:resourceClicks,
-		worksafe:worksafe,
-	}
+		worksafe:worksafe
+	};
 	//Create the cookies
 	bake_cookie('civ',saveVar);
 	bake_cookie('civ2',saveVar2);
@@ -4514,15 +4515,15 @@ function save(savetype){
 		localStorage.setItem('civ', JSON.stringify(saveVar));
 		localStorage.setItem('civ2', JSON.stringify(saveVar2));
 	} catch(err) {
-		console.log('Cannot access localStorage - browser may be old or storage may be corrupt')
+		console.log('Cannot access localStorage - browser may be old or storage may be corrupt');
 	}
 	//Update console for debugging, also the player depending on the type of save (manual/auto)
 	console.log('Attempted save');
 	if (savetype == 'export'){
-		var string = '[' + JSON.stringify(saveVar) + ',' + JSON.stringify(saveVar2) + ']';
-		var compressed = LZString.compressToBase64(string);
+		var savestring = '[' + JSON.stringify(saveVar) + ',' + JSON.stringify(saveVar2) + ']';
+		var compressed = LZString.compressToBase64(savestring);
 		console.log('Compressing Save');
-		console.log('Compressed from ' + string.length + ' to ' + compressed.length + ' characters');
+		console.log('Compressed from ' + savestring.length + ' to ' + compressed.length + ' characters');
 		document.getElementById('impexpField').value = compressed;
 		gameLog('Saved game and exported to base64');
 	}
@@ -4536,35 +4537,35 @@ function save(savetype){
 			console.log('Manual Save');
 			gameLog('Saved game');
 		}
-	};
+	}
 	try {
 		xmlhttp = new XMLHttpRequest();
 		xmlhttp.overrideMimeType('text/plain');
 		xmlhttp.open("GET", "version.txt?r=" + Math.random(),true);
 		xmlhttp.onreadystatechange=function() {
 			if (xmlhttp.readyState==4) {
-				var sVersion = parseInt(xmlhttp.responseText);
+				var sVersion = parseInt(xmlhttp.responseText,10);
 				if (version < sVersion){
 					versionAlert();
 				}
 			}
-		}
-		xmlhttp.send(null)
+		};
+		xmlhttp.send(null);
 	} catch (err) {
-		console.log('XMLHttpRequest failed')
+		console.log('XMLHttpRequest failed');
 	}
 }
 
 function toggleAutosave(){
 	//Turns autosave on or off. Default on.
 	if (autosave == "on"){
-		console.log("Autosave toggled to off")
+		console.log("Autosave toggled to off");
 		autosave = "off";
-		document.getElementById("toggleAutosave").innerHTML = "Enable Autosave"
+		document.getElementById("toggleAutosave").innerHTML = "Enable Autosave";
 	} else {
-		console.log("Autosave toggled to on")
+		console.log("Autosave toggled to on");
 		autosave = "on";
-		document.getElementById("toggleAutosave").innerHTML = "Disable Autosave"
+		document.getElementById("toggleAutosave").innerHTML = "Disable Autosave";
 	}
 }
 
@@ -4582,24 +4583,24 @@ function deleteSave(){
 
 function renameCiv(){
 	//Prompts player, uses result as new civName
-	n = prompt('Please name your civilisation',civName);
-	if (n != null){
+	var n = prompt('Please name your civilisation',civName);
+	if (n !== null){
 		civName = n;
 		document.getElementById('civName').innerHTML = civName;
 	}
 }
 function renameRuler(){
 	//Prompts player, uses result as rulerName
-	n = prompt('What is your name?',rulerName);
-	if (n != null){
+	var n = prompt('What is your name?',rulerName);
+	if (n !== null){
 		rulerName = n;
 		document.getElementById('rulerName').innerHTML = rulerName;
 	}
 }
 function renameDeity(){
 	//Prompts player, uses result as deity.name - called when first getting a deity
-	n = prompt('Who do your people worship?',deity.name);
-	if (n != null){
+	var n = prompt('Who do your people worship?',deity.name);
+	if (n !== null){
 		deity.name = n;
 		updateDeity();
 	}
@@ -4613,67 +4614,66 @@ function reset(){
 			if (oldDeities){
 				//Relegates current deity to the oldDeities table.
 				if (deity.type){
-					deity.type = ', deity of ' + deity.type
-				};
-				append = oldDeities;
+					deity.type = ', deity of ' + deity.type;
+				}
+				var append = oldDeities;
 				//Sets oldDeities value
 				oldDeities = '<tr id="deity' + deity.seniority + '"><td><strong><span id="deity' + deity.seniority + 'Name">' + deity.name + '</span></strong><span id="deity' + deity.seniority + 'Type" class="deityType">' + deity.type + '</span></td><td>Devotion: <span id="devotion' + deity.seniority + '">' + deity.devotion + '</span></td><td class="removeDeity"><button class="removeDeity" onclick="removeDeity(deity' + deity.seniority + ')">X</button></td></tr>' + append;
-				//document.getElementById('activeDeity').innerHTML = '<tr id="deity' + (deity.seniority + 1) + '"><td><strong><span id="deity' + (deity.seniority + 1) + 'Name">No deity</span></strong><span id="deity' + (deity.seniority + 1) + 'Type" class="deityType"></span></td><td>Devotion: <span id="devotion' + (deity.seniority + 1) + '">0</span></td><td class="removeDeity"><button class="removeDeity" onclick="removeDeity(deity' + (deity.seniority + 1) + ')">X</button></td></tr>'
+				//document.getElementById('activeDeity').innerHTML = '<tr id="deity' + (deity.seniority + 1) + '"><td><strong><span id="deity' + (deity.seniority + 1) + 'Name">No deity</span></strong><span id="deity' + (deity.seniority + 1) + 'Type" class="deityType"></span></td><td>Devotion: <span id="devotion' + (deity.seniority + 1) + '">0</span></td><td class="removeDeity"><button class="removeDeity" onclick="removeDeity(deity' + (deity.seniority + 1) + ')">X</button></td></tr>';
 			} else {
 				deityArray.push([deity.seniority,deity.name,deity.type,deity.devotion]);
-			};
-			document.getElementById('activeDeity').innerHTML = '<tr id="deity' + (deity.seniority + 1) + '"><td><strong><span id="deity' + (deity.seniority + 1) + 'Name">No deity</span></strong><span id="deity' + (deity.seniority + 1) + 'Type" class="deityType"></span></td><td>Devotion: <span id="devotion' + (deity.seniority + 1) + '">0</span></td><td class="removeDeity"><button class="removeDeity" onclick="removeDeity(deity' + (deity.seniority + 1) + ')">X</button></td></tr>'
+			}
+			document.getElementById('activeDeity').innerHTML = '<tr id="deity' + (deity.seniority + 1) + '"><td><strong><span id="deity' + (deity.seniority + 1) + 'Name">No deity</span></strong><span id="deity' + (deity.seniority + 1) + 'Type" class="deityType"></span></td><td>Devotion: <span id="devotion' + (deity.seniority + 1) + '">0</span></td><td class="removeDeity"><button class="removeDeity" onclick="removeDeity(deity' + (deity.seniority + 1) + ')">X</button></td></tr>';
 			deity.seniority += 1;
 			document.getElementById('deitySpecialisation').style.display = 'none';
-		};
+		}
 		
 		food = {
 			name:"food",
 			total:0,
 			increment:1,
 			specialchance:0.1
-		}
+		};
 		wood = {
 			name:"wood",
 			total:0,
 			increment:1,
 			specialchance:0.1
-		}
+		};
 		stone = {
 			name:"stone",
 			total:0,
 			increment:1,
 			specialchance:0.1
-		}
-
+		};
 		skins = {
 			name:"skins",
-			total:0,
-		}
+			total:0
+		};
 		herbs= {
 			name:"herbs",
-			total:0,
-		}
+			total:0
+		};
 		ore = {
 			name:"ore",
-			total:0,
-		}
+			total:0
+		};
 		leather = {
 			name:"leather",
-			total:0,
-		}
+			total:0
+		};
 		metal = {
 			name:"metal",
-			total:0,
-		}
+			total:0
+		};
 		piety = {
 			name:"piety",
-			total:0,
-		}
+			total:0
+		};
 		gold = {
 			name:"gold",
-			total:0,
-		}
+			total:0
+		};
 
 		land = 1000;
 		tent = {
@@ -4691,7 +4691,7 @@ function reset(){
 				piety:0,
 				corpses:0
 			}
-		}
+		};
 		whut = {
 			total:0,
 			devotion:0,
@@ -4707,7 +4707,7 @@ function reset(){
 				piety:0,
 				corpses:0
 			}
-		}
+		};
 		cottage = {
 			total:0,
 			devotion:0,
@@ -4723,7 +4723,7 @@ function reset(){
 				piety:0,
 				corpses:0
 			}
-		}
+		};
 		house = {
 			total:0,
 			devotion:0,
@@ -4739,7 +4739,7 @@ function reset(){
 				piety:0,
 				corpses:0
 			}
-		}
+		};
 		mansion = {
 			total:0,
 			devotion:0,
@@ -4755,7 +4755,7 @@ function reset(){
 				piety:0,
 				corpses:0
 			}
-		}
+		};
 		barn = {
 			total:0,
 			devotion:0,
@@ -4771,7 +4771,7 @@ function reset(){
 				piety:0,
 				corpses:0
 			}
-		}
+		};
 		woodstock = {
 			total:0,
 			devotion:0,
@@ -4787,7 +4787,7 @@ function reset(){
 				piety:0,
 				corpses:0
 			}
-		}
+		};
 		stonestock = {
 			total:0,
 			devotion:0,
@@ -4803,8 +4803,7 @@ function reset(){
 				piety:0,
 				corpses:0
 			}
-		}
-
+		};
 		tannery = {
 			total:0,
 			devotion:0,
@@ -4820,7 +4819,7 @@ function reset(){
 				piety:0,
 				corpses:0
 			}
-		}
+		};
 		smithy = {
 			total:0,
 			devotion:0,
@@ -4836,7 +4835,7 @@ function reset(){
 				piety:0,
 				corpses:0
 			}
-		}
+		};
 		apothecary = {
 			total:0,
 			devotion:0,
@@ -4852,7 +4851,7 @@ function reset(){
 				piety:0,
 				corpses:0
 			}
-		}
+		};
 		temple = {
 			total:0,
 			devotion:0,
@@ -4868,7 +4867,7 @@ function reset(){
 				piety:0,
 				corpses:0
 			}
-		}
+		};
 		barracks = {
 			total:0,
 			devotion:0,
@@ -4884,7 +4883,7 @@ function reset(){
 				piety:0,
 				corpses:0
 			}
-		}
+		};
 		stable = {
 			total:0,
 			devotion:0,
@@ -4900,7 +4899,7 @@ function reset(){
 				piety:0,
 				corpses:0
 			}
-		}
+		};
 		mill = {
 			total:0,
 			devotion:0,
@@ -4916,7 +4915,7 @@ function reset(){
 				piety:0,
 				corpses:0
 			}
-		}
+		};
 		graveyard = {
 			total:0,
 			devotion:0,
@@ -4932,7 +4931,7 @@ function reset(){
 				piety:0,
 				corpses:0
 			}
-		}
+		};
 		fortification = {
 			total:0,
 			devotion:0,
@@ -4948,7 +4947,7 @@ function reset(){
 				piety:0,
 				corpses:0
 			}
-		}
+		};
 		battleAltar = {
 			total:0,
 			devotion:1,
@@ -4964,7 +4963,7 @@ function reset(){
 				piety:200,
 				corpses:0
 			}
-		}
+		};
 		fieldsAltar = {
 			total:0,
 			devotion:1,
@@ -4980,7 +4979,7 @@ function reset(){
 				piety:200,
 				corpses:0
 			}
-		}
+		};
 		underworldAltar = {
 			total:0,
 			devotion:1,
@@ -4996,7 +4995,7 @@ function reset(){
 				piety:200,
 				corpses:1
 			}
-		}
+		};
 		catAltar = {
 			total:0,
 			devotion:1,
@@ -5012,7 +5011,7 @@ function reset(){
 				piety:200,
 				corpses:0
 			}
-		}
+		};
 		wonder = {
 			total:wonder.total,
 			food:wonder.food,
@@ -5029,7 +5028,7 @@ function reset(){
 			building:false,
 			completed:false,
 			progress:0
-		}
+		};
 
 		population = {
 			current:0,
@@ -5083,7 +5082,7 @@ function reset(){
 			esiege:0,
 			enemiesSlain:0,
 			shades:0
-		}
+		};
 
 		efficiency = {
 			happiness:1,
@@ -5097,7 +5096,7 @@ function reset(){
 			clerics:0.05,
 			soldiers:0.05,
 			cavalry:0.08
-		}
+		};
 
 		upgrades = {
 			domestication:0,
@@ -5151,7 +5150,7 @@ function reset(){
 			book:upgrades.book,
 			feast:upgrades.feast,
 			secrets:upgrades.secrets
-		}
+		};
 		deity = {
 			name:"",
 			type:"",
@@ -5163,11 +5162,11 @@ function reset(){
 			fields:deity.fields,
 			underworld:deity.underworld,
 			cats:deity.cats
-		}
+		};
 		raiding = {
 			raiding:false,
 			victory:false
-		}
+		};
 		attackCounter = 0;
 		resourceClicks = 0;
 		graceCost = 1000;
@@ -5262,6 +5261,7 @@ function reset(){
 /* Timed functions */
 
 window.setInterval(function(){
+	var i;
 	//The whole game runs on a single setInterval clock. Basically this whole list is run every second
 	//and should probably be minimised as much as possible.
 
@@ -5280,48 +5280,49 @@ window.setInterval(function(){
 	//Resource-related
 	
 	var millMod = 1;
-	if (population.current > 0 || population.zombies > 0) millMod = population.current / (population.current + population.zombies);
+	if (population.current > 0 || population.zombies > 0) { millMod = population.current / (population.current + population.zombies); }
 	food.total += population.farmers * (1 + (efficiency.farmers * efficiency.happiness)) * (1 + efficiency.pestBonus) * (1 + (wonder.food/10)) * (1 + walkTotal/120) * (1 + mill.total * millMod / 200); //Farmers farm food
 	if (upgrades.skinning == 1 && population.farmers > 0){ //and sometimes get skins
-		num_skins = food.specialchance * (food.increment + (upgrades.butchering * population.farmers / 15.0)) * (1 + (wonder.skins/10));
+		var num_skins = food.specialchance * (food.increment + (upgrades.butchering * population.farmers / 15.0)) * (1 + (wonder.skins/10));
 		skins.total += Math.floor(num_skins);
-		if (Math.random() < (num_skins - Math.floor(num_skins))) ++skins.total;
+		if (Math.random() < (num_skins - Math.floor(num_skins))) { ++skins.total; }
 	}
 	wood.total += population.woodcutters * (efficiency.woodcutters * efficiency.happiness) * (1 + (wonder.wood/10)); //Woodcutters cut wood
 	if (upgrades.harvesting == 1 && population.woodcutters > 0){ //and sometimes get herbs
-		num_herbs = wood.specialchance * (wood.increment + (upgrades.gardening * population.woodcutters / 5.0)) * (1 + (wonder.wood/10));
+		var num_herbs = wood.specialchance * (wood.increment + (upgrades.gardening * population.woodcutters / 5.0)) * (1 + (wonder.wood/10));
 		herbs.total += Math.floor(num_herbs);
-		if (Math.random() < (num_herbs - Math.floor(num_herbs))) ++herbs.total;
+		if (Math.random() < (num_herbs - Math.floor(num_herbs))) { ++herbs.total; }
 	}
 	stone.total += population.miners * (efficiency.miners * efficiency.happiness) * (1 + (wonder.stone/10)); //Miners mine stone
 	if (upgrades.prospecting == 1 && population.miners > 0){ //and sometimes get ore
-		num_ore = stone.specialchance * (stone.increment + (upgrades.extraction * population.miners / 5.0)) * (1 + (wonder.ore/10));
+		var num_ore = stone.specialchance * (stone.increment + (upgrades.extraction * population.miners / 5.0)) * (1 + (wonder.ore/10));
 		ore.total += Math.floor(num_ore);
-		if (Math.random() < (num_ore - Math.floor(num_ore))) ++ore.total;
+		if (Math.random() < (num_ore - Math.floor(num_ore))) { ++ore.total; }
 	}
 	food.total -= population.current; //The living population eats food.
+	var starve;
 	if (food.total < 0) { //and will starve if they don't have enough
 		if (upgrades.waste && population.corpses >= (food.total * -1)){ //population eats corpses instead
 			population.corpses = Math.floor(population.corpses + food.total);
 		} else if (upgrades.waste && population.corpses > 0){ //corpses mitigate starvation
-			var starve = Math.ceil((population.current - population.corpses)/1000);
-			if (starve == 1) gameLog('A worker starved to death');
-			if (starve > 1) gameLog(prettify(starve) + ' workers starved to death');
-			for (var i=0; i<starve; i++){
+			starve = Math.ceil((population.current - population.corpses)/1000);
+			if (starve == 1) { gameLog('A worker starved to death'); }
+			if (starve > 1) { gameLog(prettify(starve) + ' workers starved to death'); }
+			for (i=0; i<starve; i++){
 				jobCull();
 			}
 			updateJobs();
 			population.corpses = 0;
 		} else { //they just starve
-			var starve = Math.ceil(population.current/1000);
-			if (starve == 1) gameLog('A worker starved to death');
-			if (starve > 1) gameLog(prettify(starve) + ' workers starved to death');
-			for (var i=0; i<starve; i++){
+			starve = Math.ceil(population.current/1000);
+			if (starve == 1) { gameLog('A worker starved to death'); }
+			if (starve > 1) { gameLog(prettify(starve) + ' workers starved to death'); }
+			for (i=0; i<starve; i++){
 				jobCull();
 			}
 			updateJobs();
 			mood(-0.01);
-		};
+		}
 		food.total = 0;
 		updatePopulation(); //Called because jobCull doesn't. May just change jobCull?
 	}
@@ -5332,26 +5333,26 @@ window.setInterval(function(){
 	} else if (population.blacksmiths) {
 		metal.total += ore.total * (1 + (wonder.metal/10));
 		ore.total = 0;
-	};
+	}
 	if (skins.total >= population.tanners * (efficiency.tanners * efficiency.happiness)){
 		leather.total += population.tanners * (efficiency.tanners * efficiency.happiness) * (1 + (wonder.leather/10));
 		skins.total -= population.tanners * (efficiency.tanners * efficiency.happiness);
 	} else if (population.tanners) {
 		leather.total += skins.total * (1 + (wonder.leather/10));
 		skins.total = 0;
-	};
+	}
 
 	//Resources occasionally go above their caps.
 	//Cull the excess /after/ the blacksmiths and tanners take their inputs.
 	if (food.total > 200 + ((barn.total + (barn.total * upgrades.granaries)) * 200)){
 		food.total = 200 + ((barn.total + (barn.total * upgrades.granaries)) * 200);
-	};
+	}
 	if (wood.total > 200 + (woodstock.total * 200)){
 		wood.total = 200 + (woodstock.total * 200);
-	};
+	}
 	if (stone.total > 200 + (stonestock.total * 200)){
 		stone.total = 200 + (stonestock.total * 200);
-	};
+	}
 
 	//Clerics generate piety
 	piety.total += population.clerics * (efficiency.clerics + (efficiency.clerics * upgrades.writing)) * (1 + (upgrades.secrets * (1 - 100/(graveyard.total + 100)))) * efficiency.happiness * (1 + (wonder.piety/10));
@@ -5359,9 +5360,10 @@ window.setInterval(function(){
 	//Timers - routines that do not occur every second
 	
 	//Checks when mobs will attack
-	if (population.current + population.zombies > 0) attackCounter += 1;
+	var check;
+	if (population.current + population.zombies > 0) { attackCounter += 1; }
 	if (population.current + population.zombies > 0 && attackCounter > (60 * 5)){ //Minimum 5 minutes
-		var check = Math.random() * 600;
+		check = Math.random() * 600;
 		if (check < 1){
 			attackCounter = 0;
 			//Chooses which kind of mob will attack
@@ -5401,9 +5403,9 @@ window.setInterval(function(){
 	}
 	
 	//traders occasionally show up
-	if (population.current + population.zombies > 0) tradeCounter += 1;
+	if (population.current + population.zombies > 0) { tradeCounter += 1; }
 	if (population.current + population.zombies > 0 && tradeCounter > (60 * (3 - upgrades.currency - upgrades.commerce))){
-		var check = Math.random() * (60 * (3 - upgrades.currency - upgrades.commerce));
+		check = Math.random() * (60 * (3 - upgrades.currency - upgrades.commerce));
 		if (check < (1 + (0.2 * upgrades.comfort))){
 			tradeCounter = 0;
 			tradeTimer();
@@ -5413,7 +5415,14 @@ window.setInterval(function(){
 	updateResourceTotals(); //This is the point where the page is updated with new resource totals
 	
 	//Population-related
-	
+	var mobCasualties,
+		mobCasFloor,
+		casualties,
+		casFloor;
+	var leaving;
+	var num,stolen;
+	var target;
+
 	//Handling wolf attacks (this is complicated)
 	if (population.wolves > 0){
 		if (population.soldiers > 0 || population.cavalry > 0){ //FIGHT!
@@ -5430,19 +5439,19 @@ window.setInterval(function(){
 					population.cavalryCas = 0;
 				}
 				//Calculates the casualties dealt based on difference between actual numbers and new effective strength
-				var mobCasualties = population.wolves - population.wolvesCas,
-					mobCasFloor = Math.floor(mobCasualties),
-					casualties = population.cavalry - population.cavalryCas,
-					casFloor = Math.floor(casualties);
-				if (!(mobCasFloor > 0)) mobCasFloor = 0; //weirdness with floating point numbers. not sure why this is necessary
-				if (!(casFloor > 0)) casFloor = 0;
+				mobCasualties = population.wolves - population.wolvesCas;
+				mobCasFloor = Math.floor(mobCasualties);
+				casualties = population.cavalry - population.cavalryCas;
+				casFloor = Math.floor(casualties);
+				if (!(mobCasFloor > 0)) { mobCasFloor = 0; } //weirdness with floating point numbers. not sure why this is necessary
+				if (!(casFloor > 0)) { casFloor = 0; }
 				//Increments enemies slain, corpses, and piety
 				population.enemiesSlain += mobCasFloor;
-				if (upgrades.throne) throneCount += mobCasFloor;
+				if (upgrades.throne) { throneCount += mobCasFloor; }
 				population.corpses += (casFloor + mobCasFloor);
 				if (upgrades.book) {
 					piety.total += (casFloor + mobCasFloor) * 10;
-				};
+				}
 				//Resets the actual numbers based on effective strength
 				population.wolves = Math.ceil(population.wolvesCas);
 				population.cavalry = Math.ceil(population.cavalryCas);
@@ -5460,19 +5469,19 @@ window.setInterval(function(){
 					population.soldiersCas = 0;
 				}
 				//Calculates the casualties dealt based on difference between actual numbers and new effective strength
-				var mobCasualties = population.wolves - population.wolvesCas,
-					mobCasFloor = Math.floor(mobCasualties),
-					casualties = population.soldiers - population.soldiersCas,
-					casFloor = Math.floor(casualties);
-				if (!(mobCasFloor > 0)) mobCasFloor = 0; //weirdness with floating point numbers. not sure why this is necessary
-				if (!(casFloor > 0)) casFloor = 0;
+				mobCasualties = population.wolves - population.wolvesCas;
+				mobCasFloor = Math.floor(mobCasualties);
+				casualties = population.soldiers - population.soldiersCas;
+				casFloor = Math.floor(casualties);
+				if (!(mobCasFloor > 0)) { mobCasFloor = 0; } //weirdness with floating point numbers. not sure why this is necessary
+				if (!(casFloor > 0)) { casFloor = 0; }
 				//Increments enemies slain, corpses, and piety
 				population.enemiesSlain += mobCasFloor;
-				if (upgrades.throne) throneCount += mobCasFloor;
+				if (upgrades.throne) { throneCount += mobCasFloor; }
 				population.corpses += (casFloor + mobCasFloor);
 				if (upgrades.book) {
 					piety.total += (casFloor + mobCasFloor) * 10;
-				};
+				}
 				//Resets the actual numbers based on effective strength
 				population.wolves = Math.ceil(population.wolvesCas);
 				population.soldiers = Math.ceil(population.soldiersCas);
@@ -5483,12 +5492,12 @@ window.setInterval(function(){
 			//Check to see if there are workers that the wolves can eat
 			if (population.healthy > 0){
 				//Choose random worker
-				var target = randomWorker();
+				target = randomWorker();
 				if (Math.random() > 0.5){ //Wolves will sometimes not disappear after eating someone
 					population.wolves -= 1;
 					population.wolvesCas -= 1;
 				}
-				if (population.wolvesCas < 0) population.wolvesCas = 0;
+				if (population.wolvesCas < 0) { population.wolvesCas = 0; }
 				console.log('Wolves ate a ' + target);
                 gameLog('Wolves ate a ' + target);
 				if (target == "unemployed"){
@@ -5538,11 +5547,11 @@ window.setInterval(function(){
 				updatePopulation();
 			} else {
 				//wolves will leave
-				var leaving = Math.ceil(population.wolves * Math.random());
+				leaving = Math.ceil(population.wolves * Math.random());
 				population.wolves -= leaving;
 				population.wolvesCas -= leaving;
 				updateMobs();
-			};
+			}
 		}
 	}
 	if (population.bandits > 0){
@@ -5560,19 +5569,19 @@ window.setInterval(function(){
 					population.cavalryCas = 0;
 				}
 				//Calculates the casualties dealt based on difference between actual numbers and new effective strength
-				var mobCasualties = population.bandits - population.banditsCas,
-					mobCasFloor = Math.floor(mobCasualties),
-					casualties = population.cavalry - population.cavalryCas,
-					casFloor = Math.floor(casualties);
-				if (!(mobCasFloor > 0)) mobCasFloor = 0;
-				if (!(casFloor > 0)) casFloor = 0;
+				mobCasualties = population.bandits - population.banditsCas;
+				mobCasFloor = Math.floor(mobCasualties);
+				casualties = population.cavalry - population.cavalryCas;
+				casFloor = Math.floor(casualties);
+				if (!(mobCasFloor > 0)) { mobCasFloor = 0; }
+				if (!(casFloor > 0)) { casFloor = 0; }
 				//Increments enemies slain, corpses, and piety
 				population.enemiesSlain += mobCasFloor;
-				if (upgrades.throne) throneCount += mobCasFloor;
+				if (upgrades.throne) { throneCount += mobCasFloor; }
 				population.corpses += (casFloor + mobCasFloor);
 				if (upgrades.book) {
 					piety.total += (casFloor + mobCasFloor) * 10;
-				};
+				}
 				//Resets the actual numbers based on effective strength
 				population.bandits = Math.ceil(population.banditsCas);
 				population.cavalry = Math.ceil(population.cavalryCas);
@@ -5590,19 +5599,19 @@ window.setInterval(function(){
 					population.soldiersCas = 0;
 				}
 				//Calculates the casualties dealt based on difference between actual numbers and new effective strength
-				var mobCasualties = population.bandits - population.banditsCas,
-					mobCasFloor = Math.floor(mobCasualties),
-					casualties = population.soldiers - population.soldiersCas,
-					casFloor = Math.floor(casualties);
-				if (!(mobCasFloor > 0)) mobCasFloor = 0;
-				if (!(casFloor > 0)) casFloor = 0;
+				mobCasualties = population.bandits - population.banditsCas;
+				mobCasFloor = Math.floor(mobCasualties);
+				casualties = population.soldiers - population.soldiersCas;
+				casFloor = Math.floor(casualties);
+				if (!(mobCasFloor > 0)) { mobCasFloor = 0; }
+				if (!(casFloor > 0)) { casFloor = 0; }
 				//Increments enemies slain, corpses, and piety
 				population.enemiesSlain += mobCasFloor;
-				if (upgrades.throne) throneCount += mobCasFloor;
+				if (upgrades.throne) { throneCount += mobCasFloor; }
 				population.corpses += (casFloor + mobCasFloor);
 				if (upgrades.book) {
 					piety.total += (casFloor + mobCasFloor) * 10;
-				};
+				}
 				//Resets the actual numbers based on effective strength
 				population.bandits = Math.ceil(population.banditsCas);
 				population.soldiers = Math.ceil(population.soldiersCas);
@@ -5611,108 +5620,108 @@ window.setInterval(function(){
 			updatePopulation();
 		} else {
 			//Bandits will steal resources. Select random resource, steal random amount of it.
-			var num = Math.random();
-			var stolen = Math.floor((Math.random() * 1000)); //Steal up to 1000.
+			num = Math.random();
+			stolen = Math.floor((Math.random() * 1000)); //Steal up to 1000.
 			if (num < 1/8){
-				if (food.total > 0) gameLog('Bandits stole food');
+				if (food.total > 0) { gameLog('Bandits stole food'); }
 				if (food.total >= stolen){
 					food.total -= stolen;
 				} else {
 					food.total = 0;
 					//some will leave
-					var leaving = Math.ceil(population.bandits * Math.random() * 1/8);
+					leaving = Math.ceil(population.bandits * Math.random() * (1/8));
 					population.bandits -= leaving;
 					population.banditsCas -= leaving;
 					updateMobs();
 				}
 			} else if (num < 2/8){
-				if (wood.total > 0) gameLog('Bandits stole wood');
+				if (wood.total > 0) { gameLog('Bandits stole wood'); }
 				if (wood.total >= stolen){
 					wood.total -= stolen;
 				} else {
 					wood.total = 0;
 					//some will leave
-					var leaving = Math.ceil(population.bandits * Math.random() * 1/8);
+					leaving = Math.ceil(population.bandits * Math.random() * (1/8));
 					population.bandits -= leaving;
 					population.banditsCas -= leaving;
 					updateMobs();
 				}
 			} else if (num < 3/8){
-				if (stone.total > 0) gameLog('Bandits stole stone');
+				if (stone.total > 0) { gameLog('Bandits stole stone'); }
 				if (stone.total >= stolen){
 					stone.total -= stolen;
 				} else {
 					stone.total = 0;
 					//some will leave
-					var leaving = Math.ceil(population.bandits * Math.random() * 1/8);
+					leaving = Math.ceil(population.bandits * Math.random() * (1/8));
 					population.bandits -= leaving;
 					population.banditsCas -= leaving;
 					updateMobs();
 				}
 			} else if (num < 4/8){
-				if (skins.total > 0) gameLog('Bandits stole skins');
+				if (skins.total > 0) { gameLog('Bandits stole skins'); }
 				if (skins.total >= stolen){
 					skins.total -= stolen;
 				} else {
 					skins.total = 0;
 					//some will leave
-					var leaving = Math.ceil(population.bandits * Math.random() * 1/8);
+					leaving = Math.ceil(population.bandits * Math.random() * (1/8));
 					population.bandits -= leaving;
 					population.banditsCas -= leaving;
 					updateMobs();
 				}
 			} else if (num < 5/8){
-				if (herbs.total > 0) gameLog('Bandits stole herbs');
+				if (herbs.total > 0) { gameLog('Bandits stole herbs'); }
 				if (herbs.total >= stolen){
 					herbs.total -= stolen;
 				} else {
 					herbs.total = 0;
 					//some will leave
-					var leaving = Math.ceil(population.bandits * Math.random() * 1/8);
+					leaving = Math.ceil(population.bandits * Math.random() * (1/8));
 					population.bandits -= leaving;
 					population.banditsCas -= leaving;
 					updateMobs();
 				}
 			} else if (num < 6/8){
-				if (ore.total > 0) gameLog('Bandits stole ore');
+				if (ore.total > 0) { gameLog('Bandits stole ore'); }
 				if (ore.total >= stolen){
 					ore.total -= stolen;
 				} else {
 					ore.total = 0;
 					//some will leave
-					var leaving = Math.ceil(population.bandits * Math.random() * 1/8);
+					leaving = Math.ceil(population.bandits * Math.random() * (1/8));
 					population.bandits -= leaving;
 					population.banditsCas -= leaving;
 					updateMobs();
 				}
 			} else if (num < 7/8){
-				if (leather.total > 0) gameLog('Bandits stole leather');
+				if (leather.total > 0) { gameLog('Bandits stole leather'); }
 				if (leather.total >= stolen){
 					leather.total -= stolen;
 				} else {
 					leather.total = 0;
 					//some will leave
-					var leaving = Math.ceil(population.bandits * Math.random() * 1/8);
+					leaving = Math.ceil(population.bandits * Math.random() * (1/8));
 					population.bandits -= leaving;
 					population.banditsCas -= leaving;
 					updateMobs();
 				}
 			} else {
-				if (metal.total > 0) gameLog('Bandits stole metal');
+				if (metal.total > 0) { gameLog('Bandits stole metal'); }
 				if (metal.total >= stolen){
 					metal.total -= stolen;
 				} else {
 					metal.total = 0;
 					//some will leave
-					var leaving = Math.ceil(population.bandits * Math.random() * 1/8);
+					leaving = Math.ceil(population.bandits * Math.random() * (1/8));
 					population.bandits -= leaving;
 					population.banditsCas -= leaving;
 					updateMobs();
 				}
-			};
+			}
 			population.bandits -= 1; //Bandits leave after stealing something.
 			population.banditsCas -= 1;
-			if (population.banditsCas < 0) population.banditsCas = 0;
+			if (population.banditsCas < 0) { population.banditsCas = 0; }
 			updateResourceTotals();
 			updatePopulation();
 		}
@@ -5732,19 +5741,19 @@ window.setInterval(function(){
 					population.cavalryCas = 0;
 				}
 				//Calculates the casualties dealt based on difference between actual numbers and new effective strength
-				var mobCasualties = population.barbarians - population.barbariansCas,
-					mobCasFloor = Math.floor(mobCasualties),
-					casualties = population.cavalry - population.cavalryCas,
-					casFloor = Math.floor(casualties);
-				if (!(mobCasFloor > 0)) mobCasFloor = 0;
-				if (!(casFloor > 0)) casFloor = 0;
+				mobCasualties = population.barbarians - population.barbariansCas;
+				mobCasFloor = Math.floor(mobCasualties);
+				casualties = population.cavalry - population.cavalryCas;
+				casFloor = Math.floor(casualties);
+				if (!(mobCasFloor > 0)) { mobCasFloor = 0; }
+				if (!(casFloor > 0)) { casFloor = 0; }
 				//Increments enemies slain, corpses, and piety
 				population.enemiesSlain += mobCasFloor;
-				if (upgrades.throne) throneCount += mobCasFloor;
+				if (upgrades.throne) { throneCount += mobCasFloor; }
 				population.corpses += (casFloor + mobCasFloor);
 				if (upgrades.book) {
 					piety.total += (casFloor + mobCasFloor) * 10;
-				};
+				}
 				//Resets the actual numbers based on effective strength
 				population.barbarians = Math.ceil(population.barbariansCas);
 				population.cavalry = Math.ceil(population.cavalryCas);
@@ -5762,19 +5771,19 @@ window.setInterval(function(){
 					population.soldiersCas = 0;
 				}
 				//Calculates the casualties dealt based on difference between actual numbers and new effective strength
-				var mobCasualties = population.barbarians - population.barbariansCas,
-					mobCasFloor = Math.floor(mobCasualties),
-					casualties = population.soldiers - population.soldiersCas,
-					casFloor = Math.floor(casualties);
-				if (!(mobCasFloor > 0)) mobCasFloor = 0;
-				if (!(casFloor > 0)) casFloor = 0;
+				mobCasualties = population.barbarians - population.barbariansCas;
+				mobCasFloor = Math.floor(mobCasualties);
+				casualties = population.soldiers - population.soldiersCas;
+				casFloor = Math.floor(casualties);
+				if (!(mobCasFloor > 0)) { mobCasFloor = 0; }
+				if (!(casFloor > 0)) { casFloor = 0; }
 				//Increments enemies slain, corpses, and piety
 				population.enemiesSlain += mobCasFloor;
-				if (upgrades.throne) throneCount += mobCasFloor;
+				if (upgrades.throne) { throneCount += mobCasFloor; }
 				population.corpses += (casFloor + mobCasFloor);
 				if (upgrades.book) {
 					piety.total += (casFloor + mobCasFloor) * 10;
-				};
+				}
 				//Resets the actual numbers based on effective strength
 				population.barbarians = Math.ceil(population.barbariansCas);
 				population.soldiers = Math.ceil(population.soldiersCas);
@@ -5787,10 +5796,10 @@ window.setInterval(function(){
 				//Kill people, see wolves
 				if (population.healthy > 0){
 					//No honor in killing the sick who will starve anyway
-					var target = randomWorker(); //Choose random worker
+					target = randomWorker(); //Choose random worker
 					population.barbarians -= 1; //Barbarians always disappear after killing
 					population.barbariansCas -= 1;
-					if (population.barbariansCas < 0) population.barbariansCas = 0;
+					if (population.barbariansCas < 0) { population.barbariansCas = 0; }
 					console.log('Barbarians killed a ' + target);
 					gameLog('Barbarians killed a ' + target);
 					if (target == "unemployed"){
@@ -5840,127 +5849,127 @@ window.setInterval(function(){
 					population.corpses += 1; //Unlike wolves, Barbarians leave corpses behind
 					updatePopulation();
 				} else {
-					var leaving = Math.ceil(population.barbarians * Math.random() * 1/3);
+					leaving = Math.ceil(population.barbarians * Math.random() * (1/3));
 					population.barbarians -= leaving;
 					population.barbariansCas -= leaving;
 					updateMobs();
 				}
 			} else if (havoc < 0.6){
 				//Steal shit, see bandits
-				var num = Math.random();
-				var stolen = Math.floor((Math.random() * 1000)); //Steal up to 1000.
+				num = Math.random();
+				stolen = Math.floor((Math.random() * 1000)); //Steal up to 1000.
 				if (num < 1/8){
-					if (food.total > 0) gameLog('Barbarians stole food');
+					if (food.total > 0) { gameLog('Barbarians stole food'); }
 					if (food.total >= stolen){
 						food.total -= stolen;
 					} else {
 						food.total = 0;
 						//some will leave
-						var leaving = Math.ceil(population.barbarians * Math.random() * 1/24);
+						leaving = Math.ceil(population.barbarians * Math.random() * (1/24));
 						population.barbarians -= leaving;
 						population.barbariansCas -= leaving;
 						updateMobs();
 					}
 				} else if (num < 2/8){
-					if (wood.total > 0) gameLog('Barbarians stole wood');
+					if (wood.total > 0) { gameLog('Barbarians stole wood'); }
 					if (wood.total >= stolen){
 						wood.total -= stolen;
 					} else {
 						wood.total = 0;
 						//some will leave
-						var leaving = Math.ceil(population.barbarians * Math.random() * 1/24);
+						leaving = Math.ceil(population.barbarians * Math.random() * (1/24));
 						population.barbarians -= leaving;
 						population.barbariansCas -= leaving;
 						updateMobs();
 					}
 				} else if (num < 3/8){
-					if (stone.total > 0) gameLog('Barbarians stole stone');
+					if (stone.total > 0) { gameLog('Barbarians stole stone'); }
 					if (stone.total >= stolen){
 						stone.total -= stolen;
 					} else {
 						stone.total = 0;
 						//some will leave
-						var leaving = Math.ceil(population.barbarians * Math.random() * 1/24);
+						leaving = Math.ceil(population.barbarians * Math.random() * (1/24));
 						population.barbarians -= leaving;
 						population.barbariansCas -= leaving;
 						updateMobs();
 					}
 				} else if (num < 4/8){
-					if (skins.total > 0) gameLog('Barbarians stole skins');
+					if (skins.total > 0) { gameLog('Barbarians stole skins'); }
 					if (skins.total >= stolen){
 						skins.total -= stolen;
 					} else {
 						skins.total = 0;
 						//some will leave
-						var leaving = Math.ceil(population.barbarians * Math.random() * 1/24);
+						leaving = Math.ceil(population.barbarians * Math.random() * (1/24));
 						population.barbarians -= leaving;
 						population.barbariansCas -= leaving;
 						updateMobs();
 					}
 				} else if (num < 5/8){
-					if (herbs.total > 0) gameLog('Barbarians stole herbs');
+					if (herbs.total > 0) { gameLog('Barbarians stole herbs'); }
 					if (herbs.total >= stolen){
 						herbs.total -= stolen;
 					} else {
 						herbs.total = 0;
 						//some will leave
-						var leaving = Math.ceil(population.barbarians * Math.random() * 1/24);
+						leaving = Math.ceil(population.barbarians * Math.random() * (1/24));
 						population.barbarians -= leaving;
 						population.barbariansCas -= leaving;
 						updateMobs();
 					}
 				} else if (num < 6/8){
-					if (ore.total > 0) gameLog('Barbarians stole ore');
+					if (ore.total > 0) { gameLog('Barbarians stole ore'); }
 					if (ore.total >= stolen){
 						ore.total -= stolen;
 					} else {
 						ore.total = 0;
 						//some will leave
-						var leaving = Math.ceil(population.barbarians * Math.random() * 1/24);
+						leaving = Math.ceil(population.barbarians * Math.random() * (1/24));
 						population.barbarians -= leaving;
 						population.barbariansCas -= leaving;
 						updateMobs();
 					}
 				} else if (num < 7/8){
-					if (leather.total > 0) gameLog('Barbarians stole leather');
+					if (leather.total > 0) { gameLog('Barbarians stole leather'); }
 					if (leather.total >= stolen){
 						leather.total -= stolen;
 					} else {
 						leather.total = 0;
 						//some will leave
-						var leaving = Math.ceil(population.barbarians * Math.random() * 1/24);
+						leaving = Math.ceil(population.barbarians * Math.random() * (1/24));
 						population.barbarians -= leaving;
 						population.barbariansCas -= leaving;
 						updateMobs();
 					}
 				} else {
-					if (metal.total > 0) gameLog('Barbarians stole metal');
+					if (metal.total > 0) { gameLog('Barbarians stole metal'); }
 					if (metal.total >= stolen){
 						metal.total -= stolen;
 					} else {
 						metal.total = 0;
 						//some will leave
-						var leaving = Math.ceil(population.barbarians * Math.random() * 1/24);
+						leaving = Math.ceil(population.barbarians * Math.random() * (1/24));
 						population.barbarians -= leaving;
 						population.barbariansCas -= leaving;
 						updateMobs();
 					}
-				};
+				}
 				population.barbarians -= 1; //Barbarians leave after stealing something.
 				population.barbariansCas -= 1;
-				if (population.barbariansCas < 0) population.barbariansCas = 0;
+				if (population.barbariansCas < 0) { population.barbariansCas = 0; }
 				updateResourceTotals();
 				updatePopulation();
 			} else {
 				//Destroy buildings
-				var num = Math.random(); //Barbarians attempt to destroy random buildings (and leave if they do)
+				num = Math.random(); //Barbarians attempt to destroy random buildings (and leave if they do)
 				if (num < 1/16){
 					if (tent.total > 0){
 						tent.total -= 1;
 						gameLog('Barbarians destroyed a tent');
 					} else {
 						//some will leave
-						var leaving = Math.ceil(population.barbarians * Math.random() * 1/112);
+						leaving = Math.ceil(population.barbarians * Math.random() * (1/112));
 						population.barbarians -= leaving;
 						population.barbariansCas -= leaving;
 						updateMobs();
@@ -5971,7 +5980,7 @@ window.setInterval(function(){
 						gameLog('Barbarians destroyed a wooden hut');
 					} else {
 						//some will leave
-						var leaving = Math.ceil(population.barbarians * Math.random() * 1/112);
+						leaving = Math.ceil(population.barbarians * Math.random() * (1/112));
 						population.barbarians -= leaving;
 						population.barbariansCas -= leaving;
 						updateMobs();
@@ -5982,7 +5991,7 @@ window.setInterval(function(){
 						gameLog('Barbarians destroyed a cottage');
 					} else {
 						//some will leave
-						var leaving = Math.ceil(population.barbarians * Math.random() * 1/112);
+						leaving = Math.ceil(population.barbarians * Math.random() * (1/112));
 						population.barbarians -= leaving;
 						population.barbariansCas -= leaving;
 						updateMobs();
@@ -5993,7 +6002,7 @@ window.setInterval(function(){
 						gameLog('Barbarians destroyed a house');
 					} else {
 						//some will leave
-						var leaving = Math.ceil(population.barbarians * Math.random() * 1/112);
+						leaving = Math.ceil(population.barbarians * Math.random() * (1/112));
 						population.barbarians -= leaving;
 						population.barbariansCas -= leaving;
 						updateMobs();
@@ -6004,7 +6013,7 @@ window.setInterval(function(){
 						gameLog('Barbarians destroyed a mansion');
 					} else {
 						//some will leave
-						var leaving = Math.ceil(population.barbarians * Math.random() * 1/112);
+						leaving = Math.ceil(population.barbarians * Math.random() * (1/112));
 						population.barbarians -= leaving;
 						population.barbariansCas -= leaving;
 						updateMobs();
@@ -6015,7 +6024,7 @@ window.setInterval(function(){
 						gameLog('Barbarians destroyed a barn');
 					} else {
 						//some will leave
-						var leaving = Math.ceil(population.barbarians * Math.random() * 1/112);
+						leaving = Math.ceil(population.barbarians * Math.random() * (1/112));
 						population.barbarians -= leaving;
 						population.barbariansCas -= leaving;
 						updateMobs();
@@ -6026,7 +6035,7 @@ window.setInterval(function(){
 						gameLog('Barbarians destroyed a wood stockpile');
 					} else {
 						//some will leave
-						var leaving = Math.ceil(population.barbarians * Math.random() * 1/112);
+						leaving = Math.ceil(population.barbarians * Math.random() * (1/112));
 						population.barbarians -= leaving;
 						population.barbariansCas -= leaving;
 						updateMobs();
@@ -6037,7 +6046,7 @@ window.setInterval(function(){
 						gameLog('Barbarians destroyed a stone stockpile');
 					} else {
 						//some will leave
-						var leaving = Math.ceil(population.barbarians * Math.random() * 1/112);
+						leaving = Math.ceil(population.barbarians * Math.random() * (1/112));
 						population.barbarians -= leaving;
 						population.barbariansCas -= leaving;
 						updateMobs();
@@ -6048,7 +6057,7 @@ window.setInterval(function(){
 						gameLog('Barbarians destroyed a tannery');
 					} else {
 						//some will leave
-						var leaving = Math.ceil(population.barbarians * Math.random() * 1/112);
+						leaving = Math.ceil(population.barbarians * Math.random() * (1/112));
 						population.barbarians -= leaving;
 						population.barbariansCas -= leaving;
 						updateMobs();
@@ -6059,7 +6068,7 @@ window.setInterval(function(){
 						gameLog('Barbarians destroyed a smithy');
 					} else {
 						//some will leave
-						var leaving = Math.ceil(population.barbarians * Math.random() * 1/112);
+						leaving = Math.ceil(population.barbarians * Math.random() * (1/112));
 						population.barbarians -= leaving;
 						population.barbariansCas -= leaving;
 						updateMobs();
@@ -6070,7 +6079,7 @@ window.setInterval(function(){
 						gameLog('Barbarians destroyed an apothecary');
 					} else {
 						//some will leave
-						var leaving = Math.ceil(population.barbarians * Math.random() * 1/112);
+						leaving = Math.ceil(population.barbarians * Math.random() * (1/112));
 						population.barbarians -= leaving;
 						population.barbariansCas -= leaving;
 						updateMobs();
@@ -6081,7 +6090,7 @@ window.setInterval(function(){
 						gameLog('Barbarians destroyed a temple');
 					} else {
 						//some will leave
-						var leaving = Math.ceil(population.barbarians * Math.random() * 1/112);
+						leaving = Math.ceil(population.barbarians * Math.random() * (1/112));
 						population.barbarians -= leaving;
 						population.barbariansCas -= leaving;
 						updateMobs();
@@ -6092,7 +6101,7 @@ window.setInterval(function(){
 						gameLog('Barbarians damaged fortifications');
 					} else {
 						//some will leave
-						var leaving = Math.ceil(population.barbarians * Math.random() * 1/112);
+						leaving = Math.ceil(population.barbarians * Math.random() * (1/112));
 						population.barbarians -= leaving;
 						population.barbariansCas -= leaving;
 						updateMobs();
@@ -6103,7 +6112,7 @@ window.setInterval(function(){
 						gameLog('Barbarians destroyed a stable');
 					} else {
 						//some will leave
-						var leaving = Math.ceil(population.barbarians * Math.random() * 1/112);
+						leaving = Math.ceil(population.barbarians * Math.random() * (1/112));
 						population.barbarians -= leaving;
 						population.barbariansCas -= leaving;
 						updateMobs();
@@ -6114,7 +6123,7 @@ window.setInterval(function(){
 						gameLog('Barbarians destroyed a mill');
 					} else {
 						//some will leave
-						var leaving = Math.ceil(population.barbarians * Math.random() * 1/112);
+						leaving = Math.ceil(population.barbarians * Math.random() * (1/112));
 						population.barbarians -= leaving;
 						population.barbariansCas -= leaving;
 						updateMobs();
@@ -6125,16 +6134,16 @@ window.setInterval(function(){
 						gameLog('Barbarians destroyed a barracks');
 					} else {
 						//some will leave
-						var leaving = Math.ceil(population.barbarians * Math.random() * 1/112);
+						leaving = Math.ceil(population.barbarians * Math.random() * (1/112));
 						population.barbarians -= leaving;
 						population.barbariansCas -= leaving;
 						updateMobs();
 					}
-				};
+				}
 				population.barbarians -= 1;
 				population.barbariansCas -= 1;
-				if (population.barbarians < 0) population.barbarians = 0;
-				if (population.barbariansCas < 0) population.barbariansCas = 0;
+				if (population.barbarians < 0) { population.barbarians = 0; }
+				if (population.barbariansCas < 0) { population.barbariansCas = 0; }
 				updateBuildingTotals();
 				updatePopulation();
 			}
@@ -6169,17 +6178,19 @@ window.setInterval(function(){
 			population.barbariansCas = 0;
 		}
 		population.shades = Math.floor(population.shades * 0.95);
-		if (population.shades < 0) population.shades = 0;
+		if (population.shades < 0) { population.shades = 0; }
 		updatePopulation();
 	}
+	var hit;
+	var firing;
 	if (population.esiege > 0){
 		//First check there are enemies there defending them
 		if (population.bandits > 0 || population.barbarians > 0){
 			if (fortification.total > 0){ //needs to be something to fire at
-				var firing = Math.ceil(Math.min(population.esiege/2,100)); //At most half or 100 can fire at a time
-				for (var i = 0; i < firing; i++){
+				firing = Math.ceil(Math.min(population.esiege/2,100)); //At most half or 100 can fire at a time
+				for (i = 0; i < firing; i++){
 					if (fortification.total > 0){ //still needs to be something to fire at
-						var hit = Math.random();
+						hit = Math.random();
 						if (hit < 0.1){ //each siege engine has 10% to hit
 							fortification.total -= 1;
 							gameLog('Enemy siege engine damaged our fortifications');
@@ -6190,7 +6201,7 @@ window.setInterval(function(){
 					}
 				}
 				updateBuildingTotals();
-			};
+			}
 		} else if (population.soldiers > 0 || population.cavalry > 0) {
 			//the siege engines are undefended
 			if (upgrades.mathematics){ //Can we use them?
@@ -6223,21 +6234,21 @@ window.setInterval(function(){
 						population.cavalryPartyCas = 0;
 					}
 					//Calculates the casualties dealt based on difference between actual numbers and new effective strength
-					var mobCasualties = population.esoldiers - population.esoldiersCas,
-						mobCasFloor = Math.floor(mobCasualties),
-						casualties = population.cavalryParty - population.cavalryPartyCas,
-						casFloor = Math.floor(casualties);
-					if (!(mobCasFloor > 0)) mobCasFloor = 0; //weirdness with floating point numbers. not sure why this is necessary
-					if (!(casFloor > 0)) casFloor = 0;
+					mobCasualties = population.esoldiers - population.esoldiersCas;
+					mobCasFloor = Math.floor(mobCasualties);
+					casualties = population.cavalryParty - population.cavalryPartyCas;
+					casFloor = Math.floor(casualties);
+					if (!(mobCasFloor > 0)) { mobCasFloor = 0; } //weirdness with floating point numbers. not sure why this is necessary
+					if (!(casFloor > 0)) { casFloor = 0; }
 					//Increments enemies slain, corpses, and piety
 					population.enemiesSlain += mobCasFloor;
-					if (upgrades.throne) throneCount += mobCasFloor;
+					if (upgrades.throne) { throneCount += mobCasFloor; }
 					population.corpses += (casFloor + mobCasFloor);
 					updatePopulation();
 					if (upgrades.book) {
 						piety.total += (casFloor + mobCasFloor) * 10;
 						updateResourceTotals();
-					};
+					}
 					//Resets the actual numbers based on effective strength
 					population.esoldiers = Math.ceil(population.esoldiersCas);
 					population.cavalryParty = Math.ceil(population.cavalryPartyCas);
@@ -6255,32 +6266,32 @@ window.setInterval(function(){
 						population.soldiersPartyCas = 0;
 					}
 					//Calculates the casualties dealt based on difference between actual numbers and new effective strength
-					var mobCasualties = population.esoldiers - population.esoldiersCas,
-						mobCasFloor = Math.floor(mobCasualties),
-						casualties = population.soldiersParty - population.soldiersPartyCas,
-						casFloor = Math.floor(casualties);
-					if (!(mobCasFloor > 0)) mobCasFloor = 0; //weirdness with floating point numbers. not sure why this is necessary
-					if (!(casFloor > 0)) casFloor = 0;
+					mobCasualties = population.esoldiers - population.esoldiersCas;
+					mobCasFloor = Math.floor(mobCasualties);
+					casualties = population.soldiersParty - population.soldiersPartyCas;
+					casFloor = Math.floor(casualties);
+					if (!(mobCasFloor > 0)) { mobCasFloor = 0; } //weirdness with floating point numbers. not sure why this is necessary
+					if (!(casFloor > 0)) { casFloor = 0; }
 					//Increments enemies slain, corpses, and piety
 					population.enemiesSlain += mobCasFloor;
-					if (upgrades.throne) throneCount += mobCasFloor;
+					if (upgrades.throne) { throneCount += mobCasFloor; }
 					population.corpses += (casFloor + mobCasFloor);
 					updatePopulation();
 					if (upgrades.book) {
 						piety.total += (casFloor + mobCasFloor) * 10;
 						updateResourceTotals();
-					};
+					}
 					//Resets the actual numbers based on effective strength
 					population.esoldiers = Math.ceil(population.esoldiersCas);
 					population.soldiersParty = Math.ceil(population.soldiersPartyCas);
 				}
 				//Handles siege engines
 				if (population.siege > 0 && population.eforts > 0){ //need to be siege weapons and something to fire at
-					var firing = Math.ceil(Math.min(population.siege/2,population.eforts*2));
-					if (firing > population.siege) firing = population.siege; //should never happen
-					for (var i = 0; i < firing; i++){
+					firing = Math.ceil(Math.min(population.siege/2,population.eforts*2));
+					if (firing > population.siege) { firing = population.siege; } //should never happen
+					for (i = 0; i < firing; i++){
 						if (population.eforts > 0){ //still needs to be something to fire at
-							var hit = Math.random();
+							hit = Math.random();
 							if (hit < 0.1){ //each siege engine has 10% to hit
 								population.eforts -= 1;
 							} else if (hit > 0.95){ //each siege engine has 5% to misfire and destroy itself
@@ -6317,51 +6328,51 @@ window.setInterval(function(){
 						mood(0.12);
 					}
 					if (raiding.last == 'largeNation'){
-						if (targetMax == 'largeNation') targetMax = 'empire';
+						if (targetMax == 'largeNation') { targetMax = 'empire'; }
 						mood(0.11);
 					}
 					if (raiding.last == 'nation'){
-						if (targetMax == 'nation') targetMax = 'largeNation';
+						if (targetMax == 'nation') { targetMax = 'largeNation'; }
 						mood(0.10);
 					}
 					if (raiding.last == 'smallNation'){
-						if (targetMax == 'smallNation') targetMax = 'nation';
+						if (targetMax == 'smallNation') { targetMax = 'nation'; }
 						mood(0.09);
 					}
 					if (raiding.last == 'metropolis'){
-						if (targetMax == 'metropolis') targetMax = 'smallNation';
+						if (targetMax == 'metropolis') { targetMax = 'smallNation'; }
 						mood(0.08);
 					}
 					if (raiding.last == 'largeCity'){
-						if (targetMax == 'largeCity') targetMax = 'metropolis';
+						if (targetMax == 'largeCity') { targetMax = 'metropolis'; }
 						mood(0.07);
 					}
 					if (raiding.last == 'smallCity'){
-						if (targetMax == 'smallCity') targetMax = 'largeCity';
+						if (targetMax == 'smallCity') { targetMax = 'largeCity'; }
 						mood(0.06);
 					}
 					if (raiding.last == 'largeTown'){
-						if (targetMax == 'largeTown') targetMax = 'smallCity';
+						if (targetMax == 'largeTown') { targetMax = 'smallCity'; }
 						mood(0.05);
 					}
 					if (raiding.last == 'smallTown'){
-						if (targetMax == 'smallTown') targetMax = 'largeTown';
+						if (targetMax == 'smallTown') { targetMax = 'largeTown'; }
 						mood(0.04);
 					}
 					if (raiding.last == 'village'){
-						if (targetMax == 'village') targetMax = 'smallTown';
+						if (targetMax == 'village') { targetMax = 'smallTown'; }
 						mood(0.03);
 					}
 					if (raiding.last == 'hamlet'){
-						if (targetMax == 'hamlet') targetMax = 'village';
+						if (targetMax == 'hamlet') { targetMax = 'village'; }
 						mood(0.02);
 					}
 					if (raiding.last == 'thorp'){
-						if (targetMax == 'thorp') targetMax = 'hamlet';
+						if (targetMax == 'thorp') { targetMax = 'hamlet'; }
 						mood(0.01);
 					}
 					updateTargets(); //update the new target
-				};
+				}
 				updateParty(); //display new totals for army soldiers and enemy soldiers
 			} else if (raiding.victory){
 				//handles the victory outcome
@@ -6382,12 +6393,12 @@ window.setInterval(function(){
 			raiding.iterations = 0;
 		}
 	} else {
-		document.getElementById('raidGroup').style.display = 'block'
+		document.getElementById('raidGroup').style.display = 'block';
 	}
 	
 	if (population.corpses > 0 && population.graves > 0){
 		//Clerics will bury corpses if there are graves to fill and corpses lying around
-		for (var i=0;i<population.clerics;i++){
+		for (i=0;i<population.clerics;i++){
 			if (population.corpses > 0 && population.graves > 0){
 				population.corpses -= 1;
 				population.graves -= 1;
@@ -6397,7 +6408,7 @@ window.setInterval(function(){
 	}
 	if (population.totalSick > 0 && population.apothecaries + (population.cats * upgrades.companion) > 0){
 		//Apothecaries curing sick people
-		for (var i=0;i<population.apothecaries + (population.cats * upgrades.companion);i++){
+		for (i=0;i<population.apothecaries + (population.cats * upgrades.companion);i++){
 			if (herbs.total > 0){
 				//Increment efficiency counter
 				cureCounter += (efficiency.apothecaries * efficiency.happiness);
@@ -6463,7 +6474,7 @@ window.setInterval(function(){
 		var sickChance = Math.random() * (50 + (upgrades.feast * 50));
 		if (sickChance < 1){
 			var sickNum = Math.floor(population.current/100 * Math.random());
-			if (sickNum > 0) plague(sickNum);
+			if (sickNum > 0) { plague(sickNum); }
 		}
 	}
 	
@@ -6482,8 +6493,8 @@ window.setInterval(function(){
 	
 	if (walkTotal > 0){
 		if (population.healthy > 0){
-			for (var i=0;i<walkTotal;i++){
-				var target = randomWorker();
+			for (i=0;i<walkTotal;i++){
+				target = randomWorker();
 				if (target == "unemployed"){
 					population.current -= 1;
 					population.unemployed -= 1;
@@ -6698,6 +6709,8 @@ function paneSelect(name){
 }
 
 function toggleCustomIncrements(){
+	var i;
+	var elems;
 	if(customIncrements){
 		customIncrements = false;
 		document.getElementById('toggleCustomIncrements').innerHTML = "Enable Custom Increments";
@@ -6708,41 +6721,41 @@ function toggleCustomIncrements(){
 		document.getElementById('spawn1group').style.display = "block";
 		if (population.current + population.zombies >= 10) {
 			document.getElementById('spawn10').style.display="block";
-			var elems = document.getElementsByClassName('job10');
-			for(var i = 0; i < elems.length; i++) {
+			elems = document.getElementsByClassName('job10');
+			for(i = 0; i < elems.length; i++) {
 				elems[i].style.display = 'table-cell';
 			}
 		}
 		if (population.current + population.zombies >= 100) {
 			document.getElementById('spawn100').style.display="block";
-			var elems = document.getElementsByClassName('job100');
-			for(var i = 0; i < elems.length; i++) {
+			elems = document.getElementsByClassName('job100');
+			for(i = 0; i < elems.length; i++) {
 				elems[i].style.display = 'table-cell';
 			}
-			var elems = document.getElementsByClassName('buildingten');
-			for(var i = 0; i < elems.length; i++) {
+			elems = document.getElementsByClassName('buildingten');
+			for(i = 0; i < elems.length; i++) {
 				elems[i].style.display = 'table-cell';
 			}
 		}
 		if (population.current + population.zombies >= 1000) {
 			document.getElementById('spawn1000').style.display="block";
-			var elems = document.getElementsByClassName('buildinghundred');
-			for(var i = 0; i < elems.length; i++) {
+			elems = document.getElementsByClassName('buildinghundred');
+			for(i = 0; i < elems.length; i++) {
 				elems[i].style.display = 'table-cell';
 			}
 		}
 		if (population.current + population.zombies >= 10000) {
-			var elems = document.getElementsByClassName('buildingthousand');
-			for(var i = 0; i < elems.length; i++) {
+			elems = document.getElementsByClassName('buildingthousand');
+			for(i = 0; i < elems.length; i++) {
 				elems[i].style.display = 'table-cell';
 			}
 		}
-		var elems = document.getElementsByClassName('jobCustom');
-		for(var i = 0; i < elems.length; i++) {
+		elems = document.getElementsByClassName('jobCustom');
+		for(i = 0; i < elems.length; i++) {
 			elems[i].style.display = 'none';
 		}
-		var elems = document.getElementsByClassName('buildCustom');
-		for(var i = 0; i < elems.length; i++) {
+		elems = document.getElementsByClassName('buildCustom');
+		for(i = 0; i < elems.length; i++) {
 			elems[i].style.display = 'none';
 		}
 	} else {
@@ -6756,32 +6769,32 @@ function toggleCustomIncrements(){
 		document.getElementById('spawn10').style.display="none";
 		document.getElementById('spawn100').style.display="none";
 		document.getElementById('spawn1000').style.display="none";
-		var elems = document.getElementsByClassName('job10');
-		for(var i = 0; i < elems.length; i++) {
+		elems = document.getElementsByClassName('job10');
+		for(i = 0; i < elems.length; i++) {
 			elems[i].style.display = 'none';
 		}
-		var elems = document.getElementsByClassName('job100');
-		for(var i = 0; i < elems.length; i++) {
+		elems = document.getElementsByClassName('job100');
+		for(i = 0; i < elems.length; i++) {
 			elems[i].style.display = 'none';
 		}
-		var elems = document.getElementsByClassName('buildingten');
-		for(var i = 0; i < elems.length; i++) {
+		elems = document.getElementsByClassName('buildingten');
+		for(i = 0; i < elems.length; i++) {
 			elems[i].style.display = 'none';
 		}
-		var elems = document.getElementsByClassName('buildinghundred');
-		for(var i = 0; i < elems.length; i++) {
+		elems = document.getElementsByClassName('buildinghundred');
+		for(i = 0; i < elems.length; i++) {
 			elems[i].style.display = 'none';
 		}
-		var elems = document.getElementsByClassName('buildingthousand');
-		for(var i = 0; i < elems.length; i++) {
+		elems = document.getElementsByClassName('buildingthousand');
+		for(i = 0; i < elems.length; i++) {
 			elems[i].style.display = 'none';
 		}
-		var elems = document.getElementsByClassName('jobCustom');
-		for(var i = 0; i < elems.length; i++) {
+		elems = document.getElementsByClassName('jobCustom');
+		for(i = 0; i < elems.length; i++) {
 			elems[i].style.display = 'table-cell';
 		}
-		var elems = document.getElementsByClassName('buildCustom');
-		for(var i = 0; i < elems.length; i++) {
+		elems = document.getElementsByClassName('buildCustom');
+		for(i = 0; i < elems.length; i++) {
 			elems[i].style.display = 'table-cell';
 		}
 	}
@@ -6789,8 +6802,9 @@ function toggleCustomIncrements(){
 
 function toggleNotes(){
 	//toggles the display of the .notes class
+	var i;
 	var elems = document.getElementsByClassName('note');
-	for(var i = 0; i < elems.length; i++) {
+	for(i = 0; i < elems.length; i++) {
 		if (elems[i].style.display == 'none'){
 			elems[i].style.display = 'inline';
 		} else {
@@ -6799,9 +6813,9 @@ function toggleNotes(){
 	}
 	//then toggles the button itself
 	if (document.getElementById('toggleNotes').innerHTML == 'Disable Notes'){
-		document.getElementById('toggleNotes').innerHTML = 'Enable Notes'
+		document.getElementById('toggleNotes').innerHTML = 'Enable Notes';
 	} else {
-		document.getElementById('toggleNotes').innerHTML = 'Disable Notes'
+		document.getElementById('toggleNotes').innerHTML = 'Disable Notes';
 	}
 }
 
@@ -6826,7 +6840,7 @@ function text(scale){
 	} else {
 		if (size > 0.7){
 			size += 0.1 * scale;
-			if (size <= 0.7) document.getElementById('smallerText').disabled = true;
+			if (size <= 0.7) { document.getElementById('smallerText').disabled = true; }
 		}
 	}
 	body.style.fontSize = size + "em";
@@ -6837,7 +6851,7 @@ function textShadow(){
 		body.style.textShadow = "none";
 		document.getElementById('textShadow').innerHTML = 'Enable Text Shadow';
 	} else {
-		body.style.textShadow = "3px 0 0 #fff, -3px 0 0 #fff, 0 3px 0 #fff, 0 -3px 0 #fff, 2px 2px 0 #fff, -2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff"
+		body.style.textShadow = "3px 0 0 #fff, -3px 0 0 #fff, 0 3px 0 #fff, 0 -3px 0 #fff, 2px 2px 0 #fff, -2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff";
 		document.getElementById('textShadow').innerHTML = 'Disable Text Shadow';
 	}
 }
@@ -6853,22 +6867,24 @@ function iconToggle(){
 	}
 }
 
+var delimiters = true;
 function prettify(input){
 	var output = '';
+	var i;
 	if (delimiters){
 		output = input.toString();
 		var characteristic = '', //the bit that comes before the decimal point
 			mantissa = '', //the bit that comes afterwards
-			digitCount = 0;
+			digitCount = 0,
 			delimiter = "&#8239;"; //thin space is the ISO standard thousands delimiter. we need a non-breaking version
 
 		//first split the string on the decimal point, and assign to the characteristic and mantissa
 		var parts = output.split('.');
-		if (typeof parts[1] === 'string') var mantissa = '.' + parts[1]; //check it's defined first, and tack a decimal point to the start of it
+		if (typeof parts[1] === 'string') { mantissa = '.' + parts[1]; } //check it's defined first, and tack a decimal point to the start of it
 
 		//then insert the commas in the characteristic
 		var charArray = parts[0].split(""); //breaks it into an array
-		for (var i=charArray.length; i>0; i--){ //counting backwards through the array
+		for (i=charArray.length; i>0; i--){ //counting backwards through the array
 			characteristic = charArray[i-1] + characteristic; //add the array item at the front of the string
 			digitCount++;
 			if (digitCount == 3 && i!=1){ //once every three digits (but not at the head of the number)
@@ -6882,6 +6898,7 @@ function prettify(input){
 	}
 	return output;
 }
+
 function toggleDelimiters(){
 	if (delimiters){
 		delimiters = false;
@@ -6894,67 +6911,71 @@ function toggleDelimiters(){
 }
 
 function toggleWorksafe(){
+	var i;
+	var elems;
 	if (body.style.backgroundImage == 'none'){
 		worksafe = false;
 		body.style.backgroundImage = 'url("images/constable.jpg")';
-		var elems = document.getElementsByClassName('icon');
+		elems = document.getElementsByClassName('icon');
 		if (!usingWords){
-			for(var i = 0; i < elems.length; i++) {
+			for(i = 0; i < elems.length; i++) {
 				elems[i].style.visibility = 'visible';
 			}
 		}
 	} else {
 		worksafe = true;
 		body.style.backgroundImage = 'none';
-		var elems = document.getElementsByClassName('icon');
+		elems = document.getElementsByClassName('icon');
 		if (!usingWords){
-			for(var i = 0; i < elems.length; i++) {
+			for(i = 0; i < elems.length; i++) {
 				elems[i].style.visibility = 'hidden';
 			}
 		}
 	}
 }
 
+
 /* Debug functions */
 
 function gameLog(message){
 	//Not strictly a debug function so much as it is letting the user know when something happens without needing to watch the console.
 	var time = '0.00';
-		//get the current date, extract the current time in HH.MM format
-    	d = new Date();
-		if (d.getMinutes() < 10){
-			time = d.getHours() + ".0" + d.getMinutes();
-		} else {
-			time = d.getHours() + "." + d.getMinutes();
-		}
-		//Check to see if the last message was the same as this one, if so just increment the (xNumber) value
-		if (document.getElementById('logL').innerHTML == message){
-			logRepeat += 1;
-			document.getElementById('log0').innerHTML = '<td id="logT">' + time + '</td><td id="logL">' + message + '</td><td id="logR">(x' + logRepeat + ')</td>';
-		} else {
-			//Reset the (xNumber) value
-			logRepeat = 1
-			//Go through all the logs in order, moving them down one and successively overwriting them.
-			//Bottom five elements temporarily removed, may be readded later.
-			/*document.getElementById('log9').innerHTML = document.getElementById('log8').innerHTML
-			document.getElementById('log8').innerHTML = document.getElementById('log7').innerHTML
-			document.getElementById('log7').innerHTML = document.getElementById('log6').innerHTML
-			document.getElementById('log6').innerHTML = document.getElementById('log5').innerHTML
-			document.getElementById('log5').innerHTML = document.getElementById('log4').innerHTML*/
-			document.getElementById('log4').innerHTML = document.getElementById('log3').innerHTML
-			document.getElementById('log3').innerHTML = document.getElementById('log2').innerHTML
-			document.getElementById('log2').innerHTML = document.getElementById('log1').innerHTML
-			//Since ids need to be unique, log1 strips the ids from the log0 elements when copying the contents.
-			document.getElementById('log1').innerHTML = '<td>' + document.getElementById('logT').innerHTML + '</td><td>' + document.getElementById('logL').innerHTML + '</td><td>' + document.getElementById('logR').innerHTML + '</td>';
-			//creates new contents with new time, message, and x1
-			document.getElementById('log0').innerHTML = '<td id="logT">' + time + '</td><td id="logL">' + message + '</td><td id="logR">(x' + logRepeat + ')</td>';
-		}
+	//get the current date, extract the current time in HH.MM format
+   	var d = new Date();
+	if (d.getMinutes() < 10){
+		time = d.getHours() + ".0" + d.getMinutes();
+	} else {
+		time = d.getHours() + "." + d.getMinutes();
+	}
+	//Check to see if the last message was the same as this one, if so just increment the (xNumber) value
+	if (document.getElementById('logL').innerHTML === message){
+		logRepeat += 1;
+		document.getElementById('log0').innerHTML = '<td id="logT">' + time + '</td><td id="logL">' + message + '</td><td id="logR">(x' + logRepeat + ')</td>';
+	} else {
+		//Reset the (xNumber) value
+		logRepeat = 1;
+		//Go through all the logs in order, moving them down one and successively overwriting them.
+		//Bottom five elements temporarily removed, may be readded later.
+		/*document.getElementById('log9').innerHTML = document.getElementById('log8').innerHTML;
+		document.getElementById('log8').innerHTML = document.getElementById('log7').innerHTML;
+		document.getElementById('log7').innerHTML = document.getElementById('log6').innerHTML;
+		document.getElementById('log6').innerHTML = document.getElementById('log5').innerHTML;
+		document.getElementById('log5').innerHTML = document.getElementById('log4').innerHTML;*/
+		document.getElementById('log4').innerHTML = document.getElementById('log3').innerHTML;
+		document.getElementById('log3').innerHTML = document.getElementById('log2').innerHTML;
+		document.getElementById('log2').innerHTML = document.getElementById('log1').innerHTML;
+		//Since ids need to be unique, log1 strips the ids from the log0 elements when copying the contents.
+		document.getElementById('log1').innerHTML = '<td>' + document.getElementById('logT').innerHTML + '</td><td>' + document.getElementById('logL').innerHTML + '</td><td>' + document.getElementById('logR').innerHTML + '</td>';
+		//creates new contents with new time, message, and x1
+		document.getElementById('log0').innerHTML = '<td id="logT">' + time + '</td><td id="logL">' + message + '</td><td id="logR">(x' + logRepeat + ')</td>';
+	}
 }
 
 function updateTest(){
 	//Debug function, runs the update() function 1000 times, adds the results together, and calculates a mean
 	var total = 0;
-	for (var i=0;i<1000;i++){
+	var i;
+	for (i=0;i<1000;i++){
 		total += update();
 	}
 	console.log(total);
@@ -6980,5 +7001,5 @@ function ruinFun(){
 	updatePopulation();
 	updateUpgrades();
 	updateBuildingTotals();
-};
+}
 

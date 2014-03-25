@@ -661,5 +661,5 @@ var LZString = {
 };
 
 if( typeof module !== 'undefined' && module != null ) {
-  module.exports = LZString
+  module.exports = LZString;
 }
