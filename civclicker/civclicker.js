@@ -29,18 +29,50 @@ var version = 19;
 var logRepeat = 1;
 console.log('running');
 
-function bake_cookie(name, value) {
-	var exdate=new Date();
-	exdate.setDate(exdate.getDate() + 30);
-	var cookie = [name, '=', JSON.stringify(value),'; expires=.', exdate.toUTCString(), '; domain=.', window.location.host.toString(), '; path=/;'].join('');
-	document.cookie = cookie;
-}
-function read_cookie(name) {
-	var result = document.cookie.match(new RegExp(name + '=([^;]+)'));
-	if (result) { result = JSON.parse(result[1]); }
+// Civ size category minimums
+var civSizes = [];
+civSizes.thorp       =  civSizes.length; 
+civSizes[civSizes.thorp      ] = { min_pop :      0, name : "Thorp"       , id : "thorp"      };
+civSizes.hamlet      =  civSizes.length; 
+civSizes[civSizes.hamlet     ] = { min_pop :     20, name : "Hamlet"      , id : "hamlet"     };
+civSizes.village     =  civSizes.length; 
+civSizes[civSizes.village    ] = { min_pop :     60, name : "Village"     , id : "village"    };
+civSizes.smallTown   =  civSizes.length; 
+civSizes[civSizes.smallTown  ] = { min_pop :    200, name : "Small Town"  , id : "smallTown"  };
+civSizes.largeTown   =  civSizes.length; 
+civSizes[civSizes.largeTown  ] = { min_pop :   2000, name : "Large Town"  , id : "largeTown"  };
+civSizes.smallCity   =  civSizes.length; 
+civSizes[civSizes.smallCity  ] = { min_pop :   5000, name : "Small City"  , id : "smallCity"  };
+civSizes.largeCity   =  civSizes.length; 
+civSizes[civSizes.largeCity  ] = { min_pop :  10000, name : "Large City"  , id : "largeCity"  };
+civSizes.metropolis  =  civSizes.length; 
+civSizes[civSizes.metropolis ] = { min_pop :  20000, name : "Metropolis"  , id : "metropolis" };
+civSizes.smallNation =  civSizes.length; 
+civSizes[civSizes.smallNation] = { min_pop :  50000, name : "Small Nation", id : "smallNation"};
+civSizes.nation      =  civSizes.length; 
+civSizes[civSizes.nation     ] = { min_pop : 100000, name : "Nation"      , id : "nation"     };
+civSizes.largeNation = civSizes.length; 
+civSizes[civSizes.largeNation] = { min_pop : 200000, name : "Large Nation", id : "largeNation"};
+civSizes.empire      = civSizes.length; 
+civSizes[civSizes.empire     ] = { min_pop : 500000, name : "Empire"      , id : "empire"     };
 
-	return result;
-}
+civSizes.getCivSize = function(popcnt) {
+    var i;
+    for(i = this.length - 1; i >= 0; --i){
+        if (popcnt >= this[i].min_pop) { return this[i]; }
+    }
+    return this[0];
+};
+
+// To find the max pop, we look at the next entry's min_pop and subtract one.
+// If this is the last entry, return undefined.
+civSizes.getMaxPop = function(civType) {
+	if ((civSizes[civType] + 1) < civSizes.length)
+	{	
+		return civSizes[civSizes[civType] + 1].min_pop - 1;
+	}
+	return -1;
+};
 
 // Initialise Data
 var food = {
@@ -1193,95 +1225,26 @@ function updatePopulation(){
 	}
 	//As population increases, various things change
 	if (population.current == 0 && population.cap >= 1000){
+		civType = 'Ghost Town';
 		if (!achievements.ghostTown){
 			gameLog('Achievement Unlocked: Ghost Town');
 			achievements.ghostTown = 1;
 		}
 	}
-	if (population.current < 20){
-		civType = 'Thorp';
+
+    // Update our civ type name and score achievement if warranted.
+    var civTypeInfo = civSizes.getCivSize(population.current);
+	civType = civTypeInfo.name;
+	if (achievements.hasOwnProperty(civTypeInfo.id) && !achievements[civTypeInfo.id]) {
+		achievements[civTypeInfo.id] = 1;
+		gameLog('Achievement Unlocked: ' + civTypeInfo.name);
 	}
-	if (population.current >= 20){
-		civType = 'Hamlet';
-		if (!achievements.hamlet){
-			gameLog('Achievement Unlocked: Hamlet');
-			achievements.hamlet = 1;
-		}
-	}
-	if (population.current >= 60){
-		civType = 'Village';
-		if (!achievements.village){
-			gameLog('Achievement Unlocked: Village');
-			achievements.village = 1;
-		}
-	}
-	if (population.current >= 200){
-		civType = 'Small Town';
-		if (!achievements.smallTown){
-			gameLog('Achievement Unlocked: Small Town');
-			achievements.smallTown = 1;
-		}
-	}
-	if (population.current >= 2000){
-		civType = 'Large Town';
-		if (!achievements.largeTown){
-			gameLog('Achievement Unlocked: Large Town');
-			achievements.largeTown = 1;
-		}
-	}
-	if (population.current >= 5000){
-		civType = 'Small City';
-		if (!achievements.smallCity){
-			gameLog('Achievement Unlocked: Small City');
-			achievements.smallCity = 1;
-		}
-	}
-	if (population.current >= 10000){
-		civType = 'Large City';
-		if (!achievements.largeCity){
-			gameLog('Achievement Unlocked: Large City');
-			achievements.largeCity = 1;
-		}
-	}
-	if (population.current >= 20000){
-		civType = 'Metropolis';
-		if (!achievements.metropolis){
-			gameLog('Achievement Unlocked: Metropolis');
-			achievements.metropolis = 1;
-		}
-	}
-	if (population.current >= 50000){
-		civType = 'Small Nation';
-		if (!achievements.smallNation){
-			gameLog('Achievement Unlocked: Small Nation');
-			achievements.smallNation = 1;
-		}
-	}
-	if (population.current >= 100000){
-		civType = 'Nation';
-		if (!achievements.nation){
-			gameLog('Achievement Unlocked: Nation');
-			achievements.nation = 1;
-		}
-	}
-	if (population.current >= 200000){
-		civType = 'Large Nation';
-		if (!achievements.largeNation){
-			gameLog('Achievement Unlocked: Large Nation');
-			achievements.largeNation = 1;
-		}
-	}
-	if (population.current >= 500000){
-		civType = 'Empire';
-		if (!achievements.empire){
-			gameLog('Achievement Unlocked: Empire');
-			achievements.empire = 1;
-		}
-	}
+
 	if (population.zombies >= 1000 && population.zombies >= 2 * population.current){ //easter egg
 		civType = 'Necropolis';
 	}
 	document.getElementById('civType').innerHTML = civType;
+
 	//Unlocking interface elements as population increases to reduce unnecessary clicking
 	var elems;
 	var i;
@@ -2529,18 +2492,19 @@ function updatePartyButtons(){
 	}
 }
 
+// Enable the raid buttons for eligible targets.
 function updateTargets(){
-	if (targetMax == 'hamlet' || targetMax == 'village' || targetMax == 'smallTown' || targetMax == 'largeTown' || targetMax == 'smallCity' || targetMax == 'largeCity' || targetMax == 'metropolis' || targetMax == 'smallNation' || targetMax == 'nation' || targetMax == 'largeNation' || targetMax == 'empire') { document.getElementById('raidHamlet').disabled = false; }
-	if (targetMax == 'village' || targetMax == 'smallTown' || targetMax == 'largeTown' || targetMax == 'smallCity' || targetMax == 'largeCity' || targetMax == 'metropolis' || targetMax == 'smallNation' || targetMax == 'nation' || targetMax == 'largeNation' || targetMax == 'empire') { document.getElementById('raidVillage').disabled = false; }
-	if (targetMax == 'smallTown' || targetMax == 'largeTown' || targetMax == 'smallCity' || targetMax == 'largeCity' || targetMax == 'metropolis' || targetMax == 'smallNation' || targetMax == 'nation' || targetMax == 'largeNation' || targetMax == 'empire') { document.getElementById('raidSmallTown').disabled = false; }
-	if (targetMax == 'largeTown' || targetMax == 'smallCity' || targetMax == 'largeCity' || targetMax == 'metropolis' || targetMax == 'smallNation' || targetMax == 'nation' || targetMax == 'largeNation' || targetMax == 'empire') { document.getElementById('raidLargeTown').disabled = false; }
-	if (targetMax == 'smallCity' || targetMax == 'largeCity' || targetMax == 'metropolis' || targetMax == 'smallNation' || targetMax == 'nation' || targetMax == 'largeNation' || targetMax == 'empire') { document.getElementById('raidSmallCity').disabled = false; }
-	if (targetMax == 'largeCity' || targetMax == 'metropolis' || targetMax == 'smallNation' || targetMax == 'nation' || targetMax == 'largeNation' || targetMax == 'empire') { document.getElementById('raidLargeCity').disabled = false; }
-	if (targetMax == 'metropolis' || targetMax == 'smallNation' || targetMax == 'nation' || targetMax == 'largeNation' || targetMax == 'empire') { document.getElementById('raidMetropolis').disabled = false; }
-	if (targetMax == 'smallNation' || targetMax == 'nation' || targetMax == 'largeNation' || targetMax == 'empire') { document.getElementById('raidSmallNation').disabled = false; }
-	if (targetMax == 'nation' || targetMax == 'largeNation' || targetMax == 'empire') { document.getElementById('raidNation').disabled = false; }
-	if (targetMax == 'largeNation' || targetMax == 'empire') { document.getElementById('raidLargeNation').disabled = false; }
-	if (targetMax == 'empire') { document.getElementById('raidEmpire').disabled = false; }
+	var i;
+	var raidButtons = document.getElementsByClassName('raid');
+	var curElem = null;
+	for(i=0;i<raidButtons.length;++i)
+	{
+		curElem = raidButtons[i];
+		if (civSizes[curElem.dataset.civtype] <= civSizes[targetMax]) 
+		{
+			curElem.disabled = false;
+		}
+	}
 }
 
 function updateHappiness(){
@@ -4137,66 +4101,17 @@ function partyCustom(member,multiplier){
 function invade(ecivtype){
 	//invades a certain type of civilisation based on the button clicked
 	var iterations = 0; //used to calculate random number of soldiers
-	if (ecivtype == "thorp"){
-		raiding.raiding = true;
-		raiding.last = 'thorp';
-		iterations = 1;
+	raiding.raiding = true;
+	raiding.last = ecivtype;
+
+	var epop = civSizes.getMaxPop(ecivtype) + 1;
+	if (epop <= 0 ) // no max pop; use 2x min pop.
+	{
+		epop = civSizes[civSizes[ecivtype]].min_pop * 2;
 	}
-	if (ecivtype == "hamlet"){
-		raiding.raiding = true;
-		raiding.last = 'hamlet';
-		iterations = 3;
-	}
-	if (ecivtype == "village"){
-		raiding.raiding = true;
-		raiding.last = 'village';
-		iterations = 10;
-	}
-	if (ecivtype == "smallTown"){
-		raiding.raiding = true;
-		raiding.last = 'smallTown';
-		iterations = 100;
-	}
-	if (ecivtype == "largeTown"){
-		raiding.raiding = true;
-		raiding.last = 'largeTown';
-		iterations = 250;
-	}
-	if (ecivtype == "smallCity"){
-		raiding.raiding = true;
-		raiding.last = 'smallCity';
-		iterations = 500;
-	}
-	if (ecivtype == "largeCity"){
-		raiding.raiding = true;
-		raiding.last = 'largeCity';
-		iterations = 1000;
-	}
-	if (ecivtype == "metropolis"){
-		raiding.raiding = true;
-		raiding.last = 'metropolis';
-		iterations = 2500;
-	}
-	if (ecivtype == "smallNation"){
-		raiding.raiding = true;
-		raiding.last = 'smallNation';
-		iterations = 5000;
-	}
-	if (ecivtype == "nation"){
-		raiding.raiding = true;
-		raiding.last = 'nation';
-		iterations = 10000;
-	}
-	if (ecivtype == "largeNation"){
-		raiding.raiding = true;
-		raiding.last = 'largeNation';
-		iterations = 25000;
-	}
-	if (ecivtype == "empire"){
-		raiding.raiding = true;
-		raiding.last = 'empire';
-		iterations = 50000;
-	}
+
+	iterations = epop / 20;  // Minimum 5% military
+
 	if (gloryTimer > 0) { iterations = (iterations * 2); } //doubles soldiers fought
 	var esoldierRes = iterations + Math.floor(Math.random() * iterations * 4);
 	var efortsRes = Math.floor(Math.random() * iterations / 250);
@@ -4209,6 +4124,7 @@ function invade(ecivtype){
 	updateParty();
 	document.getElementById('raidGroup').style.display = 'none'; //Hides raid buttons until the raid is finished
 }
+function onInvade(event) { return invade(event.target.dataset.civtype); }
 
 function plunder(){
 	//capture land
@@ -4221,21 +4137,13 @@ function plunder(){
 		plunderHerbs = Math.round(Math.random() * raiding.iterations * 10),
 		plunderOre = Math.round(Math.random() * raiding.iterations * 10),
 		plunderLeather = Math.round(Math.random() * raiding.iterations * 10),
-		plunderMetal = Math.round(Math.random() * raiding.iterations * 10),
-		//create message to notify player
-		prettyLast = '';
-	if (raiding.last == 'thorp') { prettyLast = 'a Thorp'; }
-	if (raiding.last == 'hamlet') { prettyLast = 'a Hamlet'; }
-	if (raiding.last == 'village') { prettyLast = 'a Village'; }
-	if (raiding.last == 'smallTown') { prettyLast = 'a Small Town'; }
-	if (raiding.last == 'largeTown') { prettyLast = 'a Large Town'; }
-	if (raiding.last == 'smallCity') { prettyLast = 'a Small City'; }
-	if (raiding.last == 'largeCity') { prettyLast = 'a Large City'; }
-	if (raiding.last == 'metropolis') { prettyLast = 'a Metropolis'; }
-	if (raiding.last == 'smallNation') { prettyLast = 'a Small Nation'; }
-	if (raiding.last == 'nation') { prettyLast = 'a Nation'; }
-	if (raiding.last == 'largeNation') { prettyLast = 'a Large Nation'; }
-	if (raiding.last == 'empire') { prettyLast = 'an Empire'; }
+		plunderMetal = Math.round(Math.random() * raiding.iterations * 10);
+
+	// create message to notify player
+	// Special handling for 'a'/'an' ('empire' is the only one that starts with a vowel)
+	var prettyLast = (raiding.last == 'empire') ? 'an ' : 'a ';
+	prettyLast += civSizes[civSizes[raiding.last]].name;
+
 	var plunderMessage = "Defeated " + prettyLast + ". Plundered " + prettify(plunderFood) + " food, " + prettify(plunderWood) + " wood, " + prettify(plunderStone) + " stone, " + prettify(plunderSkins) + " skins, " + prettify(plunderHerbs) + " herbs, " + prettify(plunderOre) + " ore, " + prettify(plunderLeather) + " leather, and " + prettify(plunderMetal) + " metal. Captured " + prettify(landCaptured) + " land.";
 	//add loot
 	land += landCaptured;
@@ -6315,62 +6223,29 @@ window.setInterval(function(){
 						achievements.raider = 1;
 						updateAchievements();
 					}
-					if (raiding.last == 'empire' && !achievements.domination){
-						achievements.domination = 1;
-						updateAchievements();
+
+					// If we beat the largest opponent, grant bonus achievement.
+					if (raiding.last == civSizes[civSizes.length-1].id) 
+					{
+						if (!achievements.domination){
+							achievements.domination = 1;
+							updateAchievements();
+						}
 					}
+					else if (raiding.last == targetMax)
+					{
+						// We fought our largest eligible foe.  Raise the limit.
+						targetMax = civSizes[civSizes[targetMax] + 1].id;
+					}
+
+					// Improve mood based on size of defeated foe.
+					mood((civSizes[raiding.last] + 1)/100);
+
 					//lamentation
 					if (upgrades.lament){
 						attackCounter -= Math.ceil(raiding.iterations/100);
 					}
-					//ups the targetMax and improves mood (reverse order to prevent it being immediate set to Empire)
-					if (raiding.last == 'empire'){
-						mood(0.12);
-					}
-					if (raiding.last == 'largeNation'){
-						if (targetMax == 'largeNation') { targetMax = 'empire'; }
-						mood(0.11);
-					}
-					if (raiding.last == 'nation'){
-						if (targetMax == 'nation') { targetMax = 'largeNation'; }
-						mood(0.10);
-					}
-					if (raiding.last == 'smallNation'){
-						if (targetMax == 'smallNation') { targetMax = 'nation'; }
-						mood(0.09);
-					}
-					if (raiding.last == 'metropolis'){
-						if (targetMax == 'metropolis') { targetMax = 'smallNation'; }
-						mood(0.08);
-					}
-					if (raiding.last == 'largeCity'){
-						if (targetMax == 'largeCity') { targetMax = 'metropolis'; }
-						mood(0.07);
-					}
-					if (raiding.last == 'smallCity'){
-						if (targetMax == 'smallCity') { targetMax = 'largeCity'; }
-						mood(0.06);
-					}
-					if (raiding.last == 'largeTown'){
-						if (targetMax == 'largeTown') { targetMax = 'smallCity'; }
-						mood(0.05);
-					}
-					if (raiding.last == 'smallTown'){
-						if (targetMax == 'smallTown') { targetMax = 'largeTown'; }
-						mood(0.04);
-					}
-					if (raiding.last == 'village'){
-						if (targetMax == 'village') { targetMax = 'smallTown'; }
-						mood(0.03);
-					}
-					if (raiding.last == 'hamlet'){
-						if (targetMax == 'hamlet') { targetMax = 'village'; }
-						mood(0.02);
-					}
-					if (raiding.last == 'thorp'){
-						if (targetMax == 'thorp') { targetMax = 'hamlet'; }
-						mood(0.01);
-					}
+
 					updateTargets(); //update the new target
 				}
 				updateParty(); //display new totals for army soldiers and enemy soldiers
@@ -6869,44 +6744,17 @@ function iconToggle(){
 
 var delimiters = true;
 function prettify(input){
-	var output = '';
-	var i;
-	if (delimiters){
-		output = input.toString();
-		var characteristic = '', //the bit that comes before the decimal point
-			mantissa = '', //the bit that comes afterwards
-			digitCount = 0,
-			delimiter = "&#8239;"; //thin space is the ISO standard thousands delimiter. we need a non-breaking version
-
-		//first split the string on the decimal point, and assign to the characteristic and mantissa
-		var parts = output.split('.');
-		if (typeof parts[1] === 'string') { mantissa = '.' + parts[1]; } //check it's defined first, and tack a decimal point to the start of it
-
-		//then insert the commas in the characteristic
-		var charArray = parts[0].split(""); //breaks it into an array
-		for (i=charArray.length; i>0; i--){ //counting backwards through the array
-			characteristic = charArray[i-1] + characteristic; //add the array item at the front of the string
-			digitCount++;
-			if (digitCount == 3 && i!=1){ //once every three digits (but not at the head of the number)
-				characteristic = delimiter + characteristic; //add the delimiter at the front of the string
-				digitCount = 0;
-			}
-		}
-		output = characteristic + mantissa; //reassemble the number
-	} else {
-		output = input;
-	}
-	return output;
+	if (!delimiters){
+		return input.toString();
+	} 
+	return num2fmtString(input);
 }
 
 function toggleDelimiters(){
-	if (delimiters){
-		delimiters = false;
-		document.getElementById('toggleDelimiters').innerHTML = 'Enable Delimiters';
-	} else {
-		delimiters = true;
-		document.getElementById('toggleDelimiters').innerHTML = 'Disable Delimiters';
-	}
+	delimiters = !delimiters;
+	var action = delimiters ? 'Disable' : 'Enable';
+	document.getElementById('toggleDelimiters').innerHTML = action + ' Delimiters';
+
 	updateBuildingTotals();
 }
 
