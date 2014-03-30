@@ -65,7 +65,7 @@ civSizes.getCivSize = function(popcnt) {
 };
 
 // To find the max pop, we look at the next entry's min_pop and subtract one.
-// If this is the last entry, return undefined.
+// If this is the last entry, return -1.
 civSizes.getMaxPop = function(civType) {
 	if ((civSizes[civType] + 1) < civSizes.length)
 	{	
@@ -2387,109 +2387,41 @@ function updateParty(){
 		document.getElementById('efortgroup').style.display = 'none';
 	}
 }
+
 function updatePartyButtons(){
-	if (upgrades.standard){
-		if (population.soldiersParty > 0){ //None
-			document.getElementById('fsoldiergroup').children[0].children[0].disabled = false;
-		} else {
-			document.getElementById('fsoldiergroup').children[0].children[0].disabled = true;
-		}
-		if (population.soldiersParty >= 100){ //-100
-			document.getElementById('fsoldiergroup').children[2].children[0].disabled = false;
-		} else {
-			document.getElementById('fsoldiergroup').children[2].children[0].disabled = true;
-		}
-		if (population.soldiersParty >= 10){ //-10
-			document.getElementById('fsoldiergroup').children[3].children[0].disabled = false;
-		} else {
-			document.getElementById('fsoldiergroup').children[3].children[0].disabled = true;
-		}
-		if (population.soldiersParty >= 1){ //-1
-			document.getElementById('fsoldiergroup').children[4].children[0].disabled = false;
-		} else {
-			document.getElementById('fsoldiergroup').children[4].children[0].disabled = true;
-		}
-		if (population.soldiers >= 1){ //1
-			document.getElementById('fsoldiergroup').children[7].children[0].disabled = false;
-		} else {
-			document.getElementById('fsoldiergroup').children[7].children[0].disabled = true;
-		}
-		if (population.soldiers >= 10){ //10
-			document.getElementById('fsoldiergroup').children[8].children[0].disabled = false;
-		} else {
-			document.getElementById('fsoldiergroup').children[8].children[0].disabled = true;
-		}
-		if (population.soldiers >= 100){ //100
-			document.getElementById('fsoldiergroup').children[9].children[0].disabled = false;
-		} else {
-			document.getElementById('fsoldiergroup').children[9].children[0].disabled = true;
-		}
-		if (population.soldiers > 0){ //Max
-			document.getElementById('fsoldiergroup').children[11].children[0].disabled = false;
-		} else {
-			document.getElementById('fsoldiergroup').children[11].children[0].disabled = true;
-		}
-		if (population.cavalryParty > 0){ //None
-			document.getElementById('fcavalrygroup').children[0].children[0].disabled = false;
-		} else {
-			document.getElementById('fcavalrygroup').children[0].children[0].disabled = true;
-		}
-		if (population.cavalryParty >= 100){ //-100
-			document.getElementById('fcavalrygroup').children[2].children[0].disabled = false;
-		} else {
-			document.getElementById('fcavalrygroup').children[2].children[0].disabled = true;
-		}
-		if (population.cavalryParty >= 10){ //-10
-			document.getElementById('fcavalrygroup').children[3].children[0].disabled = false;
-		} else {
-			document.getElementById('fcavalrygroup').children[3].children[0].disabled = true;
-		}
-		if (population.cavalryParty >= 1){ //-1
-			document.getElementById('fcavalrygroup').children[4].children[0].disabled = false;
-		} else {
-			document.getElementById('fcavalrygroup').children[4].children[0].disabled = true;
-		}
-		if (population.cavalry >= 1){ //1
-			document.getElementById('fcavalrygroup').children[7].children[0].disabled = false;
-		} else {
-			document.getElementById('fcavalrygroup').children[7].children[0].disabled = true;
-		}
-		if (population.cavalry >= 10){ //10
-			document.getElementById('fcavalrygroup').children[8].children[0].disabled = false;
-		} else {
-			document.getElementById('fcavalrygroup').children[8].children[0].disabled = true;
-		}
-		if (population.cavalry >= 100){ //100
-			document.getElementById('fcavalrygroup').children[9].children[0].disabled = false;
-		} else {
-			document.getElementById('fcavalrygroup').children[9].children[0].disabled = true;
-		}
-		if (population.cavalry > 0){ //Max
-			document.getElementById('fcavalrygroup').children[11].children[0].disabled = false;
-		} else {
-			document.getElementById('fcavalrygroup').children[11].children[0].disabled = true;
-		}
-		if (metal.total >= 50 && leather.total >= 50 && wood.total >= 200){ //1
-			document.getElementById('fsiegegroup').children[7].children[0].disabled = false;
-		} else {
-			document.getElementById('fsiegegroup').children[7].children[0].disabled = true;
-		}
-		if (metal.total >= 500 && leather.total >= 500 && wood.total >= 2000){ //10
-			document.getElementById('fsiegegroup').children[8].children[0].disabled = false;
-		} else {
-			document.getElementById('fsiegegroup').children[8].children[0].disabled = true;
-		}
-		if (metal.total >= 5000 && leather.total >= 5000 && wood.total >= 20000){ //100
-			document.getElementById('fsiegegroup').children[9].children[0].disabled = false;
-		} else {
-			document.getElementById('fsiegegroup').children[9].children[0].disabled = true;
-		}
-		if (metal.total >= 50 && leather.total >= 50 && wood.total >= 200){ //Max
-			document.getElementById('fsiegegroup').children[11].children[0].disabled = false;
-		} else {
-			document.getElementById('fsiegegroup').children[11].children[0].disabled = true;
-		}
-	}
+	var fsolgroup, fcavgroup, fsgegroup;
+	if (!upgrades.standard) { return; }
+
+	fsolgroup = document.getElementById('fsoldiergroup');
+	fsolgroup.children[ 0].children[0].disabled = (population.soldiersParty <   1); // None
+	fsolgroup.children[ 2].children[0].disabled = (population.soldiersParty < 100); // -100
+	fsolgroup.children[ 3].children[0].disabled = (population.soldiersParty <  10); // - 10
+	fsolgroup.children[ 4].children[0].disabled = (population.soldiersParty <   1); // -  1
+	fsolgroup.children[ 7].children[0].disabled = (population.soldiers      <   1); //    1
+	fsolgroup.children[ 8].children[0].disabled = (population.soldiers      <  10); //   10
+	fsolgroup.children[ 9].children[0].disabled = (population.soldiers      < 100); //  100
+	fsolgroup.children[11].children[0].disabled = (population.soldiers      <   1); //  Max
+
+	fcavgroup = document.getElementById('fcavalrygroup');
+	fcavgroup.children[ 0].children[0].disabled = (population.cavalryParty <   1); // None
+	fcavgroup.children[ 2].children[0].disabled = (population.cavalryParty < 100); // -100
+	fcavgroup.children[ 3].children[0].disabled = (population.cavalryParty <  10); // - 10
+	fcavgroup.children[ 4].children[0].disabled = (population.cavalryParty <   1); // -  1
+	fcavgroup.children[ 7].children[0].disabled = (population.cavalry      <   1); //    1
+	fcavgroup.children[ 8].children[0].disabled = (population.cavalry      <  10); //   10
+	fcavgroup.children[ 9].children[0].disabled = (population.cavalry      < 100); //  100
+	fcavgroup.children[11].children[0].disabled = (population.cavalry      <   1); //  Max
+
+	fsgegroup = document.getElementById('fsiegegroup');
+	fsgegroup.children[ 7].children[0].disabled = 
+		(metal.total <   50 || leather.total <   50 || wood.total <   200); //   1
+	fsgegroup.children[ 8].children[0].disabled = 
+		(metal.total <  500 || leather.total <  500 || wood.total <  2000); //  10
+	fsgegroup.children[ 9].children[0].disabled = 
+		(metal.total < 5000 || leather.total < 5000 || wood.total < 20000); // 100
+	// Siege max disabled; too easy to overspend.
+	// fsgegroup.children[11].children[0].disabled = 
+	//	(metal.total <   50 || leather.total <   50 || wood.total <   200); // Max
 }
 
 // Enable the raid buttons for eligible targets.
