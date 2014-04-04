@@ -14,16 +14,9 @@
  * GNU General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with this program (if you are reading this on the original
- * author's website, you can find a copy at
- * <http://dhmholley.co.uk/gpl.txt>). If not, see
- * <http://www.gnu.org/licenses/>.
- *
- * If you're reading this, thanks for playing!
- * This project was my first major HTML5/Javascript game, and was as
- * much about learning Javascript as it is anything else. I hope it
- * inspires others to make better games. :)
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 
 var version = 19;
 var logRepeat = 1;
@@ -6552,3 +6545,11 @@ function ruinFun(){
 	updateBuildingTotals();
 }
 
+/*
+ * If you're reading this, thanks for playing!
+ * This project was my first major HTML5/Javascript game, and was as
+ * much about learning Javascript as it is anything else. I hope it
+ * inspires others to make better games. :)
+ *
+ *     David Holley
+ */
