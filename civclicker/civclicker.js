@@ -1218,11 +1218,8 @@ function updatePopulation(){
 	document.getElementById('zombies').innerHTML = prettify(population.zombies);
 	document.getElementById('graves').innerHTML = prettify(population.graves);
 	document.getElementById('sickTotal').innerHTML = prettify(population.totalSick);
-	if (population.graves > 0){
-		document.getElementById('gravesTotal').style.display = "inline";
-	} else {
-		document.getElementById('gravesTotal').style.display = "none";
-	}
+	document.getElementById('gravesTotal').style.display = (population.graves > 0) ? "inline" : "none";
+
 	//As population increases, various things change
 	if (population.current == 0 && population.cap >= 1000){
 		civType = 'Ghost Town';
@@ -1365,92 +1362,46 @@ function updateJobs(){
 	document.getElementById('enemiesSlain').innerHTML = prettify(population.enemiesSlain);
 }
 function updateJobButtons(job,name,building,support){
+	var elem = document.getElementById(name + 'group');
 	if (building){
-		if (population[job] > 0){ //None
-			document.getElementById(name + 'group').children[0].children[0].disabled = false;
-		} else {
-			document.getElementById(name + 'group').children[0].children[0].disabled = true;
-		}
-		if (population[job] >= 100){ //-100
-			document.getElementById(name + 'group').children[2].children[0].disabled = false;
-		} else {
-			document.getElementById(name + 'group').children[2].children[0].disabled = true;
-		}
-		if (population[job] >= 10){ //-10
-			document.getElementById(name + 'group').children[3].children[0].disabled = false;
-		} else {
-			document.getElementById(name + 'group').children[3].children[0].disabled = true;
-		}
-		if (population[job] >= 1){ //-1
-			document.getElementById(name + 'group').children[4].children[0].disabled = false;
-		} else {
-			document.getElementById(name + 'group').children[4].children[0].disabled = true;
-		}
+		elem.children[0].children[0].disabled = (population[job] <   1); // None
+		elem.children[2].children[0].disabled = (population[job] < 100); // -100
+		elem.children[3].children[0].disabled = (population[job] <  10); // - 10
+		elem.children[4].children[0].disabled = (population[job] <   1); // -  1
+
 		if ((job == 'soldiers' && metal.total >= 10 && leather.total >= 10 && population.unemployed >= 1 && population[job] + 1 <= building.total * support) || (job == 'cavalry' && food.total >= 20 && leather.total >= 20 && population.unemployed >= 1 && population[job] + 1 <= building.total * support) || (job != 'soldiers' && job != 'cavalry' && population.unemployed >= 1 && population[job] + 1 <= building.total * support)){ //1
-			document.getElementById(name + 'group').children[7].children[0].disabled = false;
+			elem.children[7].children[0].disabled = false;
 		} else {
-			document.getElementById(name + 'group').children[7].children[0].disabled = true;
+			elem.children[7].children[0].disabled = true;
 		}
 		if ((job == 'soldiers' && metal.total >= 100 && leather.total >= 100 && population.unemployed >= 10 && population[job] + 10 <= building.total * support) || (job == 'cavalry' && food.total >= 200 && leather.total >= 200 && population.unemployed >= 10 && population[job] + 10 <= building.total * support) || (job != 'soldiers' && job != 'cavalry' && population.unemployed >= 10 && population[job] + 10 <= building.total * support)){ //10
-			document.getElementById(name + 'group').children[8].children[0].disabled = false;
+			elem.children[8].children[0].disabled = false;
 		} else {
-			document.getElementById(name + 'group').children[8].children[0].disabled = true;
+			elem.children[8].children[0].disabled = true;
 		}
 		if ((job == 'soldiers' && metal.total >= 1000 && leather.total >= 1000 && population.unemployed >= 100 && population[job] + 100 <= building.total * support) || (job == 'cavalry' && food.total >= 2000 && leather.total >= 2000 && population.unemployed >= 100 && population[job] + 100 <= building.total * support) || (job != 'soldiers' && job != 'cavalry' && population.unemployed >= 100 && population[job] + 100 <= building.total * support)){ //100
-			document.getElementById(name + 'group').children[9].children[0].disabled = false;
+			elem.children[9].children[0].disabled = false;
 		} else {
-			document.getElementById(name + 'group').children[9].children[0].disabled = true;
+			elem.children[9].children[0].disabled = true;
 		}
 		if ((job == 'soldiers' && metal.total >= 10 && leather.total >= 10 && population.unemployed >= 1 && population[job] + 1 <= building.total * support) || (job == 'cavalry' && food.total >= 20 && leather.total >= 20 && population.unemployed >= 1 && population[job] + 1 <= building.total * support) || (job != 'soldiers' && job != 'cavalry' && population.unemployed >= 1 && population[job] + 1 <= building.total * support)){ //Max
-			document.getElementById(name + 'group').children[11].children[0].disabled = false;
+			elem.children[11].children[0].disabled = false;
 		} else {
-			document.getElementById(name + 'group').children[11].children[0].disabled = true;
+			elem.children[11].children[0].disabled = true;
 		}
 	} else {
-		if (population[job] > 0){ //None
-			document.getElementById(name + 'group').children[0].children[0].disabled = false;
-		} else {
-			document.getElementById(name + 'group').children[0].children[0].disabled = true;
-		}
-		if (population[job] >= 100){ //-100
-			document.getElementById(name + 'group').children[2].children[0].disabled = false;
-		} else {
-			document.getElementById(name + 'group').children[2].children[0].disabled = true;
-		}
-		if (population[job] >= 10){ //-10
-			document.getElementById(name + 'group').children[3].children[0].disabled = false;
-		} else {
-			document.getElementById(name + 'group').children[3].children[0].disabled = true;
-		}
-		if (population[job] >= 1){ //-1
-			document.getElementById(name + 'group').children[4].children[0].disabled = false;
-		} else {
-			document.getElementById(name + 'group').children[4].children[0].disabled = true;
-		}
-		if (population.unemployed >= 1){ //1
-			document.getElementById(name + 'group').children[7].children[0].disabled = false;
-		} else {
-			document.getElementById(name + 'group').children[7].children[0].disabled = true;
-		}
-		if (population.unemployed >= 10){ //10
-			document.getElementById(name + 'group').children[8].children[0].disabled = false;
-		} else {
-			document.getElementById(name + 'group').children[8].children[0].disabled = true;
-		}
-		if (population.unemployed >= 100){ //100
-			document.getElementById(name + 'group').children[9].children[0].disabled = false;
-		} else {
-			document.getElementById(name + 'group').children[9].children[0].disabled = true;
-		}
-		if (population.unemployed > 0){ //Max
-			document.getElementById(name + 'group').children[11].children[0].disabled = false;
-		} else {
-			document.getElementById(name + 'group').children[11].children[0].disabled = true;
-		}
+		elem.children[0 ].children[0].disabled = (population[job]       <   1); // None
+		elem.children[2 ].children[0].disabled = (population[job]       < 100); // -100
+		elem.children[3 ].children[0].disabled = (population[job]       <  10); // - 10
+		elem.children[4 ].children[0].disabled = (population[job]       <   1); // -  1
+		elem.children[7 ].children[0].disabled = (population.unemployed <   1); //    1
+		elem.children[8 ].children[0].disabled = (population.unemployed <  10); //   10
+		elem.children[9 ].children[0].disabled = (population.unemployed < 100); //  100
+		elem.children[11].children[0].disabled = (population.unemployed <   1); //  Max
 	}
 	//do something with these later
-	//document.getElementById(name + 'group').children[1].children[0].disabled = false; //-Custom
-	//document.getElementById(name + 'group').children[10].children[0].disabled = false; //Custom
+	//elem.children[ 1].children[0].disabled = false; // -Custom
+	//elem.children[10].children[0].disabled = false; //  Custom
 }
 
 function updateUpgrades(){
@@ -2441,29 +2392,29 @@ function updateTargets(){
 
 function updateHappiness(){
 	//updates the happiness stat
+	var text, color;
 	//first checks there's someone to be happy or unhappy, not including zombies
-	if (population.current > 0){
-		if (efficiency.happiness > 1.4){
-			document.getElementById('happiness').innerHTML = "Blissful";
-			document.getElementById('happiness').style.color = "#f0f";
-		} else if (efficiency.happiness > 1.2){
-			document.getElementById('happiness').innerHTML = "Happy";
-			document.getElementById('happiness').style.color = "#00f";
-		} else if (efficiency.happiness > 0.8){
-			document.getElementById('happiness').innerHTML = "Content";
-			document.getElementById('happiness').style.color = "#0b0";
-		} else if (efficiency.happiness > 0.6){
-			document.getElementById('happiness').innerHTML = "Unhappy";
-			document.getElementById('happiness').style.color = "#880";
-		} else {
-			document.getElementById('happiness').innerHTML = "Angry";
-			document.getElementById('happiness').style.color = "#f00";
-		}
+	if (population.current < 1){ efficiency.happiness = 1; }
+
+	if (efficiency.happiness > 1.4){
+		text = "Blissful";
+		color = "#f0f";
+	} else if (efficiency.happiness > 1.2){
+		text = "Happy";
+		color = "#00f";
+	} else if (efficiency.happiness > 0.8){
+		text = "Content";
+		color = "#0b0"; // Was "#0d0" if pop == 0
+	} else if (efficiency.happiness > 0.6){
+		text = "Unhappy";
+		color = "#880";
 	} else {
-		efficiency.happiness = 1;
-		document.getElementById('happiness').innerHTML = "Content";
-		document.getElementById('happiness').style.color = "#0d0";
+		text = "Angry";
+		color = "#f00";
 	}
+
+	document.getElementById('happiness').innerHTML = text;
+	document.getElementById('happiness').style.color = color;
 }
 
 function updateWonder(){
@@ -2550,13 +2501,13 @@ function updateBuildingButtons(){
 }
 function updateBuildingRow(building,name){
 	var i;
-	var number;
+	var num;
 	//this works by trying to access the children of the table rows containing the buttons in sequence
 	for (i=0;i<4;i++){
 		//fortunately the index numbers of the children map directly onto the powers of 10 used by the buttons
-		number = Math.pow(10,i);
-		//check resources based on this number
-		if (food.total >= (building.require.food * number) && wood.total >= (building.require.wood * number) && stone.total >= (building.require.stone * number) && skins.total >= (building.require.skins * number) && herbs.total >= (building.require.herbs * number) && ore.total >= (building.require.ore * number) && leather.total >= (building.require.leather * number) && metal.total >= (building.require.metal * number) && piety.total >= (building.require.piety * number) && population.corpses >= (building.require.corpses * number)){
+		num = Math.pow(10,i);
+		//check resources based on this num
+		if (food.total >= (building.require.food * num) && wood.total >= (building.require.wood * num) && stone.total >= (building.require.stone * num) && skins.total >= (building.require.skins * num) && herbs.total >= (building.require.herbs * num) && ore.total >= (building.require.ore * num) && leather.total >= (building.require.leather * num) && metal.total >= (building.require.metal * num) && piety.total >= (building.require.piety * num) && population.corpses >= (building.require.corpses * num)){
 			try { //try-catch required because fortifications and mills do not have more than one child button. This should probably be cleaned up in the future.
 				document.getElementById(name + 'Row').children[i].children[0].disabled = false;
 			} catch(ignore){}
@@ -2570,29 +2521,10 @@ function updateBuildingRow(building,name){
 }
 
 function updateReset(){
-	if (upgrades.deity || wonder.completed){
-		 document.getElementById('resetNote').style.display = 'inline';
-		if (upgrades.deity){
-			document.getElementById('resetDeity').style.display = 'inline';
-		} else {
-			document.getElementById('resetDeity').style.display = 'none';
-		}
-		if (wonder.completed){
-			document.getElementById('resetWonder').style.display = 'inline';
-		} else {
-			document.getElementById('resetWonder').style.display = 'none';
-		}
-		if (upgrades.deity && wonder.completed){
-			document.getElementById('resetBoth').style.display = 'inline';
-		} else {
-			document.getElementById('resetBoth').style.display = 'none';
-		}
-	} else {
-		document.getElementById('resetNote').style.display = 'none';
-		document.getElementById('resetDeity').style.display = 'none';
-		document.getElementById('resetWonder').style.display = 'none';
-		document.getElementById('resetBoth').style.display = 'none';
-	}
+	document.getElementById('resetNote'  ).style.display = (upgrades.deity || wonder.completed) ? 'inline' : 'none';
+	document.getElementById('resetDeity' ).style.display = (upgrades.deity  ) ? 'inline' : 'none';
+	document.getElementById('resetWonder').style.display = (wonder.completed) ? 'inline' : 'none';
+	document.getElementById('resetBoth'  ).style.display = (upgrades.deity && wonder.completed) ? 'inline' : 'none';
 }
 
 function update(){
@@ -2669,29 +2601,29 @@ function increment(material){
 	updateResourceTotals(); //Update the page with totals
 }
 
-function createBuilding(building,number){
+function createBuilding(building,num){
 	//First check the building requirements
-	if (food.total >= (building.require.food * number) && wood.total >= (building.require.wood * number) && stone.total >= (building.require.stone * number) && skins.total >= (building.require.skins * number) && herbs.total >= (building.require.herbs * number) && ore.total >= (building.require.ore * number) && leather.total >= (building.require.leather * number) && metal.total >= (building.require.metal * number) && piety.total >= (building.require.piety * number) && population.corpses >= (building.require.corpses * number)){
+	if (food.total >= (building.require.food * num) && wood.total >= (building.require.wood * num) && stone.total >= (building.require.stone * num) && skins.total >= (building.require.skins * num) && herbs.total >= (building.require.herbs * num) && ore.total >= (building.require.ore * num) && leather.total >= (building.require.leather * num) && metal.total >= (building.require.metal * num) && piety.total >= (building.require.piety * num) && population.corpses >= (building.require.corpses * num)){
 		//Then deduct resources
-		food.total = food.total - building.require.food * number;
-		wood.total = wood.total - building.require.wood * number;
-		stone.total = stone.total - building.require.stone * number;
-		skins.total = skins.total - building.require.skins * number;
-		herbs.total = herbs.total - building.require.herbs * number;
-		ore.total = ore.total - building.require.ore * number;
-		leather.total = leather.total - building.require.leather * number;
-		metal.total = metal.total - building.require.metal * number;
-		piety.total = piety.total - building.require.piety * number;
-		population.corpses = population.corpses - building.require.corpses * number;
+		food.total = food.total - building.require.food * num;
+		wood.total = wood.total - building.require.wood * num;
+		stone.total = stone.total - building.require.stone * num;
+		skins.total = skins.total - building.require.skins * num;
+		herbs.total = herbs.total - building.require.herbs * num;
+		ore.total = ore.total - building.require.ore * num;
+		leather.total = leather.total - building.require.leather * num;
+		metal.total = metal.total - building.require.metal * num;
+		piety.total = piety.total - building.require.piety * num;
+		population.corpses = population.corpses - building.require.corpses * num;
 		//Then increment the total number of that building
-		building.total += 1 * number;
+		building.total += 1 * num;
 		//Increase devotion if the building was an altar.
-		deity.devotion += building.devotion * number;
+		deity.devotion += building.devotion * num;
 		//If building was graveyard, create graves
-		if (building == graveyard) { digGraves(number); }
+		if (building == graveyard) { digGraves(num); }
 		//if building was temple and aesthetics has been activated, increase happiness
 		if (building == temple && upgrades.aesthetics == 1){
-			var templeProp = number * 25 / population.current; //if population is large, temples have less effect
+			var templeProp = num * 25 / population.current; //if population is large, temples have less effect
 			mood(templeProp);
 		}
 		updateBuildingButtons(); //Update the buttons themselves
@@ -2703,9 +2635,9 @@ function createBuilding(building,number){
 		if (totalBuildings > land){
 			gameLog('You are suffering from overcrowding.');
 			if (upgrades.codeoflaws){
-				mood(number * -0.0025);
+				mood(num * -0.0025);
 			} else {
-				mood(number * -0.005);
+				mood(num * -0.005);
 			}
 		}
 		updateJobs(); //Update page with individual worker numbers, can't remember why this is called here
@@ -2714,27 +2646,36 @@ function createBuilding(building,number){
 	}
 }
 
-function buildCustom(building){
-	//builds a custom number of buildings
-	var custom = document.getElementById('buildCustom').value;
+function getCustomNumber(elemId){
+	var elem = document.getElementById(elemId);
+	var num = elem.value;
 	//Here we must coerce the variable type to be a number for browsers such
 	//as Firefox, which don't understand the number type for input elements.
 	//If this fails, it should return NaN so we can exclude that later.
-	custom = custom - 0;
+	num = num - 0;
 	//then we make sure it's an integer and at least 0
-	custom = Math.floor(custom);
-	if (custom < 1) { custom = NaN; }
-	//finally, check the above operations haven't returned NaN
-	if (!isNaN(custom)){
-		createBuilding(building,custom);
-		document.getElementById('buildCustom').value = custom; //reset fractional numbers, check nothing odd happened
-		document.getElementById('buildCustom').style.background = "#fff";
-	} else {
-		document.getElementById('buildCustom').style.background = "#f99"; //notify user that the input failed
-	}
-}
+	num = Math.floor(num);
+	if (num < 1)  { num = NaN; }
 
-function calcCost(number){
+	//finally, check the above operations haven't returned NaN
+	if (isNaN(num)){
+		elem.style.background = "#f99"; //notify user that the input failed
+		return 0;
+	} 
+
+	elem.value = num; //reset fractional numbers, check nothing odd happened
+	elem.style.background = "#fff";
+
+	return num;
+}
+function getCustomBuildNumber() { return getCustomNumber('buildCustom'); }
+function getCustomSpawnNumber() { return getCustomNumber('spawnCustom'); }
+function getCustomJobNumber()   { return getCustomNumber('jobCustom'  ); }
+
+//builds a custom number of buildings
+function buildCustom(building) { createBuilding(building,getCustomBuildNumber()); }
+
+function calcCost(num){
 	//Calculates and returns the cost of adding a certain number of workers at the present population
 	//First set temporary values
 	var aggCost = 0,
@@ -2742,7 +2683,7 @@ function calcCost(number){
 		popCurrentTemp = population.current;
 	var i;
 	//Then iterate through adding workers, and increment temporary values
-	for (i=0; i<number; i++){
+	for (i=0; i<num; i++){
 			currentPrice = 20 + Math.floor(popCurrentTemp / 100); //CURRENT FOOD COST CALCULATION
 			//currentPrice = Math.floor(20 * Math.pow(1.005,popCurrentTemp / 1500) + popCurrentTemp / 100); //POTENTIAL NEW COST CALCULATION
 			aggCost += currentPrice;
@@ -2752,15 +2693,15 @@ function calcCost(number){
 	return aggCost;
 }
 
-function spawn(number){
+function spawn(num){
 	//Creates more workers
 	//First get the potential cost
-	var totalCost = calcCost(number);
+	var totalCost = calcCost(num);
 	//Then check that the player can afford the cost and has enough space under their popcap
-	if (food.total >= totalCost && population.current + (1 * number) <= population.cap){
+	if (food.total >= totalCost && population.current + (1 * num) <= population.cap){
 		//Increment population numbers, reduce food
-		population.current += number;
-		population.farmers += number; // New workers start as farmers
+		population.current += num;
+		population.farmers += num; // New workers start as farmers
 		food.total -= totalCost;
 		//Potentially create a cat
 		//This is intentionally independent of the number of workers spawned
@@ -2787,25 +2728,8 @@ function spawn(number){
 	}
 }
 
-function spawnCustom(){
-	//calls the spawn function with the custom number from the input
-	var custom = document.getElementById('spawnCustom').value;
-	//Here we must coerce the variable type to be a number for browsers such
-	//as Firefox, which don't understand the number type for input elements.
-	//If this fails, it should return NaN so we can exclude that later.
-	custom = custom - 0;
-	//then we make sure it's an integer and at least 0
-	custom = Math.floor(custom);
-	if (custom < 1) { custom = NaN; }
-	//finally, check the above operations haven't returned NaN
-	if (!isNaN(custom)){
-		spawn(custom);
-		document.getElementById('spawnCustom').value = custom; //reset fractional numbers, check nothing odd happened
-		document.getElementById('spawnCustom').style.background = "#fff";
-	} else {
-		document.getElementById('spawnCustom').style.background = "#f99"; //notify user that the input failed
-	}
-}
+//calls the spawn function with the custom number from the input
+function spawnCustom() { spawn(getCustomSpawnNumber); }
 
 function jobCull(){
 	//This should probably be renamed the starve function. Culls workers when they starve, in a specific order.
@@ -2862,280 +2786,125 @@ function jobCull(){
 	}
 }
 
-function hire(job,number){
-	//Adds unemployed workers to a specific job. Unfortunately the job variable has to be passed as a string for some reason, hence the if statements.
-	if (job == 'farmers' && population.unemployed >= number){
-		population.farmers += number;
-		population.unemployed -= number;
+//Adds unemployed workers to a specific job. Unfortunately the job variable has to be passed as a string for some reason, hence the if statements.
+function hire(job,num){
+	if (population.unemployed < num) { return; }
+	
+	if (job == 'farmers'){
+		population[job] += num;
+		population.unemployed -= num;
 	}
-	if (job == 'woodcutters' && population.unemployed >= number){
-		population.woodcutters += number;
-		population.unemployed -= number;
+	if (job == 'woodcutters'){
+		population[job] += num;
+		population.unemployed -= num;
 	}
-	if (job == 'miners' && population.unemployed >= number){
-		population.miners += number;
-		population.unemployed -= number;
+	if (job == 'miners'){
+		population[job] += num;
+		population.unemployed -= num;
 	}
 	//Jobs that require buildings
-	if (job == 'tanners' && population.unemployed >= number && tannery.total >= (population.tanners + population.tannersIll + number)){
-		population.tanners += number;
-		population.unemployed -= number;
+	if (job == 'tanners' && tannery.total >= (population.tanners + population.tannersIll + num)){
+		population[job] += num;
+		population.unemployed -= num;
 	}
-	if (job == 'blacksmiths' && population.unemployed >= number && smithy.total >= (population.blacksmiths + population.blacksmithsIll + number)){
-		population.blacksmiths += number;
-		population.unemployed -= number;
+	if (job == 'blacksmiths' && smithy.total >= (population.blacksmiths + population.blacksmithsIll + num)){
+		population[job] += num;
+		population.unemployed -= num;
 	}
-	if (job == 'apothecaries' && population.unemployed >= number && apothecary.total >= (population.apothecaries + population.apothecariesIll + number)){
-		population.apothecaries += number;
-		population.unemployed -= number;
+	if (job == 'apothecaries' && apothecary.total >= (population.apothecaries + population.apothecariesIll + num)){
+		population[job] += num;
+		population.unemployed -= num;
 	}
-	if (job == 'clerics' && population.unemployed >= number && temple.total >= (population.clerics + population.clericsIll + number)){
-		population.clerics += number;
-		population.unemployed -= number;
+	if (job == 'clerics' && temple.total >= (population.clerics + population.clericsIll + num)){
+		population[job] += num;
+		population.unemployed -= num;
 	}
-	if (job == 'labourers' && population.unemployed >= number){
-		population.labourers += number;
-		population.unemployed -= number;
+	if (job == 'labourers'){
+		population[job] += num;
+		population.unemployed -= num;
 	}
 	//Soldiers require buildings and resources
-	if (job == 'soldiers' && population.unemployed >= number && barracks.total >= ((population.soldiers + population.soldiersIll + population.soldiersParty + number) / 10) && metal.total >= (10 * number) && leather.total >= (10 * number)){
-		population.soldiers += number;
-		population.soldiersCas += number;
-		population.unemployed -= number;
-		metal.total -= (10 * number);
-		leather.total -= (10 * number);
+	if (job == 'soldiers' && barracks.total >= ((population.soldiers + population.soldiersIll + population.soldiersParty + num) / 10) && metal.total >= (10 * num) && leather.total >= (10 * num)){
+		population[job] += num;
+		population.unemployed -= num;
+		population.soldiersCas += num;
+		metal.total -= (10 * num);
+		leather.total -= (10 * num);
 	}
 	//as do cavalry
-	if (job == 'cavalry' && population.unemployed >= number && stable.total >= ((population.cavalry + population.cavalryIll + population.cavalryParty + number) / 10) && food.total >= (20 * number) && leather.total >= (20 * number)){
-		population.cavalry += number;
-		population.cavalryCas += number;
-		population.unemployed -= number;
-		food.total -= (20 * number);
-		leather.total -= (20 * number);
+	if (job == 'cavalry' && stable.total >= ((population.cavalry + population.cavalryIll + population.cavalryParty + num) / 10) && food.total >= (20 * num) && leather.total >= (20 * num)){
+		population[job] += num;
+		population.unemployed -= num;
+		population.cavalryCas += num;
+		food.total -= (20 * num);
+		leather.total -= (20 * num);
 	}
-	updateJobs(); //Updates the page with the number in each job.
+	updateJobs(); //Updates the page with the num in each job.
 }
 function hireAll(job){
 	//Tries to assign all unemployed workers to a job, subbing in population.unemployed for the variable the hire function would ordinarily be passed.
 	//Works similarly to the hire() function above. There may be a better way to do this/merge the two functions.
-	var num = population.unemployed;
-	if (job == 'farmers' && population.unemployed > 0){
-		population.farmers += num;
-		population.unemployed -= num;
+	var num = Infinity;
+
+	if (job == 'tanners'){
+		num = tannery.total - (population[job] + population.tannersIll);
 	}
-	if (job == 'woodcutters' && population.unemployed > 0){
-		population.woodcutters += num;
-		population.unemployed -= num;
+	if (job == 'blacksmiths'){
+		num = smithy.total - (population[job] + population.tannersIll);
 	}
-	if (job == 'miners' && population.unemployed > 0){
-		population.miners += num;
-		population.unemployed -= num;
+	if (job == 'apothecaries'){
+		num = apothecary.total - (population[job] + population.apothecariesIll);
 	}
-	if (job == 'tanners' && population.unemployed > 0){
-		if ((tannery.total - (population.tanners + population.tannersIll)) < num){
-			population.unemployed -= (tannery.total - (population.tanners + population.tannersIll));
-			population.tanners = tannery.total - population.tannersIll;
-		} else {
-			population.tanners += num;
-			population.unemployed -= num;
-		}
+	if (job == 'clerics'){
+		num = temple.total - (population[job] + population.clericsIll);
 	}
-	if (job == 'blacksmiths' && population.unemployed > 0){
-		if ((smithy.total - (population.blacksmiths + population.blacksmithsIll)) < num){
-			population.unemployed -= (smithy.total - (population.blacksmiths + population.blacksmithsIll));
-			population.blacksmiths = smithy.total - population.blacksmithsIll;
-		} else {
-			population.blacksmiths += num;
-			population.unemployed -= num;
-		}
+	if (job == 'soldiers'){
+		num = (barracks.total * 10) - (population[job] + population.soldiersIll + population.soldiersParty);
+		num = Math.min(num,Math.floor(leather.total / 10),Math.floor(metal.total / 10));
 	}
-	if (job == 'apothecaries' && population.unemployed > 0){
-		if ((apothecary.total - (population.apothecaries + population.apothecariesIll)) < num){
-			population.unemployed -= (apothecary.total - (population.apothecaries + population.apothecariesIll));
-			population.apothecaries = apothecary.total - population.apothecariesIll;
-		} else {
-			population.apothecaries += num;
-			population.unemployed -= num;
-		}
+	if (job == 'cavalry'){
+		num = (stable.total * 10) - (population[job] + population.cavalryIll + population.cavalryParty);
+		num = Math.mun(num,Math.floor(leather.total / 10),Math.floor(food.total / 10));
 	}
-	if (job == 'clerics' && population.unemployed > 0){
-		if ((temple.total - (population.clerics + population.clericsIll)) < num){
-			population.unemployed -= (temple.total - (population.clerics + population.clericsIll));
-			population.clerics = temple.total - population.clericsIll;
-		} else {
-			population.clerics += num;
-			population.unemployed -= num;
-		}
-	}
-	if (job == 'labourers' && population.unemployed > 0){
-		population.labourers += num;
-		population.unemployed -= num;
-	}
-	var diff;
-	if (job == 'soldiers' && population.unemployed > 0){
-		diff = Math.min(num,((barracks.total * 10) - (population.soldiers + population.soldiersIll + population.soldiersParty)),(Math.floor(leather.total / 10)),(Math.floor(metal.total / 10)));
-		population.soldiers += diff;
-		population.soldiersCas += diff;
-		population.unemployed -= diff;
-		metal.total -= (diff * 10);
-		leather.total -= (diff * 10);
-	}
-	if (job == 'cavalry' && population.unemployed > 0){
-		diff = Math.min(num,((stable.total * 10) - (population.cavalry + population.cavalryIll + population.cavalryParty)),(Math.floor(leather.total / 10)),(Math.floor(food.total / 10)));
-		population.cavalry += diff;
-		population.cavalryCas += diff;
-		population.unemployed -= diff;
-		food.total -= (diff * 20);
-		leather.total -= (diff * 20);
-	}
-	updateJobs();
+
+	hire(job,Math.min(num, population.unemployed));
 }
 
-function fire(job,number){
+function fire(job,num){
 	//See above hire() function, works the same way but in reverse.
-	//May also be possible to consolidate with hire function, by hiring negative numbers. Will investigate.
-	if (job == 'farmers' && population.farmers >= number){
-		population.farmers -= number;
-		population.unemployed += number;
-	}
-	if (job == 'woodcutters' && population.woodcutters >= number){
-		population.woodcutters -= number;
-		population.unemployed += number;
-	}
-	if (job == 'miners' && population.miners >= number){
-		population.miners -= number;
-		population.unemployed += number;
-	}
-	if (job == 'tanners' && population.tanners >= number){
-		population.tanners -= number;
-		population.unemployed += number;
-	}
-	if (job == 'blacksmiths' && population.blacksmiths >= number){
-		population.blacksmiths -= number;
-		population.unemployed += number;
-	}
-	if (job == 'apothecaries' && population.apothecaries >= number){
-		population.apothecaries -= number;
-		population.unemployed += number;
-	}
-	if (job == 'clerics' && population.clerics >= number){
-		population.clerics -= number;
-		population.unemployed += number;
-	}
-	if (job == 'labourers' && population.labourers >= number){
-		population.labourers -= number;
-		population.unemployed += number;
-	}
-	if (job == 'soldiers' && population.soldiers >= number){
-		population.soldiers -= number;
-		population.soldiersCas -= number;
-		metal.total += (10 * number); // Return equipment to armory
-		leather.total += (10 * number);
+	//May also be possible to consolidate with hire function, by hiring negative num. Will investigate.
+	if (population[job] < num) { return; }
+
+	population[job] -= num;
+	population.unemployed += num;
+	
+	if (job == 'soldiers'){
+		population.soldiersCas -= num;
+		metal.total += (10 * num); // Return equipment to armory
+		leather.total += (10 * num);
 		//It's possible that firing the last soldier, if injured, could put population.soldiersCas negative
 		if (population.soldiersCas < 0){
 			population.soldiersCas = 0;
 		}
-		population.unemployed += number;
 	}
-	if (job == 'cavalry' && population.cavalry >= number){
-		population.cavalry -= number;
-		population.cavalryCas -= number;
-		food.total += (20 * number); // Return equipment to armory
-		leather.total += (20 * number);
+	if (job == 'cavalry'){
+		population.cavalryCas -= num;
+		food.total += (20 * num); // Return equipment to armory
+		leather.total += (20 * num);
 		//It's possible that firing the last cavalry, if injured, could put population.cavalryCas negative
 		if (population.cavalryCas < 0){
 			population.cavalryCas = 0;
 		}
-		population.unemployed += number;
 	}
 	updateJobs();
 }
 
-function fireAll(job){
-	//See hireAll() function. Assigns all workers in a particular job to the unemployed pool.
-	if (job == 'farmers'){
-		population.unemployed += population.farmers;
-		population.farmers = 0;
-	}
-	if (job == 'woodcutters'){
-		population.unemployed += population.woodcutters;
-		population.woodcutters = 0;
-	}
-	if (job == 'miners'){
-		population.unemployed += population.miners;
-		population.miners = 0;
-	}
-	if (job == 'tanners'){
-		population.unemployed += population.tanners;
-		population.tanners = 0;
-	}
-	if (job == 'blacksmiths'){
-		population.unemployed += population.blacksmiths;
-		population.blacksmiths = 0;
-	}
-	if (job == 'apothecaries'){
-		population.unemployed += population.apothecaries;
-		population.apothecaries = 0;
-	}
-	if (job == 'clerics'){
-		population.unemployed += population.clerics;
-		population.clerics = 0;
-	}
-	if (job == 'labourers'){
-		population.unemployed += population.labourers;
-		population.labourers = 0;
-	}
-	if (job == 'soldiers'){
-		population.unemployed += population.soldiers;
-		metal.total += (10 * population.soldiers); // Return equipment to armory
-		leather.total += (10 * population.soldiers);
-		population.soldiers = 0;
-		population.soldiersCas = 0;
-	}
-	if (job == 'cavalry'){
-		population.unemployed += population.cavalry;
-		food.total += (20 * population.cavalry); // Return equipment to armory
-		leather.total += (20 * population.cavalry);
-		population.cavalry = 0;
-		population.cavalryCas = 0;
-	}
-	updateJobs();
-}
+//See hireAll() function. Assigns all workers in a particular job to the unemployed pool.
+function fireAll(job) { fire(job,population[job]); }
 
-function fireCustom(worker){
-	//calls the fire function with the custom number from the input
-	var custom = document.getElementById('jobCustom').value;
-	//Here we must coerce the variable type to be a number for browsers such
-	//as Firefox, which don't understand the number type for input elements.
-	//If this fails, it should return NaN so we can exclude that later.
-	custom = custom - 0;
-	//then we make sure it's an integer and at least 0
-	custom = Math.floor(custom);
-	if (custom < 1)  { custom = NaN; }
-	//finally, check the above operations haven't returned NaN
-	if (!isNaN(custom)){
-		fire(worker,custom);
-		document.getElementById('jobCustom').value = custom; //reset fractional numbers, check nothing odd happened
-		document.getElementById('jobCustom').style.background = "#fff";
-	} else {
-		document.getElementById('jobCustom').style.background = "#f99"; //notify user that the input failed
-	}
-}
-
-function hireCustom(worker){
-	//counterpart to fireCustom. see above for details
-	var custom = document.getElementById('jobCustom').value;
-	custom = custom - 0;
-	custom = Math.floor(custom);
-	if (custom < 1) { custom = NaN; }
-	if (!isNaN(custom)){
-		hire(worker,custom);
-		document.getElementById('jobCustom').value = custom;
-		document.getElementById('jobCustom').style.background = "#fff";
-	} else {
-		document.getElementById('jobCustom').style.background = "#f99";
-	}
-}
+//calls the hire/fire function with the custom num from the input
+function fireCustom(worker) { fire(worker,getCustomJobNumber()); }
+function hireCustom(worker) { hire(worker,getCustomJobNumber()); }
 
 function raiseDead(num){
 	//Attempts to convert corpses into zombies
