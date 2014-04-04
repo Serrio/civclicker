@@ -5,9 +5,11 @@
 	<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 	<link rel="canonical" href="http://civclicker.sourceforge.net/civclicker/civUpdates.html" />
 	<style>
-	    body {
-			background: url("images/constable.jpg") top left fixed no-repeat;
-		}
+        .hasBackground::after {  /* Apply semi-translucent background */
+            content: ""; position: fixed; z-index: -1;
+            top: 0; left: 0; bottom: 0; right: 0; opacity: 0.18;
+            background: url("images/constableLandscapeRetouched.jpg") no-repeat;
+        }
 		dt {
 			font-weight:bold;
 			margin-bottom:0.5em;
@@ -17,9 +19,14 @@
 		}
 	</style>
 </head>
-<body>
+<body class="hasBackground">
 <h1>CivClicker Updates</h1>
-	<h2>2014-03-30: v1.1.5 (alpha)</h2>
+	<h2>2014-04-04: v1.1.6 (alpha)</h2>
+	<p>
+		Switch the background from using a pre-faded original to using CSS
+		opacity.
+	</p>
+	<h2>2014-04-03: v1.1.5 (alpha)</h2>
 	<p>
 		More syntactic refactoring; no functional change.
 	</p>

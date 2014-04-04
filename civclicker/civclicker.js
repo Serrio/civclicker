@@ -1074,9 +1074,9 @@ load('localStorage');//immediately attempts to load
 
 body.style.fontSize = size + "em";
 if (!worksafe){
-	body.style.backgroundImage = "url('images/constable.jpg')";
+	body.classlist.add("hasBackground");
 } else {
-	body.style.backgroundImage = "none";
+	body.classlist.remove("hasBackground");
 	if (!usingWords){
 		var elems = document.getElementsByClassName('icon');
 		var i;
@@ -6455,23 +6455,14 @@ function toggleDelimiters(){
 function toggleWorksafe(){
 	var i;
 	var elems;
-	if (body.style.backgroundImage == 'none'){
-		worksafe = false;
-		body.style.backgroundImage = 'url("images/constable.jpg")';
+
+	worksafe = !worksafe;
+	body.classList.toggle("hasBackground");
+	if (!usingWords)
+	{
 		elems = document.getElementsByClassName('icon');
-		if (!usingWords){
-			for(i = 0; i < elems.length; i++) {
-				elems[i].style.visibility = 'visible';
-			}
-		}
-	} else {
-		worksafe = true;
-		body.style.backgroundImage = 'none';
-		elems = document.getElementsByClassName('icon');
-		if (!usingWords){
-			for(i = 0; i < elems.length; i++) {
-				elems[i].style.visibility = 'hidden';
-			}
+		for(i = 0; i < elems.length; i++) {
+			elems[i].style.visibility = worksafe ? 'hidden' : 'visible';
 		}
 	}
 }

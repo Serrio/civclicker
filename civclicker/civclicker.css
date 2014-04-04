@@ -23,13 +23,22 @@
 body{
 	font-family: sans-serif;
 	/*font-weight:600;*/
-	background-image:url('images/constable.jpg');
-	background-repeat:no-repeat;
-	background-attachment:fixed;
-	background-size:100% 100%;
 	/*text-shadow: 3px 0 0 #fff, -3px 0 0 #fff, 0 3px 0 #fff, 0 -3px 0 #fff, 2px 2px 0 #fff, -2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff;*/
 	text-shadow:none;
 }
+
+.hasBackground::after {
+    content : "";
+    position: fixed;
+    top: 0;
+    left: 0;
+	bottom: 0;
+	right: 0;
+    z-index: -1;
+	background: url('images/constableLandscapeRetouched.jpg') no-repeat;
+	opacity: 0.18;
+}
+
 #strip{
 	text-shadow:none;
 }

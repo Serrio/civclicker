@@ -5,9 +5,11 @@
 	<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 	<link rel="canonical" href="http://civclicker.sourceforge.net/civclicker/civFAQ.html" />
 	<style>
-	    body {
-			background: url("images/constable.jpg") top left fixed no-repeat;
-		}   
+	    .hasBackground::after {  /* Apply semi-translucent background */
+			content: ""; position: fixed; z-index: -1;
+			top: 0; left: 0; bottom: 0; right: 0; opacity: 0.18;
+			background: url("images/constableLandscapeRetouched.jpg") no-repeat;
+		}
 		dt {
 			font-weight:bold;
 			margin-bottom:0.5em;
@@ -17,7 +19,7 @@
 		}
 	</style>
 </head>
-<body>
+<body class="hasBackground">
 <h1>CivClicker FAQ</h1>
 	<h2>History</h2>
 	<dl>
