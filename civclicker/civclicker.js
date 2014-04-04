@@ -1074,9 +1074,9 @@ load('localStorage');//immediately attempts to load
 
 body.style.fontSize = size + "em";
 if (!worksafe){
-	body.classlist.add("hasBackground");
+	body.classList.add("hasBackground");
 } else {
-	body.classlist.remove("hasBackground");
+	body.classList.remove("hasBackground");
 	if (!usingWords){
 		var elems = document.getElementsByClassName('icon');
 		var i;
@@ -2722,7 +2722,7 @@ function spawn(num){
 }
 
 //calls the spawn function with the custom number from the input
-function spawnCustom() { spawn(getCustomSpawnNumber); }
+function spawnCustom() { spawn(getCustomSpawnNumber()); }
 
 function jobCull(){
 	//This should probably be renamed the starve function. Culls workers when they starve, in a specific order.
@@ -2857,7 +2857,7 @@ function hireAll(job){
 	}
 	if (job == 'cavalry'){
 		num = (stable.total * 10) - (population[job] + population.cavalryIll + population.cavalryParty);
-		num = Math.mun(num,Math.floor(leather.total / 10),Math.floor(food.total / 10));
+		num = Math.min(num,Math.floor(leather.total / 10),Math.floor(food.total / 10));
 	}
 
 	hire(job,Math.min(num, population.unemployed));
