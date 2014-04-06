@@ -1097,7 +1097,7 @@ if (!worksafe){
 //xxx Maybe add a function here to look in various locations for vars, so it
 //doesn't need multiple action types?
 function updateResourceTotals(){
-	var i,target,displayElems,elem,val;
+	var i,displayElems,elem,val;
 
 	// Scan the HTML document for elements with a 'data-action' element of
 	// 'display'.  The 'data-target' of such elements is presumed to contain
@@ -1301,17 +1301,17 @@ function updateSpawnButtons(){
 		document.getElementById('spawn1000button').disabled = true;
 	}
 
-	if (piety.total >= calcZCost(1,population.zombies)){
+	if ((population.corpses >= 1) && piety.total >= calcZCost(1,population.zombies)){
 		document.getElementById('raiseDead').disabled = false;
 	} else {
 		document.getElementById('raiseDead').disabled = true;
 	}
-	if (piety.total >= calcZCost(100,population.zombies)){
+	if ((population.corpses >= 100) && piety.total >= calcZCost(100,population.zombies)){
 		document.getElementById('raiseDead100').disabled = false;
 	} else {
 		document.getElementById('raiseDead100').disabled = true;
 	}
-	if (piety.total >= calcZCost(1000,population.zombies)){
+	if ((population.corpses >= 1000) && piety.total >= calcZCost(1000,population.zombies)){
 		document.getElementById('raiseDead1000').disabled = false;
 	} else {
 		document.getElementById('raiseDead1000').disabled = true;
