@@ -1116,11 +1116,12 @@ function updateResourceTotals(){
 	for (i=0;i<displayElems.length;++i)
 	{
 		elem = displayElems[i];
-		val = prettify(window[elem.dataset.target].net.toFixed(1));
-		elem.innerHTML = val;
+		val = window[elem.dataset.target].net.toFixed(1);
+		elem.innerHTML = prettify(val);
 		// Colourise net production values.
 		if      (val < 0) { elem.style.color='#f00'; }
 		else if (val > 0) { elem.style.color='#0b0'; }
+		else              { elem.style.color='#000'; }
 	}
 
 	if (Math.round(gold.total) > 0){
