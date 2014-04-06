@@ -4218,18 +4218,21 @@ function reset(){
 		food = {
 			name:"food",
 			total:0,
+			net:0,
 			increment:1,
 			specialchance:0.1
 		};
 		wood = {
 			name:"wood",
 			total:0,
+			net:0,
 			increment:1,
 			specialchance:0.1
 		};
 		stone = {
 			name:"stone",
 			total:0,
+			net:0,
 			increment:1,
 			specialchance:0.1
 		};
