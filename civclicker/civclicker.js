@@ -4871,6 +4871,7 @@ window.setInterval(function(){
 	var millMod = 1;
 	if (population.current > 0 || population.zombies > 0) { millMod = population.current / (population.current + population.zombies); }
 	food.net = population.farmers * (1 + (efficiency.farmers * efficiency.happiness)) * (1 + efficiency.pestBonus) * (1 + (wonder.food/10)) * (1 + walkTotal/120) * (1 + mill.total * millMod / 200); //Farmers farm food
+	food.net -= population.current; //The living population eats food.
 	food.total += food.net;
 	if (upgrades.skinning == 1 && population.farmers > 0){ //and sometimes get skins
 		var num_skins = food.specialchance * (food.increment + (upgrades.butchering * population.farmers / 15.0)) * (1 + (wonder.skins/10));
@@ -4891,7 +4892,6 @@ window.setInterval(function(){
 		ore.total += Math.floor(num_ore);
 		if (Math.random() < (num_ore - Math.floor(num_ore))) { ++ore.total; }
 	}
-	food.total -= population.current; //The living population eats food.
 	var starve;
 	if (food.total < 0) { //and will starve if they don't have enough
 		if (upgrades.waste && population.corpses >= (food.total * -1)){ //population eats corpses instead
