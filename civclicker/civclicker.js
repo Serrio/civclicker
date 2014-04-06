@@ -1262,10 +1262,11 @@ function updatePopulation(){
 	}
 	updateSpawnButtons();
 	//Calculates and displays the cost of buying workers at the current population.
-	document.getElementById('workerCost').innerHTML = prettify(calcCost(1));
-	document.getElementById('workerCost10').innerHTML = prettify(calcCost(10));
-	document.getElementById('workerCost100').innerHTML = prettify(calcCost(100));
-	document.getElementById('workerCost1000').innerHTML = prettify(calcCost(1000));
+	document.getElementById('zombieCost').innerHTML = prettify(calcZCost(1,population.zombies));
+	document.getElementById('workerCost').innerHTML = prettify(calcCost(1,population.current));
+	document.getElementById('workerCost10').innerHTML = prettify(calcCost(10,population.current));
+	document.getElementById('workerCost100').innerHTML = prettify(calcCost(100,population.current));
+	document.getElementById('workerCost1000').innerHTML = prettify(calcCost(1000,population.current));
 	updateJobs(); //handles the display of individual worker types
 	updateMobs(); //handles the display of enemies
 	updateHappiness();
@@ -1273,22 +1274,22 @@ function updatePopulation(){
 }
 function updateSpawnButtons(){
 	//Turning on/off buttons based on free space.
-	if ((population.current + 1) <= population.cap && food.total >= calcCost(1)){
+	if ((population.current + 1) <= population.cap && food.total >= calcCost(1,population.current)){
 		document.getElementById('spawn1').disabled = false;
 	} else {
 		document.getElementById('spawn1').disabled = true;
 	}
-	if ((population.current + 10) <= population.cap && food.total >= calcCost(10)){
+	if ((population.current + 10) <= population.cap && food.total >= calcCost(10,population.current)){
 		document.getElementById('spawn10button').disabled = false;
 	} else {
 		document.getElementById('spawn10button').disabled = true;
 	}
-	if ((population.current + 100) <= population.cap && food.total >= calcCost(100)){
+	if ((population.current + 100) <= population.cap && food.total >= calcCost(100,population.current)){
 		document.getElementById('spawn100button').disabled = false;
 	} else {
 		document.getElementById('spawn100button').disabled = true;
 	}
-	if ((population.current + 1000) <= population.cap && food.total >= calcCost(1000)){
+	if ((population.current + 1000) <= population.cap && food.total >= calcCost(1000,population.current)){
 		document.getElementById('spawn1000button').disabled = false;
 	} else {
 		document.getElementById('spawn1000button').disabled = true;
@@ -1298,6 +1299,22 @@ function updateSpawnButtons(){
 		document.getElementById('spawn10button').disabled = true;
 		document.getElementById('spawn100button').disabled = true;
 		document.getElementById('spawn1000button').disabled = true;
+	}
+
+	if (piety.total >= calcZCost(1,population.zombies)){
+		document.getElementById('raiseDead').disabled = false;
+	} else {
+		document.getElementById('raiseDead').disabled = true;
+	}
+	if (piety.total >= calcZCost(100,population.zombies)){
+		document.getElementById('raiseDead100').disabled = false;
+	} else {
+		document.getElementById('raiseDead100').disabled = true;
+	}
+	if (piety.total >= calcZCost(1000,population.zombies)){
+		document.getElementById('raiseDead1000').disabled = false;
+	} else {
+		document.getElementById('raiseDead1000').disabled = true;
 	}
 }
 
@@ -2184,7 +2201,7 @@ function updateDevotion(){
 	if (deity.type == 'the Underworld' && deity.devotion >= 20){
 		document.getElementById('raiseDead').disabled = false;
 		document.getElementById('raiseDead100').disabled = false;
-		document.getElementById('raiseDeadMax').disabled = false;
+		document.getElementById('raiseDead1000').disabled = false;
 	}
 	if (deity.type == 'the Underworld' && deity.devotion >= 30 && !upgrades.feast){
 		document.getElementById('feast').disabled = false;
@@ -2641,12 +2658,11 @@ function getCustomJobNumber()   { return getCustomNumber('jobCustom'  ); }
 //builds a custom number of buildings
 function buildCustom(building) { createBuilding(building,getCustomBuildNumber()); }
 
-function calcCost(num){
+function calcCost(num, popCurrentTemp){
 	//Calculates and returns the cost of adding a certain number of workers at the present population
 	//First set temporary values
 	var aggCost = 0,
-		currentPrice = 0,
-		popCurrentTemp = population.current;
+		currentPrice = 0;
 	var i;
 	//Then iterate through adding workers, and increment temporary values
 	for (i=0; i<num; i++){
@@ -2658,11 +2674,12 @@ function calcCost(num){
 	//Finally, return the aggregated cost to the function that called this one.
 	return aggCost;
 }
+function calcZCost(num, popCurrentTemp){ return Math.floor(calcCost(num, popCurrentTemp)/5); }
 
 function spawn(num){
 	//Creates more workers
 	//First get the potential cost
-	var totalCost = calcCost(num);
+	var totalCost = calcCost(num,population.current);
 	//Then check that the player can afford the cost and has enough space under their popcap
 	if (food.total >= totalCost && population.current + (1 * num) <= population.cap){
 		//Increment population numbers, reduce food
@@ -2874,18 +2891,13 @@ function hireCustom(worker) { hire(worker,getCustomJobNumber()); }
 
 function raiseDead(num){
 	//Attempts to convert corpses into zombies
-	if (num == "max"){
-		var maximum = Math.min(population.corpses,Math.floor(piety.total/100));
-		population.corpses -= maximum;
-		population.zombies += maximum;
-		population.unemployed += maximum;
-		piety.total -= (maximum * 100);
-	} else if (population.corpses >= num && piety.total >= (100 * num)){
+	var cost = calcZCost(num,population.zombies);
+	if (population.corpses >= num && piety.total >= cost){
 		//Update numbers and resource levels
 		population.unemployed += num;
 		population.zombies += num;
 		population.corpses -= num;
-		piety.total -= (100 * num);
+		piety.total -= cost;
 		//Notify player
 		if (num == 1) {
 			gameLog("A corpse rises, eager to do your bidding.");
@@ -4761,7 +4773,7 @@ function reset(){
 		document.getElementById('renameDeity').disabled = 'true';
 		document.getElementById('raiseDead').disabled = 'true';
 		document.getElementById('raiseDead100').disabled = 'true';
-		document.getElementById('raiseDeadMax').disabled = 'true';
+		document.getElementById('raiseDead1000').disabled = 'true';
 		document.getElementById('smiteInvaders').disabled = 'true';
 		document.getElementById('wickerman').disabled = 'true';
 		document.getElementById('pestControl').disabled = 'true';
