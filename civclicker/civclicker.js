@@ -14,6 +14,11 @@
  * GNU General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
+ * along with this program (if you are reading this on the original
+ * author's website, you can find a copy at <http://dhmholley.co.uk/gpl.txt>). 
+ * If not, see <http://www.gnu.org/licenses/>.
+ *
+ * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
@@ -71,18 +76,21 @@ civSizes.getMaxPop = function(civType) {
 var food = {
 	name:'food',
 	total:0,
+	net:0,
 	increment:1,
 	specialchance:0.1
 },
 wood = {
 	name:'wood',
 	total:0,
+	net:0,
 	increment:1,
 	specialchance:0.1
 },
 stone = {
 	name:'stone',
 	total:0,
+	net:0,
 	increment:1,
 	specialchance:0.1
 },
@@ -1043,7 +1051,6 @@ function load(loadType){
 	civName = loadVar.civName;
 	rulerName = loadVar.rulerName;
 	updateResourceTotals();
-	updateBuildingTotals();
 	updateMobs();
 	updateDeity();
 	updateUpgrades();
@@ -1087,77 +1094,45 @@ if (!worksafe){
 }
 
 // Update functions. Called by other routines in order to update the interface.
-
+//xxx Maybe add a function here to look in various locations for vars, so it
+//doesn't need multiple action types?
 function updateResourceTotals(){
-	//Update page with resource numbers
-	document.getElementById('food').innerHTML = prettify(Math.floor(food.total));
-	document.getElementById('wood').innerHTML = prettify(Math.floor(wood.total));
-	document.getElementById('stone').innerHTML = prettify(Math.floor(stone.total));
-	document.getElementById('skins').innerHTML = prettify(Math.floor(skins.total));
-	document.getElementById('herbs').innerHTML = prettify(Math.floor(herbs.total));
-	document.getElementById('ore').innerHTML = prettify(Math.floor(ore.total));
-	document.getElementById('leather').innerHTML = prettify(Math.floor(leather.total));
-	document.getElementById('metal').innerHTML = prettify(Math.floor(metal.total));
-	document.getElementById('piety').innerHTML = prettify(Math.floor(piety.total));
-	document.getElementById('gold').innerHTML = prettify(Math.floor(gold.total));
+	var i,target,displayElems,elem,val;
+
+	// Scan the HTML document for elements with a 'data-action' element of
+	// 'display'.  The 'data-target' of such elements is presumed to contain
+	// the global variable name to be displayed as the element's content.
+	//xxx This should probably require data-target too.
+	displayElems=document.querySelectorAll("[data-action='display']");
+	for (i=0;i<displayElems.length;++i)
+	{
+		elem = displayElems[i];
+		elem.innerHTML = prettify(Math.floor(window[elem.dataset.target].total));
+	}
+
+	// Update net production values for primary resources.  Same as the above,
+	// but look for 'data-action' == 'displayNet'.
+	displayElems=document.querySelectorAll("[data-action='displayNet']");
+	for (i=0;i<displayElems.length;++i)
+	{
+		elem = displayElems[i];
+		val = prettify(window[elem.dataset.target].net.toFixed(1));
+		elem.innerHTML = val;
+		// Colourise net production values.
+		if      (val < 0) { elem.style.color='#f00'; }
+		else if (val > 0) { elem.style.color='#0b0'; }
+	}
+
 	if (Math.round(gold.total) > 0){
 		document.getElementById('goldRow').style.display = 'table-row';
 		if (!upgrades.trade) { document.getElementById('tradeUpgrade').disabled = false; }
 	}
-	//Calculate and update net production values for primary resources
-	var netFood = 0;
-	if (population.current > 0 || population.zombies > 0){ //don't want to divide by zero
-		netFood = (population.farmers * (1 + (efficiency.farmers * efficiency.happiness)) * (1 + efficiency.pestBonus)) * (1 + (wonder.food/10)) * (1 + walkTotal/120) * (1 + (mill.total/200) * (population.current/(population.current + population.zombies))) - population.current;
-	} else {
-		netFood = (population.farmers * (1 + (efficiency.farmers * efficiency.happiness)) * (1 + efficiency.pestBonus)) * (1 + (wonder.food/10)) * (1 + walkTotal/120) * (1 + (mill.total/200)) - population.current;
-	}
-	var netWood = population.woodcutters * (efficiency.woodcutters * efficiency.happiness) * (1 + (wonder.wood/10));
-	var netStone = population.miners * (efficiency.miners * efficiency.happiness) * (1 + (wonder.stone/10));
-	document.getElementById('netFood').innerHTML = prettify(netFood.toFixed(1));
-	document.getElementById('netWood').innerHTML = prettify(netWood.toFixed(1));
-	document.getElementById('netStone').innerHTML = prettify(netStone.toFixed(1));
-	//Colourise net production values. Only food should be negative.
-	if (netFood < 0){
-		document.getElementById('netFood').style.color = '#f00';
-	} else if (netFood == 0){
-		document.getElementById('netFood').style.color = '#000';
-	} else {
-		document.getElementById('netFood').style.color = '#0b0';
-	}
-	if (netWood == 0){
-		document.getElementById('netWood').style.color = '#000';
-	} else {
-		document.getElementById('netWood').style.color = '#0b0';
-	}
-	if (netStone == 0){
-		document.getElementById('netStone').style.color = '#000';
-	} else {
-		document.getElementById('netStone').style.color = '#0b0';
-	}
-}
 
-function updateBuildingTotals(){
 	//Update page with building numbers, also stockpile limits.
-	document.getElementById('tents').innerHTML = prettify(tent.total);
-	document.getElementById('whuts').innerHTML = prettify(whut.total);
-	document.getElementById('cottages').innerHTML = prettify(cottage.total);
-	document.getElementById('houses').innerHTML = prettify(house.total);
-	document.getElementById('mansions').innerHTML = prettify(mansion.total);
-	document.getElementById('barns').innerHTML = prettify(barn.total);
 	document.getElementById('maxfood').innerHTML = prettify(200 + (200 * (barn.total + (barn.total * upgrades.granaries))));
-	document.getElementById('woodstock').innerHTML = prettify(woodstock.total);
 	document.getElementById('maxwood').innerHTML = prettify(200 + (200 * woodstock.total));
-	document.getElementById('stonestock').innerHTML = prettify(stonestock.total);
 	document.getElementById('maxstone').innerHTML = prettify(200 + (200 * stonestock.total));
-	document.getElementById('tanneries').innerHTML = prettify(tannery.total);
-	document.getElementById('smithies').innerHTML = prettify(smithy.total);
-	document.getElementById('apothecaria').innerHTML = prettify(apothecary.total);
-	document.getElementById('temples').innerHTML = prettify(temple.total);
-	document.getElementById('barracks').innerHTML = prettify(barracks.total);
-	document.getElementById('stables').innerHTML = prettify(stable.total);
-	document.getElementById('mills').innerHTML = prettify(mill.total);
-	document.getElementById('graveyards').innerHTML = prettify(graveyard.total);
-	document.getElementById('fortifications').innerHTML = prettify(fortification.total);
+
 	//Update land values
 	totalBuildings = tent.total + whut.total + cottage.total + house.total + mansion.total + barn.total + woodstock.total + stonestock.total + tannery.total + smithy.total + apothecary.total + temple.total + barracks.total + stable.total + mill.total + graveyard.total + fortification.total + battleAltar.total + fieldsAltar.total + underworldAltar.total + catAltar.total;
 	var freeLand = Math.max(land - totalBuildings, 0);
@@ -2528,8 +2503,7 @@ function update(){
 	var start = new Date().getTime();
 
 	//call each existing update subfunction in turn
-	updateResourceTotals();
-	updateBuildingTotals(); //need to remove call to updatePopulation, move references to upgrades
+	updateResourceTotals(); //need to remove call to updatePopulation, move references to upgrades
 	updateBuildingButtons();
 	updatePopulation(); //move enabling/disabling by space to updateJobs, remove calls to updateJobs, updateMobs, updateHappiness, updateAchievements
 	updateJobs();
@@ -2622,8 +2596,7 @@ function createBuilding(building,num){
 		updateBuildingButtons(); //Update the buttons themselves
 		updateDevotion(); //might be necessary if building was an altar
 		updateRequirements(building); //Increases buildings' costs
-		updateResourceTotals(); //Update page with lower resource values
-		updateBuildingTotals(); //Update page with higher building total
+		updateResourceTotals(); //Update page with lower resource values and higher building total
 		//Then check for overcrowding
 		if (totalBuildings > land){
 			gameLog('You are suffering from overcrowding.');
@@ -3046,7 +3019,7 @@ function upgrade(name){
 		upgrades.granaries = 1;
 		wood.total -= 1000;
 		stone.total -= 1000;
-		updateBuildingTotals(); //due to resource limits increasing
+		updateResourceTotals(); //due to resource limits increasing
 	}
 	if (name == 'palisade' && wood.total >= 2000 && stone.total >= 1000){
 		upgrades.palisade = 1;
@@ -3841,7 +3814,7 @@ function plunder(){
 	var plunderMessage = "Defeated " + prettyLast + ". Plundered " + prettify(plunderFood) + " food, " + prettify(plunderWood) + " wood, " + prettify(plunderStone) + " stone, " + prettify(plunderSkins) + " skins, " + prettify(plunderHerbs) + " herbs, " + prettify(plunderOre) + " ore, " + prettify(plunderLeather) + " leather, and " + prettify(plunderMetal) + " metal. Captured " + prettify(landCaptured) + " land.";
 	//add loot
 	land += landCaptured;
-	updateBuildingTotals();
+	updateResourceTotals();
 	food.total += plunderFood;
 	wood.total += plunderWood;
 	stone.total += plunderStone;
@@ -4777,7 +4750,6 @@ function reset(){
 		targetMax = 'thorp';
 		//Update page with all new values
 		updateResourceTotals();
-		updateBuildingTotals();
 		updateUpgrades();
 		updateDeity();
 		updateOldDeities();
@@ -4883,19 +4855,22 @@ window.setInterval(function(){
 	
 	var millMod = 1;
 	if (population.current > 0 || population.zombies > 0) { millMod = population.current / (population.current + population.zombies); }
-	food.total += population.farmers * (1 + (efficiency.farmers * efficiency.happiness)) * (1 + efficiency.pestBonus) * (1 + (wonder.food/10)) * (1 + walkTotal/120) * (1 + mill.total * millMod / 200); //Farmers farm food
+	food.net = population.farmers * (1 + (efficiency.farmers * efficiency.happiness)) * (1 + efficiency.pestBonus) * (1 + (wonder.food/10)) * (1 + walkTotal/120) * (1 + mill.total * millMod / 200); //Farmers farm food
+	food.total += food.net;
 	if (upgrades.skinning == 1 && population.farmers > 0){ //and sometimes get skins
 		var num_skins = food.specialchance * (food.increment + (upgrades.butchering * population.farmers / 15.0)) * (1 + (wonder.skins/10));
 		skins.total += Math.floor(num_skins);
 		if (Math.random() < (num_skins - Math.floor(num_skins))) { ++skins.total; }
 	}
-	wood.total += population.woodcutters * (efficiency.woodcutters * efficiency.happiness) * (1 + (wonder.wood/10)); //Woodcutters cut wood
+	wood.net = population.woodcutters * (efficiency.woodcutters * efficiency.happiness) * (1 + (wonder.wood/10)); //Woodcutters cut wood
+	wood.total += wood.net;
 	if (upgrades.harvesting == 1 && population.woodcutters > 0){ //and sometimes get herbs
 		var num_herbs = wood.specialchance * (wood.increment + (upgrades.gardening * population.woodcutters / 5.0)) * (1 + (wonder.wood/10));
 		herbs.total += Math.floor(num_herbs);
 		if (Math.random() < (num_herbs - Math.floor(num_herbs))) { ++herbs.total; }
 	}
-	stone.total += population.miners * (efficiency.miners * efficiency.happiness) * (1 + (wonder.stone/10)); //Miners mine stone
+	stone.net = population.miners * (efficiency.miners * efficiency.happiness) * (1 + (wonder.stone/10)); //Miners mine stone
+	stone.total += stone.net;
 	if (upgrades.prospecting == 1 && population.miners > 0){ //and sometimes get ore
 		var num_ore = stone.specialchance * (stone.increment + (upgrades.extraction * population.miners / 5.0)) * (1 + (wonder.ore/10));
 		ore.total += Math.floor(num_ore);
@@ -5746,7 +5721,7 @@ window.setInterval(function(){
 				population.barbariansCas -= 1;
 				if (population.barbarians < 0) { population.barbarians = 0; }
 				if (population.barbariansCas < 0) { population.barbariansCas = 0; }
-				updateBuildingTotals();
+				updateResourceTotals();
 				updatePopulation();
 			}
 		}	
@@ -5802,7 +5777,7 @@ window.setInterval(function(){
 						}
 					}
 				}
-				updateBuildingTotals();
+				updateResourceTotals();
 			}
 		} else if (population.soldiers > 0 || population.cavalry > 0) {
 			//the siege engines are undefended
@@ -6051,7 +6026,7 @@ window.setInterval(function(){
 		//If sufficient enemies have been slain, build new temples for free
 		temple.total += Math.floor(throneCount/100);
 		throneCount = 0;
-		updateBuildingTotals();
+		updateResourceTotals();
 	}
 	
 	if (graceCost > 1000) {
@@ -6449,7 +6424,7 @@ function toggleDelimiters(){
 	var action = delimiters ? 'Disable' : 'Enable';
 	document.getElementById('toggleDelimiters').innerHTML = action + ' Delimiters';
 
-	updateBuildingTotals();
+	updateResourceTotals();
 }
 
 function toggleWorksafe(){
@@ -6533,7 +6508,7 @@ function ruinFun(){
 	piety.total += 1000000;
 	updatePopulation();
 	updateUpgrades();
-	updateBuildingTotals();
+	updateResourceTotals();
 }
 
 /*

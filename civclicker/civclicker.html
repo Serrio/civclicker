@@ -20,7 +20,7 @@
 -->
 <html>
 <head>
-	<title>CivClicker (v1.1.7alpha)</title>
+	<title>CivClicker (v1.1.8alpha)</title>
 	<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 	<link rel="stylesheet" type="text/css" href="civclicker.css" />
 	<link rel="canonical" href="http://civclicker.sourceforge.net/civclicker/civclicker.html" />
@@ -62,26 +62,26 @@
 				<tr>
 					<td><button onmousedown="increment(food)">Gather Food</button></td>
 					<td>Food: </td>
-					<td class="number"><span id="food">0</span></td>
+					<td class="number"><span data-action="display" data-target="food">0</span></td>
 					<td class="icon"><img src="images/food.png" class="icon icon-lg" alt="Food"/></td>
 					<td class="number">(Max storage: <span id="maxfood">200</span>)</td>
-					<td class="number net"><span id="netFood">0</span>/s</td>
+					<td class="number net"><span data-action="displayNet" data-target="food">0</span>/s</td>
 				</tr>
 				<tr>
 					<td><button onmousedown="increment(wood)">Cut Wood</button></td>
 					<td>Wood: </td>
-					<td class="number"><span id="wood">0</span></td>
+					<td class="number"><span data-action="display" data-target="wood">0</span></td>
 					<td class="icon"><img src="images/wood.png" class="icon icon-lg" alt="Wood"/></td>
 					<td class="number">(Max storage: <span id="maxwood">200</span>)</td>
-					<td class="number net"><span id="netWood">0</span>/s</td>
+					<td class="number net"><span data-action="displayNet" data-target="wood">0</span>/s</td>
 				</tr>
 				<tr>
 					<td><button onmousedown="increment(stone)">Mine Stone</button></td>
 					<td>Stone: </td>
-					<td class="number"><span id="stone">0</span></td>
+					<td class="number"><span data-action="display" data-target="stone">0</span></td>
 					<td class="icon"><img src="images/stone.png" class="icon icon-lg" alt="Stone"/></td>
 					<td class="number">(Max storage: <span id="maxstone">200</span>)</td>
-					<td class="number net"><span id="netStone">0</span>/s</td>
+					<td class="number net"><span data-action="displayNet" data-target="stone">0</span>/s</td>
 				</tr>
 			</table>
 		</div>
@@ -90,31 +90,31 @@
 			<table>
 				<tr>
 					<td>Skins: </td>
-					<td class="number"><span id="skins">0</span></td>
+					<td class="number"><span data-action="display" data-target="skins">0</span></td>
 					<td><img src="images/skins.png" class="icon icon-lg" alt="Skins"/></td>
 					<td>Leather: </td>
-					<td class="number"><span id="leather">0</span></td>
+					<td class="number"><span data-action="display" data-target="leather">0</span></td>
 					<td class="icon"><img src="images/leather.png" class="icon icon-lg" alt="Leather"/></td>
 				</tr>
 				<tr>
 					<td>Herbs: </td>
-					<td class="number"><span id="herbs">0</span></td>
+					<td class="number"><span data-action="display" data-target="herbs">0</span></td>
 					<td><img src="images/herbs.png" class="icon icon-lg" alt="Herbs"/></td>
 					<td>Piety: </td>
-					<td class="number"><span id="piety">0</span></td>
+					<td class="number"><span data-action="display" data-target="piety">0</span></td>
 					<td class="icon"><img src="images/piety.png" class="icon icon-lg" alt="Piety"/></td>
 				</tr>
 				<tr>
 					<td>Ore: </td>
-					<td class="number"><span id="ore">0</span></td>
+					<td class="number"><span data-action="display" data-target="ore">0</span></td>
 					<td><img src="images/ore.png" class="icon icon-lg" alt="Ore"/></td>
 					<td>Metal: </td>
-					<td class="number"><span id="metal">0</span></td>
+					<td class="number"><span data-action="display" data-target="metal">0</span></td>
 					<td class="icon"><img src="images/metal.png" class="icon icon-lg" alt="Metal"/></td>
 				</tr>
 				<tr id="goldRow">
 					<td>Gold: </td>
-					<td class="number"><span id="gold">0</span></td>
+					<td class="number"><span data-action="display" data-target="gold">0</span></td>
 					<td class="icon"><img src="images/gold.png" class="icon icon-lg" alt="Gold"/></td>
 					<td colspan="3"></td>
 				</tr>
@@ -144,7 +144,7 @@
 					<td class="buildingthousand"><button class="x1000" onmousedown="createBuilding(tent,1000)">x1k</button></td>
 					<td class="buildCustom"><button onmousedown="buildCustom(tent)">+Custom</button></td>
 					<td class="buildingnames">Tents: </td>
-					<td class="number"><span id="tents">0</span></td>
+					<td class="number"><span data-action="display" data-target="tent">0</span></td>
 					<td><span class="cost">2 skins, 2 wood</span><span class="note">: +1 max pop.</span></td>
 				</tr>
 				<tr id="whutRow">
@@ -154,7 +154,7 @@
 					<td class="buildingthousand"><button class="x1000" onmousedown="createBuilding(whut,1000)">x1k</button></td>
 					<td class="buildCustom"><button onmousedown="buildCustom(whut)">+Custom</button></td>
 					<td class="buildingnames">Huts: </td>
-					<td class="number"><span id="whuts">0</span></td>
+					<td class="number"><span data-action="display" data-target="whut">0</span></td>
 					<td><span class="cost">1 skin, 20 wood</span><span class="note">: +3 max pop.</span></td>
 				</tr>
 				<tr id="cottageRow">
@@ -164,7 +164,7 @@
 					<td class="buildingthousand"><button class="x1000" onmousedown="createBuilding(cottage,1000)">x1k</button></td>
 					<td class="buildCustom"><button onmousedown="buildCustom(cottage)">+Custom</button></td>
 					<td class="buildingnames">Cottages: </td>
-					<td class="number"><span id="cottages">0</span></td>
+					<td class="number"><span data-action="display" data-target="cottage">0</span></td>
 					<td><span class="cost">10 wood, 30 stone</span><span class="note">: +6 max pop.</span></td>
 				</tr>
 				<tr id="houseRow">
@@ -174,7 +174,7 @@
 					<td class="buildingthousand"><button class="x1000" onmousedown="createBuilding(house,1000)">x1k</button></td>
 					<td class="buildCustom"><button onmousedown="buildCustom(house)">+Custom</button></td>
 					<td class="buildingnames">Houses: </td>
-					<td class="number"><span id="houses">0</span></td>
+					<td class="number"><span data-action="display" data-target="house">0</span></td>
 					<td><span class="cost">30 wood, 70 stone</span><span class="note">: +10 max pop.</span></td>
 				</tr>
 				<tr id="mansionRow">
@@ -184,7 +184,7 @@
 					<td class="buildingthousand"><button class="x1000" onmousedown="createBuilding(mansion,1000)">x1k</button></td>
 					<td class="buildCustom"><button onmousedown="buildCustom(mansion)">+Custom</button></td>
 					<td class="buildingnames">Mansions: </td>
-					<td class="number"><span id="mansions">0</span></td>
+					<td class="number"><span data-action="display" data-target="mansion">0</span></td>
 					<td><span class="cost">200 wood, 200 stone, 20 leather</span><span class="note">: +50 max pop.</span></td>
 				</tr>
 				<tr>
@@ -204,7 +204,7 @@
 					<td class="buildingthousand"><button class="x1000" onmousedown="createBuilding(barn,1000)">x1k</button></td>
 					<td class="buildCustom"><button onmousedown="buildCustom(barn)">+Custom</button></td>
 					<td class="buildingnames">Barns: </td>
-					<td class="number"><span id="barns">0</span></td>
+					<td class="number"><span data-action="display" data-target="barn">0</span></td>
 					<td><span class="cost">100 wood</span><span class="note">: store +200 food</span></td>
 				</tr>
 				<tr id="woodstockRow">
@@ -214,7 +214,7 @@
 					<td class="buildingthousand"><button class="x1000" onmousedown="createBuilding(woodstock,1000)">x1k</button></td>
 					<td class="buildCustom"><button onmousedown="buildCustom(woodstock)">+Custom</button></td>
 					<td class="buildingnames">Wood Stockpiles: </td>
-					<td class="number"><span id="woodstock">0</span></td>
+					<td class="number"><span data-action="display" data-target="woodstock">0</span></td>
 					<td><span class="cost">100 wood</span><span class="note">: store +200 wood</span></td>
 				</tr>
 				<tr id="stonestockRow">
@@ -224,7 +224,7 @@
 					<td class="buildingthousand"><button class="x1000" onmousedown="createBuilding(stonestock,1000)">x1k</button></td>
 					<td class="buildCustom"><button onmousedown="buildCustom(stonestock)">+Custom</button></td>
 					<td class="buildingnames">Stone Stockpiles: </td>
-					<td class="number"><span id="stonestock">0</span></td>
+					<td class="number"><span data-action="display" data-target="stonestock">0</span></td>
 					<td><span class="cost">100 wood</span><span class="note">: store +200 stone</span></td>
 				</tr>
 				<tr>
@@ -244,7 +244,7 @@
 					<td class="buildingthousand"><button class="x1000" onmousedown="createBuilding(tannery,1000)">x1k</button></td>
 					<td class="buildCustom"><button onmousedown="buildCustom(tannery)">+Custom</button></td>
 					<td class="buildingnames">Tanneries: </td>
-					<td class="number"><span id="tanneries">0</span></td>
+					<td class="number"><span data-action="display" data-target="tannery">0</span></td>
 					<td><span class="cost">30 wood, 70 stone, 2 skins</span><span class="note">: allows 1 tanner</span></td>
 				</tr>
 				<tr id="smithyRow">
@@ -254,7 +254,7 @@
 					<td class="buildingthousand"><button class="x1000" onmousedown="createBuilding(smithy,1000)">x1k</button></td>
 					<td class="buildCustom"><button onmousedown="buildCustom(smithy)">+Custom</button></td>
 					<td class="buildingnames">Smithies: </td>
-					<td class="number"><span id="smithies">0</span></td>
+					<td class="number"><span data-action="display" data-target="smithy">0</span></td>
 					<td><span class="cost">30 wood, 70 stone, 2 ore</span><span class="note">: allows 1 blacksmith</span></td>
 				</tr>
 				<tr id="apothecaryRow">
@@ -264,7 +264,7 @@
 					<td class="buildingthousand"><button class="x1000" onmousedown="createBuilding(apothecary,1000)">x1k</button></td>
 					<td class="buildCustom"><button onmousedown="buildCustom(apothecary)">+Custom</button></td>
 					<td class="buildingnames">Apothecaries: </td>
-					<td class="number"><span id="apothecaria">0</span></td>
+					<td class="number"><span data-action="display" data-target="apothecary">0</span></td>
 					<td><span class="cost">30 wood, 70 stone, 2 herbs</span><span class="note">: allows 1 apothecary</span></td>
 				</tr>
 				<tr id="templeRow">
@@ -274,7 +274,7 @@
 					<td class="buildingthousand"><button class="x1000" onmousedown="createBuilding(temple,1000)">x1k</button></td>
 					<td class="buildCustom"><button onmousedown="buildCustom(temple)">+Custom</button></td>
 					<td class="buildingnames">Temples: </td>
-					<td class="number"><span id="temples">0</span></td>
+					<td class="number"><span data-action="display" data-target="temple">0</span></td>
 					<td><span class="cost">30 wood, 120 stone, 10 herbs</span><span class="note">: allows 1 cleric</span></td>
 				</tr>
 				<tr id="barracksRow">
@@ -284,7 +284,7 @@
 					<td class="buildingthousand"><button class="x1000" onmousedown="createBuilding(barracks,1000)">x1k</button></td>
 					<td class="buildCustom"><button onmousedown="buildCustom(barracks)">+Custom</button></td>
 					<td class="buildingnames">Barracks: </td>
-					<td class="number"><span id="barracks">0</span></td>
+					<td class="number"><span data-action="display" data-target="barracks">0</span></td>
 					<td><span class="cost">20 food, 60 wood, 120 stone, 10 metal</span><span class="note">: allows 10 soldiers</span></td>
 				</tr>
 				<tr id="stableRow">
@@ -294,7 +294,7 @@
 					<td class="buildingthousand"><button class="x1000" onmousedown="createBuilding(stable,1000)">x1k</button></td>
 					<td class="buildCustom"><button onmousedown="buildCustom(stable)">+Custom</button></td>
 					<td class="buildingnames">Stable: </td>
-					<td class="number"><span id="stables">0</span></td>
+					<td class="number"><span data-action="display" data-target="stable">0</span></td>
 					<td><span class="cost">60 food, 60 wood, 120 stone, 10 leather</span><span class="note">: allows 10 cavalry</span></td>
 				</tr>
 				<tr>
@@ -314,7 +314,7 @@
 					<td class="buildingthousand"><button class="x1000" onmousedown="createBuilding(graveyard,1000)">x1k</button></td>
 					<td class="buildCustom"><button onmousedown="buildCustom(graveyard)">+Custom</button></td>
 					<td class="buildingnames">Graveyards: </td>
-					<td class="number"><span id="graveyards">0</span></td>
+					<td class="number"><span data-action="display" data-target="graveyard">0</span></td>
 					<td><span class="cost">100 wood; 200 stone, 50 herbs</span><span class="note">: contains 100 graves</span></td>
 				</tr>
 				<tr id="millRow">
@@ -324,7 +324,7 @@
 					<td class="buildingthousand"></td>
 					<td class="buildCustom"></td>
 					<td class="buildingnames">Mills: </td>
-					<td class="number"><span id="mills">0</span></td>
+					<td class="number"><span data-action="display" data-target="mill">0</span></td>
 					<td><span class="cost"><span id="millCostW">100</span> wood, <span id="millCostS">100</span> stone</span><span class="note">: improves farmers</span></td>
 				</tr>
 				<tr id="fortificationRow">
@@ -334,7 +334,7 @@
 					<td class="buildingthousand"></td>
 					<td class="buildCustom"></td>
 					<td class="buildingnames">Fortifications: </td>
-					<td class="number"><span id="fortifications">0</span></td>
+					<td class="number"><span data-action="display" data-target="fortification">0</span></td>
 					<td><span class="cost"><span id="fortCost">100</span> stone</span><span class="note">: helps protect against attack</span></td>
 				</tr>
 			</table>
