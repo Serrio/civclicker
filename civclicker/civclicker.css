@@ -362,6 +362,10 @@ button:disabled{
 }
 .buildingnames{
 	padding-left:5px;
+	text-transform:capitalize;
+}
+button.build{
+	text-transform:capitalize;
 }
 .buildingten{
 	display:none;

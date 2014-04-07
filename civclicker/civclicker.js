@@ -74,6 +74,7 @@ civSizes.getMaxPop = function(civType) {
 
 // Initialise Data
 var food = {
+	id:'food',
 	name:'food',
 	total:0,
 	net:0,
@@ -81,6 +82,7 @@ var food = {
 	specialchance:0.1
 },
 wood = {
+	id:'wood',
 	name:'wood',
 	total:0,
 	net:0,
@@ -88,6 +90,7 @@ wood = {
 	specialchance:0.1
 },
 stone = {
+	id:'stone',
 	name:'stone',
 	total:0,
 	net:0,
@@ -95,36 +98,46 @@ stone = {
 	specialchance:0.1
 },
 skins = {
+	id:'skins',
 	name:'skins',
 	total:0
 },
 herbs = {
+	id:'herbs',
 	name:'herbs',
 	total:0
 },
 ore = {
+	id:'ore',
 	name:'ore',
 	total:0
 },
 leather = {
+	id:'leather',
 	name:'leather',
 	total:0
 },
 metal = {
+	id:'metal',
 	name:'metal',
 	total:0
 },
 piety = {
+	id:'piety',
 	name:'piety',
 	total:0
 },
 gold = {
+	id:'gold',
 	name:'gold',
 	total:0
 },
 land = 1000,
 totalBuildings = 0,
 tent = {
+	id:"tent",
+	name:"tent",
+	plural:"tents",
 	total:0,
 	devotion:0,
 	require:{
@@ -138,9 +151,13 @@ tent = {
 		metal:0,
 		piety:0,
 		corpses:0
-	}
+	},
+	effectText:"+1 max pop."
 },
 whut = {
+	id:"whut",
+	name:"wooden hot",
+	plural:"wooden huts",
 	total:0,
 	devotion:0,
 	require:{
@@ -154,9 +171,13 @@ whut = {
 		metal:0,
 		piety:0,
 		corpses:0
-	}
+	},
+	effectText:"+3 max pop."
 },
 cottage = {
+	id:"cottage",
+	name:"cottage",
+	plural:"cottages",
 	total:0,
 	devotion:0,
 	require:{
@@ -170,9 +191,13 @@ cottage = {
 		metal:0,
 		piety:0,
 		corpses:0
-	}
+	},
+	effectText:"+6 max pop."
 },
 house = {
+	id:"house",
+	name:"house",
+	plural:"houses",
 	total:0,
 	devotion:0,
 	require:{
@@ -186,9 +211,13 @@ house = {
 		metal:0,
 		piety:0,
 		corpses:0
-	}
+	},
+	effectText:"+10 max pop."
 },
 mansion = {
+	id:"mansion",
+	name:"mansion",
+	plural:"mansions",
 	total:0,
 	devotion:0,
 	require:{
@@ -202,9 +231,13 @@ mansion = {
 		metal:0,
 		piety:0,
 		corpses:0
-	}
+	},
+	effectText:"+50 max pop."
 },
 barn = {
+	id:"barn",
+	name:"barn",
+	plural:"barns",
 	total:0,
 	devotion:0,
 	require:{
@@ -218,9 +251,13 @@ barn = {
 		metal:0,
 		piety:0,
 		corpses:0
-	}
+	},
+	effectText:"store +200 food"
 },
 woodstock = {
+	id:"woodstock",
+	name:"wood stockpile",
+	plural:"wood stockpiles",
 	total:0,
 	devotion:0,
 	require:{
@@ -234,9 +271,13 @@ woodstock = {
 		metal:0,
 		piety:0,
 		corpses:0
-	}
+	},
+	effectText:"store +200 wood"
 },
 stonestock = {
+	id:"stonestock",
+	name:"stone stockpile",
+	plural:"stone stockpiles",
 	total:0,
 	devotion:0,
 	require:{
@@ -250,9 +291,13 @@ stonestock = {
 		metal:0,
 		piety:0,
 		corpses:0
-	}
+	},
+	effectText:"store +200 stone"
 },
 tannery = {
+	id:"tannery",
+	name:"tannery",
+	plural:"tanneries",
 	total:0,
 	devotion:0,
 	require:{
@@ -266,9 +311,13 @@ tannery = {
 		metal:0,
 		piety:0,
 		corpses:0
-	}
+	},
+	effectText:"allows 1 tanner"
 },
 smithy = {
+	id:"smithy",
+	name:"smithy",
+	plural:"smithies",
 	total:0,
 	devotion:0,
 	require:{
@@ -282,9 +331,13 @@ smithy = {
 		metal:0,
 		piety:0,
 		corpses:0
-	}
+	},
+	effectText:"allows 1 blacksmith"
 },
 apothecary = {
+	id:"apothecary",
+	name:"apothecary",
+	plural:"apothecaries",
 	total:0,
 	devotion:0,
 	require:{
@@ -298,9 +351,13 @@ apothecary = {
 		metal:0,
 		piety:0,
 		corpses:0
-	}
+	},
+	effectText:"allows 1 apothecary"
 },
 temple = {
+	id:"temple",
+	name:"temple",
+	plural:"temples",
 	total:0,
 	devotion:0,
 	require:{
@@ -314,9 +371,13 @@ temple = {
 		metal:0,
 		piety:0,
 		corpses:0
-	}
+	},
+	effectText:"allows 1 cleric"
 },
 barracks = {
+	id:"barracks",
+	name:"barracks",
+	plural:"barracks",
 	total:0,
 	devotion:0,
 	require:{
@@ -330,9 +391,13 @@ barracks = {
 		metal:10,
 		piety:0,
 		corpses:0
-	}
+	},
+	effectText:"allows 10 soldiers"
 },
 stable = {
+	id:"stable",
+	name:"stable",
+	plural:"stables",
 	total:0,
 	devotion:0,
 	require:{
@@ -346,9 +411,13 @@ stable = {
 		metal:0,
 		piety:0,
 		corpses:0
-	}
+	},
+	effectText:"allows 10 cavalry"
 },
 mill = {
+	id:"mill",
+	name:"mill",
+	plural:"mills",
 	total:0,
 	devotion:0,
 	require:{
@@ -362,9 +431,13 @@ mill = {
 		metal:0,
 		piety:0,
 		corpses:0
-	}
+	},
+	effectText:"improves farmers"
 },
 graveyard = {
+	id:"graveyard",
+	name:"graveyard",
+	plural:"graveyards",
 	total:0,
 	devotion:0,
 	require:{
@@ -378,9 +451,13 @@ graveyard = {
 		metal:0,
 		piety:0,
 		corpses:0
-	}
+	},
+	effectText:"contains 100 graves"
 },
 fortification = {
+	id:"fortification",
+	name:"fortification",
+	plural:"fortifications",
 	total:0,
 	devotion:0,
 	require:{
@@ -394,9 +471,29 @@ fortification = {
 		metal:0,
 		piety:0,
 		corpses:0
-	}
-},
-battleAltar = {
+	},
+	effectText:"helps protect against attack"
+};
+
+// Get a building's requirements in text form.
+// Pass it the building's definition object.
+function getReqText(bldObj)
+{
+	var i, qty;
+	var text = "";
+	for(i in bldObj.require){ if (bldObj.require.hasOwnProperty(i))
+	{
+		qty = bldObj.require[i];
+		if (qty == 0) { continue; }
+		if (text != "") { text += ", "; }
+		text += qty + " " + window[i].name;
+	}}
+
+	return text;
+}
+
+
+var battleAltar = {
 	total:0,
 	devotion:1,
 	require:{
@@ -673,6 +770,54 @@ trader = {
 	size = 1,
 	body = document.getElementsByTagName('body')[0];
 
+// Start of init program code
+
+// Interface initialization code
+
+// Pass this the id of the enclosing TR element, and the building definition object.
+function makeBuildingRow(buildingObj)
+{
+	var bldId = buildingObj.id;
+	var bldName = buildingObj.name;
+    var s = "<tr id=\""+bldId+"Row\">";
+	s += "<td><button class=\"build\" onmousedown=\"createBuilding("+bldId+",1)\">Build "+bldName+"</button></td>";
+	s += "<td class=\"buildingten\"><button class=\"x10\" onmousedown=\"createBuilding("+bldId+",10)\">x10</button></td>";
+	s += "<td class=\"buildinghundred\"><button class=\"x100\" onmousedown=\"createBuilding("+bldId+",100)\">x100</button></td>";
+	s += "<td class=\"buildingthousand\"><button class=\"x1000\" onmousedown=\"createBuilding("+bldId+",1000)\">x1k</button></td>";
+	s += "<td class=\"buildCustom\"><button onmousedown=\"buildCustom("+bldId+")\">+Custom</button></td>";
+	s += "<td class=\"buildingnames\">"+buildingObj.plural+": </td>";
+	s += "<td class=\"number\"><span data-action=\"display\" data-target=\""+bldId+"\">0</span></td>";
+	s += "<td><span class=\"cost\">"+getReqText(buildingObj)+"</span><span class=\"note\">: "+buildingObj.effectText+"</span></td>";
+	s += "</tr>";
+
+    var tableElem = document.getElementById("buildings");
+	tableElem.innerHTML += s;
+}
+function addBlankBuildingRow() { document.getElementById("buildings").innerHTML += "<tr><td colspan=\"8\"/>&nbsp;</tr>"; }
+
+// Dynamically create the building controls table.
+makeBuildingRow(tent);
+makeBuildingRow(whut);
+makeBuildingRow(cottage);
+makeBuildingRow(house);
+makeBuildingRow(mansion);
+addBlankBuildingRow();
+makeBuildingRow(barn);
+makeBuildingRow(woodstock);
+makeBuildingRow(stonestock);
+addBlankBuildingRow();
+makeBuildingRow(tannery);
+makeBuildingRow(smithy);
+makeBuildingRow(apothecary);
+makeBuildingRow(temple);
+makeBuildingRow(barracks);
+makeBuildingRow(stable);
+addBlankBuildingRow();
+makeBuildingRow(graveyard);
+makeBuildingRow(mill);
+makeBuildingRow(fortification);
+
+
 //Prompt player for names
 if (!read_cookie('civ') && !localStorage.getItem('civ')){
 	var civName = prompt('Please name your civilisation','');
@@ -741,6 +886,8 @@ function load(loadType){
 		//impexp();
 	}
 	
+	//xxx Why are we saving and restoring the names of basic resources?
+	//Note also that names are now used for the user-facing names.
 	if (loadVar.food.name !== null) { food.name = loadVar.food.name; }
 	if (loadVar.food.total !== null) { food.total = loadVar.food.total; }
 	if (loadVar.food.increment !== null) { food.increment = loadVar.food.increment; }
