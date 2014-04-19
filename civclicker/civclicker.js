@@ -486,7 +486,7 @@ function getReqText(bldObj)
 		qty = bldObj.require[i];
 		if (qty == 0) { continue; }
 		if (text != "") { text += ", "; }
-		text += qty + " " + window[i].name;
+		text += prettify(qty) + " " + window[i].name;
 	}}
 
 	return text;
@@ -494,6 +494,9 @@ function getReqText(bldObj)
 
 
 var battleAltar = {
+	id:"battleAltar",
+	name:"battle altar",
+	plural:"battle altars",
 	total:0,
 	devotion:1,
 	require:{
@@ -510,6 +513,9 @@ var battleAltar = {
 	}
 },
 fieldsAltar = {
+	id:"fieldsAltar",
+	name:"fields altar",
+	plural:"fields altars",
 	total:0,
 	devotion:1,
 	require:{
@@ -526,6 +532,9 @@ fieldsAltar = {
 	}
 },
 underworldAltar = {
+	id:"underworldAltar",
+	name:"underworld altar",
+	plural:"underworld altars",
 	total:0,
 	devotion:1,
 	require:{
@@ -542,6 +551,9 @@ underworldAltar = {
 	}
 },
 catAltar = {
+	id:"catAltar",
+	name:"cat altar",
+	plural:"cat altars",
 	total:0,
 	devotion:1,
 	require:{
@@ -774,12 +786,18 @@ trader = {
 
 // Interface initialization code
 
+
 // Pass this the id of the enclosing TR element, and the building definition object.
-function makeBuildingRow(buildingObj)
+// Or pass nothing, to create a blank row.
+function getBuildingRowText(buildingObj)
 {
+	if (undefined === buildingObj || null === buildingObj)
+		{ return "<tr><td colspan=\"8\"/>&nbsp;</tr>"; }
+
 	var bldId = buildingObj.id;
 	var bldName = buildingObj.name;
     var s = "<tr id=\""+bldId+"Row\">";
+	// Note that updateBuildingRow() relies on the <tr>'s children being in this particular layout.
 	s += "<td><button class=\"build\" onmousedown=\"createBuilding("+bldId+",1)\">Build "+bldName+"</button></td>";
 	s += "<td class=\"buildingten\"><button class=\"x10\" onmousedown=\"createBuilding("+bldId+",10)\">x10</button></td>";
 	s += "<td class=\"buildinghundred\"><button class=\"x100\" onmousedown=\"createBuilding("+bldId+",100)\">x100</button></td>";
@@ -787,35 +805,38 @@ function makeBuildingRow(buildingObj)
 	s += "<td class=\"buildCustom\"><button onmousedown=\"buildCustom("+bldId+")\">+Custom</button></td>";
 	s += "<td class=\"buildingnames\">"+buildingObj.plural+": </td>";
 	s += "<td class=\"number\"><span data-action=\"display\" data-target=\""+bldId+"\">0</span></td>";
-	s += "<td><span class=\"cost\">"+getReqText(buildingObj)+"</span><span class=\"note\">: "+buildingObj.effectText+"</span></td>";
+	s += "<td><span id=\""+bldId+"Cost\"class=\"cost\">"+getReqText(buildingObj)+"</span><span class=\"note\">: "+buildingObj.effectText+"</span></td>";
 	s += "</tr>";
-
-    var tableElem = document.getElementById("buildings");
-	tableElem.innerHTML += s;
+	return s;
 }
-function addBlankBuildingRow() { document.getElementById("buildings").innerHTML += "<tr><td colspan=\"8\"/>&nbsp;</tr>"; }
 
 // Dynamically create the building controls table.
-makeBuildingRow(tent);
-makeBuildingRow(whut);
-makeBuildingRow(cottage);
-makeBuildingRow(house);
-makeBuildingRow(mansion);
-addBlankBuildingRow();
-makeBuildingRow(barn);
-makeBuildingRow(woodstock);
-makeBuildingRow(stonestock);
-addBlankBuildingRow();
-makeBuildingRow(tannery);
-makeBuildingRow(smithy);
-makeBuildingRow(apothecary);
-makeBuildingRow(temple);
-makeBuildingRow(barracks);
-makeBuildingRow(stable);
-addBlankBuildingRow();
-makeBuildingRow(graveyard);
-makeBuildingRow(mill);
-makeBuildingRow(fortification);
+function addBuildingRows()
+{
+	document.getElementById("buildings").innerHTML += 
+		  getBuildingRowText(tent)
+		+ getBuildingRowText(whut)
+		+ getBuildingRowText(cottage)
+		+ getBuildingRowText(house)
+		+ getBuildingRowText(mansion)
+		+ getBuildingRowText()
+		+ getBuildingRowText(barn)
+		+ getBuildingRowText(woodstock)
+		+ getBuildingRowText(stonestock)
+		+ getBuildingRowText()
+		+ getBuildingRowText(tannery)
+		+ getBuildingRowText(smithy)
+		+ getBuildingRowText(apothecary)
+		+ getBuildingRowText(temple)
+		+ getBuildingRowText(barracks)
+		+ getBuildingRowText(stable)
+		+ getBuildingRowText()
+		+ getBuildingRowText(graveyard)
+		+ getBuildingRowText(mill)
+		+ getBuildingRowText(fortification);
+}
+
+addBuildingRows();
 
 
 //Prompt player for names
@@ -854,11 +875,16 @@ function load(loadType){
 		//check for local storage
 		var string1;
 		var string2;
+		var msg;
 		try {
 			string1 = localStorage.getItem('civ');
 			string2 = localStorage.getItem('civ2');
 		} catch(err) {
-			console.log('Cannot access localStorage - browser may not support localStorage, or storage may be corrupt');
+			if (err instanceof SecurityError)
+				{ msg = 'Browser security settings blocked access to local storage.'; }
+			else 
+				{ msg = 'Cannot access localStorage - browser may not support localStorage, or storage may be corrupt'; }
+			console.log(msg);
 		}
 		if (string1 && string2){
 			loadVar = JSON.parse(string1);
@@ -957,12 +983,11 @@ function load(loadType){
 		if (loadVar2.mill.require !== null){
 			if (loadVar2.mill.require.wood !== null){
 				mill.require.wood = loadVar2.mill.require.wood;
-				document.getElementById('millCostW').innerHTML = mill.require.wood;
 			}
 			if (loadVar2.mill.require.stone !== null){
 				mill.require.stone = loadVar2.mill.require.stone;
-				document.getElementById('millCostS').innerHTML = mill.require.stone;
 			}
+			updateRequirements(mill);
 		}
 	}
 	if (loadVar2.graveyard !== null){
@@ -973,8 +998,8 @@ function load(loadType){
 		if (loadVar2.fortification.require !== null){
 			if (loadVar2.fortification.require.stone !== null){
 				fortification.require.stone = loadVar2.fortification.require.stone;
-				document.getElementById('fortCost').innerHTML = fortification.require.stone;
 			}
+			updateRequirements(fortification);
 		}
 	}
 	if (loadVar2.battleAltar !== null){
@@ -982,8 +1007,8 @@ function load(loadType){
 		if (loadVar2.battleAltar.require !== null){
 			if (loadVar2.battleAltar.require.metal !== null){
 				battleAltar.require.metal = loadVar2.battleAltar.require.metal;
-				document.getElementById('battleAltarCost').innerHTML = battleAltar.require.metal;
 			}
+			updateRequirements(battleAltar);
 		}
 	}
 	if (loadVar2.fieldsAltar !== null){
@@ -991,12 +1016,11 @@ function load(loadType){
 		if (loadVar2.fieldsAltar.require !== null){
 			if (loadVar2.fieldsAltar.require.food !== null){
 				fieldsAltar.require.food = loadVar2.fieldsAltar.require.food;
-				document.getElementById('fieldsAltarFoodCost').innerHTML = fieldsAltar.require.food; 
 			}
 			if (loadVar2.fieldsAltar.require.wood !== null){
 				fieldsAltar.require.wood = loadVar2.fieldsAltar.require.wood;
-				document.getElementById('fieldsAltarWoodCost').innerHTML = fieldsAltar.require.wood; 
 			}
+			updateRequirements(fieldsAltar);
 		}
 	}
 	if (loadVar2.underworldAltar !== null){
@@ -1004,8 +1028,8 @@ function load(loadType){
 		if (loadVar2.underworldAltar.require !== null){
 			if (loadVar2.underworldAltar.require.corpses !== null){
 				underworldAltar.require.corpses = loadVar2.underworldAltar.require.corpses;
-				document.getElementById('underworldAltarCost').innerHTML = underworldAltar.require.corpses;
 			}
+			updateRequirements(underworldAltar);
 		}
 	}
 	if (loadVar2.catAltar !== null){
@@ -1013,8 +1037,8 @@ function load(loadType){
 		if (loadVar2.catAltar.require !== null){
 			if (loadVar2.catAltar.require.herbs !== null){
 				catAltar.require.herbs = loadVar2.catAltar.require.herbs;
-				document.getElementById('catAltarCost').innerHTML = catAltar.require.herbs;
 			}
+			updateRequirements(catAltar);
 		}
 	}
 	if (loadVar2.resourceClicks !== null){
@@ -1283,10 +1307,9 @@ function updateResourceTotals(){
 
 	//Update land values
 	totalBuildings = tent.total + whut.total + cottage.total + house.total + mansion.total + barn.total + woodstock.total + stonestock.total + tannery.total + smithy.total + apothecary.total + temple.total + barracks.total + stable.total + mill.total + graveyard.total + fortification.total + battleAltar.total + fieldsAltar.total + underworldAltar.total + catAltar.total;
-	var freeLand = Math.max(land - totalBuildings, 0);
+	document.getElementById('freeLand').innerHTML = prettify(land - Math.round(totalBuildings));
 	document.getElementById('totalLand').innerHTML = prettify(land);
 	document.getElementById('totalBuildings').innerHTML = prettify(Math.round(totalBuildings));
-	document.getElementById('freeLand').innerHTML = prettify(Math.round(freeLand));
 	//Unlock jobs predicated on having certain buildings
 	if (smithy.total > 0) { document.getElementById('blacksmithgroup').style.display = 'table-row'; }
 	if (tannery.total > 0) { document.getElementById('tannergroup').style.display = 'table-row'; }
@@ -2377,36 +2400,30 @@ function updateDevotion(){
 	}
 }
 
-function updateRequirements(building){
+//xxx This should probably become a member method of the building classes
+function updateRequirements(buildingObj){
 	//When buildings are built, this increases their costs
-	if (building == battleAltar){
-		building.require.metal += 50;
-		document.getElementById('battleAltarCost').innerHTML = prettify(building.require.metal);
+	if (buildingObj == battleAltar){
+		buildingObj.require.metal = 50 + (50 * buildingObj.total);
 	}
-	if (building == fieldsAltar){
-		building.require.food += 250;
-		building.require.wood += 250;
-		document.getElementById('fieldsAltarFoodCost').innerHTML = prettify(building.require.food);
-		document.getElementById('fieldsAltarWoodCost').innerHTML = prettify(building.require.wood);
+	if (buildingObj == fieldsAltar){
+		buildingObj.require.food = 500 + (250 * buildingObj.total);
+		buildingObj.require.wood = 500 + (250 * buildingObj.total);
 	}
-	if (building == underworldAltar){
-		building.require.corpses += 1;
-		document.getElementById('underworldAltarCost').innerHTML = prettify(building.require.corpses);
+	if (buildingObj == underworldAltar){
+		buildingObj.require.corpses = 1 + buildingObj.total;
 	}
-	if (building == catAltar){
-		building.require.herbs += 50;
-		document.getElementById('catAltarCost').innerHTML = prettify(building.require.herbs);
+	if (buildingObj == catAltar){
+		buildingObj.require.herbs = 100 + (50 * buildingObj.total);
 	}
-	if (building == mill){
-		building.require.stone = Math.floor(100 * (mill.total + 1) * Math.pow(1.05,mill.total));
-		document.getElementById('millCostS').innerHTML = prettify(building.require.stone);
-		building.require.wood = Math.floor(100 * (mill.total + 1) * Math.pow(1.05,mill.total));
-		document.getElementById('millCostW').innerHTML = prettify(building.require.wood);
+	if (buildingObj == mill){
+		buildingObj.require.stone = Math.floor(100 * (buildingObj.total + 1) * Math.pow(1.05,buildingObj.total));
+		buildingObj.require.wood = Math.floor(100 * (buildingObj.total + 1) * Math.pow(1.05,buildingObj.total));
 	}
-	if (building == fortification){
-		building.require.stone = Math.floor(100 * (fortification.total + 1) * Math.pow(1.05,fortification.total));
-		document.getElementById('fortCost').innerHTML = prettify(building.require.stone);
+	if (buildingObj == fortification){
+		buildingObj.require.stone = Math.floor(100 * (buildingObj.total + 1) * Math.pow(1.05,buildingObj.total));
 	}
+	document.getElementById(buildingObj.id + 'Cost').innerHTML = getReqText(buildingObj);
 }
 
 function updateAchievements(){
@@ -2610,29 +2627,29 @@ function updateWonderList(){
 
 function updateBuildingButtons(){
 	//enables/disabled building buttons - calls each type of building in turn
-	updateBuildingRow(tent,'tent');
-	updateBuildingRow(whut,'whut');
-	updateBuildingRow(cottage,'cottage');
-	updateBuildingRow(house,'house');
-	updateBuildingRow(mansion,'mansion');
-	updateBuildingRow(barn,'barn');
-	updateBuildingRow(woodstock,'woodstock');
-	updateBuildingRow(stonestock,'stonestock');
-	updateBuildingRow(tannery,'tannery');
-	updateBuildingRow(smithy,'smithy');
-	updateBuildingRow(apothecary,'apothecary');
-	updateBuildingRow(temple,'temple');
-	updateBuildingRow(barracks,'barracks');
-	updateBuildingRow(stable,'stable');
-	updateBuildingRow(graveyard,'graveyard');
-	updateBuildingRow(mill,'mill');
-	updateBuildingRow(fortification,'fortification');
-	updateBuildingRow(battleAltar,'battle');
-	updateBuildingRow(underworldAltar,'underworld');
-	updateBuildingRow(fieldsAltar,'fields');
-	updateBuildingRow(catAltar,'cat');
+	updateBuildingRow(tent);
+	updateBuildingRow(whut);
+	updateBuildingRow(cottage);
+	updateBuildingRow(house);
+	updateBuildingRow(mansion);
+	updateBuildingRow(barn);
+	updateBuildingRow(woodstock);
+	updateBuildingRow(stonestock);
+	updateBuildingRow(tannery);
+	updateBuildingRow(smithy);
+	updateBuildingRow(apothecary);
+	updateBuildingRow(temple);
+	updateBuildingRow(barracks);
+	updateBuildingRow(stable);
+	updateBuildingRow(graveyard);
+	updateBuildingRow(mill);
+	updateBuildingRow(fortification);
+	updateBuildingRow(battleAltar);
+	updateBuildingRow(underworldAltar);
+	updateBuildingRow(fieldsAltar);
+	updateBuildingRow(catAltar);
 }
-function updateBuildingRow(building,name){
+function updateBuildingRow(buildingObj){
 	var i;
 	var num;
 	//this works by trying to access the children of the table rows containing the buttons in sequence
@@ -2640,17 +2657,27 @@ function updateBuildingRow(building,name){
 		//fortunately the index numbers of the children map directly onto the powers of 10 used by the buttons
 		num = Math.pow(10,i);
 		//check resources based on this num
-		if (food.total >= (building.require.food * num) && wood.total >= (building.require.wood * num) && stone.total >= (building.require.stone * num) && skins.total >= (building.require.skins * num) && herbs.total >= (building.require.herbs * num) && ore.total >= (building.require.ore * num) && leather.total >= (building.require.leather * num) && metal.total >= (building.require.metal * num) && piety.total >= (building.require.piety * num) && population.corpses >= (building.require.corpses * num)){
+		if ( food.total >= (buildingObj.require.food * num) 
+		  && wood.total >= (buildingObj.require.wood * num) 
+		  && stone.total >= (buildingObj.require.stone * num) 
+		  && skins.total >= (buildingObj.require.skins * num) 
+		  && herbs.total >= (buildingObj.require.herbs * num) 
+		  && ore.total >= (buildingObj.require.ore * num) 
+		  && leather.total >= (buildingObj.require.leather * num) 
+		  && metal.total >= (buildingObj.require.metal * num) 
+		  && piety.total >= (buildingObj.require.piety * num) 
+		  && population.corpses >= (buildingObj.require.corpses * num)){
 			try { //try-catch required because fortifications and mills do not have more than one child button. This should probably be cleaned up in the future.
-				document.getElementById(name + 'Row').children[i].children[0].disabled = false;
+				// This also includes altars.
+				document.getElementById(buildingObj.id + 'Row').children[i].children[0].disabled = false;
 			} catch(ignore){}
 		} else {
 			try {
-				document.getElementById(name + 'Row').children[i].children[0].disabled = true;
+				document.getElementById(buildingObj.id + 'Row').children[i].children[0].disabled = true;
 			} catch(ignore){}
 		}		
 	}	
-	//document.getElementById(name + 'Row').children[4].children[0].disabled = false; //Custom button (do something with this later)
+	//document.getElementById(buildingObj.id + 'Row').children[4].children[0].disabled = false; //Custom button (do something with this later)
 }
 
 function updateReset(){
@@ -4076,25 +4103,19 @@ function wonderBonus(material){
 }
 
 function updateWonderLimited(){
-	if (food.total < 1){
-		document.getElementById('limited').innerHTML = " by low food";
-	} else if (wood.total < 1){
-		document.getElementById('limited').innerHTML = " by low wood";
-	} else if (stone.total < 1){
-		document.getElementById('limited').innerHTML = " by low stone";
-	} else if (skins.total < 1){
-		document.getElementById('limited').innerHTML = " by low skins";
-	} else if (herbs.total < 1){
-		document.getElementById('limited').innerHTML = " by low herbs";
-	} else if (ore.total < 1){
-		document.getElementById('limited').innerHTML = " by low ore";
-	} else if (leather.total < 1){
-		document.getElementById('limited').innerHTML = " by low leather";
-	} else if (piety.total < 1){
-		document.getElementById('limited').innerHTML = " by low piety";
-	} else if (metal.total < 1){
-		document.getElementById('limited').innerHTML = " by low metal";
-	}
+	var lowItem = "";
+	if      (food.total    < 1) { lowItem = food.name; }
+	else if (wood.total    < 1) { lowItem = wood.name; }
+	else if (stone.total   < 1) { lowItem = stone.name; }
+	else if (skins.total   < 1) { lowItem = skins.name; }
+	else if (herbs.total   < 1) { lowItem = herbs.name; }
+	else if (ore.total     < 1) { lowItem = ore.name; }
+	else if (leather.total < 1) { lowItem = leather.name; }
+	else if (piety.total   < 1) { lowItem = piety.name; }
+	else if (metal.total   < 1) { lowItem = metal.name; }
+
+	if (lowItem != "")
+		{ document.getElementById('limited').innerHTML = " by low " + lowItem; }
 }
 
 /* Trade functions */
@@ -4108,30 +4129,31 @@ function tradeTimer(){
 	if (upgrades.stay) { trader.timer += 5; }
 	//then set material and requested values
 	var random = Math.random();
+	var baseAmt = Math.ceil(Math.random() * 20);
 	if (random < 1/8){
 		trader.material = food;
-		trader.requested = 5000 * Math.ceil(Math.random() * 20);
+		trader.requested = 5000 * baseAmt;
 	} else if (random < 2/8){
 		trader.material = wood;
-		trader.requested = 5000 * Math.ceil(Math.random() * 20);
+		trader.requested = 5000 * baseAmt;
 	} else if (random < 3/8){
 		trader.material = stone;
-		trader.requested = 5000 * Math.ceil(Math.random() * 20);
+		trader.requested = 5000 * baseAmt;
 	} else if (random < 4/8){
 		trader.material = skins;
-		trader.requested = 500 * Math.ceil(Math.random() * 20);
+		trader.requested = 500 * baseAmt;
 	} else if (random < 5/8){
 		trader.material = herbs;
-		trader.requested = 500 * Math.ceil(Math.random() * 20);
+		trader.requested = 500 * baseAmt;
 	} else if (random < 6/8){
 		trader.material = ore;
-		trader.requested = 500 * Math.ceil(Math.random() * 20);
+		trader.requested = 500 * baseAmt;
 	} else if (random < 7/8){
 		trader.material = leather;
-		trader.requested = 250 * Math.ceil(Math.random() * 20);
+		trader.requested = 250 * baseAmt;
 	} else {
 		trader.material = metal;
-		trader.requested = 250 * Math.ceil(Math.random() * 20);
+		trader.requested = 250 * baseAmt;
 	}
 	document.getElementById('tradeContainer').style.display = 'block';
 	document.getElementById('tradeType').innerHTML = trader.material.name;
@@ -4978,14 +5000,16 @@ function reset(){
 		document.getElementById('specialFarming').style.display = 'none';
 		document.getElementById('improvedFarming').style.display = 'none';
 		document.getElementById('masonryTech').style.display = 'none';
+		//xxx Will this really reset the altars properly?
 		document.getElementById('battleAltarCost').innerHTML = battleAltar.require.metal;
 		document.getElementById('fieldsAltarFoodCost').innerHTML = fieldsAltar.require.food;
 		document.getElementById('fieldsAltarWoodCost').innerHTML = fieldsAltar.require.wood;
 		document.getElementById('underworldAltarCost').innerHTML = underworldAltar.require.corpses;
 		document.getElementById('catAltarCost').innerHTML = catAltar.require.herbs;
+
 		document.getElementById('tradeContainer').style.display = 'none';
 		document.getElementById('tradeUpgradeContainer').style.display = 'none';
-		document.getElementById('fortCost').innerHTML = fortification.require.stone;
+		updateRequirements(fortification);
 		updateRequirements(mill);
 		document.getElementById('startWonder').disabled = false;
 		document.getElementById('wonderLine').style.display = 'none';

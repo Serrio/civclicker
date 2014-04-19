@@ -20,7 +20,7 @@
 -->
 <html>
 <head>
-	<title>CivClicker (v1.1.12alpha)</title>
+	<title>CivClicker (v1.1.13alpha)</title>
 	<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 	<link rel="stylesheet" type="text/css" href="civclicker.css" />
 	<link rel="canonical" href="http://civclicker.sourceforge.net/civclicker/civclicker.html" />
@@ -132,15 +132,14 @@
 		</div>
 		
 		<div id="buildingsPane">
-		<h3>Buildings</h3>
 			<p id="customBuildIncrement">
 				Increment: <input id="buildCustom" type="number" min="1" step="1" value="1" />
 			</p>
+			<span>Available Land: <span id="freeLand">1000</span></span>
 			<table id="buildings"></table>
 		</div>
 		
 		<div id="upgradesPane">
-		<h3>Upgrades</h3>
 			<span id="skinningLine"><button id="skinning" onmousedown="upgrade('skinning')">Skinning<br />(10 skins)</button><span class="note">Farmers can collect skins</span><br /></span>
 			<span id="harvestingLine"><button id="harvesting" onmousedown="upgrade('harvesting')">Harvesting<br />(10 herbs)</button><span class="note">Woodcutters can collect herbs</span><br /></span>
 			<span id="prospectingLine"><button id="prospecting" onmousedown="upgrade('prospecting')">Prospecting<br />(10 ore)</button><span class="note">Miners can collect ore</span><br /><br /></span>
@@ -237,7 +236,6 @@
 		</div>
 		
 		<div id="deityPane">
-		<h3>Deity</h3>
 			<span id="deityLine"><button id="deity" onmousedown="upgrade('deity')" disabled>Worship<br />(1000 piety)</button><span class="note">Begin worshipping a deity (requires temple)</span><br />
 			<br /></span>
 			<div id="deitySpecialisation">
@@ -251,8 +249,8 @@
 				<table>
 					<tr>
 						<td class="devcost"></td>
-						<td id="battleRow"><span><button onmousedown="createBuilding(battleAltar,1)">Build Altar</button></span></td>
-						<td><span class="cost">200 stone, 200 piety, <span id="battleAltarCost">50</span> metal</span><span class="note">: +1 devotion</span></td>
+						<td id="battleAltarRow"><span><button onmousedown="createBuilding(battleAltar,1)">Build Altar</button></span></td>
+						<td><span id="battleAltarCost" class="cost">200 stone, 200 piety, 50 metal</span><span class="note">: +1 devotion</span></td>
 					</tr>
 					<tr>
 						<td class="devcost">10d&nbsp;</td>
@@ -286,8 +284,8 @@
 				<table>
 					<tr>
 						<td class="devcost"></td>
-						<td id="fieldsRow"><span><button onmousedown="createBuilding(fieldsAltar,1)">Build Altar</button></span></td>
-						<td><span class="cost"><span id="fieldsAltarFoodCost">500</span> food, <span id="fieldsAltarWoodCost">500</span> wood, 200 stone, 200 piety</span><span class="note">: +1 devotion</span></td>
+						<td id="fieldsAltarRow"><span><button onmousedown="createBuilding(fieldsAltar,1)">Build Altar</button></span></td>
+						<td><span id="fieldsAltarCost" class="cost">500 food, 500 wood, 200 stone, 200 piety</span><span class="note">: +1 devotion</span></td>
 					</tr>
 					<tr>
 						<td class="devcost">10d&nbsp;</td>
@@ -321,8 +319,8 @@
 				<table>
 					<tr>
 						<td class="devcost"></td>
-						<td id="underworldRow"><span><button onmousedown="createBuilding(underworldAltar,1)">Build Altar</button></span></td>
-						<td><span class="cost">200 stone, 200 piety, <span id="underworldAltarCost">1</span> corpses</span><span class="note">: +1 devotion</span></td>
+						<td id="underworldAltarRow"><span><button onmousedown="createBuilding(underworldAltar,1)">Build Altar</button></span></td>
+						<td><span id = "underworldAltarCost" class="cost">200 stone, 200 piety, 1 corpses</span><span class="note">: +1 devotion</span></td>
 					</tr>
 					<tr>
 						<td class="devcost">10d&nbsp;</td>
@@ -356,8 +354,8 @@
 				<table>
 					<tr>
 						<td class="devcost"></td>
-						<td id="catRow"><span><button onmousedown="createBuilding(catAltar,1)">Build Altar</button></span></td>
-						<td><span class="cost">200 stone, 200 piety, <span id="catAltarCost">100</span> herbs</span><span class="note">: +1 devotion</span></td>
+						<td id="catAltarRow"><span><button onmousedown="createBuilding(catAltar,1)">Build Altar</button></span></td>
+						<td><span id="catAltarCost" class="cost">200 stone, 200 piety, 100 herbs</span><span class="note">: +1 devotion</span></td>
 					</tr>
 					<tr>
 						<td class="devcost">10d&nbsp;</td>
@@ -393,7 +391,6 @@
 			</div>
 		</div>
 		<div id="conquestPane">
-		<h3>Conquest</h3>
 			<span id="standardLine"><button id="standard" onmousedown="upgrade('standard')" disabled>Battle Standard<br />(1000 metal &amp; leather)</button><span class="note">Lets you build an army (requires barracks)</span><br /></span>
 			<div id="conquest">
 				<h4>Army</h4>
@@ -515,7 +512,6 @@
 			</div>
 		</div>
 		<div id="tradePane">
-		<h3>Trade</h3>
 			<span id="tradeLine"><button id="tradeUpgrade" onmousedown="upgrade('trade')" disabled>Trade<br />(1 gold)</button><span class="note">Open the trading post</span><br /><br /></span>
 			<div id="tradeUpgradeContainer">
 				<span id="currencyLine"><button id="currency" onmousedown="upgrade('currency')" disabled>Currency<br />(10 gold, 1000 ore)</button><span class="note">Traders arrive more frequently, stay longer</span><br /></span>
@@ -547,6 +543,10 @@
 				<tr>
 					<td>Maximum Population: </td>
 					<td class="number"><span id="popcap">0</span></td>
+				</tr>
+				<tr>
+					<td>Happiness: </td>
+					<td><span id="happiness">Content</span></td>
 				</tr>
 			</table>
 			<br />
@@ -932,13 +932,8 @@
 	<div id="stats">
 		<h3>Stats</h3>
 		Resource clicks: <span id="clicks">0</span><br />
-		<br />
-		Happiness: <span id="happiness">Content</span><br />
-		<br />
 		Total Land: <span id="totalLand">100</span><br />
 		Total Buildings: <span id="totalBuildings">0</span><br />
-		Free Land: <span id="freeLand">100</span><br />
-		<br />
 		Enemies Slain: <span id="enemiesSlain">0</span><br />
 		Corpses: <span id="corpses">0</span><br />
 		<span id="gravesTotal">Unfilled Graves: <span id="graves">0</span><br /></span>
