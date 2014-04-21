@@ -23,6 +23,19 @@
 <h1>CivClicker Updates</h1>
 	<h2>2014-04-19: v1.1.13 (alpha)</h2>
 	<p>
+		Replaced the worker and zombie cost iterative calculator with a
+		constant-time formula version.  This should improve responsiveness
+		with large numbers.
+	</p>
+	<p>
+		All costs are now calculated to full precision, although the display is
+		rounded to the nearest integer.  Button emable/disable is also now
+		performed on the unrounded values, so users may occasionally see that
+		button enable/disable effects are not perfectly synchronized with the
+		number displayed.  This is because the enable/disable uses the exact
+		value, whereas the number displayed rounded first.
+	</p>
+	<p>
 		Moved the free land display to be near the building panel.
 	</p>
 	<p>

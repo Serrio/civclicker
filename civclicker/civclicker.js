@@ -64,6 +64,7 @@ civSizes.getCivSize = function(popcnt) {
 
 // To find the max pop, we look at the next entry's min_pop and subtract one.
 // If this is the last entry, return -1.
+// xxx Should we return Infinity instead?  If so, need to modify invade().
 civSizes.getMaxPop = function(civType) {
 	if ((civSizes[civType] + 1) < civSizes.length)
 	{	
@@ -156,7 +157,7 @@ tent = {
 },
 whut = {
 	id:"whut",
-	name:"wooden hot",
+	name:"wooden hut",
 	plural:"wooden huts",
 	total:0,
 	devotion:0,
@@ -486,7 +487,7 @@ function getReqText(bldObj)
 		qty = bldObj.require[i];
 		if (qty == 0) { continue; }
 		if (text != "") { text += ", "; }
-		text += prettify(qty) + " " + window[i].name;
+		text += Math.round(prettify(qty)) + " " + window[i].name;
 	}}
 
 	return text;
@@ -1433,11 +1434,11 @@ function updatePopulation(){
 	}
 	updateSpawnButtons();
 	//Calculates and displays the cost of buying workers at the current population.
-	document.getElementById('zombieCost').innerHTML = prettify(calcZCost(1,population.zombies));
-	document.getElementById('workerCost').innerHTML = prettify(calcCost(1,population.current));
-	document.getElementById('workerCost10').innerHTML = prettify(calcCost(10,population.current));
-	document.getElementById('workerCost100').innerHTML = prettify(calcCost(100,population.current));
-	document.getElementById('workerCost1000').innerHTML = prettify(calcCost(1000,population.current));
+	document.getElementById('zombieCost').innerHTML = prettify(Math.round(calcZCost(1,population.zombies)));
+	document.getElementById('workerCost').innerHTML = prettify(Math.round(calcCost(1,population.current)));
+	document.getElementById('workerCost10').innerHTML = prettify(Math.round(calcCost(10,population.current)));
+	document.getElementById('workerCost100').innerHTML = prettify(Math.round(calcCost(100,population.current)));
+	document.getElementById('workerCost1000').innerHTML = prettify(Math.round(calcCost(1000,population.current)));
 	updateJobs(); //handles the display of individual worker types
 	updateMobs(); //handles the display of enemies
 	updateHappiness();
@@ -2417,11 +2418,11 @@ function updateRequirements(buildingObj){
 		buildingObj.require.herbs = 100 + (50 * buildingObj.total);
 	}
 	if (buildingObj == mill){
-		buildingObj.require.stone = Math.floor(100 * (buildingObj.total + 1) * Math.pow(1.05,buildingObj.total));
-		buildingObj.require.wood = Math.floor(100 * (buildingObj.total + 1) * Math.pow(1.05,buildingObj.total));
+		buildingObj.require.stone = 100 * (buildingObj.total + 1) * Math.pow(1.05,buildingObj.total);
+		buildingObj.require.wood = 100 * (buildingObj.total + 1) * Math.pow(1.05,buildingObj.total);
 	}
 	if (buildingObj == fortification){
-		buildingObj.require.stone = Math.floor(100 * (buildingObj.total + 1) * Math.pow(1.05,buildingObj.total));
+		buildingObj.require.stone = 100 * (buildingObj.total + 1) * Math.pow(1.05,buildingObj.total);
 	}
 	document.getElementById(buildingObj.id + 'Cost').innerHTML = getReqText(buildingObj);
 }
@@ -2833,23 +2834,20 @@ function getCustomJobNumber()   { return getCustomNumber('jobCustom'  ); }
 //builds a custom number of buildings
 function buildCustom(building) { createBuilding(building,getCustomBuildNumber()); }
 
-function calcCost(num, popCurrentTemp){
-	//Calculates and returns the cost of adding a certain number of workers at the present population
-	//First set temporary values
-	var aggCost = 0,
-		currentPrice = 0;
-	var i;
-	//Then iterate through adding workers, and increment temporary values
-	for (i=0; i<num; i++){
-			currentPrice = 20 + Math.floor(popCurrentTemp / 100); //CURRENT FOOD COST CALCULATION
-			//currentPrice = Math.floor(20 * Math.pow(1.005,popCurrentTemp / 1500) + popCurrentTemp / 100); //POTENTIAL NEW COST CALCULATION
-			aggCost += currentPrice;
-			popCurrentTemp += 1;
-	}
-	//Finally, return the aggregated cost to the function that called this one.
-	return aggCost;
+// Calculates the summation of elements (n...m] of the arithmetic sequence
+// with increment 'incr'.
+function calcArithSum(incr,n,m)
+{
+	// Default to just element n+1, if m isn't given.
+	if (m === undefined) { m = n + 1; }
+	return (m-n)*(((n)/100)+((m-1)/100))/2;
 }
-function calcZCost(num, popCurrentTemp){ return Math.floor(calcCost(num, popCurrentTemp)/5); }
+
+//Calculates and returns the cost of adding a certain number of workers at the present population
+function calcCost(num, popCurrentTemp){
+	return 20*(num) + calcArithSum(0.01,popCurrentTemp, popCurrentTemp + num);
+}
+function calcZCost(num, popCurrentTemp){ return calcCost(num, popCurrentTemp)/5; }
 
 function spawn(num){
 	//Creates more workers
@@ -3959,7 +3957,7 @@ function invade(ecivtype){
 	raiding.last = ecivtype;
 
 	var epop = civSizes.getMaxPop(ecivtype) + 1;
-	if (epop <= 0 ) // no max pop; use 2x min pop.
+	if (epop <= 0 ) // no max pop; use 2x min pop. xxx Assumes -1 sentinal value
 	{
 		epop = civSizes[civSizes[ecivtype]].min_pop * 2;
 	}
