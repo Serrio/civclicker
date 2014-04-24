@@ -35,7 +35,8 @@ body{
 	bottom: 0;
 	right: 0;
     z-index: -1;
-	background: url('images/constableLandscapeRetouched.jpg') no-repeat;
+	background: url('images/constableLandscapeRetouched.jpg') no-repeat center center fixed;
+	background-size: cover;
 	opacity: 0.18;
 }
 
@@ -243,6 +244,9 @@ button:disabled{
 	display:none;
 }
 #spawn1000{
+	display:none;
+}
+#spawnMax{
 	display:none;
 }
 .job10{

@@ -329,8 +329,8 @@
 					</tr>
 					<tr>
 						<td class="devcost">20d&nbsp;</td>
-						<td><button onmousedown="raiseDead(1)" id="raiseDead" disabled>Raise Dead</button><button onmousedown="raiseDead(100)" id="raiseDead100" class="x100" disabled>x100</button><button onmousedown="raiseDead(1000)" id="raiseDead1000" class="x1000" disabled>x1000</button></td>
-						<td><span id="zombieCost" class="cost">1</span><span class="cost"> piety: to raise the next zombie</span></td>
+						<td><button onmousedown="raiseDead(1)" id="raiseDead" disabled>Raise Dead</button><button onmousedown="raiseDead(100)" id="raiseDead100" class="x100" disabled>x100</button><button onmousedown="raiseDead(Infinity)" id="raiseDeadMax" class="x100" disabled>Max</button></td>
+						<td><span id="zombieCost" class="cost">1</span><span class="cost"> piety, 1 corpse: to raise the next zombie</span></td>
 					</tr>
 					<tr>
 						<td class="devcost">30d&nbsp;</td>
@@ -548,6 +548,10 @@
 					<td>Happiness: </td>
 					<td><span id="happiness">Content</span></td>
 				</tr>
+				<tr id="zombieWorkers">
+					<td>Zombies: </td>
+					<td class="number"><span id="popzombies">0</span></td>
+				</tr>
 			</table>
 			<br />
 		</div>
@@ -556,7 +560,8 @@
 			<div id='spawn10'><button id="spawn10button" onmousedown="spawn(10)">Create 10 Workers</button><span class="cost"><span id="workerCost10">200</span> food</span><span class="note">: Create 10 new workers</span></div>
 			<div id='spawn100'><button id="spawn100button" onmousedown="spawn(100)">Create 100 Workers</button><span class="cost"><span id="workerCost100">2000</span> food</span><span class="note">: Create 100 new workers</span></div>
 			<div id='spawn1000'><button id="spawn1000button" onmousedown="spawn(1000)">Create 1000 Workers</button><span class="cost"><span id="workerCost1000">20000</span> food</span><span class="note">: Create 1000 new workers</span></div>
-			<div id="customSpawnIncrement"><input id="spawnCustom" type="number" min="1" step="1" value="1" /><button id="spawnCustomButton" onmousedown="spawnCustom()">Create Workers</button></div>
+			<div id='spawnMax'><button id="spawnMaxbutton" onmousedown="spawn(Infinity)">Create <span id="workerNumMax">Max</span> Workers</button><span class="cost"><span id="workerCostMax"></span> food</span><span class="note">: Create as many new workers as possible</span></div>
+			<div id="customSpawnIncrement"><input id="spawnCustom" type="number" min="1" step="1" value="1" /><button id="spawnCustomButton" onmousedown="spawn('custom')">Create Workers</button></div>
 		</div>
 	</div>
 	<div id="jobsContainer">
@@ -608,153 +613,153 @@
 				<td><span class="note">Sick workers</span></td>
 			</tr>
 			<tr id="farmergroup">
-				<td class="jobNone"><button onmousedown="fireAll('farmers');">-All</button></td>
-				<td class="jobCustom"><button onmousedown="fireCustom('farmers');">-Custom</button></td>
-				<td class="job100"><button onmousedown="fire('farmers',100);">-100</button></td>
-				<td class="job10"><button onmousedown="fire('farmers',10);">-10</button></td>
-				<td><button onmousedown="fire('farmers',1);">&lt;</button></td>
+				<td class="jobNone"><button onmousedown="hire('farmers',-Infinity);">-All</button></td>
+				<td class="jobCustom"><button onmousedown="hire('farmers','negcustom');">-Custom</button></td>
+				<td class="job100"><button onmousedown="hire('farmers',-100);">-100</button></td>
+				<td class="job10"><button onmousedown="hire('farmers',-10);">-10</button></td>
+				<td><button onmousedown="hire('farmers',-1);">&lt;</button></td>
 				<td class="job">Farmers: </td>
 				<td class="number"><span id="farmers">0</span></td>
 				<td><button onmousedown="hire('farmers',1);">&gt;</button></td>
 				<td class="job10"><button onmousedown="hire('farmers',10);">+10</button></td>
 				<td class="job100"><button onmousedown="hire('farmers',100);">+100</button></td>
-				<td class="jobCustom"><button onmousedown="hireCustom('farmers');">+Custom</button></td>
-				<td class="jobAll"><button onmousedown="hireAll('farmers');">Max</button></td>
+				<td class="jobCustom"><button onmousedown="hire('farmers','custom');">+Custom</button></td>
+				<td class="jobAll"><button onmousedown="hire('farmers',Infinity);">Max</button></td>
 				<td><span class="note">Automatically gather food</span></td>
 			</tr>
 			<tr id="woodcuttergroup">
-				<td class="jobNone"><button onmousedown="fireAll('woodcutters');">-All</button></td>
-				<td class="jobCustom"><button onmousedown="fireCustom('woodcutters');">-Custom</button></td>
-				<td class="job100"><button onmousedown="fire('woodcutters',100);">-100</button></td>
-				<td class="job10"><button onmousedown="fire('woodcutters',10);">-10</button></td>
-				<td><button onmousedown="fire('woodcutters',1);">&lt;</button></td>
+				<td class="jobNone"><button onmousedown="hire('woodcutters',-Infinity);">-All</button></td>
+				<td class="jobCustom"><button onmousedown="hire('woodcutters','negcustom');">-Custom</button></td>
+				<td class="job100"><button onmousedown="hire('woodcutters',-100);">-100</button></td>
+				<td class="job10"><button onmousedown="hire('woodcutters',-10);">-10</button></td>
+				<td><button onmousedown="hire('woodcutters',-1);">&lt;</button></td>
 				<td class="job">Woodcutters: </td>
 				<td class="number"><span id="woodcutters">0</span></td>
 				<td><button onmousedown="hire('woodcutters',1);">&gt;</button></td>
 				<td class="job10"><button onmousedown="hire('woodcutters',10);">+10</button></td>
 				<td class="job100"><button onmousedown="hire('woodcutters',100);">+100</button></td>
-				<td class="jobCustom"><button onmousedown="hireCustom('woodcutters');">+Custom</button></td>
-				<td class="jobAll"><button onmousedown="hireAll('woodcutters');">Max</button></td>
+				<td class="jobCustom"><button onmousedown="hire('woodcutters','custom');">+Custom</button></td>
+				<td class="jobAll"><button onmousedown="hire('woodcutters',Infinity);">Max</button></td>
 				<td><span class="note">Automatically gather wood</span></td>
 			</tr>
 			<tr id="minergroup">
-				<td class="jobNone"><button onmousedown="fireAll('miners');">-All</button></td>
-				<td class="jobCustom"><button onmousedown="fireCustom('miners');">-Custom</button></td>
-				<td class="job100"><button onmousedown="fire('miners',100);">-100</button></td>
-				<td class="job10"><button onmousedown="fire('miners',10);">-10</button></td>
-				<td><button onmousedown="fire('miners',1);">&lt;</button></td>
+				<td class="jobNone"><button onmousedown="hire('miners',-Infinity);">-All</button></td>
+				<td class="jobCustom"><button onmousedown="hire('miners','negcustom');">-Custom</button></td>
+				<td class="job100"><button onmousedown="hire('miners',-100);">-100</button></td>
+				<td class="job10"><button onmousedown="hire('miners',-10);">-10</button></td>
+				<td><button onmousedown="hire('miners',-1);">&lt;</button></td>
 				<td class="job">Miners: </td>
 				<td class="number"><span id="miners">0</span></td>
 				<td><button onmousedown="hire('miners',1);">&gt;</button></td>
 				<td class="job10"><button onmousedown="hire('miners',10);">+10</button></td>
 				<td class="job100"><button onmousedown="hire('miners',100);">+100</button></td>
-				<td class="jobCustom"><button onmousedown="hireCustom('miners');">+Custom</button></td>
-				<td class="jobAll"><button onmousedown="hireAll('miners');">Max</button></td>
+				<td class="jobCustom"><button onmousedown="hire('miners','custom');">+Custom</button></td>
+				<td class="jobAll"><button onmousedown="hire('miners',Infinity);">Max</button></td>
 				<td><span class="note">Automatically gather stone</span></td>
 			</tr>
 			<tr id="tannergroup">
-				<td class="jobNone"><button onmousedown="fireAll('tanners');">-All</button></td>
-				<td class="jobCustom"><button onmousedown="fireCustom('tanners');">-Custom</button></td>
-				<td class="job100"><button onmousedown="fire('tanners',100);">-100</button></td>
-				<td class="job10"><button onmousedown="fire('tanners',10);">-10</button></td>
-				<td><button onmousedown="fire('tanners',1);">&lt;</button></td>
+				<td class="jobNone"><button onmousedown="hire('tanners',-Infinity);">-All</button></td>
+				<td class="jobCustom"><button onmousedown="hire('tanners','negcustom');">-Custom</button></td>
+				<td class="job100"><button onmousedown="hire('tanners',-100);">-100</button></td>
+				<td class="job10"><button onmousedown="hire('tanners',-10);">-10</button></td>
+				<td><button onmousedown="hire('tanners',-1);">&lt;</button></td>
 				<td class="job">Tanners: </td>
 				<td class="number"><span id="tanners">0</span></td>
 				<td><button onmousedown="hire('tanners',1);">&gt;</button></td>
 				<td class="job10"><button onmousedown="hire('tanners',10);">+10</button></td>
 				<td class="job100"><button onmousedown="hire('tanners',100);">+100</button></td>
-				<td class="jobCustom"><button onmousedown="hireCustom('tanners');">+Custom</button></td>
-				<td class="jobAll"><button onmousedown="hireAll('tanners');">Max</button></td>
+				<td class="jobCustom"><button onmousedown="hire('tanners','custom');">+Custom</button></td>
+				<td class="jobAll"><button onmousedown="hire('tanners',Infinity);">Max</button></td>
 				<td><span class="note">Convert skins to leather</span></td>
 			</tr>
 			<tr id="blacksmithgroup">
-				<td class="jobNone"><button onmousedown="fireAll('blacksmiths');">-All</button></td>
-				<td class="jobCustom"><button onmousedown="fireCustom('blacksmiths');">-Custom</button></td>
-				<td class="job100"><button onmousedown="fire('blacksmiths',100);">-100</button></td>
-				<td class="job10"><button onmousedown="fire('blacksmiths',10);">-10</button></td>
-				<td><button onmousedown="fire('blacksmiths',1);">&lt;</button></td>
+				<td class="jobNone"><button onmousedown="hire('blacksmiths',-Infinity);">-All</button></td>
+				<td class="jobCustom"><button onmousedown="hire('blacksmiths','negcustom');">-Custom</button></td>
+				<td class="job100"><button onmousedown="hire('blacksmiths',-100);">-100</button></td>
+				<td class="job10"><button onmousedown="hire('blacksmiths',-10);">-10</button></td>
+				<td><button onmousedown="hire('blacksmiths',-1);">&lt;</button></td>
 				<td class="job">Blacksmiths: </td>
 				<td class="number"><span id="blacksmiths">0</span></td>
 				<td><button onmousedown="hire('blacksmiths',1);">&gt;</button></td>
 				<td class="job10"><button onmousedown="hire('blacksmiths',10);">+10</button></td>
 				<td class="job100"><button onmousedown="hire('blacksmiths',100);">+100</button></td>
-				<td class="jobCustom"><button onmousedown="hireCustom('blacksmiths');">+Custom</button></td>
-				<td class="jobAll"><button onmousedown="hireAll('blacksmiths');">Max</button></td>
+				<td class="jobCustom"><button onmousedown="hire('blacksmiths','custom');">+Custom</button></td>
+				<td class="jobAll"><button onmousedown="hire('blacksmiths',Infinity);">Max</button></td>
 				<td><span class="note">Convert ore to metal</span></td>
 			</tr>
 			<tr id="apothecarygroup">
-				<td class="jobNone"><button onmousedown="fireAll('apothecaries');">-All</button></td>
-				<td class="jobCustom"><button onmousedown="fireCustom('apothecaries');">-Custom</button></td>
-				<td class="job100"><button onmousedown="fire('apothecaries',100);">-100</button></td>
-				<td class="job10"><button onmousedown="fire('apothecaries',10);">-10</button></td>
-				<td><button onmousedown="fire('apothecaries',1);">&lt;</button></td>
+				<td class="jobNone"><button onmousedown="hire('apothecaries',-Infinity);">-All</button></td>
+				<td class="jobCustom"><button onmousedown="hire('apothecaries','negcustom');">-Custom</button></td>
+				<td class="job100"><button onmousedown="hire('apothecaries',-100);">-100</button></td>
+				<td class="job10"><button onmousedown="hire('apothecaries',-10);">-10</button></td>
+				<td><button onmousedown="hire('apothecaries',-1);">&lt;</button></td>
 				<td class="job">Apothecaries: </td>
 				<td class="number"><span id="apothecaries">0</span></td>
 				<td><button onmousedown="hire('apothecaries',1);">&gt;</button></td>
 				<td class="job10"><button onmousedown="hire('apothecaries',10);">+10</button></td>
 				<td class="job100"><button onmousedown="hire('apothecaries',100);">+100</button></td>
-				<td class="jobCustom"><button onmousedown="hireCustom('apothecaries');">+Custom</button></td>
-				<td class="jobAll"><button onmousedown="hireAll('apothecaries');">Max</button></td>
+				<td class="jobCustom"><button onmousedown="hire('apothecaries','custom');">+Custom</button></td>
+				<td class="jobAll"><button onmousedown="hire('apothecaries',Infinity);">Max</button></td>
 				<td><span class="note">Cure sick workers</span></td>
 			</tr>
 			<tr id="clericgroup">
-				<td class="jobNone"><button onmousedown="fireAll('clerics');">-All</button></td>
-				<td class="jobCustom"><button onmousedown="fireCustom('clerics');">-Custom</button></td>
-				<td class="job100"><button onmousedown="fire('clerics',100);">-100</button></td>
-				<td class="job10"><button onmousedown="fire('clerics',10);">-10</button></td>
-				<td><button onmousedown="fire('clerics',1);">&lt;</button></td>
+				<td class="jobNone"><button onmousedown="hire('clerics',-Infinity);">-All</button></td>
+				<td class="jobCustom"><button onmousedown="hire('clerics','negcustom');">-Custom</button></td>
+				<td class="job100"><button onmousedown="hire('clerics',-100);">-100</button></td>
+				<td class="job10"><button onmousedown="hire('clerics',-10);">-10</button></td>
+				<td><button onmousedown="hire('clerics',-1);">&lt;</button></td>
 				<td class="job">Clerics: </td>
 				<td class="number"><span id="clerics">0</span></td>
 				<td><button onmousedown="hire('clerics',1);">&gt;</button></td>
 				<td class="job10"><button onmousedown="hire('clerics',10);">+10</button></td>
 				<td class="job100"><button onmousedown="hire('clerics',100);">+100</button></td>
-				<td class="jobCustom"><button onmousedown="hireCustom('clerics');">+Custom</button></td>
-				<td class="jobAll"><button onmousedown="hireAll('clerics');">Max</button></td>
+				<td class="jobCustom"><button onmousedown="hire('clerics','custom');">+Custom</button></td>
+				<td class="jobAll"><button onmousedown="hire('clerics',Infinity);">Max</button></td>
 				<td><span class="note">Generate piety, bury corpses</span></td>
 			</tr>
 			<tr id="labourergroup">
-				<td class="jobNone"><button onmousedown="fireAll('labourers');">-All</button></td>
-				<td class="jobCustom"><button onmousedown="fireCustom('labourers');">-Custom</button></td>
-				<td class="job100"><button onmousedown="fire('labourers',100);">-100</button></td>
-				<td class="job10"><button onmousedown="fire('labourers',10);">-10</button></td>
-				<td><button onmousedown="fire('labourers',1);">&lt;</button></td>
+				<td class="jobNone"><button onmousedown="hire('labourers',-Infinity);">-All</button></td>
+				<td class="jobCustom"><button onmousedown="hire('labourers','negcustom');">-Custom</button></td>
+				<td class="job100"><button onmousedown="hire('labourers',-100);">-100</button></td>
+				<td class="job10"><button onmousedown="hire('labourers',-10);">-10</button></td>
+				<td><button onmousedown="hire('labourers',-1);">&lt;</button></td>
 				<td class="job">Labourers: </td>
 				<td class="number"><span id="labourers">0</span></td>
 				<td><button onmousedown="hire('labourers',1);">&gt;</button></td>
 				<td class="job10"><button onmousedown="hire('labourers',10);">+10</button></td>
 				<td class="job100"><button onmousedown="hire('labourers',100);">+100</button></td>
-				<td class="jobCustom"><button onmousedown="hireCustom('labourers');">+Custom</button></td>
-				<td class="jobAll"><button onmousedown="hireAll('labourers');">Max</button></td>
+				<td class="jobCustom"><button onmousedown="hire('labourers','custom');">+Custom</button></td>
+				<td class="jobAll"><button onmousedown="hire('labourers',Infinity);">Max</button></td>
 				<td><span class="note">Use resources to build wonder</span></td>
 			</tr>
 			<tr id="soldiergroup">
-				<td class="jobNone"><button onmousedown="fireAll('soldiers');">-All</button></td>
-				<td class="jobCustom"><button onmousedown="fireCustom('soldiers');">-Custom</button></td>
-				<td class="job100"><button onmousedown="fire('soldiers',100);">-100</button></td>
-				<td class="job10"><button onmousedown="fire('soldiers',10);">-10</button></td>
-				<td><button onmousedown="fire('soldiers',1);">&lt;</button></td>
+				<td class="jobNone"><button onmousedown="hire('soldiers',-Infinity);">-All</button></td>
+				<td class="jobCustom"><button onmousedown="hire('soldiers','negcustom');">-Custom</button></td>
+				<td class="job100"><button onmousedown="hire('soldiers',-100);">-100</button></td>
+				<td class="job10"><button onmousedown="hire('soldiers',-10);">-10</button></td>
+				<td><button onmousedown="hire('soldiers',-1);">&lt;</button></td>
 				<td class="job">Soldiers: </td>
 				<td class="number"><span id="soldiers">0</span></td>
 				<td><button onmousedown="hire('soldiers',1);">&gt;</button></td>
 				<td class="job10"><button onmousedown="hire('soldiers',10);">+10</button></td>
 				<td class="job100"><button onmousedown="hire('soldiers',100);">+100</button></td>
-				<td class="jobCustom"><button onmousedown="hireCustom('soldiers');">+Custom</button></td>
-				<td class="jobAll"><button onmousedown="hireAll('soldiers');">Max</button></td>
+				<td class="jobCustom"><button onmousedown="hire('soldiers','custom');">+Custom</button></td>
+				<td class="jobAll"><button onmousedown="hire('soldiers',Infinity);">Max</button></td>
 				<td><span class="cost">10 metal, 10 leather</span><span class="note">: Protect from attack</span></td>
 			</tr>
 			<tr id="cavalrygroup">
-				<td class="jobNone"><button onmousedown="fireAll('cavalry');">-All</button></td>
-				<td class="jobCustom"><button onmousedown="fireCustom('cavalry');">-Custom</button></td>
-				<td class="job100"><button onmousedown="fire('cavalry',100);">-100</button></td>
-				<td class="job10"><button onmousedown="fire('cavalry',10);">-10</button></td>
-				<td><button onmousedown="fire('cavalry',1);">&lt;</button></td>
+				<td class="jobNone"><button onmousedown="hire('cavalry',-Infinity);">-All</button></td>
+				<td class="jobCustom"><button onmousedown="hire('cavalry','negcustom');">-Custom</button></td>
+				<td class="job100"><button onmousedown="hire('cavalry',-100);">-100</button></td>
+				<td class="job10"><button onmousedown="hire('cavalry',-10);">-10</button></td>
+				<td><button onmousedown="hire('cavalry',-1);">&lt;</button></td>
 				<td class="job"><span id="cavName">Cavalry</span>: </td>
 				<td class="number"><span id="cavalry">0</span></td>
 				<td><button onmousedown="hire('cavalry',1);">&gt;</button></td>
 				<td class="job10"><button onmousedown="hire('cavalry',10);">+10</button></td>
 				<td class="job100"><button onmousedown="hire('cavalry',100);">+100</button></td>
-				<td class="jobCustom"><button onmousedown="hireCustom('cavalry');">+Custom</button></td>
-				<td class="jobAll"><button onmousedown="hireAll('cavalry');">Max</button></td>
+				<td class="jobCustom"><button onmousedown="hire('cavalry','custom');">+Custom</button></td>
+				<td class="jobAll"><button onmousedown="hire('cavalry',Infinity);">Max</button></td>
 				<td><span class="cost">20 food, 20 leather</span><span class="note">: Protect from attack</span></td>
 			</tr>
 			<tr id="shadesgroup">
@@ -937,7 +942,6 @@
 		Enemies Slain: <span id="enemiesSlain">0</span><br />
 		Corpses: <span id="corpses">0</span><br />
 		<span id="gravesTotal">Unfilled Graves: <span id="graves">0</span><br /></span>
-		<span id="zombieWorkers">Zombies: <span id="zombies">0</span><br /></span>
 		<span id="walkGroup"><br />Walk: <span id="walkStat">0</span> workers per second<br /></span>
 		<br />
 		Cats: <span id="cats">0</span><br />

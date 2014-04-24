@@ -16,6 +16,13 @@
  * along with this program in the file 'LICENSE'.
  */
 
+function isValid(variable) {
+    return ((variable !== null) &&
+            (variable !== undefined) &&
+            (variable !== NaN));
+}
+
+
 function bake_cookie(name, value) {
     var exdate=new Date();
     exdate.setDate(exdate.getDate() + 30);
@@ -62,3 +69,51 @@ function num2fmtString(input){
  
     return output;
 }
+
+// Calculates the summation of elements (n...m] of the arithmetic sequence
+// with increment 'incr'.
+function calcArithSum(incr,n,m)
+{
+    // Default to just element n+1, if m isn't given.
+    if (m === undefined) { m = n + 1; }
+    return (m-n)*((n*incr)+((m-1)*incr))/2;
+}
+
+
+// Search for the largest integer X that generates func(X) < limitY.
+// func should be a continuous increasing numeric function.
+//xxx This would probably be more elegant written recursively.
+function logSearchFn(func, limitY)
+{
+    var minX = 0;
+    var maxX = 0;
+    var curX = 0;
+    var curY;
+
+    // First, find an upper bound.
+    while ((curY = func(maxX)) <= limitY)
+    {
+        minX = maxX;  // Previous was too low
+        maxX = maxX ? maxX * 2 : (maxX + 1);
+    }
+    // Invariant:  minX <= desired X < maxX
+
+    // Now binary search the range.
+    while (maxX - minX > 1)
+    {
+        curX = Math.floor((maxX + minX)/2); // Find midpoint
+        curY = func(curX);
+
+        if (curY <= limitY)
+        {
+            minX = curX; // Under limit; becomes new lower bound.
+        }
+        else
+        {
+            maxX = curX; // Over limit; becomes new upper bound.
+        }
+    }
+
+    return minX;
+}
+

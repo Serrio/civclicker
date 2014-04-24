@@ -8,7 +8,8 @@
         .hasBackground::after {  /* Apply semi-translucent background */
             content: ""; position: fixed; z-index: -1;
             top: 0; left: 0; bottom: 0; right: 0; opacity: 0.18;
-            background: url("images/constableLandscapeRetouched.jpg") no-repeat;
+            background: url("images/constableLandscapeRetouched.jpg") no-repeat center center fixed;
+			background-size: cover;
         }
 		dt {
 			font-weight:bold;
@@ -21,11 +22,24 @@
 </head>
 <body class="hasBackground">
 <h1>CivClicker Updates</h1>
-	<h2>2014-04-19: v1.1.13 (alpha)</h2>
+	<h2>2014-04-24: v1.1.13 (alpha)</h2>
 	<p>
-		Replaced the worker and zombie cost iterative calculator with a
-		constant-time formula version.  This should improve responsiveness
-		with large numbers.
+		Worker (and zombie) spawn buttons now include a 'Max' option (which
+		operates in O(lg(n)) time, which should be acceptably responsive)
+	</p>
+	<p>
+		Corpses are now treated as a resource, rather than a population unit.
+		Unfortunately, this slightly breaks compatibility with prior versions;
+		v1.1.13+ will load prior save games, but prior versions will lose their
+		corpses if they try to load a v1.1.13+ save game.
+	</p>
+	<p>
+		Moved the displays for happiness, free land, and zombies to be in more 
+		useful places.
+	</p>
+	<p>
+		Removed the panel subheadings; they were taking up space, and not
+		conveying useful information.
 	</p>
 	<p>
 		All costs are now calculated to full precision, although the display is
@@ -36,19 +50,21 @@
 		value, whereas the number displayed rounded first.
 	</p>
 	<p>
-		Moved the free land display to be near the building panel.
-	</p>
-	<p>
-		Moved the morale display to be near the population panel.
-	</p>
-	<p>
-		Removed the panel subheadings.
-	</p>
-	<p>
 		Fix the dynamic cost updates broken by 1.1.12 changes.
 	</p>
 	<p>
-		More misc. JS cleanup.
+		Fix the background so it stretches to cover again.
+	</p>
+	<p>
+		Raise Dead buttons now enable and disable properly.
+	</p>
+	<p>
+		Replaced the worker and zombie cost iterative calculator with a
+		constant-time formula version.  This should improve responsiveness
+		with large numbers.
+	</p>
+	<p>
+		Consolidated all of the assorted hire/fire functions into one.
 	</p>
 	<h2>2014-04-06: v1.1.12 (alpha)</h2>
 	<p>
