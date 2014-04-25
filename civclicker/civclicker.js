@@ -74,7 +74,9 @@ civSizes.getMaxPop = function(civType) {
 };
 
 // Initialise Data
-var food = {
+var civName = "Woodstock",
+rulerName = 'Orteil',
+food = {
 	id:'food',
 	name:'food',
 	total:0,
@@ -596,7 +598,6 @@ population = {
 	current:0,
 	cap:0,
 	cats:0,
-	corpses:0,
 	zombies:0,
 	graves:0,
 	unemployed:0,
@@ -805,7 +806,7 @@ function getBuildingRowText(buildingObj, onlyOnes)
     var s = "<tr id=\""+bldId+"Row\">";
 	// Note that updateBuildingRow() relies on the <tr>'s children being in this particular layout.
 	s += "<td><button class=\"build\" onmousedown=\"createBuilding("+bldId+",1)\">Build "+bldName+"</button></td>";
-	if (onlyOnes===null || onlyOnes===undefined) {
+	if (onlyOnes===undefined || onlyOnes !== true) {
 	s += "<td class=\"buildingten\"><button class=\"x10\" onmousedown=\"createBuilding("+bldId+",10)\">x10</button></td>";
 	s += "<td class=\"buildinghundred\"><button class=\"x100\" onmousedown=\"createBuilding("+bldId+",100)\">x100</button></td>";
 	s += "<td class=\"buildingthousand\"><button class=\"x1000\" onmousedown=\"createBuilding("+bldId+",1000)\">x1k</button></td>";
@@ -853,12 +854,8 @@ addBuildingRows();
 
 //Prompt player for names
 if (!read_cookie('civ') && !localStorage.getItem('civ')){
-	var civName = prompt('Please name your civilisation','');
-	document.getElementById('civName').innerHTML = civName;
-}
-if (!read_cookie('civ') && !localStorage.getItem('civ')){
-	var rulerName = prompt('What is your name?','');
-	document.getElementById('rulerName').innerHTML = rulerName;
+	renameCiv();
+	renameRuler();
 }
 
 // Load in saved data
@@ -924,319 +921,91 @@ function load(loadType){
 		//impexp();
 	}
 	
+	// BACKWARD COMPATIBILITY SECTION //////////////////
+	if (isValid(loadVar.population.corpses)) { corpses.total = loadVar.population.corpses; }  // Moved in 1.1.13
+	////////////////////////////////////////////////////
+	//
 	//xxx Why are we saving and restoring the names of basic resources?
+	//    We should move the static values to prototype objects.
 	//Note also that names are now used for the user-facing names.
-	if (loadVar.food.name !== null) { food.name = loadVar.food.name; }
-	if (loadVar.food.total !== null) { food.total = loadVar.food.total; }
-	if (loadVar.food.increment !== null) { food.increment = loadVar.food.increment; }
-	if (loadVar.food.specialchance !== null) { food.specialchance = loadVar.food.specialchance; }
-	if (loadVar.wood.name !== null) { wood.name = loadVar.wood.name; }
-	if (loadVar.wood.total !== null) { wood.total = loadVar.wood.total; }
-	if (loadVar.wood.increment !== null) { wood.increment = loadVar.wood.increment; }
-	if (loadVar.wood.specialchance !== null) { wood.specialchance = loadVar.wood.specialchance; }
-	if (loadVar.stone.name !== null) { stone.name = loadVar.stone.name; }
-	if (loadVar.stone.total !== null) { stone.total = loadVar.stone.total; }
-	if (loadVar.stone.increment !== null) { stone.increment = loadVar.stone.increment; }
-	if (loadVar.stone.specialchance !== null) { stone.specialchance = loadVar.stone.specialchance; }
-	if (loadVar.skins.name !== null) { skins.name = loadVar.skins.name; }
-	if (loadVar.skins.total !== null) { skins.total = loadVar.skins.total; }
-	if (loadVar.herbs.name !== null) { herbs.name = loadVar.herbs.name; }
-	if (loadVar.herbs.total !== null) { herbs.total = loadVar.herbs.total; }
-	if (loadVar.ore.name !== null) { ore.name = loadVar.ore.name; }
-	if (loadVar.ore.total !== null) { ore.total = loadVar.ore.total; }
-	if (loadVar.leather.name !== null) { leather.name = loadVar.leather.name; }
-	if (loadVar.leather.total !== null) { leather.total = loadVar.leather.total; }
-	if (loadVar.metal.name !== null) { metal.name = loadVar.metal.name; }
-	if (loadVar.metal.total !== null) { metal.total = loadVar.metal.total; }
-	if (loadVar.piety.name !== null) { piety.name = loadVar.piety.name; }
-	if (loadVar.piety.total !== null) { piety.total = loadVar.piety.total; }
-	if (loadVar.gold !== null){
-		if (loadVar.gold.name !== null) { gold.name = loadVar.gold.name; }
-		if (loadVar.gold.total !== null) { gold.total = loadVar.gold.total; }
+	food = mergeObj(food, loadVar.food);
+	wood = mergeObj(wood, loadVar.wood);
+	stone = mergeObj(stone, loadVar.stone);
+	skins = mergeObj(skins, loadVar.skins);
+	herbs = mergeObj(herbs, loadVar.herbs);
+	ore = mergeObj(ore, loadVar.ore);
+	leather = mergeObj(leather, loadVar.leather);
+	metal = mergeObj(metal, loadVar.metal);
+	piety = mergeObj(piety, loadVar.piety);
+	gold = mergeObj(gold, loadVar.gold);
+	corpses = mergeObj(corpses, loadVar.corpses);
+	if (isValid(loadVar.gold)){
+		gold = mergeObj(gold, loadVar.gold);
 	}
 	if (isValid(loadVar.corpses)){ // Did not exist until 1.1.13
-		if (isValid(loadVar.corpses.name)) { corpses.name = loadVar.corpses.name; }
-		if (isValid(loadVar.corpses.total)) { corpses.total = loadVar.corpses.total; }
+		corpses = mergeObj(corpses, loadVar.corpses);
 	}
-	if (loadVar2.wonder !== null){
-			if (loadVar2.wonder.total !== null) { wonder.total = loadVar2.wonder.total; }
-			if (loadVar2.wonder.food !== null) { wonder.food = loadVar2.wonder.food; }
-			if (loadVar2.wonder.wood !== null) { wonder.wood = loadVar2.wonder.wood; }
-			if (loadVar2.wonder.stone !== null) { wonder.stone = loadVar2.wonder.stone; }
-			if (loadVar2.wonder.skins !== null) { wonder.skins = loadVar2.wonder.skins; }
-			if (loadVar2.wonder.herbs !== null) { wonder.herbs = loadVar2.wonder.herbs; }
-			if (loadVar2.wonder.ore !== null) { wonder.ore = loadVar2.wonder.ore; }
-			if (loadVar2.wonder.leather !== null) { wonder.leather = loadVar2.wonder.leather; }
-			if (loadVar2.wonder.metal !== null) { wonder.metal = loadVar2.wonder.metal; }
-			if (loadVar2.wonder.piety !== null) { wonder.piety = loadVar2.wonder.piety; }
-			if (loadVar2.wonder.array !== null) { wonder.array = loadVar2.wonder.array; }
-			if (loadVar2.wonder.name !== null) { wonder.name = loadVar2.wonder.name; }
-			if (loadVar2.wonder.building !== null) { wonder.building = loadVar2.wonder.building; }
-			if (loadVar2.wonder.completed !== null) { wonder.completed = loadVar2.wonder.completed; }
-			if (loadVar2.wonder.progress !== null) { wonder.progress = loadVar2.wonder.progress; }
+	if (isValid(loadVar2.wonder)){
+		wonder = mergeObj(wonder, loadVar2.wonder);
 	}
-	if (loadVar2.land !== null) { land = loadVar2.land; }
-	if (loadVar2.tent.total !== null) { tent.total = loadVar2.tent.total; }
-	if (loadVar2.whut.total !== null) { whut.total = loadVar2.whut.total; }
-	if (loadVar2.cottage.total !== null) { cottage.total = loadVar2.cottage.total; }
-	if (loadVar2.house.total !== null) { house.total = loadVar2.house.total; }
-	if (loadVar2.mansion !== null){
-		if (loadVar2.mansion.total !== null) { mansion.total = loadVar2.mansion.total; }
-	}
-	if (loadVar2.barn.total !== null) { barn.total = loadVar2.barn.total; }
-	if (loadVar2.woodstock.total !== null) { woodstock.total = loadVar2.woodstock.total; }
-	if (loadVar2.stonestock.total !== null) { stonestock.total = loadVar2.stonestock.total; }
-	if (loadVar2.tannery.total !== null) { tannery.total = loadVar2.tannery.total; }
-	if (loadVar2.smithy.total !== null) { smithy.total = loadVar2.smithy.total; }
-	if (loadVar2.apothecary.total !== null) { apothecary.total = loadVar2.apothecary.total; }
-	if (loadVar2.temple.total !== null) { temple.total = loadVar2.temple.total; }
-	if (loadVar2.barracks.total !== null) { barracks.total = loadVar2.barracks.total; }
-	if (loadVar2.stable !== null){
-		if (loadVar2.stable.total !== null) { stable.total = loadVar2.stable.total; }
-	}
-	if (loadVar2.mill !== null){
-		if (loadVar2.mill.total !== null) { mill.total = loadVar2.mill.total; }
-		if (loadVar2.mill.require !== null){
-			if (loadVar2.mill.require.wood !== null){
-				mill.require.wood = loadVar2.mill.require.wood;
-			}
-			if (loadVar2.mill.require.stone !== null){
-				mill.require.stone = loadVar2.mill.require.stone;
-			}
-			updateRequirements(mill);
-		}
-	}
-	if (loadVar2.graveyard !== null){
-		if (loadVar2.graveyard.total !== null) { graveyard.total = loadVar2.graveyard.total; }
-	}
-	if (loadVar2.fortification !== null){
-		if (loadVar2.fortification.total !== null) { fortification.total = loadVar2.fortification.total; }
-		if (loadVar2.fortification.require !== null){
-			if (loadVar2.fortification.require.stone !== null){
-				fortification.require.stone = loadVar2.fortification.require.stone;
-			}
-			updateRequirements(fortification);
-		}
-	}
-	if (loadVar2.battleAltar !== null){
-		if (loadVar2.battleAltar.total !== null) { battleAltar.total = loadVar2.battleAltar.total; }
-		if (loadVar2.battleAltar.require !== null){
-			if (loadVar2.battleAltar.require.metal !== null){
-				battleAltar.require.metal = loadVar2.battleAltar.require.metal;
-			}
-			updateRequirements(battleAltar);
-		}
-	}
-	if (loadVar2.fieldsAltar !== null){
-		if (loadVar2.fieldsAltar.total !== null) { fieldsAltar.total = loadVar2.fieldsAltar.total; }
-		if (loadVar2.fieldsAltar.require !== null){
-			if (loadVar2.fieldsAltar.require.food !== null){
-				fieldsAltar.require.food = loadVar2.fieldsAltar.require.food;
-			}
-			if (loadVar2.fieldsAltar.require.wood !== null){
-				fieldsAltar.require.wood = loadVar2.fieldsAltar.require.wood;
-			}
-			updateRequirements(fieldsAltar);
-		}
-	}
-	if (loadVar2.underworldAltar !== null){
-		if (loadVar2.underworldAltar.total !== null) { underworldAltar.total = loadVar2.underworldAltar.total; }
-		if (loadVar2.underworldAltar.require !== null){
-			if (loadVar2.underworldAltar.require.corpses !== null){
-				underworldAltar.require.corpses = loadVar2.underworldAltar.require.corpses;
-			}
-			updateRequirements(underworldAltar);
-		}
-	}
-	if (loadVar2.catAltar !== null){
-		if (loadVar2.catAltar.total !== null) { catAltar.total = loadVar2.catAltar.total; }
-		if (loadVar2.catAltar.require !== null){
-			if (loadVar2.catAltar.require.herbs !== null){
-				catAltar.require.herbs = loadVar2.catAltar.require.herbs;
-			}
-			updateRequirements(catAltar);
-		}
-	}
-	if (loadVar2.resourceClicks !== null){
-		resourceClicks = loadVar2.resourceClicks;
-	} else if (loadVar2){
+	land =mergeObj(land, loadVar2.land);
+	tent = mergeObj(tent, loadVar2.tent);
+	whut = mergeObj(whut, loadVar2.whut);
+	cottage =mergeObj(cottage, loadVar2.cottage);
+	house = mergeObj(house, loadVar2.house);
+	mansion = mergeObj(mansion, loadVar2.mansion);
+	barn = mergeObj(barn, loadVar2.barn);
+	woodstock = mergeObj(woodstock, loadVar2.woodstock);
+	stonestock = mergeObj(stonestock, loadVar2.stonestock);
+	tannery = mergeObj(tannery, loadVar2.tannery);
+	smithy = mergeObj(smithy, loadVar2.smithy);
+	apothecary = mergeObj(apothecary, loadVar2.apothecary);
+	temple = mergeObj(temple, loadVar2.temple);
+	barracks = mergeObj(barracks, loadVar2.barracks);
+	stable = mergeObj(stable, loadVar2.stable);
+	mill = mergeObj(mill, loadVar2.mill);
+	updateRequirements(mill);
+	graveyard = mergeObj(graveyard, loadVar2.graveyard);
+	fortification = mergeObj(fortification, loadVar2.fortification);
+	updateRequirements(fortification);
+	battleAltar = mergeObj(battleAltar, loadVar2.battleAltar);
+	updateRequirements(battleAltar);
+	fieldsAltar = mergeObj(fieldsAltar, loadVar2.fieldsAltar);
+	updateRequirements(fieldsAltar);
+	underworldAltar = mergeObj(underworldAltar, loadVar2.underworldAltar);
+	updateRequirements(underworldAltar);
+	catAltar = mergeObj(catAltar, loadVar2.catAltar);
+	updateRequirements(catAltar);
+	if (isValid(loadVar2.resourceClicks)){
+		resourceClicks = mergeObj(resourceClicks, loadVar2.resourceClicks);
+	} else {
 		resourceClicks = 999; //stops people getting the achievement with an old save version
 	}
-	if (loadVar2.worksafe !== null) { worksafe = loadVar2.worksafe; }
-	if (loadVar.population.current !== null) { population.current = loadVar.population.current; }
-	if (loadVar.population.cap !== null) { population.cap = loadVar.population.cap; }
-	if (loadVar.population.cats !== null) { population.cats = loadVar.population.cats; }
-	if (isValid(loadVar.population.corpses)) { corpses.total = loadVar.population.corpses; }  //xxx TEMPORARY for backward compatibility for change made in 1.1.13a
-	if (loadVar.population.graves !== null) { population.graves = loadVar.population.graves; }
-	if (loadVar.population.zombies !== null) { population.zombies = loadVar.population.zombies; }
-	if (loadVar.population.unemployed !== null) { population.unemployed = loadVar.population.unemployed; }
-	if (loadVar.population.farmers !== null) { population.farmers = loadVar.population.farmers; }
-	if (loadVar.population.woodcutters !== null) { population.woodcutters = loadVar.population.woodcutters; }
-	if (loadVar.population.miners !== null) { population.miners = loadVar.population.miners; }
-	if (loadVar.population.tanners !== null) { population.tanners = loadVar.population.tanners; }
-	if (loadVar.population.blacksmiths !== null) { population.blacksmiths = loadVar.population.blacksmiths; }
-	if (loadVar.population.apothecaries !== null) { population.apothecaries = loadVar.population.apothecaries; }
-	if (loadVar.population.clerics !== null) { population.clerics = loadVar.population.clerics; }
-	if (loadVar.population.labourers !== null) { population.labourers = loadVar.population.labourers; }
-	if (loadVar.population.soldiers !== null) { population.soldiers = loadVar.population.soldiers; }
-	if (loadVar.population.soldiersParty !== null) { population.soldiersParty = loadVar.population.soldiersParty; }
-	if (loadVar.population.soldiersPartyCas !== null) { population.soldiersPartyCas = loadVar.population.soldiersPartyCas; }
-	if (loadVar.population.cavalry !== null) { population.cavalry = loadVar.population.cavalry; }
-	if (loadVar.population.cavalryParty !== null) { population.cavalryParty = loadVar.population.cavalryParty; }
-	if (loadVar.population.cavalryPartyCas !== null) { population.cavalryPartyCas = loadVar.population.cavalryPartyCas; }
-	if (loadVar.population.siege !== null) { population.siege = loadVar.population.siege; }
-	if (loadVar.population.esoldiers !== null) { population.esoldiers = loadVar.population.esoldiers; }
-	if (loadVar.population.esoldiersCas !== null) { population.esoldiersCas = loadVar.population.esoldiersCas; }
-	if (loadVar.population.eforts !== null) { population.eforts = loadVar.population.eforts; }
-	if (loadVar.population.healthy !== null) { population.healthy = loadVar.population.healthy; }
-	if (loadVar.population.totalSick !== null) { population.totalSick = loadVar.population.totalSick; }
-	if (loadVar.population.unemployedIll !== null) { population.unemployedIll = loadVar.population.unemployedIll; }
-	if (loadVar.population.farmersIll !== null) { population.farmersIll = loadVar.population.farmersIll; }
-	if (loadVar.population.woodcuttersIll !== null) { population.woodcuttersIll = loadVar.population.woodcuttersIll; }
-	if (loadVar.population.minersIll !== null) { population.minersIll = loadVar.population.minersIll; }
-	if (loadVar.population.tannersIll !== null) { population.tannersIll = loadVar.population.tannersIll; }
-	if (loadVar.population.blacksmithsIll !== null) { population.blacksmithsIll = loadVar.population.blacksmithsIll; }
-	if (loadVar.population.apothecariesIll !== null) { population.apothecariesIll = loadVar.population.apothecariesIll; }
-	if (loadVar.population.clericsIll !== null) { population.clericsIll = loadVar.population.clericsIll; }
-	if (loadVar.population.labourersIll !== null) { population.labourersIll = loadVar.population.labourersIll; }
-	if (loadVar.population.soldiersIll !== null) { population.soldiersIll = loadVar.population.soldiersIll; }
-	if (loadVar.population.soldiersCasIll !== null) { population.soldiersCasIll = loadVar.population.soldiersCasIll; }
-	if (loadVar.population.cavalryIll !== null) { population.cavalryIll = loadVar.population.cavalryIll; }
-	if (loadVar.population.cavalryCasIll !== null) { population.cavalryCasIll = loadVar.population.cavalryCasIll; }
-	if (loadVar.population.wolves !== null) { population.wolves = loadVar.population.wolves; }
-	if (loadVar.population.bandits !== null) { population.bandits = loadVar.population.bandits; }
-	if (loadVar.population.barbarians !== null) { population.barbarians = loadVar.population.barbarians; }
-	if (loadVar.population.soldiersCas !== null) { population.soldiersCas = loadVar.population.soldiersCas; }
-	if (loadVar.population.cavalryCas !== null) { population.cavalryCas = loadVar.population.cavalryCas; }
-	if (loadVar.population.wolvesCas !== null) { population.wolvesCas = loadVar.population.wolvesCas; }
-	if (loadVar.population.banditsCas !== null) { population.banditsCas = loadVar.population.banditsCas; }
-	if (loadVar.population.barbariansCas !== null) { population.barbariansCas = loadVar.population.barbariansCas; }
-	if (loadVar.population.esiege !== null) { population.esiege = loadVar.population.esiege; }
-	if (loadVar.population.enemiesSlain !== null) { population.enemiesSlain = loadVar.population.enemiesSlain; }
-	if (loadVar.population.shades !== null) { population.shades = loadVar.population.shades; }
-	if (loadVar.efficiency.happiness !== null) { efficiency.happiness = loadVar.efficiency.happiness; }
-	if (loadVar.efficiency.farmers !== null) { efficiency.farmers = loadVar.efficiency.farmers; }
-	if (loadVar.efficiency.woodcutters !== null) { efficiency.woodcutters = loadVar.efficiency.woodcutters; }
-	if (loadVar.efficiency.miners !== null) { efficiency.miners = loadVar.efficiency.miners; }
-	if (loadVar.efficiency.tanners !== null) { efficiency.tanners = loadVar.efficiency.tanners; }
-	if (loadVar.efficiency.blacksmiths !== null) { efficiency.blacksmiths = loadVar.efficiency.blacksmiths; }
-	if (loadVar.efficiency.apothecaries !== null) { efficiency.apothecaries = loadVar.efficiency.apothecaries; }
-	//if (loadVar.efficiency.clerics !== null) { efficiency.clerics = loadVar.efficiency.clerics; }
-	if (loadVar.efficiency.soldiers !== null) { efficiency.soldiers = loadVar.efficiency.soldiers; }
-	if (loadVar.efficiency.cavalry !== null) { efficiency.cavalry = loadVar.efficiency.cavalry; }
-	if (loadVar.upgrades.domestication !== null) { upgrades.domestication = loadVar.upgrades.domestication; }
-	if (loadVar.upgrades.ploughshares !== null) { upgrades.ploughshares = loadVar.upgrades.ploughshares; }
-	if (loadVar.upgrades.irrigation !== null) { upgrades.irrigation = loadVar.upgrades.irrigation; }
-	if (loadVar.upgrades.skinning !== null) { upgrades.skinning = loadVar.upgrades.skinning; }
-	if (loadVar.upgrades.harvesting !== null) { upgrades.harvesting = loadVar.upgrades.harvesting; }
-	if (loadVar.upgrades.prospecting !== null) { upgrades.prospecting = loadVar.upgrades.prospecting; }
-	if (loadVar.upgrades.butchering !== null) { upgrades.butchering = loadVar.upgrades.butchering; }
-	if (loadVar.upgrades.gardening !== null) { upgrades.gardening = loadVar.upgrades.gardening; }
-	if (loadVar.upgrades.extraction !== null) { upgrades.extraction = loadVar.upgrades.extraction; }
-	if (loadVar.upgrades.croprotation !== null) { upgrades.croprotation = loadVar.upgrades.croprotation; }
-	if (loadVar.upgrades.selectivebreeding !== null) { upgrades.selectivebreeding = loadVar.upgrades.selectivebreeding; }
-	if (loadVar.upgrades.fertilisers !== null) { upgrades.fertilisers = loadVar.upgrades.fertilisers; }
-	if (loadVar.upgrades.masonry !== null) { upgrades.masonry = loadVar.upgrades.masonry; }
-	if (loadVar.upgrades.construction !== null) { upgrades.construction = loadVar.upgrades.construction; }
-	if (loadVar.upgrades.architecture !== null) { upgrades.architecture = loadVar.upgrades.architecture; }
-	if (loadVar.upgrades.wheel !== null) { upgrades.wheel = loadVar.upgrades.wheel; }
-	if (loadVar.upgrades.horseback !== null) { upgrades.horseback = loadVar.upgrades.horseback; }
-	if (loadVar.upgrades.tenements !== null) { upgrades.tenements = loadVar.upgrades.tenements; }
-	if (loadVar.upgrades.slums !== null) { upgrades.slums = loadVar.upgrades.slums; }
-	if (loadVar.upgrades.granaries !== null) { upgrades.granaries = loadVar.upgrades.granaries; }
-	if (loadVar.upgrades.palisade !== null) { upgrades.palisade = loadVar.upgrades.palisade; }
-	if (loadVar.upgrades.weaponry !== null) { upgrades.weaponry = loadVar.upgrades.weaponry; }
-	if (loadVar.upgrades.shields !== null) { upgrades.shields = loadVar.upgrades.shields; }
-	if (loadVar.upgrades.writing !== null) { upgrades.writing = loadVar.upgrades.writing; }
-	if (loadVar.upgrades.administration !== null) { upgrades.administration = loadVar.upgrades.administration; }
-	if (loadVar.upgrades.codeoflaws !== null) { upgrades.codeoflaws = loadVar.upgrades.codeoflaws; }
-	if (loadVar.upgrades.mathematics !== null) { upgrades.mathematics = loadVar.upgrades.mathematics; }
-	if (loadVar.upgrades.aesthetics !== null) { upgrades.aesthetics = loadVar.upgrades.aesthetics; }
-	if (loadVar.upgrades.civilservice !== null) { upgrades.civilservice = loadVar.upgrades.civilservice; }
-	if (loadVar.upgrades.feudalism !== null) { upgrades.feudalism = loadVar.upgrades.feudalism; }
-	if (loadVar.upgrades.guilds !== null) { upgrades.guilds = loadVar.upgrades.guilds; }
-	if (loadVar.upgrades.serfs !== null) { upgrades.serfs = loadVar.upgrades.serfs; }
-	if (loadVar.upgrades.nationalism !== null) { upgrades.nationalism = loadVar.upgrades.nationalism; }
-	if (loadVar.upgrades.flensing !== null) { upgrades.flensing = loadVar.upgrades.flensing; }
-	if (loadVar.upgrades.macerating !== null) { upgrades.macerating = loadVar.upgrades.macerating; }
-	if (loadVar.upgrades.standard !== null) { upgrades.standard = loadVar.upgrades.standard; }
-	if (loadVar.upgrades.deity !== null) { upgrades.deity = loadVar.upgrades.deity; }
-	if (loadVar.upgrades.deityType !== null) { upgrades.deityType = loadVar.upgrades.deityType; }
-	if (loadVar.upgrades.lure !== null) { upgrades.lure = loadVar.upgrades.lure; }
-	if (loadVar.upgrades.companion !== null) { upgrades.companion = loadVar.upgrades.companion; }
-	if (loadVar.upgrades.comfort !== null) { upgrades.comfort = loadVar.upgrades.comfort; }
-	if (loadVar.upgrades.blessing !== null) { upgrades.blessing = loadVar.upgrades.blessing; }
-	if (loadVar.upgrades.waste !== null) { upgrades.waste = loadVar.upgrades.waste; }
-	if (loadVar.upgrades.stay !== null) { upgrades.stay = loadVar.upgrades.stay; }
-	if (loadVar.upgrades.riddle !== null) { upgrades.riddle = loadVar.upgrades.riddle; }
-	if (loadVar.upgrades.throne !== null) { upgrades.throne = loadVar.upgrades.throne; }
-	if (loadVar.upgrades.lament !== null) { upgrades.lament = loadVar.upgrades.lament; }
-	if (loadVar.upgrades.book !== null) { upgrades.book = loadVar.upgrades.book; }
-	if (loadVar.upgrades.feast !== null) { upgrades.feast = loadVar.upgrades.feast; }
-	if (loadVar.upgrades.secrets !== null) { upgrades.secrets = loadVar.upgrades.secrets; }
-	if (loadVar.deity !== null) {
-		if (loadVar.deity.name !== null) { deity.name = loadVar.deity.name; }
-		if (loadVar.deity.type !== null) { deity.type = loadVar.deity.type; }
-		if (loadVar.deity.seniority !== null) { deity.seniority = loadVar.deity.seniority; }
+	worksafe = mergeObj(worksafe, loadVar2.worksafe);
+	population = mergeObj(population, loadVar.population);
+	efficiency = mergeObj(efficiency, loadVar.efficiency);
+	upgrades = mergeObj(upgrades, loadVar.upgrades);
+	if (isValid(loadVar.deity)) {
+		deity = mergeObj(deity, loadVar.deity);
 		if (deity.seniority > 1){
 			document.getElementById('activeDeity').innerHTML = '<tr id="deity' + deity.seniority + '"><td><strong><span id="deity' + deity.seniority + 'Name">No deity</span></strong><span id="deity' + deity.seniority + 'Type" class="deityType"></span></td><td>Devotion: <span id="devotion' + deity.seniority + '">0</span></td><td class="removeDeity"><button class="removeDeity" onclick="removeDeity(deity' + deity.seniority + ')">X</button></td></tr>';
 		}
-		if (loadVar.deity.devotion !== null) { deity.devotion = loadVar.deity.devotion; }
-		if (loadVar.deity.battle !== null) { deity.battle = loadVar.deity.battle; }
-		if (loadVar.deity.fields !== null) { deity.fields = loadVar.deity.fields; }
-		if (loadVar.deity.underworld !== null) { deity.underworld = loadVar.deity.underworld; }
-		if (loadVar.deity.cats !== null) { deity.cats = loadVar.deity.cats; }
 	}
-	if (loadVar.upgrades.trade !== null) { upgrades.trade = loadVar.upgrades.trade; }
-	if (loadVar.upgrades.currency !== null) { upgrades.currency = loadVar.upgrades.currency; }
-	if (loadVar.upgrades.commerce !== null) { upgrades.commerce = loadVar.upgrades.commerce; }
-	if (loadVar.achievements !== null){
-		if (loadVar.achievements.hamlet !== null) { achievements.hamlet = loadVar.achievements.hamlet; }
-		if (loadVar.achievements.village !== null) { achievements.village = loadVar.achievements.village; }
-		if (loadVar.achievements.smallTown !== null) { achievements.smallTown = loadVar.achievements.smallTown; }
-		if (loadVar.achievements.largeTown !== null) { achievements.largeTown = loadVar.achievements.largeTown; }
-		if (loadVar.achievements.smallCity !== null) { achievements.smallCity = loadVar.achievements.smallCity; }
-		if (loadVar.achievements.largeCity !== null) { achievements.largeCity = loadVar.achievements.largeCity; }
-		if (loadVar.achievements.metropolis !== null) { achievements.metropolis = loadVar.achievements.metropolis; }
-		if (loadVar.achievements.smallNation !== null) { achievements.smallNation = loadVar.achievements.smallNation; }
-		if (loadVar.achievements.nation !== null) { achievements.nation = loadVar.achievements.nation; }
-		if (loadVar.achievements.largeNation !== null) { achievements.largeNation = loadVar.achievements.largeNation; }
-		if (loadVar.achievements.empire !== null) { achievements.empire = loadVar.achievements.empire; }
-		if (loadVar.achievements.raider !== null) { achievements.raider = loadVar.achievements.raider; }
-		if (loadVar.achievements.engineer !== null) { achievements.engineer = loadVar.achievements.engineer; }
-		if (loadVar.achievements.domination !== null) { achievements.domination = loadVar.achievements.domination; }
-		if (loadVar.achievements.hated !== null) { achievements.hated = loadVar.achievements.hated; }
-		if (loadVar.achievements.loved !== null) { achievements.loved = loadVar.achievements.loved; }
-		if (loadVar.achievements.cat !== null) { achievements.cat = loadVar.achievements.cat; }
-		if (loadVar.achievements.glaring !== null) { achievements.glaring = loadVar.achievements.glaring; }
-		if (loadVar.achievements.clowder !== null) { achievements.clowder = loadVar.achievements.clowder; }
-		if (loadVar.achievements.battle !== null) { achievements.battle = loadVar.achievements.battle; }
-		if (loadVar.achievements.cats !== null) { achievements.cats = loadVar.achievements.cats; }
-		if (loadVar.achievements.fields !== null) { achievements.fields = loadVar.achievements.fields; }
-		if (loadVar.achievements.underworld !== null) { achievements.underworld = loadVar.achievements.underworld; }
-		if (loadVar.achievements.fullHouse !== null) { achievements.fullHouse = loadVar.achievements.fullHouse; }
-		if (loadVar.achievements.plague !== null) { achievements.plague = loadVar.achievements.plague; }
-		if (loadVar.achievements.ghostTown !== null) { achievements.ghostTown = loadVar.achievements.ghostTown; }
-		if (loadVar.achievements.wonder !== null) { achievements.wonder = loadVar.achievements.wonder; }
-		if (loadVar.achievements.seven !== null) { achievements.seven = loadVar.achievements.seven; }
-		if (loadVar.achievements.merchant !== null) { achievements.merchant = loadVar.achievements.merchant; }
-		if (loadVar.achievements.rushed !== null) { achievements.rushed = loadVar.achievements.rushed; }
-		if (loadVar.achievements.neverclick !== null) { achievements.neverclick = loadVar.achievements.neverclick; }
+	if (isValid(loadVar.achievements)){
+		achievements = mergeObj(achievements, loadVar.achievements);
 	}
-	if (loadVar.raiding !== null){
-		if (loadVar.raiding.raiding) { raiding.raiding = loadVar.raiding.raiding; }
-		if (loadVar.raiding.iterations) { raiding.iterations = loadVar.raiding.iterations; }
-		if (loadVar.raiding.last) { raiding.last = loadVar.raiding.last; }
+	if (isValid(loadVar.raiding)){
+		raiding = mergeObj(raiding, loadVar.raiding);
 	}
-	if (loadVar.targetMax) { targetMax = loadVar.targetMax; }
-	if (loadVar.oldDeities) { oldDeities = loadVar.oldDeities; }
-	if (loadVar.deityArray) { deityArray = loadVar.deityArray; }
-	if (loadVar.graceCost) { graceCost = loadVar.graceCost; }
-	if (loadVar.walkTotal) { walkTotal = loadVar.walkTotal; }
-	if (loadVar.autosave) { autosave = loadVar.autosave; }
-	if (loadVar.size) { size = loadVar.size; }
-	civName = loadVar.civName;
-	rulerName = loadVar.rulerName;
+	if (isValid(loadVar.targetMax)) { targetMax = mergeObj(targetMax, loadVar.targetMax); }
+	if (isValid(loadVar.oldDeities)) { oldDeities = mergeObj(oldDeities, loadVar.oldDeities); }
+	if (isValid(loadVar.deityArray)){ deityArray = mergeObj(deityArray, loadVar.deityArray); }
+	if (isValid(loadVar.graceCost)){ graceCost = mergeObj(graceCost, loadVar.graceCost); }
+	if (isValid(loadVar.walkTotal)){ walkTotal = mergeObj(walkTotal, loadVar.walkTotal); }
+	if (isValid(loadVar.autosave)){ autosave = mergeObj(autosave, loadVar.autosave); }
+	if (isValid(loadVar.size)) { size = mergeObj(size, loadVar.size); }
+	civName = mergeObj(civName, loadVar.civName);
+	rulerName = mergeObj(rulerName, loadVar.rulerName);
 	updateResourceTotals();
 	updateMobs();
 	updateDeity();
@@ -1252,11 +1021,7 @@ function load(loadType){
 	document.getElementById('rulerName').innerHTML = rulerName;
 	document.getElementById('wonderNameP').innerHTML = wonder.name;
 	document.getElementById('wonderNameC').innerHTML = wonder.name;
-	if (!wonder.completed && !wonder.building){
-		document.getElementById('startWonder').disabled = false;
-	} else {
-		document.getElementById('startWonder').disabled = true;
-	}
+	document.getElementById('startWonder').disabled = (wonder.completed || wonder.building);
 		
 	//Upgrade-related checks
 	efficiency.farmers = 0.2 + (0.1 * upgrades.domestication) + (0.1 * upgrades.ploughshares) + (0.1 * upgrades.irrigation) + (0.1 * upgrades.croprotation) + (0.1 * upgrades.selectivebreeding) + (0.1 * upgrades.fertilisers) + (0.1 * upgrades.blessing);
@@ -1538,6 +1303,7 @@ function updateJobs(){
 	document.getElementById('cats').innerHTML = prettify(population.cats);
 	document.getElementById('enemiesSlain').innerHTML = prettify(population.enemiesSlain);
 }
+//xxx BUG:  This function isn't taking illness or deployment into account.
 function updateJobButtons(job,name,building,support){
 	var elem = document.getElementById(name + 'group');
 	if (building){
@@ -1546,22 +1312,30 @@ function updateJobButtons(job,name,building,support){
 		elem.children[3].children[0].disabled = (population[job] <  10); // - 10
 		elem.children[4].children[0].disabled = (population[job] <   1); // -  1
 
-		if ((job == 'soldiers' && metal.total >= 10 && leather.total >= 10 && population.unemployed >= 1 && population[job] + 1 <= building.total * support) || (job == 'cavalry' && food.total >= 20 && leather.total >= 20 && population.unemployed >= 1 && population[job] + 1 <= building.total * support) || (job != 'soldiers' && job != 'cavalry' && population.unemployed >= 1 && population[job] + 1 <= building.total * support)){ //1
+		if ((job == 'soldiers' && metal.total >= 10 && leather.total >= 10 && population.unemployed >= 1 && population[job] + 1 <= building.total * support) 
+			|| (job == 'cavalry' && food.total >= 20 && leather.total >= 20 && population.unemployed >= 1 && population[job] + 1 <= building.total * support) 
+			|| (job != 'soldiers' && job != 'cavalry' && population.unemployed >= 1 && population[job] + 1 <= building.total * support)){ //1
 			elem.children[7].children[0].disabled = false;
 		} else {
 			elem.children[7].children[0].disabled = true;
 		}
-		if ((job == 'soldiers' && metal.total >= 100 && leather.total >= 100 && population.unemployed >= 10 && population[job] + 10 <= building.total * support) || (job == 'cavalry' && food.total >= 200 && leather.total >= 200 && population.unemployed >= 10 && population[job] + 10 <= building.total * support) || (job != 'soldiers' && job != 'cavalry' && population.unemployed >= 10 && population[job] + 10 <= building.total * support)){ //10
+		if ((job == 'soldiers' && metal.total >= 100 && leather.total >= 100 && population.unemployed >= 10 && population[job] + 10 <= building.total * support) 
+			|| (job == 'cavalry' && food.total >= 200 && leather.total >= 200 && population.unemployed >= 10 && population[job] + 10 <= building.total * support) 
+			|| (job != 'soldiers' && job != 'cavalry' && population.unemployed >= 10 && population[job] + 10 <= building.total * support)){ //10
 			elem.children[8].children[0].disabled = false;
 		} else {
 			elem.children[8].children[0].disabled = true;
 		}
-		if ((job == 'soldiers' && metal.total >= 1000 && leather.total >= 1000 && population.unemployed >= 100 && population[job] + 100 <= building.total * support) || (job == 'cavalry' && food.total >= 2000 && leather.total >= 2000 && population.unemployed >= 100 && population[job] + 100 <= building.total * support) || (job != 'soldiers' && job != 'cavalry' && population.unemployed >= 100 && population[job] + 100 <= building.total * support)){ //100
+		if ((job == 'soldiers' && metal.total >= 1000 && leather.total >= 1000 && population.unemployed >= 100 && population[job] + 100 <= building.total * support) 
+			|| (job == 'cavalry' && food.total >= 2000 && leather.total >= 2000 && population.unemployed >= 100 && population[job] + 100 <= building.total * support) 
+			|| (job != 'soldiers' && job != 'cavalry' && population.unemployed >= 100 && population[job] + 100 <= building.total * support)){ //100
 			elem.children[9].children[0].disabled = false;
 		} else {
 			elem.children[9].children[0].disabled = true;
 		}
-		if ((job == 'soldiers' && metal.total >= 10 && leather.total >= 10 && population.unemployed >= 1 && population[job] + 1 <= building.total * support) || (job == 'cavalry' && food.total >= 20 && leather.total >= 20 && population.unemployed >= 1 && population[job] + 1 <= building.total * support) || (job != 'soldiers' && job != 'cavalry' && population.unemployed >= 1 && population[job] + 1 <= building.total * support)){ //Max
+		if ((job == 'soldiers' && metal.total >= 10 && leather.total >= 10 && population.unemployed >= 1 && population[job] + 1 <= building.total * support) 
+			|| (job == 'cavalry' && food.total >= 20 && leather.total >= 20 && population.unemployed >= 1 && population[job] + 1 <= building.total * support) 
+			|| (job != 'soldiers' && job != 'cavalry' && population.unemployed >= 1 && population[job] + 1 <= building.total * support)){ //Max
 			elem.children[11].children[0].disabled = false;
 		} else {
 			elem.children[11].children[0].disabled = true;
@@ -2441,7 +2215,8 @@ function updateRequirements(buildingObj){
 	if (buildingObj == fortification){
 		buildingObj.require.stone = 100 * (buildingObj.total + 1) * Math.pow(1.05,buildingObj.total);
 	}
-	document.getElementById(buildingObj.id + 'Cost').innerHTML = getReqText(buildingObj);
+	var displayNode = document.getElementById(buildingObj.id + 'Cost');
+	if (displayNode) { displayNode.innerHTML = getReqText(buildingObj); }
 }
 
 function updateAchievements(){
@@ -2547,14 +2322,13 @@ function updatePartyButtons(){
 function updateTargets(){
 	var i;
 	var raidButtons = document.getElementsByClassName('raid');
+	var haveArmy = ((population.soldiersParty + population.cavalryParty) > 0);
 	var curElem = null;
 	for(i=0;i<raidButtons.length;++i)
 	{
+		// Disable if we have no army, or they are too big a target.
 		curElem = raidButtons[i];
-		if (civSizes[curElem.dataset.civtype] <= civSizes[targetMax]) 
-		{
-			curElem.disabled = false;
-		}
+		curElem.disabled = ((!haveArmy) || (civSizes[curElem.dataset.civtype] > civSizes[targetMax]));
 	}
 }
 
@@ -3896,6 +3670,7 @@ function party(member,number){
 	updateResourceTotals(); //updates the food/second
 	updateParty(); //updates the army display
 	updatePartyButtons(); //updates the buttons
+	updateTargets();
 	updateJobs(); //updates the general pool
 }
 
@@ -4180,6 +3955,8 @@ function save(savetype){
 	//Create objects and populate them with the variables, these will be stored in cookies
 	//Each individual cookie stores only ~4000 characters, therefore split currently across two cookies
 	//Save files now also stored in localStorage, cookies relegated to backup
+
+
 	var saveVar = {
 		food:food,
 		wood:wood,
@@ -4191,6 +3968,7 @@ function save(savetype){
 		metal:metal,
 		piety:piety,
 		gold:gold,
+		corpses:corpses,
 		population:population,
 		efficiency:efficiency,
 		upgrades:upgrades,
@@ -4233,6 +4011,11 @@ function save(savetype){
 		resourceClicks:resourceClicks,
 		worksafe:worksafe
 	};
+
+	// BACKWARD COMPATIBILITY SECTION //////////////////
+	saveVar.population.corpses = saveVar.corpses.total; // v1.1.13 change
+	////////////////////////////////////////////////////
+
 	//Create the cookies
 	bake_cookie('civ',saveVar);
 	bake_cookie('civ2',saveVar2);
@@ -4309,683 +4092,342 @@ function deleteSave(){
 
 function renameCiv(){
 	//Prompts player, uses result as new civName
-	var n = prompt('Please name your civilisation',civName);
-	if (n !== null){
-		civName = n;
-		document.getElementById('civName').innerHTML = civName;
-	}
+	civName = prompt('Please name your civilisation',civName);
+	if (!civName) { civName = "Woodstock"; }
+	document.getElementById('civName').innerHTML = civName;
 }
 function renameRuler(){
 	//Prompts player, uses result as rulerName
-	var n = prompt('What is your name?',rulerName);
-	if (n !== null){
-		rulerName = n;
-		document.getElementById('rulerName').innerHTML = rulerName;
-	}
+	rulerName = prompt('What is your name?',rulerName);
+	if (!rulerName) { rulerName = "Orteil"; }
+	document.getElementById('rulerName').innerHTML = rulerName;
 }
 function renameDeity(){
 	//Prompts player, uses result as deity.name - called when first getting a deity
-	var n = prompt('Who do your people worship?',deity.name);
-	if (n !== null){
-		deity.name = n;
-		updateDeity();
-	}
+	deity.name = prompt('Who do your people worship?',deity.name);
+	if (!deity.name) { deity.name = rulerName; } // Hey, despots tend to have big egos.
+	updateDeity();
 }
 
 function reset(){
 	//Resets the game, keeping some values but resetting most back to their initial values.
-	var really = confirm('Really reset? You will keep past deities and wonders (and cats)'); //Check player really wanted to do that.
-	if (really){
-		if (upgrades.deity == 1){
-			if (oldDeities){
-				//Relegates current deity to the oldDeities table.
-				if (deity.type){
-					deity.type = ', deity of ' + deity.type;
-				}
-				var append = oldDeities;
-				//Sets oldDeities value
-				oldDeities = '<tr id="deity' + deity.seniority + '"><td><strong><span id="deity' + deity.seniority + 'Name">' + deity.name + '</span></strong><span id="deity' + deity.seniority + 'Type" class="deityType">' + deity.type + '</span></td><td>Devotion: <span id="devotion' + deity.seniority + '">' + deity.devotion + '</span></td><td class="removeDeity"><button class="removeDeity" onclick="removeDeity(deity' + deity.seniority + ')">X</button></td></tr>' + append;
-				//document.getElementById('activeDeity').innerHTML = '<tr id="deity' + (deity.seniority + 1) + '"><td><strong><span id="deity' + (deity.seniority + 1) + 'Name">No deity</span></strong><span id="deity' + (deity.seniority + 1) + 'Type" class="deityType"></span></td><td>Devotion: <span id="devotion' + (deity.seniority + 1) + '">0</span></td><td class="removeDeity"><button class="removeDeity" onclick="removeDeity(deity' + (deity.seniority + 1) + ')">X</button></td></tr>';
-			} else {
-				deityArray.push([deity.seniority,deity.name,deity.type,deity.devotion]);
+	var msg = 'Really reset? You will keep past deities and wonders (and cats)'; //Check player really wanted to do that.
+	if (!confirm(msg)) { return false; } // declined
+
+	if (upgrades.deity == 1){
+		if (oldDeities){
+			//Relegates current deity to the oldDeities table.
+			if (deity.type){
+				deity.type = ', deity of ' + deity.type;
 			}
-			document.getElementById('activeDeity').innerHTML = '<tr id="deity' + (deity.seniority + 1) + '"><td><strong><span id="deity' + (deity.seniority + 1) + 'Name">No deity</span></strong><span id="deity' + (deity.seniority + 1) + 'Type" class="deityType"></span></td><td>Devotion: <span id="devotion' + (deity.seniority + 1) + '">0</span></td><td class="removeDeity"><button class="removeDeity" onclick="removeDeity(deity' + (deity.seniority + 1) + ')">X</button></td></tr>';
-			deity.seniority += 1;
-			document.getElementById('deitySpecialisation').style.display = 'none';
+			var append = oldDeities;
+			//Sets oldDeities value
+			oldDeities = '<tr id="deity' + deity.seniority + '"><td><strong><span id="deity' + deity.seniority + 'Name">' + deity.name + '</span></strong><span id="deity' + deity.seniority + 'Type" class="deityType">' + deity.type + '</span></td><td>Devotion: <span id="devotion' + deity.seniority + '">' + deity.devotion + '</span></td><td class="removeDeity"><button class="removeDeity" onclick="removeDeity(deity' + deity.seniority + ')">X</button></td></tr>' + append;
+			//document.getElementById('activeDeity').innerHTML = '<tr id="deity' + (deity.seniority + 1) + '"><td><strong><span id="deity' + (deity.seniority + 1) + 'Name">No deity</span></strong><span id="deity' + (deity.seniority + 1) + 'Type" class="deityType"></span></td><td>Devotion: <span id="devotion' + (deity.seniority + 1) + '">0</span></td><td class="removeDeity"><button class="removeDeity" onclick="removeDeity(deity' + (deity.seniority + 1) + ')">X</button></td></tr>';
+		} else {
+			deityArray.push([deity.seniority,deity.name,deity.type,deity.devotion]);
 		}
-		
-		food = {
-			name:"food",
-			total:0,
-			net:0,
-			increment:1,
-			specialchance:0.1
-		};
-		wood = {
-			name:"wood",
-			total:0,
-			net:0,
-			increment:1,
-			specialchance:0.1
-		};
-		stone = {
-			name:"stone",
-			total:0,
-			net:0,
-			increment:1,
-			specialchance:0.1
-		};
-		skins = {
-			name:"skins",
-			total:0
-		};
-		herbs= {
-			name:"herbs",
-			total:0
-		};
-		ore = {
-			name:"ore",
-			total:0
-		};
-		leather = {
-			name:"leather",
-			total:0
-		};
-		metal = {
-			name:"metal",
-			total:0
-		};
-		piety = {
-			name:"piety",
-			total:0
-		};
-		gold = {
-			name:"gold",
-			total:0
-		};
-
-		land = 1000;
-		tent = {
-			total:0,
-			devotion:0,
-			require:{
-				food:0,
-				wood:2,
-				stone:0,
-				skins:2,
-				herbs:0,
-				ore:0,
-				leather:0,
-				metal:0,
-				piety:0,
-				corpses:0
-			}
-		};
-		whut = {
-			total:0,
-			devotion:0,
-			require:{
-				food:0,
-				wood:20,
-				stone:0,
-				skins:1,
-				herbs:0,
-				ore:0,
-				leather:0,
-				metal:0,
-				piety:0,
-				corpses:0
-			}
-		};
-		cottage = {
-			total:0,
-			devotion:0,
-			require:{
-				food:0,
-				wood:10,
-				stone:30,
-				skins:0,
-				herbs:0,
-				ore:0,
-				leather:0,
-				metal:0,
-				piety:0,
-				corpses:0
-			}
-		};
-		house = {
-			total:0,
-			devotion:0,
-			require:{
-				food:0,
-				wood:30,
-				stone:70,
-				skins:0,
-				herbs:0,
-				ore:0,
-				leather:0,
-				metal:0,
-				piety:0,
-				corpses:0
-			}
-		};
-		mansion = {
-			total:0,
-			devotion:0,
-			require:{
-				food:0,
-				wood:200,
-				stone:200,
-				skins:0,
-				herbs:0,
-				ore:0,
-				leather:20,
-				metal:0,
-				piety:0,
-				corpses:0
-			}
-		};
-		barn = {
-			total:0,
-			devotion:0,
-			require:{
-				food:0,
-				wood:100,
-				stone:0,
-				skins:0,
-				herbs:0,
-				ore:0,
-				leather:0,
-				metal:0,
-				piety:0,
-				corpses:0
-			}
-		};
-		woodstock = {
-			total:0,
-			devotion:0,
-			require:{
-				food:0,
-				wood:100,
-				stone:0,
-				skins:0,
-				herbs:0,
-				ore:0,
-				leather:0,
-				metal:0,
-				piety:0,
-				corpses:0
-			}
-		};
-		stonestock = {
-			total:0,
-			devotion:0,
-			require:{
-				food:0,
-				wood:100,
-				stone:0,
-				skins:0,
-				herbs:0,
-				ore:0,
-				leather:0,
-				metal:0,
-				piety:0,
-				corpses:0
-			}
-		};
-		tannery = {
-			total:0,
-			devotion:0,
-			require:{
-				food:0,
-				wood:30,
-				stone:70,
-				skins:2,
-				herbs:0,
-				ore:0,
-				leather:0,
-				metal:0,
-				piety:0,
-				corpses:0
-			}
-		};
-		smithy = {
-			total:0,
-			devotion:0,
-			require:{
-				food:0,
-				wood:30,
-				stone:70,
-				skins:0,
-				herbs:0,
-				ore:2,
-				leather:0,
-				metal:0,
-				piety:0,
-				corpses:0
-			}
-		};
-		apothecary = {
-			total:0,
-			devotion:0,
-			require:{
-				food:0,
-				wood:30,
-				stone:70,
-				skins:0,
-				herbs:2,
-				ore:0,
-				leather:0,
-				metal:0,
-				piety:0,
-				corpses:0
-			}
-		};
-		temple = {
-			total:0,
-			devotion:0,
-			require:{
-				food:0,
-				wood:30,
-				stone:120,
-				skins:0,
-				herbs:10,
-				ore:0,
-				leather:0,
-				metal:0,
-				piety:0,
-				corpses:0
-			}
-		};
-		barracks = {
-			total:0,
-			devotion:0,
-			require:{
-				food:20,
-				wood:60,
-				stone:120,
-				skins:0,
-				herbs:0,
-				ore:0,
-				leather:0,
-				metal:10,
-				piety:0,
-				corpses:0
-			}
-		};
-		stable = {
-			total:0,
-			devotion:0,
-			require:{
-				food:60,
-				wood:60,
-				stone:120,
-				skins:0,
-				herbs:0,
-				ore:0,
-				leather:10,
-				metal:0,
-				piety:0,
-				corpses:0
-			}
-		};
-		mill = {
-			total:0,
-			devotion:0,
-			require:{
-				food:0,
-				wood:100,
-				stone:100,
-				skins:0,
-				herbs:0,
-				ore:0,
-				leather:0,
-				metal:0,
-				piety:0,
-				corpses:0
-			}
-		};
-		graveyard = {
-			total:0,
-			devotion:0,
-			require:{
-				food:0,
-				wood:50,
-				stone:200,
-				skins:0,
-				herbs:50,
-				ore:0,
-				leather:0,
-				metal:0,
-				piety:0,
-				corpses:0
-			}
-		};
-		fortification = {
-			total:0,
-			devotion:0,
-			require:{
-				food:0,
-				wood:0,
-				stone:100,
-				skins:0,
-				herbs:0,
-				ore:0,
-				leather:0,
-				metal:0,
-				piety:0,
-				corpses:0
-			}
-		};
-		battleAltar = {
-			total:0,
-			devotion:1,
-			require:{
-				food:0,
-				wood:0,
-				stone:200,
-				skins:0,
-				herbs:0,
-				ore:0,
-				leather:0,
-				metal:50,
-				piety:200,
-				corpses:0
-			}
-		};
-		fieldsAltar = {
-			total:0,
-			devotion:1,
-			require:{
-				food:500,
-				wood:500,
-				stone:200,
-				skins:0,
-				herbs:0,
-				ore:0,
-				leather:0,
-				metal:0,
-				piety:200,
-				corpses:0
-			}
-		};
-		underworldAltar = {
-			total:0,
-			devotion:1,
-			require:{
-				food:0,
-				wood:0,
-				stone:200,
-				skins:0,
-				herbs:0,
-				ore:0,
-				leather:0,
-				metal:0,
-				piety:200,
-				corpses:1
-			}
-		};
-		catAltar = {
-			total:0,
-			devotion:1,
-			require:{
-				food:0,
-				wood:0,
-				stone:200,
-				skins:0,
-				herbs:100,
-				ore:0,
-				leather:0,
-				metal:0,
-				piety:200,
-				corpses:0
-			}
-		};
-		wonder = {
-			total:wonder.total,
-			food:wonder.food,
-			wood:wonder.wood,
-			stone:wonder.stone,
-			skins:wonder.skins,
-			herbs:wonder.herbs,
-			ore:wonder.ore,
-			leather:wonder.leather,
-			metal:wonder.metal,
-			piety:wonder.piety,
-			array:wonder.array,
-			name:'',
-			building:false,
-			completed:false,
-			progress:0
-		};
-
-		population = {
-			current:0,
-			cap:0,
-			cats:population.cats, //Cats always carry over
-			corpses:0,
-			graves:0,
-			zombies:0,
-			unemployed:0,
-			farmers:0,
-			woodcutters:0,
-			miners:0,
-			tanners:0,
-			blacksmiths:0,
-			apothecaries:0,
-			clerics:0,
-			labourers:0,
-			soldiers:0,
-			soldiersCas:0,
-			cavalry:0,
-			cavalryCas:0,
-			soldiersParty:0,
-			soldiersPartyCas:0,
-			cavalryParty:0,
-			cavalryPartyCas:0,
-			siege:0,
-			esoldiers:0,
-			esoldiersCas:0,
-			eforts:0,
-			healthy:0,
-			totalSick:0,
-			unemployedIll:0,
-			farmersIll:0,
-			woodcuttersIll:0,
-			minersIll:0,
-			tannersIll:0,
-			blacksmithsIll:0,
-			apothecariesIll:0,
-			clericsIll:0,
-			labourersIll:0,
-			soldiersIll:0,
-			soldiersCasIll:0,
-			cavalryIll:0,
-			cavalryCasIll:0,
-			wolves:0,
-			wolvesCas:0,
-			bandits:0,
-			banditsCas:0,
-			barbarians:0,
-			barbariansCas:0,
-			esiege:0,
-			enemiesSlain:0,
-			shades:0
-		};
-
-		efficiency = {
-			happiness:1,
-			farmers:0.2 + (0.1 * upgrades.blessing),
-			pestBonus:0,
-			woodcutters:0.5,
-			miners:0.2,
-			tanners:0.5,
-			blacksmiths:0.5,
-			apothecaries:0.1,
-			clerics:0.05,
-			soldiers:0.05,
-			cavalry:0.08
-		};
-
-		upgrades = {
-			domestication:0,
-			ploughshares:0,
-			irrigation:0,
-			skinning:0,
-			harvesting:0,
-			prospecting:0,
-			butchering:0,
-			gardening:0,
-			extraction:0,
-			croprotation:0,
-			selectivebreeding:0,
-			fertilisers:0,
-			masonry:0,
-			construction:0,
-			architecture:0,
-			wheel:0,
-			horseback:0,
-			tenements:0,
-			slums:0,
-			granaries:0,
-			palisade:0,
-			weaponry:0,
-			shields:0,
-			writing:0,
-			administration:0,
-			codeoflaws:0,
-			mathematics:0,
-			aesthetics:0,
-			civilservice:0,
-			feudalism:0,
-			guilds:0,
-			serfs:0,
-			nationalism:0,
-			standard:0,
-			currency:0,
-			commerce:0,
-			deity:0,
-			deityType:0,
-			//Pantheon upgrades are permanent across resets
-			lure:upgrades.lure,
-			companion:upgrades.companion,
-			comfort:upgrades.comfort,
-			blessing:upgrades.blessing,
-			waste:upgrades.waste,
-			stay:upgrades.stay,
-			riddle:upgrades.riddle,
-			throne:upgrades.throne,
-			lament:upgrades.lament,
-			book:upgrades.book,
-			feast:upgrades.feast,
-			secrets:upgrades.secrets
-		};
-		deity = {
-			name:"",
-			type:"",
-			devotion:0,
-			//Seniority is either the same or was incremented earlier in the reset process
-			seniority:deity.seniority,
-			//Deities remain in your pantheon
-			battle:deity.battle,
-			fields:deity.fields,
-			underworld:deity.underworld,
-			cats:deity.cats
-		};
-		raiding = {
-			raiding:false,
-			victory:false
-		};
-		attackCounter = 0;
-		resourceClicks = 0;
-		graceCost = 1000;
-		document.getElementById('graceCost').innerHTML = prettify(graceCost);
-		walkTotal = 0;
-		targetMax = 'thorp';
-		//Update page with all new values
-		updateResourceTotals();
-		updateUpgrades();
-		updateDeity();
-		updateOldDeities();
-		updateDevotion();
-		updateTargets();
-		updateParty();
-		updateWonder();
-		//Reset upgrades and other interface elements that might have been unlocked
-		document.getElementById('renameDeity').disabled = 'true';
-		document.getElementById('raiseDead').disabled = 'true';
-		document.getElementById('raiseDead100').disabled = 'true';
-		document.getElementById('raiseDeadMax').disabled = 'true';
-		document.getElementById('smiteInvaders').disabled = 'true';
-		document.getElementById('wickerman').disabled = 'true';
-		document.getElementById('pestControl').disabled = 'true';
-		document.getElementById('grace').disabled = 'true';
-		document.getElementById('walk').disabled = 'true';
-		document.getElementById('ceaseWalk').disabled = 'true';
-		document.getElementById('lure').disabled = 'true';
-		document.getElementById('companion').disabled = 'true';
-		document.getElementById('comfort').disabled = 'true';
-		document.getElementById('book').disabled = 'true';
-		document.getElementById('feast').disabled = 'true';
-		document.getElementById('blessing').disabled = 'true';
-		document.getElementById('waste').disabled = 'true';
-		document.getElementById('riddle').disabled = 'true';
-		document.getElementById('throne').disabled = 'true';
-		document.getElementById('glory').disabled = 'true';
-		document.getElementById('shade').disabled = 'true';
-		document.getElementById('battleUpgrades').style.display = 'none';
-		document.getElementById('fieldsUpgrades').style.display = 'none';
-		document.getElementById('underworldUpgrades').style.display = 'none';
-		document.getElementById('catsUpgrades').style.display = 'none';
-		document.getElementById('constructionLine').style.display = 'none';
-		document.getElementById('architectureLine').style.display = 'none';
-		document.getElementById('tenementsLine').style.display = 'none';
-		document.getElementById('slumsLine').style.display = 'none';
-		document.getElementById('granariesLine').style.display = 'none';
-		document.getElementById('palisadeLine').style.display = 'none';
-		document.getElementById('writingTech').style.display = 'none';
-		document.getElementById('civilserviceLine').style.display = 'none';
-		document.getElementById('civilTech').style.display = 'none';
-		document.getElementById('specFreq').style.display = 'none';
-		document.getElementById('cottageRow').style.display = 'none';
-		document.getElementById('houseRow').style.display = 'none';
-		document.getElementById('mansionRow').style.display = 'none';
-		document.getElementById('tanneryRow').style.display = 'none';
-		document.getElementById('smithyRow').style.display = 'none';
-		document.getElementById('apothecaryRow').style.display = 'none';
-		document.getElementById('templeRow').style.display = 'none';
-		document.getElementById('barracksRow').style.display = 'none';
-		document.getElementById('stableRow').style.display = 'none';
-		document.getElementById('millRow').style.display = 'none';
-		document.getElementById('fortificationRow').style.display = 'none';
-		document.getElementById('tannergroup').style.display = 'none';
-		document.getElementById('blacksmithgroup').style.display = 'none';
-		document.getElementById('apothecarygroup').style.display = 'none';
-		document.getElementById('clericgroup').style.display = 'none';
-		document.getElementById('soldiergroup').style.display = 'none';
-		document.getElementById('cavalrygroup').style.display = 'none';
-		document.getElementById('conquest').style.display = 'none';
-		document.getElementById('basicFarming').style.display = 'none';
-		document.getElementById('specialFarming').style.display = 'none';
-		document.getElementById('improvedFarming').style.display = 'none';
-		document.getElementById('masonryTech').style.display = 'none';
-		//xxx Will this really reset the altars properly?
-		document.getElementById('battleAltarCost').innerHTML = battleAltar.require.metal;
-		document.getElementById('fieldsAltarFoodCost').innerHTML = fieldsAltar.require.food;
-		document.getElementById('fieldsAltarWoodCost').innerHTML = fieldsAltar.require.wood;
-		document.getElementById('underworldAltarCost').innerHTML = underworldAltar.require.corpses;
-		document.getElementById('catAltarCost').innerHTML = catAltar.require.herbs;
-
-		document.getElementById('tradeContainer').style.display = 'none';
-		document.getElementById('tradeUpgradeContainer').style.display = 'none';
-		updateRequirements(fortification);
-		updateRequirements(mill);
-		document.getElementById('startWonder').disabled = false;
-		document.getElementById('wonderLine').style.display = 'none';
-		document.getElementById('iconoclasmList').innerHTML = '';
-		document.getElementById('iconoclasm').disabled = false;
-        gameLog('Game Reset'); //Inform player.
+		document.getElementById('activeDeity').innerHTML = '<tr id="deity' + (deity.seniority + 1) + '"><td><strong><span id="deity' + (deity.seniority + 1) + 'Name">No deity</span></strong><span id="deity' + (deity.seniority + 1) + 'Type" class="deityType"></span></td><td>Devotion: <span id="devotion' + (deity.seniority + 1) + '">0</span></td><td class="removeDeity"><button class="removeDeity" onclick="removeDeity(deity' + (deity.seniority + 1) + ')">X</button></td></tr>';
+		deity.seniority += 1;
+		document.getElementById('deitySpecialisation').style.display = 'none';
 	}
+		
+	food = mergeObj(food, {
+		total:0,
+		net:0,
+		increment:1,
+		specialchance:0.1
+	});
+	wood = mergeObj(wood, {
+		total:0,
+		net:0,
+		increment:1,
+		specialchance:0.1
+	});
+	stone = mergeObj(stone, {
+		total:0,
+		net:0,
+		increment:1,
+		specialchance:0.1
+	});
+	skins.total = 0;
+	herbs.total = 0;
+	ore.total = 0;
+	leather.total = 0;
+	metal.total = 0;
+	piety.total = 0;
+	gold.total = 0;
+	corpses.total = 0;
+
+	land = 1000;
+	tent.total = 0;
+	whut.total = 0;
+	cottage.total = 0;
+	house.total = 0;
+	mansion.total = 0;
+	barn.total = 0;
+	woodstock.total = 0;
+	stonestock.total = 0;
+	tannery.total = 0;
+	smithy.total = 0;
+	apothecary.total = 0;
+	temple.total = 0;
+	barracks.total = 0;
+	apothecary.total = 0;
+	stable.total = 0;
+	graveyard.total = 0;
+	mill.total = 0;
+	updateRequirements(mill);
+	fortification.total = 0;
+	updateRequirements(fortification);
+	battleAltar.total = 0;
+	updateRequirements(battleAltar);
+	fieldsAltar.total = 0;
+	updateRequirements(fieldsAltar);
+	underworldAltar.total = 0;
+	updateRequirements(underworldAltar);
+	catAltar.total = 0;
+	updateRequirements(catAltar);
+
+	wonder = {
+		total:wonder.total,
+		food:wonder.food,
+		wood:wonder.wood,
+		stone:wonder.stone,
+		skins:wonder.skins,
+		herbs:wonder.herbs,
+		ore:wonder.ore,
+		leather:wonder.leather,
+		metal:wonder.metal,
+		piety:wonder.piety,
+		array:wonder.array,
+		name:'',
+		building:false,
+		completed:false,
+		progress:0
+	};
+
+	population = {
+		current:0,
+		cap:0,
+		cats:population.cats, //Cats always carry over
+		corpses:0,
+		graves:0,
+		zombies:0,
+		unemployed:0,
+		farmers:0,
+		woodcutters:0,
+		miners:0,
+		tanners:0,
+		blacksmiths:0,
+		apothecaries:0,
+		clerics:0,
+		labourers:0,
+		soldiers:0,
+		soldiersCas:0,
+		cavalry:0,
+		cavalryCas:0,
+		soldiersParty:0,
+		soldiersPartyCas:0,
+		cavalryParty:0,
+		cavalryPartyCas:0,
+		siege:0,
+		esoldiers:0,
+		esoldiersCas:0,
+		eforts:0,
+		healthy:0,
+		totalSick:0,
+		unemployedIll:0,
+		farmersIll:0,
+		woodcuttersIll:0,
+		minersIll:0,
+		tannersIll:0,
+		blacksmithsIll:0,
+		apothecariesIll:0,
+		clericsIll:0,
+		labourersIll:0,
+		soldiersIll:0,
+		soldiersCasIll:0,
+		cavalryIll:0,
+		cavalryCasIll:0,
+		wolves:0,
+		wolvesCas:0,
+		bandits:0,
+		banditsCas:0,
+		barbarians:0,
+		barbariansCas:0,
+		esiege:0,
+		enemiesSlain:0,
+		shades:0
+	};
+
+	efficiency = {
+		happiness:1,
+		farmers:0.2 + (0.1 * upgrades.blessing),
+		pestBonus:0,
+		woodcutters:0.5,
+		miners:0.2,
+		tanners:0.5,
+		blacksmiths:0.5,
+		apothecaries:0.1,
+		clerics:0.05,
+		soldiers:0.05,
+		cavalry:0.08
+	};
+
+	upgrades = {
+		domestication:0,
+		ploughshares:0,
+		irrigation:0,
+		skinning:0,
+		harvesting:0,
+		prospecting:0,
+		butchering:0,
+		gardening:0,
+		extraction:0,
+		croprotation:0,
+		selectivebreeding:0,
+		fertilisers:0,
+		masonry:0,
+		construction:0,
+		architecture:0,
+		wheel:0,
+		horseback:0,
+		tenements:0,
+		slums:0,
+		granaries:0,
+		palisade:0,
+		weaponry:0,
+		shields:0,
+		writing:0,
+		administration:0,
+		codeoflaws:0,
+		mathematics:0,
+		aesthetics:0,
+		civilservice:0,
+		feudalism:0,
+		guilds:0,
+		serfs:0,
+		nationalism:0,
+		standard:0,
+		currency:0,
+		commerce:0,
+		deity:0,
+		deityType:0,
+		//Pantheon upgrades are permanent across resets
+		lure:upgrades.lure,
+		companion:upgrades.companion,
+		comfort:upgrades.comfort,
+		blessing:upgrades.blessing,
+		waste:upgrades.waste,
+		stay:upgrades.stay,
+		riddle:upgrades.riddle,
+		throne:upgrades.throne,
+		lament:upgrades.lament,
+		book:upgrades.book,
+		feast:upgrades.feast,
+		secrets:upgrades.secrets
+	};
+	deity = {
+		name:"",
+		type:"",
+		devotion:0,
+		//Seniority is either the same or was incremented earlier in the reset process
+		seniority:deity.seniority,
+		//Deities remain in your pantheon
+		battle:deity.battle,
+		fields:deity.fields,
+		underworld:deity.underworld,
+		cats:deity.cats
+	};
+	raiding = {
+		raiding:false,
+		victory:false
+	};
+	attackCounter = 0;
+	resourceClicks = 0;
+	graceCost = 1000;
+	document.getElementById('graceCost').innerHTML = prettify(graceCost);
+	walkTotal = 0;
+	targetMax = 'thorp';
+	//Update page with all new values
+	updateResourceTotals();
+	updateUpgrades();
+	updateDeity();
+	updateOldDeities();
+	updateDevotion();
+	updateTargets();
+	updateParty();
+	updateWonder();
+	//Reset upgrades and other interface elements that might have been unlocked
+	document.getElementById('renameDeity').disabled = 'true';
+	document.getElementById('raiseDead').disabled = 'true';
+	document.getElementById('raiseDead100').disabled = 'true';
+	document.getElementById('raiseDeadMax').disabled = 'true';
+	document.getElementById('smiteInvaders').disabled = 'true';
+	document.getElementById('wickerman').disabled = 'true';
+	document.getElementById('pestControl').disabled = 'true';
+	document.getElementById('grace').disabled = 'true';
+	document.getElementById('walk').disabled = 'true';
+	document.getElementById('ceaseWalk').disabled = 'true';
+	document.getElementById('lure').disabled = 'true';
+	document.getElementById('companion').disabled = 'true';
+	document.getElementById('comfort').disabled = 'true';
+	document.getElementById('book').disabled = 'true';
+	document.getElementById('feast').disabled = 'true';
+	document.getElementById('blessing').disabled = 'true';
+	document.getElementById('waste').disabled = 'true';
+	document.getElementById('riddle').disabled = 'true';
+	document.getElementById('throne').disabled = 'true';
+	document.getElementById('glory').disabled = 'true';
+	document.getElementById('shade').disabled = 'true';
+	document.getElementById('battleUpgrades').style.display = 'none';
+	document.getElementById('fieldsUpgrades').style.display = 'none';
+	document.getElementById('underworldUpgrades').style.display = 'none';
+	document.getElementById('catsUpgrades').style.display = 'none';
+	document.getElementById('constructionLine').style.display = 'none';
+	document.getElementById('architectureLine').style.display = 'none';
+	document.getElementById('tenementsLine').style.display = 'none';
+	document.getElementById('slumsLine').style.display = 'none';
+	document.getElementById('granariesLine').style.display = 'none';
+	document.getElementById('palisadeLine').style.display = 'none';
+	document.getElementById('writingTech').style.display = 'none';
+	document.getElementById('civilserviceLine').style.display = 'none';
+	document.getElementById('civilTech').style.display = 'none';
+	document.getElementById('specFreq').style.display = 'none';
+	document.getElementById('cottageRow').style.display = 'none';
+	document.getElementById('houseRow').style.display = 'none';
+	document.getElementById('mansionRow').style.display = 'none';
+	document.getElementById('tanneryRow').style.display = 'none';
+	document.getElementById('smithyRow').style.display = 'none';
+	document.getElementById('apothecaryRow').style.display = 'none';
+	document.getElementById('templeRow').style.display = 'none';
+	document.getElementById('barracksRow').style.display = 'none';
+	document.getElementById('stableRow').style.display = 'none';
+	document.getElementById('millRow').style.display = 'none';
+	document.getElementById('fortificationRow').style.display = 'none';
+	document.getElementById('tannergroup').style.display = 'none';
+	document.getElementById('blacksmithgroup').style.display = 'none';
+	document.getElementById('apothecarygroup').style.display = 'none';
+	document.getElementById('clericgroup').style.display = 'none';
+	document.getElementById('soldiergroup').style.display = 'none';
+	document.getElementById('cavalrygroup').style.display = 'none';
+	document.getElementById('conquest').style.display = 'none';
+	document.getElementById('basicFarming').style.display = 'none';
+	document.getElementById('specialFarming').style.display = 'none';
+	document.getElementById('improvedFarming').style.display = 'none';
+	document.getElementById('masonryTech').style.display = 'none';
+
+	document.getElementById('tradeContainer').style.display = 'none';
+	document.getElementById('tradeUpgradeContainer').style.display = 'none';
+	document.getElementById('startWonder').disabled = false;
+	document.getElementById('wonderLine').style.display = 'none';
+	document.getElementById('iconoclasmList').innerHTML = '';
+	document.getElementById('iconoclasm').disabled = false;
+	gameLog('Game Reset'); //Inform player.
+
+	renameCiv();
+	renameRuler();
 }
 
 /* Timed functions */
@@ -6332,6 +5774,7 @@ window.setInterval(function(){
 	updateBuildingButtons();
 	updateJobs();
 	updatePartyButtons();
+	updateTargets();
 	updateSpawnButtons();
 	updateReset();
 	
@@ -6662,6 +6105,7 @@ function ruinFun(){
 	leather.total += 1000000;
 	metal.total += 1000000;
 	piety.total += 1000000;
+	gold.total += 10000;
 	updatePopulation();
 	updateUpgrades();
 	updateResourceTotals();

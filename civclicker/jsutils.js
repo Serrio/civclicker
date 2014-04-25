@@ -117,3 +117,28 @@ function logSearchFn(func, limitY)
     return minX;
 }
 
+// Recursively merge the properties of one object into another.
+// Similar (though not identical) to jQuery.extend()
+function mergeObj(o1, o2) 
+{
+	var i;
+
+	if (o2 === undefined) { return o1; }
+
+	// If either one is a non-object, just clobber o1.
+	if ((typeof(o2) != 'object') || (o1 === null) ||
+		(typeof(o1) != 'object') || (o2 === null))
+	{
+		o1 = o2;
+		return o1;
+	}
+
+	// Both are non-null objects.  Copy o2's properties to o1.
+	for (i in o2) { if (o2.hasOwnProperty(i)) 
+	{
+		o1[i] = mergeObj(o1[i], o2[i]);
+	}}
+
+	return o1;
+}
+
