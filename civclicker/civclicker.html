@@ -123,11 +123,11 @@
 	</div>
 	<div id="panesSelectors">
 		<div id="selectors">
-			<div id="selectBuildings" class="paneSelector selected" onclick="paneSelect('buildings')">Buildings</div>
-			<div id="selectUpgrades" class="paneSelector" onclick="paneSelect('upgrades')">Upgrades</div>
-			<div id="selectDeity" class="paneSelector" onclick="paneSelect('deity')">Deity</div>
-			<div id="selectConquest" class="paneSelector" onclick="paneSelect('conquest')">Conquest</div>
-			<div id="selectTrade" class="paneSelector" onclick="paneSelect('trade')">Trade</div>
+			<div id="buildingsSelect" class="paneSelector selected" onclick="paneSelect('buildings')">Buildings</div>
+			<div id="upgradesSelect" class="paneSelector" onclick="paneSelect('upgrades')">Upgrades</div>
+			<div id="deitySelect" class="paneSelector" onclick="paneSelect('deity')">Deity</div>
+			<div id="conquestSelect" class="paneSelector" onclick="paneSelect('conquest')">Conquest</div>
+			<div id="tradeSelect" class="paneSelector" onclick="paneSelect('trade')">Trade</div>
 			<div style="clear:both;"></div>
 		</div>
 		
@@ -411,33 +411,33 @@
 					<td><span class="note"></span></td>
 				</tr>
 				<tr id="fsoldiergroup">
-					<td class="jobNone"><button onmousedown="party('soldiers','leaveAll');">-All</button></td>
-					<td class="jobCustom"><button onmousedown="partyCustom('soldiers',-1);">-Custom</button></td>
-					<td class="job100"><button onmousedown="party('soldiers',-100);">-100</button></td>
-					<td class="job10"><button onmousedown="party('soldiers',-10);">-10</button></td>
-					<td><button onmousedown="party('soldiers',-1);">&lt;</button></td>
+					<td class="jobNone"><button onmousedown="party('soldiersParty',-Infinity);">-All</button></td>
+					<td class="jobCustom"><button onmousedown="party('soldiersParty','negcustom');">-Custom</button></td>
+					<td class="job100"><button onmousedown="party('soldiersParty',-100);">-100</button></td>
+					<td class="job10"><button onmousedown="party('soldiersParty',-10);">-10</button></td>
+					<td><button onmousedown="party('soldiersParty',-1);">&lt;</button></td>
 					<td class="job">Soldiers: </td>
-					<td class="number"><span id="partySoldiers">0</span></td>
-					<td><button onmousedown="party('soldiers',1);">&gt;</button></td>
-					<td class="job10"><button onmousedown="party('soldiers',10);">+10</button></td>
-					<td class="job100"><button onmousedown="party('soldiers',100);">+100</button></td>
-					<td class="jobCustom"><button onmousedown="partyCustom('soldiers',+1);">+Custom</button></td>
-					<td class="jobAll"><button onmousedown="party('soldiers','takeAll');">All</button></td>
+					<td class="number"><span id="soldiersParty">0</span></td>
+					<td><button onmousedown="party('soldiersParty',1);">&gt;</button></td>
+					<td class="job10"><button onmousedown="party('soldiersParty',10);">+10</button></td>
+					<td class="job100"><button onmousedown="party('soldiersParty',100);">+100</button></td>
+					<td class="jobCustom"><button onmousedown="party('soldiersParty','custom');">+Custom</button></td>
+					<td class="jobAll"><button onmousedown="party('soldiersParty',Infinity);">All</button></td>
 					<td><span class="note"></span></td>
 				</tr>
 				<tr id="fcavalrygroup">
-					<td class="jobNone"><button onmousedown="party('cavalry','leaveAll');">-All</button></td>
-					<td class="jobCustom"><button onmousedown="partyCustom('cavalry',-1);">-Custom</button></td>
-					<td class="job100"><button onmousedown="party('cavalry',-100);">-100</button></td>
-					<td class="job10"><button onmousedown="party('cavalry',-10);">-10</button></td>
-					<td><button onmousedown="party('cavalry',-1);">&lt;</button></td>
-					<td class="job"><span id="ecavName">Cavalry</span>: </td>
-					<td class="number"><span id="partyCavalry">0</span></td>
-					<td><button onmousedown="party('cavalry',1);">&gt;</button></td>
-					<td class="job10"><button onmousedown="party('cavalry',10);">+10</button></td>
-					<td class="job100"><button onmousedown="party('cavalry',100);">+100</button></td>
-					<td class="jobCustom"><button onmousedown="partyCustom('cavalry',+1);">+Custom</button></td>
-					<td class="jobAll"><button onmousedown="party('cavalry','takeAll');">All</button></td>
+					<td class="jobNone"><button onmousedown="party('cavalryParty',-Infinity);">-All</button></td>
+					<td class="jobCustom"><button onmousedown="party('cavalryParty','negcustom');">-Custom</button></td>
+					<td class="job100"><button onmousedown="party('cavalryParty',-100);">-100</button></td>
+					<td class="job10"><button onmousedown="party('cavalryParty',-10);">-10</button></td>
+					<td><button onmousedown="party('cavalryParty',-1);">&lt;</button></td>
+					<td class="job">Cavalry: </td>
+					<td class="number"><span id="cavalryParty">0</span></td>
+					<td><button onmousedown="party('cavalryParty',1);">&gt;</button></td>
+					<td class="job10"><button onmousedown="party('cavalryParty',10);">+10</button></td>
+					<td class="job100"><button onmousedown="party('cavalryParty',100);">+100</button></td>
+					<td class="jobCustom"><button onmousedown="party('cavalryParty','custom');">+Custom</button></td>
+					<td class="jobAll"><button onmousedown="party('cavalryParty',Infinity);">All</button></td>
 					<td><span class="note"></span></td>
 				</tr>
 				<tr id="fsiegegroup">
@@ -447,11 +447,11 @@
 					<td class="job10"></td>
 					<td></td>
 					<td class="job">Siege Engines: </td>
-					<td class="number"><span id="partySiege">0</span></td>
-					<td><button onmousedown="party('siege',1);">&gt;</button></td>
-					<td class="job10"><button onmousedown="party('siege',10);">+10</button></td>
-					<td class="job100"><button onmousedown="party('siege',100);">+100</button></td>
-					<td class="jobCustom"><button onmousedown="partyCustom('siege',+1);">+Custom</button></td>
+					<td class="number"><span id="siegeParty">0</span></td>
+					<td><button onmousedown="party('siegeParty',1);">&gt;</button></td>
+					<td class="job10"><button onmousedown="party('siegeParty',10);">+10</button></td>
+					<td class="job100"><button onmousedown="party('siegeParty',100);">+100</button></td>
+					<td class="jobCustom"><button onmousedown="party('siegeParty','custom');">+Custom</button></td>
 					<td></td>
 					<td><span class="cost">50 metal, 50 leather, 200 wood</span></td>
 				</tr>

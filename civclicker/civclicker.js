@@ -2265,56 +2265,48 @@ function updateAchievements(){
 
 function updateParty(){
 	//updates the party (and enemies)
-	document.getElementById('partySoldiers').innerHTML = prettify(population.soldiersParty);
-	document.getElementById('partyCavalry').innerHTML = prettify(population.cavalryParty);
-	document.getElementById('partySiege').innerHTML = prettify(population.siege);
+	document.getElementById('soldiersParty').innerHTML = prettify(population.soldiersParty);
+	document.getElementById('cavalryParty').innerHTML = prettify(population.cavalryParty);
+	document.getElementById('siegeParty').innerHTML = prettify(population.siege);
 	document.getElementById('esoldiers').innerHTML = prettify(population.esoldiers);
 	document.getElementById('eforts').innerHTML = prettify(population.eforts);
-	if (population.esoldiers > 0){
-		document.getElementById('esoldiergroup').style.display = 'table-row';
-	} else {
-		document.getElementById('esoldiergroup').style.display = 'none';
-	}
-	if (population.eforts > 0){
-		document.getElementById('efortgroup').style.display = 'table-row';
-	} else {
-		document.getElementById('efortgroup').style.display = 'none';
-	}
+	document.getElementById('esoldiergroup').style.display = (population.esoldiers > 0) ? 'table-row' : 'none';
+	document.getElementById('efortgroup').style.display = (population.eforts > 0) ? 'table-row' : 'none';
 }
 
 function updatePartyButtons(){
 	var fsolgroup, fcavgroup, fsgegroup;
-	if (!upgrades.standard) { return; }
+	var pacifist = !upgrades.standard;
 
 	fsolgroup = document.getElementById('fsoldiergroup');
-	fsolgroup.children[ 0].children[0].disabled = (population.soldiersParty <   1); // None
-	fsolgroup.children[ 2].children[0].disabled = (population.soldiersParty < 100); // -100
-	fsolgroup.children[ 3].children[0].disabled = (population.soldiersParty <  10); // - 10
-	fsolgroup.children[ 4].children[0].disabled = (population.soldiersParty <   1); // -  1
-	fsolgroup.children[ 7].children[0].disabled = (population.soldiers      <   1); //    1
-	fsolgroup.children[ 8].children[0].disabled = (population.soldiers      <  10); //   10
-	fsolgroup.children[ 9].children[0].disabled = (population.soldiers      < 100); //  100
-	fsolgroup.children[11].children[0].disabled = (population.soldiers      <   1); //  Max
+	fsolgroup.children[ 0].children[0].disabled = pacifist || (population.soldiersParty <   1); // None
+	fsolgroup.children[ 2].children[0].disabled = pacifist || (population.soldiersParty < 100); // -100
+	fsolgroup.children[ 3].children[0].disabled = pacifist || (population.soldiersParty <  10); // - 10
+	fsolgroup.children[ 4].children[0].disabled = pacifist || (population.soldiersParty <   1); // -  1
+	fsolgroup.children[ 7].children[0].disabled = pacifist || (population.soldiers      <   1); //    1
+	fsolgroup.children[ 8].children[0].disabled = pacifist || (population.soldiers      <  10); //   10
+	fsolgroup.children[ 9].children[0].disabled = pacifist || (population.soldiers      < 100); //  100
+	fsolgroup.children[11].children[0].disabled = pacifist || (population.soldiers      <   1); //  Max
 
 	fcavgroup = document.getElementById('fcavalrygroup');
-	fcavgroup.children[ 0].children[0].disabled = (population.cavalryParty <   1); // None
-	fcavgroup.children[ 2].children[0].disabled = (population.cavalryParty < 100); // -100
-	fcavgroup.children[ 3].children[0].disabled = (population.cavalryParty <  10); // - 10
-	fcavgroup.children[ 4].children[0].disabled = (population.cavalryParty <   1); // -  1
-	fcavgroup.children[ 7].children[0].disabled = (population.cavalry      <   1); //    1
-	fcavgroup.children[ 8].children[0].disabled = (population.cavalry      <  10); //   10
-	fcavgroup.children[ 9].children[0].disabled = (population.cavalry      < 100); //  100
-	fcavgroup.children[11].children[0].disabled = (population.cavalry      <   1); //  Max
+	fcavgroup.children[ 0].children[0].disabled = pacifist || (population.cavalryParty <   1); // None
+	fcavgroup.children[ 2].children[0].disabled = pacifist || (population.cavalryParty < 100); // -100
+	fcavgroup.children[ 3].children[0].disabled = pacifist || (population.cavalryParty <  10); // - 10
+	fcavgroup.children[ 4].children[0].disabled = pacifist || (population.cavalryParty <   1); // -  1
+	fcavgroup.children[ 7].children[0].disabled = pacifist || (population.cavalry      <   1); //    1
+	fcavgroup.children[ 8].children[0].disabled = pacifist || (population.cavalry      <  10); //   10
+	fcavgroup.children[ 9].children[0].disabled = pacifist || (population.cavalry      < 100); //  100
+	fcavgroup.children[11].children[0].disabled = pacifist || (population.cavalry      <   1); //  Max
 
 	fsgegroup = document.getElementById('fsiegegroup');
-	fsgegroup.children[ 7].children[0].disabled = 
+	fsgegroup.children[ 7].children[0].disabled = pacifist ||  
 		(metal.total <   50 || leather.total <   50 || wood.total <   200); //   1
-	fsgegroup.children[ 8].children[0].disabled = 
+	fsgegroup.children[ 8].children[0].disabled = pacifist ||  
 		(metal.total <  500 || leather.total <  500 || wood.total <  2000); //  10
-	fsgegroup.children[ 9].children[0].disabled = 
+	fsgegroup.children[ 9].children[0].disabled = pacifist ||  
 		(metal.total < 5000 || leather.total < 5000 || wood.total < 20000); // 100
 	// Siege max disabled; too easy to overspend.
-	// fsgegroup.children[11].children[0].disabled = 
+	// fsgegroup.children[11].children[0].disabled = pacifist ||  
 	//	(metal.total <   50 || leather.total <   50 || wood.total <   200); // Max
 }
 
@@ -2323,7 +2315,7 @@ function updateTargets(){
 	var i;
 	var raidButtons = document.getElementsByClassName('raid');
 	var haveArmy = ((population.soldiersParty + population.cavalryParty) > 0);
-	var curElem = null;
+	var curElem;
 	for(i=0;i<raidButtons.length;++i)
 	{
 		// Disable if we have no army, or they are too big a target.
@@ -2621,6 +2613,7 @@ function getCustomNumber(elemId){
 function getCustomBuildNumber() { return getCustomNumber('buildCustom'); }
 function getCustomSpawnNumber() { return getCustomNumber('spawnCustom'); }
 function getCustomJobNumber()   { return getCustomNumber('jobCustom'  ); }
+function getCustomArmyNumber()  { return getCustomNumber('armyCustom' ); }
 
 //builds a custom number of buildings
 function buildCustom(building) { createBuilding(building,getCustomBuildNumber()); }
@@ -3575,94 +3568,38 @@ function smite(){
 
 /* War Functions */
 
-function party(member,number){
-	//Adds or removes soldiers from army
-	if (member == "soldiers"){
-		if (number == 'leaveAll'){
-			//add all army soldiers back to general pool
-			if (population.soldiersParty > 0){
-				population.soldiers += population.soldiersParty;
-				population.soldiersCas += population.soldiersPartyCas;
-				population.soldiersParty = 0;
-				population.soldiersPartyCas = 0;
-			}
-		} else if (number == 'takeAll'){
-			//adds all soldiers in general pool to army
-			if (population.soldiers > 0){
-				population.soldiersParty += population.soldiers;
-				population.soldiersPartyCas += population.soldiersCas;
-				population.soldiers = 0;
-				population.soldiersCas = 0;
-			}
-		} else {
-			//add specific number (can be negative)
-			if (number < 0 && population.soldiersParty >= (number * -1)){ //checks that there are sufficient soldiers to remove from army
-				population.soldiersParty += number;
-				population.soldiersPartyCas += number;
-				population.soldiers -= number;
-				population.soldiersCas -= number;
-			} else if (number > 0 && population.soldiers >= number){ // checks that there are sufficient soldiers to remove from pool
-				population.soldiersParty += number;
-				population.soldiersPartyCas += number;
-				population.soldiers -= number;
-				population.soldiersCas -= number;
-			} else {
-				gameLog('Insufficient Soldiers');
-			}
-		}
+//Adds or removes soldiers from army
+function party(job,num){
+	if (num == 'custom') { num = getCustomArmyNumber(); }
+	if (num == 'negcustom') { num = -getCustomArmyNumber(); }
+
+	if (job == "soldiersParty"){
+		// checks that there are sufficient soldiers to remove from pool
+		num = Math.min(num, population.soldiers);
+		// checks that there are sufficient soldiers to remove from army
+		num = Math.max(num, -population.soldiersParty);
+		population.soldiersParty += num;
+		population.soldiersPartyCas += num;
+		population.soldiers -= num;
+		population.soldiersCas -= num;
 	}
-	if (member == "cavalry"){
-		if (number == 'leaveAll'){
-			//add all army cavalry back to general pool
-			if (population.cavalryParty > 0){
-				population.cavalry += population.cavalryParty;
-				population.cavalryCas += population.cavalryPartyCas;
-				population.cavalryParty = 0;
-				population.cavalryPartyCas = 0;
-			}
-		} else if (number == 'takeAll'){
-			//adds all cavalry in general pool to army
-			if (population.cavalry > 0){
-				population.cavalryParty += population.cavalry;
-				population.cavalryPartyCas += population.cavalryCas;
-				population.cavalry = 0;
-				population.cavalryCas = 0;
-			}
-		} else {
-			//add specific number (can be negative)
-			if (number < 0 && population.cavalryParty >= (number * -1)){
-				population.cavalryParty += number;
-				population.cavalryPartyCas += number;
-				population.cavalry -= number;
-				population.cavalryCas -= number;
-			} else if (number > 0 && population.cavalry >= number){
-				population.cavalryParty += number;
-				population.cavalryPartyCas += number;
-				population.cavalry -= number;
-				population.cavalryCas -= number;
-			} else {
-				var cName = 'Cavalry';
-				if (upgrades.chivalry) { cName = 'Knights'; }
-				gameLog('Insufficient ' + cName);
-			}
-		}
+	if (job == "cavalryParty"){
+		// checks that there are sufficient cavalry to remove from pool
+		num = Math.min(num, population.cavalry);
+		// checks that there are sufficient cavalry to remove from army
+		num = Math.max(num, -population.soldiersParty);
+		population.cavalryParty += num;
+		population.cavalryPartyCas += num;
+		population.cavalry -= num;
+		population.cavalryCas -= num;
 	}
-	if (member == 'siege'){
-		if (number == 'max'){
-			var built = Math.min(Math.floor(wood.total/200),Math.floor(metal.total/50),Math.floor(leather.total/50));
-			population.siege += built;
-			wood.total -= 200 * built;
-			metal.total -= 50 * built;
-			leather.total -= 50 * built;
-		} else if (wood.total >= 200 * number && metal.total >= 50 * number && leather.total >= 50 * number){
-			population.siege += number;
-			wood.total -= 200 * number;
-			metal.total -= 50 * number;
-			leather.total -= 50 * number;
-		} else {
-			gameLog("Could not build, insufficient resources.");
-		}
-		if (!achievements.engineer){
+	if (job == 'siegeParty'){
+		num = Math.min(num,Math.floor(wood.total/200),Math.floor(metal.total/50),Math.floor(leather.total/50));
+		population.siege += num;
+		wood.total -= 200 * num;
+		metal.total -= 50 * num;
+		leather.total -= 50 * num;
+		if ((num > 0) && !achievements.engineer){
 			achievements.engineer = 1;
 			updateAchievements();
 		}
@@ -3672,28 +3609,6 @@ function party(member,number){
 	updatePartyButtons(); //updates the buttons
 	updateTargets();
 	updateJobs(); //updates the general pool
-}
-
-function partyCustom(member,multiplier){
-	//calls the party function with the custom number from the input
-	var custom = document.getElementById('armyCustom').value;
-	//Here we must coerce the variable type to be a number for browsers such
-	//as Firefox, which don't understand the number type for input elements.
-	//If this fails, it should return NaN so we can exclude that later.
-	custom = custom - 0;
-	//then we make sure it's an integer and at least 0
-	custom = Math.floor(custom);
-	if (custom < 1) { custom = NaN; }
-	//Now we multiply it by the multiplier (so it will either add or remove)
-	custom = custom * multiplier;
-	//finally, check the above operations haven't returned NaN
-	if (!isNaN(custom)){
-		party(member,custom);
-		document.getElementById('armyCustom').value = custom * multiplier; //reset fractional numbers, check nothing odd happened (needs to be reinverted if the multiplier was negative)
-		document.getElementById('armyCustom').style.background = "#fff";
-	} else {
-		document.getElementById('armyCustom').style.background = "#f99"; //notify user that the input failed
-	}
 }
 
 function invade(ecivtype){
@@ -5788,67 +5703,22 @@ window.setInterval(function(){
 /* UI functions */
 
 function paneSelect(name){
-	//Called when user switches between the various panes on the left hand side of the interface
-	if (name == 'buildings'){
-		document.getElementById("buildingsPane").style.display = "block";
-		document.getElementById("upgradesPane").style.display = "none";
-		document.getElementById("deityPane").style.display = "none";
-		document.getElementById("conquestPane").style.display = "none";
-		document.getElementById("tradePane").style.display = "none";
-		document.getElementById("selectBuildings").className = "paneSelector selected";
-		document.getElementById("selectUpgrades").className = "paneSelector";
-		document.getElementById("selectDeity").className = "paneSelector";
-		document.getElementById("selectConquest").className = "paneSelector";
-		document.getElementById("selectTrade").className = "paneSelector";
-	}
-	if (name == 'upgrades'){
-		document.getElementById("buildingsPane").style.display = "none";
-		document.getElementById("upgradesPane").style.display = "block";
-		document.getElementById("deityPane").style.display = "none";
-		document.getElementById("conquestPane").style.display = "none";
-		document.getElementById("tradePane").style.display = "none";
-		document.getElementById("selectBuildings").className = "paneSelector";
-		document.getElementById("selectUpgrades").className = "paneSelector selected";
-		document.getElementById("selectDeity").className = "paneSelector";
-		document.getElementById("selectConquest").className = "paneSelector";
-		document.getElementById("selectTrade").className = "paneSelector";
-	}
-	if (name == 'deity'){
-		document.getElementById("buildingsPane").style.display = "none";
-		document.getElementById("upgradesPane").style.display = "none";
-		document.getElementById("deityPane").style.display = "block";
-		document.getElementById("conquestPane").style.display = "none";
-		document.getElementById("tradePane").style.display = "none";
-		document.getElementById("selectBuildings").className = "paneSelector";
-		document.getElementById("selectUpgrades").className = "paneSelector";
-		document.getElementById("selectDeity").className = "paneSelector selected";
-		document.getElementById("selectConquest").className = "paneSelector";
-		document.getElementById("selectTrade").className = "paneSelector";
-	}
-	if (name == 'conquest'){
-		document.getElementById("buildingsPane").style.display = "none";
-		document.getElementById("upgradesPane").style.display = "none";
-		document.getElementById("deityPane").style.display = "none";
-		document.getElementById("conquestPane").style.display = "block";
-		document.getElementById("tradePane").style.display = "none";
-		document.getElementById("selectBuildings").className = "paneSelector";
-		document.getElementById("selectUpgrades").className = "paneSelector";
-		document.getElementById("selectDeity").className = "paneSelector";
-		document.getElementById("selectConquest").className = "paneSelector selected";
-		document.getElementById("selectTrade").className = "paneSelector";
-	}
-	if (name == 'trade'){
-		document.getElementById("buildingsPane").style.display = "none";
-		document.getElementById("upgradesPane").style.display = "none";
-		document.getElementById("deityPane").style.display = "none";
-		document.getElementById("conquestPane").style.display = "none";
-		document.getElementById("tradePane").style.display = "block";
-		document.getElementById("selectBuildings").className = "paneSelector";
-		document.getElementById("selectUpgrades").className = "paneSelector";
-		document.getElementById("selectDeity").className = "paneSelector";
-		document.getElementById("selectConquest").className = "paneSelector";
-		document.getElementById("selectTrade").className = "paneSelector selected";
-	}
+	// Called when user switches between the various panes on the left hand side of the interface
+	// Turn them all off.
+	document.getElementById("buildingsPane").style.display = "none";
+	document.getElementById("upgradesPane").style.display = "none";
+	document.getElementById("deityPane").style.display = "none";
+	document.getElementById("conquestPane").style.display = "none";
+	document.getElementById("tradePane").style.display = "none";
+	document.getElementById("buildingsSelect").className = "paneSelector";
+	document.getElementById("upgradesSelect").className = "paneSelector";
+	document.getElementById("deitySelect").className = "paneSelector";
+	document.getElementById("conquestSelect").className = "paneSelector";
+	document.getElementById("tradeSelect").className = "paneSelector";
+
+	// Turn the desired ones back on.
+	document.getElementById(name + "Pane").style.display = "block";
+	document.getElementById(name + "Select").className = "paneSelector selected";
 }
 
 function toggleCustomIncrements(){
