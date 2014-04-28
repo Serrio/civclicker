@@ -1103,7 +1103,7 @@ function updateResourceTotals(){
 	if (gold.total > 0) { document.getElementById('tradeSelect').style.display = 'block'; } 
 
 	// Need to have enough resources to trade
-	document.getElementById('standard').disabled = (trader.time == 0) ||
+	document.getElementById('trade').disabled = (trader.time == 0) ||
 		(trader.material.total < trader.requested);
 
 	updatePopulation(); //updatePopulation() handles the population caps, which are determined by buildings.
