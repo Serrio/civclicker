@@ -2364,8 +2364,8 @@ function updateWonder(){
 			document.getElementById('speedWonderGroup').style.display = 'none';
 		} else {
 			document.getElementById('inProgress').style.display = 'block';
-			document.getElementById('progressBar').style.width = wonder.progress.toFixed(1) + '%';
-			document.getElementById('progressNumber').innerHTML = wonder.progress.toFixed(1);
+			document.getElementById('progressBar').style.width = wonder.progress.toFixed(2) + '%';
+			document.getElementById('progressNumber').innerHTML = wonder.progress.toFixed(2);
 			document.getElementById('completed').style.display = 'none';
 			document.getElementById('speedWonderGroup').style.display = 'block';
 		}
