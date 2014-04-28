@@ -20,7 +20,7 @@
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
-	<title>CivClicker (v1.1.14alpha)</title>
+	<title>CivClicker (v1.1.15alpha)</title>
 	<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 	<link rel="stylesheet" type="text/css" href="civclicker.css" />
 	<link rel="canonical" href="http://civclicker.sourceforge.net/civclicker/civclicker.html" />
@@ -516,7 +516,7 @@
 			<div id="tradeUpgradeContainer">
 				<span id="currencyLine"><button id="currency" onmousedown="upgrade('currency')" disabled>Currency<br />(10 gold, 1000 ore)</button><span class="note">Traders arrive more frequently, stay longer</span><br /></span>
 				<span id="commerceLine"><button id="commerce" onmousedown="upgrade('commerce')" disabled>Commerce<br />(100 gold, 10000 piety)</button><span class="note">Traders arrive more frequently, stay longer</span><br /></span>
-				<div id="speedWonderGroup"><br /><button id="speedWonder" onmousedown="speedWonder()">Speed Wonder<br />(100 Gold)</button><span class="note">Increase wonder progress</span></div>
+				<div id="speedWonderGroup"><br /><button id="speedWonder" onmousedown="speedWonder()">Speed Wonder<br />(100 gold)</button><span class="note">Increase wonder progress</span></div>
 				<h4>Buy Resources (1 gold)</h4>
 				<button class="tradeResource" onmousedown="buy(food)">Buy 5000 Food</button><br />
 				<button class="tradeResource" onmousedown="buy(wood)">Buy 5000 Wood</button><br />
@@ -544,13 +544,13 @@
 					<td>Maximum Population: </td>
 					<td class="number"><span id="popcap">0</span></td>
 				</tr>
-				<tr>
-					<td>Happiness: </td>
-					<td><span id="happiness">Content</span></td>
-				</tr>
 				<tr id="zombieWorkers">
 					<td>Zombies: </td>
 					<td class="number"><span id="popzombies">0</span></td>
+				</tr>
+				<tr>
+					<td>Happiness: </td>
+					<td><span id="happiness">Content</span></td>
 				</tr>
 			</table>
 			<br />
@@ -840,7 +840,7 @@
 		</table>
 	</div>
 	<div id="tradeContainer">
-		Trader wants <span id="tradeRequested">0</span> <span id="tradeType">food</span><br />
+		Trader offers 1 gold for <span id="tradeRequested">0</span> <span id="tradeType">food</span><br />
 		<button id="trade" onmousedown="trade()">Trade</button>
 	</div>
 	<div id="wondersContainer">
@@ -940,7 +940,7 @@
 		Total Land: <span id="totalLand">100</span><br />
 		Total Buildings: <span id="totalBuildings">0</span><br />
 		Enemies Slain: <span id="enemiesSlain">0</span><br />
-		Corpses: <span id="corpses">0</span><br />
+		Unburied Corpses: <span id="corpses">0</span><br />
 		<span id="gravesTotal">Unfilled Graves: <span id="graves">0</span><br /></span>
 		<span id="walkGroup"><br />Walk: <span id="walkStat">0</span> workers per second<br /></span>
 		<br />

@@ -171,6 +171,9 @@ button:disabled{
 	text-shadow: none;
 	cursor:pointer;
 }
+#deitySelect{ display: none; }
+#conquestSelect{ display: none; }
+#tradeSelect{ display: none; }
 .selected{
 	border-bottom:none;
 	background:none;

@@ -29,30 +29,18 @@ console.log('running');
 
 // Civ size category minimums
 var civSizes = [];
-civSizes.thorp       =  civSizes.length; 
-civSizes[civSizes.thorp      ] = { min_pop :      0, name : "Thorp"       , id : "thorp"      };
-civSizes.hamlet      =  civSizes.length; 
-civSizes[civSizes.hamlet     ] = { min_pop :     20, name : "Hamlet"      , id : "hamlet"     };
-civSizes.village     =  civSizes.length; 
-civSizes[civSizes.village    ] = { min_pop :     60, name : "Village"     , id : "village"    };
-civSizes.smallTown   =  civSizes.length; 
-civSizes[civSizes.smallTown  ] = { min_pop :    200, name : "Small Town"  , id : "smallTown"  };
-civSizes.largeTown   =  civSizes.length; 
-civSizes[civSizes.largeTown  ] = { min_pop :   2000, name : "Large Town"  , id : "largeTown"  };
-civSizes.smallCity   =  civSizes.length; 
-civSizes[civSizes.smallCity  ] = { min_pop :   5000, name : "Small City"  , id : "smallCity"  };
-civSizes.largeCity   =  civSizes.length; 
-civSizes[civSizes.largeCity  ] = { min_pop :  10000, name : "Large City"  , id : "largeCity"  };
-civSizes.metropolis  =  civSizes.length; 
-civSizes[civSizes.metropolis ] = { min_pop :  20000, name : "Metropolis"  , id : "metropolis" };
-civSizes.smallNation =  civSizes.length; 
-civSizes[civSizes.smallNation] = { min_pop :  50000, name : "Small Nation", id : "smallNation"};
-civSizes.nation      =  civSizes.length; 
-civSizes[civSizes.nation     ] = { min_pop : 100000, name : "Nation"      , id : "nation"     };
-civSizes.largeNation = civSizes.length; 
-civSizes[civSizes.largeNation] = { min_pop : 200000, name : "Large Nation", id : "largeNation"};
-civSizes.empire      = civSizes.length; 
-civSizes[civSizes.empire     ] = { min_pop : 500000, name : "Empire"      , id : "empire"     };
+civSizes.thorp       = civSizes.length; civSizes[civSizes.thorp      ] = { min_pop :      0, name : "Thorp"       , id : "thorp"      };
+civSizes.hamlet      = civSizes.length; civSizes[civSizes.hamlet     ] = { min_pop :     20, name : "Hamlet"      , id : "hamlet"     };
+civSizes.village     = civSizes.length; civSizes[civSizes.village    ] = { min_pop :     60, name : "Village"     , id : "village"    };
+civSizes.smallTown   = civSizes.length; civSizes[civSizes.smallTown  ] = { min_pop :    200, name : "Small Town"  , id : "smallTown"  };
+civSizes.largeTown   = civSizes.length; civSizes[civSizes.largeTown  ] = { min_pop :   2000, name : "Large Town"  , id : "largeTown"  };
+civSizes.smallCity   = civSizes.length; civSizes[civSizes.smallCity  ] = { min_pop :   5000, name : "Small City"  , id : "smallCity"  };
+civSizes.largeCity   = civSizes.length; civSizes[civSizes.largeCity  ] = { min_pop :  10000, name : "Large City"  , id : "largeCity"  };
+civSizes.metropolis  = civSizes.length; civSizes[civSizes.metropolis ] = { min_pop :  20000, name : "Metropolis"  , id : "metropolis" };
+civSizes.smallNation = civSizes.length; civSizes[civSizes.smallNation] = { min_pop :  50000, name : "Small Nation", id : "smallNation"};
+civSizes.nation      = civSizes.length; civSizes[civSizes.nation     ] = { min_pop : 100000, name : "Nation"      , id : "nation"     };
+civSizes.largeNation = civSizes.length; civSizes[civSizes.largeNation] = { min_pop : 200000, name : "Large Nation", id : "largeNation"};
+civSizes.empire      = civSizes.length; civSizes[civSizes.empire     ] = { min_pop : 500000, name : "Empire"      , id : "empire"     };
 
 civSizes.getCivSize = function(popcnt) {
     var i;
@@ -1098,13 +1086,26 @@ function updateResourceTotals(){
 	if (temple.total > 0) { document.getElementById('clericgroup').style.display = 'table-row'; }
 	if (barracks.total > 0) { document.getElementById('soldiergroup').style.display = 'table-row'; }
 	if (stable.total > 0) { document.getElementById('cavalrygroup').style.display = 'table-row'; }
+
 	//Unlock upgrades predicated on having certain buildings
-	if (temple.total > 0 && upgrades.deity != 1){ //At least one Temple is required to unlock Worship
-		document.getElementById('deity').disabled = false;
-	}
-	if (barracks.total > 0 && upgrades.standard != 1){ //At least one Barracks is required to unlock Standard
-		document.getElementById('standard').disabled = false;
-	}
+
+	//At least one Temple is required to unlock Worship (It never disables again once enabled)
+	if (temple.total > 0) { document.getElementById('deitySelect').style.display = 'block'; } 
+	document.getElementById('deity').disabled = upgrades.deity ||
+		(temple.total < 1) || (piety.total < 1000);
+
+	//At least one Barracks is required to unlock Standard (It never disables again once enabled)
+	if (barracks.total > 0) { document.getElementById('conquestSelect').style.display = 'block'; } 
+	document.getElementById('standard').disabled = upgrades.standard ||
+		(barracks.total < 1) || (leather.total < 1000) || (metal.total < 1000);
+
+	// Enable trade tab once we've got gold (It never disables again once enabled)
+	if (gold.total > 0) { document.getElementById('tradeSelect').style.display = 'block'; } 
+
+	// Need to have enough resources to trade
+	document.getElementById('standard').disabled = (trader.time == 0) ||
+		(trader.material.total < trader.requested);
+
 	updatePopulation(); //updatePopulation() handles the population caps, which are determined by buildings.
 }
 
@@ -2510,26 +2511,19 @@ function update(){
 // Game functions
 
 function increment(material){
+	var specialAmount, specialMaterial, activity;
 	//This function is called every time a player clicks on a primary resource button
 	resourceClicks += 1;
 	document.getElementById("clicks").innerHTML = prettify(Math.round(resourceClicks));
 	material.total = material.total + material.increment + (material.increment * 9 * upgrades.civilservice) + (material.increment * 40 * upgrades.feudalism) + (upgrades.serfs * Math.floor(Math.log(population.unemployed * 10 + 1))) + (upgrades.nationalism * Math.floor(Math.log((population.soldiers + population.cavalry) * 10 + 1)));
 	//Handles random collection of special resources.
-	var x = Math.random();
-	if (material == food){
-		if (x < material.specialchance){
-			skins.total = skins.total + food.increment + (upgrades.guilds * 9 * food.increment);
-		}
-	}
-	if (material == wood){
-		if (x < material.specialchance){
-			herbs.total = herbs.total + wood.increment + (upgrades.guilds * 9 * wood.increment);
-		}
-	}
-	if (material == stone){
-		if (x < material.specialchance){
-			ore.total = ore.total + stone.increment + (upgrades.guilds * 9 * stone.increment);
-		}
+	if (Math.random() < material.specialchance){
+		specialAmount = material.increment * (1 + (9 * upgrades.guilds));
+		if (material == food)  { specialMaterial = skins; activity = 'foraging'; }
+		if (material == wood)  { specialMaterial = herbs; activity = 'woodcutting'; }
+		if (material == stone) { specialMaterial = ore; activity = 'mining'; }
+		specialMaterial.total += specialAmount;
+		gameLog('Found ' + specialMaterial.name + ' while ' + activity);
 	}
 	//Checks to see that resources are not exceeding their caps
 	if (food.total > 200 + ((barn.total + (barn.total * upgrades.granaries)) * 200)){
@@ -2632,6 +2626,7 @@ function maybeSpawnCat()
 	//This is intentionally independent of the number of workers spawned
 	if (Math.random() * 100 >= 1 + upgrades.lure) { return 0; }
 
+	gameLog('Found a cat!');
 	++population.cats;
 	if (population.cats >= 1 && !achievements.cat){
 		gameLog('Achievement Unlocked: Cat!');
@@ -2658,7 +2653,7 @@ function spawn(num){
 	num = Math.max(num, -population.unemployed);  // Cap firing by # in that job.
 	num = Math.min(num,logSearchFn(calcWorkerCost,food.total));
 
-	// Apply population cap
+	// Apply population cap, and only allow whole workers.
 	num = Math.min(num, (population.cap - population.current));
 
 	// Update numbers and resource levels
@@ -4510,7 +4505,8 @@ window.setInterval(function(){
 		casualties,
 		casFloor;
 	var leaving;
-	var num,stolen;
+	var stealable=[food,wood,stone,skins,herbs,ore,leather,metal];
+	var num,stolenQty;
 	var target;
 
 	//Handling wolf attacks (this is complicated)
@@ -4590,35 +4586,17 @@ window.setInterval(function(){
 				if (population.wolvesCas < 0) { population.wolvesCas = 0; }
 				console.log('Wolves ate a ' + target);
                 gameLog('Wolves ate a ' + target);
-				if (target == "unemployed"){
-					population.current -= 1;
-					population.unemployed -= 1;
-				} else if (target == "farmer"){
-					population.current -= 1;
-					population.farmers -= 1;
-				} else if (target == "woodcutter"){
-					population.current -= 1;
-					population.woodcutters -= 1;
-				} else if (target == "miner"){
-					population.current -= 1;
-					population.miners -= 1;
-				} else if (target == "tanner"){
-					population.current -= 1;
-					population.tanners -= 1;
-				} else if (target == "blacksmith"){
-					population.current -= 1;
-					population.blacksmiths -= 1;
-				} else if (target == "apothecary"){
-					population.current -= 1;
-					population.apothecaries -= 1;
-				} else if (target == "cleric"){
-					population.current -= 1;
-					population.clerics -= 1;
-				} else if (target == "labourer"){
-					population.current -= 1;
-					population.labourers -= 1;
-				} else if (target == "soldier"){
-					population.current -= 1;
+				population.current -= 1;
+				if      (target == "unemployed") { population.unemployed -= 1; } 
+				else if (target == "farmer")     { population.farmers -= 1; } 
+				else if (target == "woodcutter") { population.woodcutters -= 1; } 
+				else if (target == "miner")      { population.miners -= 1; } 
+				else if (target == "tanner")     { population.tanners -= 1; } 
+				else if (target == "blacksmith") { population.blacksmiths -= 1; } 
+				else if (target == "apothecary") { population.apothecaries -= 1; } 
+				else if (target == "cleric")     { population.clerics -= 1; } 
+				else if (target == "labourer")   { population.labourers -= 1; } 
+				else if (target == "soldier"){
 					population.soldiers -= 1;
 					population.soldiersCas -= 1;
 					if (population.soldiersCas < 0){
@@ -4626,7 +4604,6 @@ window.setInterval(function(){
 						population.soldiersCas = 0;
 					}
 				} else if (target == "cavalry"){
-					population.current -= 1;
 					population.cavalry -= 1;
 					population.cavalryCas -= 1;
 					if (population.cavalryCas < 0){
@@ -4710,104 +4687,17 @@ window.setInterval(function(){
 			updatePopulation();
 		} else {
 			//Bandits will steal resources. Select random resource, steal random amount of it.
-			num = Math.random();
-			stolen = Math.floor((Math.random() * 1000)); //Steal up to 1000.
-			if (num < 1/8){
-				if (food.total > 0) { gameLog('Bandits stole food'); }
-				if (food.total >= stolen){
-					food.total -= stolen;
-				} else {
-					food.total = 0;
-					//some will leave
-					leaving = Math.ceil(population.bandits * Math.random() * (1/8));
-					population.bandits -= leaving;
-					population.banditsCas -= leaving;
-					updateMobs();
-				}
-			} else if (num < 2/8){
-				if (wood.total > 0) { gameLog('Bandits stole wood'); }
-				if (wood.total >= stolen){
-					wood.total -= stolen;
-				} else {
-					wood.total = 0;
-					//some will leave
-					leaving = Math.ceil(population.bandits * Math.random() * (1/8));
-					population.bandits -= leaving;
-					population.banditsCas -= leaving;
-					updateMobs();
-				}
-			} else if (num < 3/8){
-				if (stone.total > 0) { gameLog('Bandits stole stone'); }
-				if (stone.total >= stolen){
-					stone.total -= stolen;
-				} else {
-					stone.total = 0;
-					//some will leave
-					leaving = Math.ceil(population.bandits * Math.random() * (1/8));
-					population.bandits -= leaving;
-					population.banditsCas -= leaving;
-					updateMobs();
-				}
-			} else if (num < 4/8){
-				if (skins.total > 0) { gameLog('Bandits stole skins'); }
-				if (skins.total >= stolen){
-					skins.total -= stolen;
-				} else {
-					skins.total = 0;
-					//some will leave
-					leaving = Math.ceil(population.bandits * Math.random() * (1/8));
-					population.bandits -= leaving;
-					population.banditsCas -= leaving;
-					updateMobs();
-				}
-			} else if (num < 5/8){
-				if (herbs.total > 0) { gameLog('Bandits stole herbs'); }
-				if (herbs.total >= stolen){
-					herbs.total -= stolen;
-				} else {
-					herbs.total = 0;
-					//some will leave
-					leaving = Math.ceil(population.bandits * Math.random() * (1/8));
-					population.bandits -= leaving;
-					population.banditsCas -= leaving;
-					updateMobs();
-				}
-			} else if (num < 6/8){
-				if (ore.total > 0) { gameLog('Bandits stole ore'); }
-				if (ore.total >= stolen){
-					ore.total -= stolen;
-				} else {
-					ore.total = 0;
-					//some will leave
-					leaving = Math.ceil(population.bandits * Math.random() * (1/8));
-					population.bandits -= leaving;
-					population.banditsCas -= leaving;
-					updateMobs();
-				}
-			} else if (num < 7/8){
-				if (leather.total > 0) { gameLog('Bandits stole leather'); }
-				if (leather.total >= stolen){
-					leather.total -= stolen;
-				} else {
-					leather.total = 0;
-					//some will leave
-					leaving = Math.ceil(population.bandits * Math.random() * (1/8));
-					population.bandits -= leaving;
-					population.banditsCas -= leaving;
-					updateMobs();
-				}
-			} else {
-				if (metal.total > 0) { gameLog('Bandits stole metal'); }
-				if (metal.total >= stolen){
-					metal.total -= stolen;
-				} else {
-					metal.total = 0;
-					//some will leave
-					leaving = Math.ceil(population.bandits * Math.random() * (1/8));
-					population.bandits -= leaving;
-					population.banditsCas -= leaving;
-					updateMobs();
-				}
+			target = stealable[Math.floor(Math.random() * stealable.length)];
+			stolenQty = Math.floor((Math.random() * 1000)); //Steal up to 1000.
+			stolenQty = Math.min(stolenQty,target.total);
+			if (stolenQty > 0) { gameLog('Bandits stole ' + stolenQty + ' ' + target.name); }
+			target.total -= stolenQty;
+			if (target.total <= 0) {
+				//some will leave
+				leaving = Math.ceil(population.bandits * Math.random() * (1/8));
+				population.bandits -= leaving;
+				population.banditsCas -= leaving;
+				updateMobs();
 			}
 			population.bandits -= 1; //Bandits leave after stealing something.
 			population.banditsCas -= 1;
@@ -4892,35 +4782,18 @@ window.setInterval(function(){
 					if (population.barbariansCas < 0) { population.barbariansCas = 0; }
 					console.log('Barbarians killed a ' + target);
 					gameLog('Barbarians killed a ' + target);
-					if (target == "unemployed"){
-						population.current -= 1;
-						population.unemployed -= 1;
-					} else if (target == "farmer"){
-						population.current -= 1;
-						population.farmers -= 1;
-					} else if (target == "woodcutter"){
-						population.current -= 1;
-						population.woodcutters -= 1;
-					} else if (target == "miner"){
-						population.current -= 1;
-						population.miners -= 1;
-					} else if (target == "tanner"){
-						population.current -= 1;
-						population.tanners -= 1;
-					} else if (target == "blacksmith"){
-						population.current -= 1;
-						population.blacksmiths -= 1;
-					} else if (target == "apothecary"){
-						population.current -= 1;
-						population.apothecaries -= 1;
-					} else if (target == "cleric"){
-						population.current -= 1;
-						population.clerics -= 1;
-					} else if (target == "labourer"){
-						population.current -= 1;
-						population.labourers -= 1;
-					} else if (target == "soldier"){
-						population.current -= 1;
+
+					population.current -= 1;
+					if (target == "unemployed")      { population.unemployed -= 1; } 
+					else if (target == "farmer")     { population.farmers -= 1; } 
+					else if (target == "woodcutter") { population.woodcutters -= 1; } 
+					else if (target == "miner")      { population.miners -= 1; } 
+					else if (target == "tanner")     { population.tanners -= 1; } 
+					else if (target == "blacksmith") { population.blacksmiths -= 1; } 
+					else if (target == "apothecary") { population.apothecaries -= 1; } 
+					else if (target == "cleric")     { population.clerics -= 1; } 
+					else if (target == "labourer")   { population.labourers -= 1; } 
+					else if (target == "soldier"){
 						population.soldiers -= 1;
 						population.soldiersCas -= 1;
 						if (population.soldiersCas < 0){
@@ -4928,7 +4801,6 @@ window.setInterval(function(){
 							population.soldiersCas = 0;
 						}
 					} else if (target == "cavalry"){
-						population.current -= 1;
 						population.cavalry -= 1;
 						population.cavalryCas -= 1;
 						if (population.cavalryCas < 0){
@@ -4946,104 +4818,17 @@ window.setInterval(function(){
 				}
 			} else if (havoc < 0.6){
 				//Steal shit, see bandits
-				num = Math.random();
-				stolen = Math.floor((Math.random() * 1000)); //Steal up to 1000.
-				if (num < 1/8){
-					if (food.total > 0) { gameLog('Barbarians stole food'); }
-					if (food.total >= stolen){
-						food.total -= stolen;
-					} else {
-						food.total = 0;
-						//some will leave
-						leaving = Math.ceil(population.barbarians * Math.random() * (1/24));
-						population.barbarians -= leaving;
-						population.barbariansCas -= leaving;
-						updateMobs();
-					}
-				} else if (num < 2/8){
-					if (wood.total > 0) { gameLog('Barbarians stole wood'); }
-					if (wood.total >= stolen){
-						wood.total -= stolen;
-					} else {
-						wood.total = 0;
-						//some will leave
-						leaving = Math.ceil(population.barbarians * Math.random() * (1/24));
-						population.barbarians -= leaving;
-						population.barbariansCas -= leaving;
-						updateMobs();
-					}
-				} else if (num < 3/8){
-					if (stone.total > 0) { gameLog('Barbarians stole stone'); }
-					if (stone.total >= stolen){
-						stone.total -= stolen;
-					} else {
-						stone.total = 0;
-						//some will leave
-						leaving = Math.ceil(population.barbarians * Math.random() * (1/24));
-						population.barbarians -= leaving;
-						population.barbariansCas -= leaving;
-						updateMobs();
-					}
-				} else if (num < 4/8){
-					if (skins.total > 0) { gameLog('Barbarians stole skins'); }
-					if (skins.total >= stolen){
-						skins.total -= stolen;
-					} else {
-						skins.total = 0;
-						//some will leave
-						leaving = Math.ceil(population.barbarians * Math.random() * (1/24));
-						population.barbarians -= leaving;
-						population.barbariansCas -= leaving;
-						updateMobs();
-					}
-				} else if (num < 5/8){
-					if (herbs.total > 0) { gameLog('Barbarians stole herbs'); }
-					if (herbs.total >= stolen){
-						herbs.total -= stolen;
-					} else {
-						herbs.total = 0;
-						//some will leave
-						leaving = Math.ceil(population.barbarians * Math.random() * (1/24));
-						population.barbarians -= leaving;
-						population.barbariansCas -= leaving;
-						updateMobs();
-					}
-				} else if (num < 6/8){
-					if (ore.total > 0) { gameLog('Barbarians stole ore'); }
-					if (ore.total >= stolen){
-						ore.total -= stolen;
-					} else {
-						ore.total = 0;
-						//some will leave
-						leaving = Math.ceil(population.barbarians * Math.random() * (1/24));
-						population.barbarians -= leaving;
-						population.barbariansCas -= leaving;
-						updateMobs();
-					}
-				} else if (num < 7/8){
-					if (leather.total > 0) { gameLog('Barbarians stole leather'); }
-					if (leather.total >= stolen){
-						leather.total -= stolen;
-					} else {
-						leather.total = 0;
-						//some will leave
-						leaving = Math.ceil(population.barbarians * Math.random() * (1/24));
-						population.barbarians -= leaving;
-						population.barbariansCas -= leaving;
-						updateMobs();
-					}
-				} else {
-					if (metal.total > 0) { gameLog('Barbarians stole metal'); }
-					if (metal.total >= stolen){
-						metal.total -= stolen;
-					} else {
-						metal.total = 0;
-						//some will leave
-						leaving = Math.ceil(population.barbarians * Math.random() * (1/24));
-						population.barbarians -= leaving;
-						population.barbariansCas -= leaving;
-						updateMobs();
-					}
+				target = stealable[Math.floor(Math.random() * stealable.length)];
+				stolenQty = Math.floor((Math.random() * 1000)); //Steal up to 1000.
+				stolenQty = Math.min(stolenQty, target.total);
+				if (stolenQty > 0) { gameLog('Barbarians stole ' + stolenQty + ' ' + target.name); }
+				target.total -= stolenQty;
+				if (target.total <= 0){
+					//some will leave
+					leaving = Math.ceil(population.barbarians * Math.random() * (1/24));
+					population.barbarians -= leaving;
+					population.barbariansCas -= leaving;
+					updateMobs();
 				}
 				population.barbarians -= 1; //Barbarians leave after stealing something.
 				population.barbariansCas -= 1;
@@ -5053,183 +4838,35 @@ window.setInterval(function(){
 			} else {
 				//Destroy buildings
 				num = Math.random(); //Barbarians attempt to destroy random buildings (and leave if they do)
-				if (num < 1/16){
-					if (tent.total > 0){
-						tent.total -= 1;
-						gameLog('Barbarians destroyed a tent');
-					} else {
-						//some will leave
-						leaving = Math.ceil(population.barbarians * Math.random() * (1/112));
-						population.barbarians -= leaving;
-						population.barbariansCas -= leaving;
-						updateMobs();
-					}
-				} else if (num < 2/16){
-					if (whut.total > 0){
-						whut.total -= 1;
-						gameLog('Barbarians destroyed a wooden hut');
-					} else {
-						//some will leave
-						leaving = Math.ceil(population.barbarians * Math.random() * (1/112));
-						population.barbarians -= leaving;
-						population.barbariansCas -= leaving;
-						updateMobs();
-					}
-				} else if (num < 3/16){
-					if (cottage.total > 0){
-						cottage.total -= 1;
-						gameLog('Barbarians destroyed a cottage');
-					} else {
-						//some will leave
-						leaving = Math.ceil(population.barbarians * Math.random() * (1/112));
-						population.barbarians -= leaving;
-						population.barbariansCas -= leaving;
-						updateMobs();
-					}
-				} else if (num < 4/16){
-					if (house.total > 0){
-						house.total -= 1;
-						gameLog('Barbarians destroyed a house');
-					} else {
-						//some will leave
-						leaving = Math.ceil(population.barbarians * Math.random() * (1/112));
-						population.barbarians -= leaving;
-						population.barbariansCas -= leaving;
-						updateMobs();
-					}
-				} else if (num < 5/16){
-					if (mansion.total > 0){
-						mansion.total -= 1;
-						gameLog('Barbarians destroyed a mansion');
-					} else {
-						//some will leave
-						leaving = Math.ceil(population.barbarians * Math.random() * (1/112));
-						population.barbarians -= leaving;
-						population.barbariansCas -= leaving;
-						updateMobs();
-					}
-				} else if (num < 6/16){
-					if (barn.total > 0){
-						barn.total -= 1;
-						gameLog('Barbarians destroyed a barn');
-					} else {
-						//some will leave
-						leaving = Math.ceil(population.barbarians * Math.random() * (1/112));
-						population.barbarians -= leaving;
-						population.barbariansCas -= leaving;
-						updateMobs();
-					}
-				} else if (num < 7/16){
-					if (woodstock.total > 0){
-						woodstock.total -= 1;
-						gameLog('Barbarians destroyed a wood stockpile');
-					} else {
-						//some will leave
-						leaving = Math.ceil(population.barbarians * Math.random() * (1/112));
-						population.barbarians -= leaving;
-						population.barbariansCas -= leaving;
-						updateMobs();
-					}
-				} else if (num < 8/16){
-					if (stonestock.total > 0){
-						stonestock.total -= 1;
-						gameLog('Barbarians destroyed a stone stockpile');
-					} else {
-						//some will leave
-						leaving = Math.ceil(population.barbarians * Math.random() * (1/112));
-						population.barbarians -= leaving;
-						population.barbariansCas -= leaving;
-						updateMobs();
-					}
-				} else if (num < 9/16){
-					if (tannery.total > 0){
-						tannery.total -= 1;
-						gameLog('Barbarians destroyed a tannery');
-					} else {
-						//some will leave
-						leaving = Math.ceil(population.barbarians * Math.random() * (1/112));
-						population.barbarians -= leaving;
-						population.barbariansCas -= leaving;
-						updateMobs();
-					}
-				} else if (num < 10/16){
-					if (smithy.total > 0){
-						smithy.total -= 1;
-						gameLog('Barbarians destroyed a smithy');
-					} else {
-						//some will leave
-						leaving = Math.ceil(population.barbarians * Math.random() * (1/112));
-						population.barbarians -= leaving;
-						population.barbariansCas -= leaving;
-						updateMobs();
-					}
-				} else if (num < 11/16){
-					if (apothecary.total > 0){
-						apothecary.total -= 1;
-						gameLog('Barbarians destroyed an apothecary');
-					} else {
-						//some will leave
-						leaving = Math.ceil(population.barbarians * Math.random() * (1/112));
-						population.barbarians -= leaving;
-						population.barbariansCas -= leaving;
-						updateMobs();
-					}
-				} else if (num < 12/16){
-					if (temple.total > 0){
-						temple.total -= 1;
-						gameLog('Barbarians destroyed a temple');
-					} else {
-						//some will leave
-						leaving = Math.ceil(population.barbarians * Math.random() * (1/112));
-						population.barbarians -= leaving;
-						population.barbariansCas -= leaving;
-						updateMobs();
-					}
-				} else if (num < 13/16){
-					if (fortification.total > 0){
-						fortification.total -= 1;
-						gameLog('Barbarians damaged fortifications');
-					} else {
-						//some will leave
-						leaving = Math.ceil(population.barbarians * Math.random() * (1/112));
-						population.barbarians -= leaving;
-						population.barbariansCas -= leaving;
-						updateMobs();
-					}
-				} else if (num < 14/16){
-					if (stable.total > 0){
-						stable.total -= 1;
-						gameLog('Barbarians destroyed a stable');
-					} else {
-						//some will leave
-						leaving = Math.ceil(population.barbarians * Math.random() * (1/112));
-						population.barbarians -= leaving;
-						population.barbariansCas -= leaving;
-						updateMobs();
-					}
-				} else if (num < 15/16){
-					if (mill.total > 0){
-						mill.total -= 1;
-						gameLog('Barbarians destroyed a mill');
-					} else {
-						//some will leave
-						leaving = Math.ceil(population.barbarians * Math.random() * (1/112));
-						population.barbarians -= leaving;
-						population.barbariansCas -= leaving;
-						updateMobs();
-					}
+				var destroyPhrase = 'destroyed a';
+				if      (num <  1/16) { target = tent; } 
+				else if (num <  2/16) { target = whut; } 
+				else if (num <  3/16) { target = cottage; } 
+				else if (num <  4/16) { target = house; } 
+				else if (num <  5/16) { target = mansion; } 
+				else if (num <  6/16) { target = barn; } 
+				else if (num <  7/16) { target = woodstock; } 
+				else if (num <  8/16) { target = stonestock; } 
+				else if (num <  9/16) { target = tannery; } 
+				else if (num < 10/16) { target = smithy; } 
+				else if (num < 11/16) { target = apothecary; destroyPhrase = 'destroyed an'; } 
+				else if (num < 12/16) { target = temple; } 
+				else if (num < 13/16) { target = fortification; destroyPhrase = 'damaged'; } 
+				else if (num < 14/16) { target = stable; } 
+				else if (num < 15/16) { target = mill; } 
+				else                  { target = barracks; }
+
+				if (target.total > 0){
+					target.total -= 1;
+					gameLog('Barbarians ' + destroyPhrase + ' ' + target.name);
 				} else {
-					if (barracks.total > 0){
-						barracks.total -= 1;
-						gameLog('Barbarians destroyed a barracks');
-					} else {
-						//some will leave
-						leaving = Math.ceil(population.barbarians * Math.random() * (1/112));
-						population.barbarians -= leaving;
-						population.barbariansCas -= leaving;
-						updateMobs();
-					}
+					//some will leave
+					leaving = Math.ceil(population.barbarians * Math.random() * (1/112));
+					population.barbarians -= leaving;
+					population.barbariansCas -= leaving;
+					updateMobs();
 				}
+
 				population.barbarians -= 1;
 				population.barbariansCas -= 1;
 				if (population.barbarians < 0) { population.barbarians = 0; }
