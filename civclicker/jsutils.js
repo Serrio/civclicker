@@ -142,3 +142,35 @@ function mergeObj(o1, o2)
 	return o1;
 }
 
+
+// Wrapper to set an HTML element's visibility.
+// Pass true as the 2nd param to be visible, false to be hidden.
+// Compensates for IE's lack of support for the 'initial' property value.
+// May not support all HTML elements.
+function setElemDisplay(htmlElem,visible)
+{
+	var displayVal = (!visible) ? 'none' : 'initial';
+    if (visible)
+    {
+        // Note that HTML comes in upper case, XML in lower.
+        var tagName = htmlElem.tagName.toUpperCase();
+        switch(tagName)
+        {
+            case 'SPAN': displayVal = 'inline'; break;
+            case 'DIV': displayVal = 'block'; break;
+            case 'P': displayVal = 'block'; break;
+            case 'TABLE': displayVal = 'table'; break;
+            case 'CAPTION': displayVal = 'table-caption'; break;
+            case 'THEAD': displayVal = 'table-header-group'; break;
+            case 'TBODY': displayVal = 'table-row-group'; break;
+            case 'TFOOT': displayVal = 'table-footer-group'; break;
+            case 'TR': displayVal = 'table-row'; break;
+            case 'COL': displayVal = 'table-column'; break;
+            case 'TD': displayVal = 'table-cell'; break;
+            case 'LI': displayVal = 'list-item'; break;
+            default: console.log("Unsupported tag <"+tagName+"> passed to setElemDisplay()"); break;
+        }
+    }
+    htmlElem.style.display = displayVal;
+}
+

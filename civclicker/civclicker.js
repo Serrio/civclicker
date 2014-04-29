@@ -1065,7 +1065,7 @@ function updateResourceTotals(){
 	}
 
 	if (Math.round(gold.total) > 0){
-		document.getElementById('goldRow').style.display = 'table-row';
+		setElemDisplay(document.getElementById('goldRow'),true);
 		if (!upgrades.trade) { document.getElementById('tradeUpgrade').disabled = false; }
 	}
 
@@ -1080,27 +1080,27 @@ function updateResourceTotals(){
 	document.getElementById('totalLand').innerHTML = prettify(land);
 	document.getElementById('totalBuildings').innerHTML = prettify(Math.round(totalBuildings));
 	//Unlock jobs predicated on having certain buildings
-	if (smithy.total > 0) { document.getElementById('blacksmithgroup').style.display = 'table-row'; }
-	if (tannery.total > 0) { document.getElementById('tannergroup').style.display = 'table-row'; }
-	if (apothecary.total > 0) { document.getElementById('apothecarygroup').style.display = 'table-row'; }
-	if (temple.total > 0) { document.getElementById('clericgroup').style.display = 'table-row'; }
-	if (barracks.total > 0) { document.getElementById('soldiergroup').style.display = 'table-row'; }
-	if (stable.total > 0) { document.getElementById('cavalrygroup').style.display = 'table-row'; }
+	if (smithy.total > 0) { setElemDisplay(document.getElementById('blacksmithgroup'),true); }
+	if (tannery.total > 0) { setElemDisplay(document.getElementById('tannergroup'),true); }
+	if (apothecary.total > 0) { setElemDisplay(document.getElementById('apothecarygroup'),true); }
+	if (temple.total > 0) { setElemDisplay(document.getElementById('clericgroup'),true); }
+	if (barracks.total > 0) { setElemDisplay(document.getElementById('soldiergroup'),true); }
+	if (stable.total > 0) { setElemDisplay(document.getElementById('cavalrygroup'),true); }
 
 	//Unlock upgrades predicated on having certain buildings
 
 	//At least one Temple is required to unlock Worship (It never disables again once enabled)
-	if (temple.total > 0) { document.getElementById('deitySelect').style.display = 'block'; } 
+	if (temple.total > 0) { setElemDisplay(document.getElementById('deitySelect'),true); }
 	document.getElementById('deity').disabled = upgrades.deity ||
 		(temple.total < 1) || (piety.total < 1000);
 
 	//At least one Barracks is required to unlock Standard (It never disables again once enabled)
-	if (barracks.total > 0) { document.getElementById('conquestSelect').style.display = 'block'; } 
+	if (barracks.total > 0) { setElemDisplay(document.getElementById('conquestSelect'),true); }
 	document.getElementById('standard').disabled = upgrades.standard ||
 		(barracks.total < 1) || (leather.total < 1000) || (metal.total < 1000);
 
 	// Enable trade tab once we've got gold (It never disables again once enabled)
-	if (gold.total > 0) { document.getElementById('tradeSelect').style.display = 'block'; } 
+	if (gold.total > 0) { setElemDisplay(document.getElementById('tradeSelect'),true); }
 
 	// Need to have enough resources to trade
 	document.getElementById('trade').disabled = (trader.time == 0) ||
@@ -1116,7 +1116,7 @@ function updatePopulation(){
 	population.totalSick = population.farmersIll + population.woodcuttersIll + population.minersIll + population.tannersIll + population.blacksmithsIll + population.apothecariesIll + population.clericsIll + population.labourersIll + population.soldiersIll + population.cavalryIll + population.unemployedIll;
 	//Display or hide the sick row
 	if (population.totalSick > 0){
-		document.getElementById('sickGroup').style.display = 'table-row';
+		setElemDisplay(document.getElementById('sickGroup'),true);
 	}
 	//Calculate healthy workers
 	population.healthy = population.unemployed + population.farmers + population.woodcutters + population.miners + population.tanners + population.blacksmiths + population.apothecaries + population.clerics + population.soldiers + population.cavalry + population.labourers - population.zombies;
@@ -1139,7 +1139,7 @@ function updatePopulation(){
 	document.getElementById('popzombies').innerHTML = prettify(population.zombies);
 	document.getElementById('graves').innerHTML = prettify(population.graves);
 	document.getElementById('sickTotal').innerHTML = prettify(population.totalSick);
-	document.getElementById('gravesTotal').style.display = (population.graves > 0) ? "inline" : "none";
+	setElemDisplay(document.getElementById('gravesTotal'),(population.graves > 0));
 
 	//As population increases, various things change
 	if (population.current == 0 && population.cap >= 1000){
@@ -1168,50 +1168,50 @@ function updatePopulation(){
 	var i;
 	if (population.current + population.zombies >= 10) {
 		if (!customIncrements){	
-			document.getElementById('spawn10').style.display="inline";
+			setElemDisplay(document.getElementById('spawn10',true));
 			elems = document.getElementsByClassName('job10');
 			for(i = 0; i < elems.length; i++) {
-				elems[i].style.display = 'table-cell';
+				setElemDisplay(elems[i],true);
 			}
 		}
 	}
 	if (population.current + population.zombies >= 100) {
 		if (!customIncrements){
-			document.getElementById('spawn100').style.display="block";
+			setElemDisplay(document.getElementById('spawn100'),true);
 			elems = document.getElementsByClassName('buildingten');
 			for(i = 0; i < elems.length; i++) {
-				elems[i].style.display = 'table-cell';
+				setElemDisplay(elems[i],true);
 			}
 			elems = document.getElementsByClassName('job100');
 			for(i = 0; i < elems.length; i++) {
-				elems[i].style.display = 'table-cell';
+				setElemDisplay(elems[i],true);
 			}
 		}
 	}
 	if (population.current + population.zombies >= 1000) {
 		if (!customIncrements){
-			document.getElementById('spawn1000').style.display="block";
+			setElemDisplay(document.getElementById('spawn1000'),true);
 			elems = document.getElementsByClassName('buildinghundred');
 			for(i = 0; i < elems.length; i++) {
-				elems[i].style.display = 'table-cell';
+				setElemDisplay(elems[i],true);
 			}
 		}
-		document.getElementById('spawnMax').style.display="block";
+		setElemDisplay(document.getElementById('spawnMax'),true);
 
 		elems = document.getElementsByClassName('jobAll');
 		for(i = 0; i < elems.length; i++) {
-			elems[i].style.display = 'table-cell';
+			setElemDisplay(elems[i],true);
 		}
 		elems = document.getElementsByClassName('jobNone');
 		for(i = 0; i < elems.length; i++) {
-			elems[i].style.display = 'table-cell';
+			setElemDisplay(elems[i],true);
 		}
 	}
 	if (population.current + population.zombies >= 10000) {
 		if (!customIncrements){
 			elems = document.getElementsByClassName('buildingthousand');
 			for(i = 0; i < elems.length; i++) {
-				elems[i].style.display = 'table-cell';
+				setElemDisplay(elems[i],true);
 			}
 		}
 	}
@@ -1356,667 +1356,159 @@ function updateJobButtons(job,name,building,support){
 	//elem.children[10].children[0].disabled = false; //  Custom
 }
 
+
+// Check to see if the player has an upgrade and hide as necessary
+// Check also to see if the player can afford an upgrade and enable/disable as necessary
 function updateUpgrades(){
-	//Check to see if the player has an upgrade and hide as necessary
-	//Check also to see if the player can afford an upgrade and enable/disable as necessary
-	//domestication
-	if (upgrades.domestication == 1){
-		document.getElementById('domesticationLine').style.display = 'none';
-		document.getElementById('Pdomestication').style.display = 'block';
-	} else {
-		document.getElementById('domesticationLine').style.display = 'inline';
-		document.getElementById('Pdomestication').style.display = 'none';
-		if (leather.total >= 20){
-			document.getElementById('domestication').disabled = false;
-		} else {
-			document.getElementById('domestication').disabled = true;
-		}
-	}
-	//ploughshares
-	if (upgrades.ploughshares == 1){
-		document.getElementById('ploughsharesLine').style.display = 'none';
-		document.getElementById('Pploughshares').style.display = 'block';
-	} else {
-		document.getElementById('ploughsharesLine').style.display = 'inline';
-		document.getElementById('Pploughshares').style.display = 'none';
-		if (metal.total >= 20){
-			document.getElementById('ploughshares').disabled = false;
-		} else {
-			document.getElementById('ploughshares').disabled = true;
-		}
-	}
-	//irrigation
-	if (upgrades.irrigation == 1){
-		document.getElementById('irrigationLine').style.display = 'none';
-		document.getElementById('Pirrigation').style.display = 'block';
-	} else {
-		document.getElementById('irrigationLine').style.display = 'inline';
-		document.getElementById('Pirrigation').style.display = 'none';
-		if (wood.total >= 500 && stone.total >= 200){
-			document.getElementById('irrigation').disabled = false;
-		} else {
-			document.getElementById('irrigation').disabled = true;
-		}
-	}
-	//skinning
-	if (upgrades.skinning == 1){
-		document.getElementById('skinningLine').style.display = 'none';
-		document.getElementById('Pskinning').style.display = 'block';
-	} else {
-		document.getElementById('skinningLine').style.display = 'inline';
-		document.getElementById('Pskinning').style.display = 'none';
-		if (skins.total >= 10){
-			document.getElementById('skinning').disabled = false;
-		} else {
-			document.getElementById('skinning').disabled = true;
-		}
-	}
-	//harvesting
-	if (upgrades.harvesting == 1){
-		document.getElementById('harvestingLine').style.display = 'none';
-		document.getElementById('Pharvesting').style.display = 'block';
-	} else {
-		document.getElementById('harvestingLine').style.display = 'inline';
-		document.getElementById('Pharvesting').style.display = 'none';
-		if (herbs.total >= 10){
-			document.getElementById('harvesting').disabled = false;
-		} else {
-			document.getElementById('harvesting').disabled = true;
-		}
-	}
-	//prospecting
-	if (upgrades.prospecting == 1){
-		document.getElementById('prospectingLine').style.display = 'none';
-		document.getElementById('Pprospecting').style.display = 'block';
-	} else {
-		document.getElementById('prospectingLine').style.display = 'inline';
-		document.getElementById('Pprospecting').style.display = 'none';
-		if (ore.total >= 10){
-			document.getElementById('prospecting').disabled = false;
-		} else {
-			document.getElementById('prospecting').disabled = true;
-		}
-	}
-	//butchering
-	if (upgrades.butchering == 1){
-		document.getElementById('butcheringLine').style.display = 'none';
-		document.getElementById('Pbutchering').style.display = 'block';
-	} else {
-		document.getElementById('butcheringLine').style.display = 'inline';
-		document.getElementById('Pbutchering').style.display = 'none';
-		if (upgrades.skinning && leather.total >= 40){
-			document.getElementById('butchering').disabled = false;
-		} else {
-			document.getElementById('butchering').disabled = true;
-		}
-	}
-	//gardening
-	if (upgrades.gardening == 1){
-		document.getElementById('gardeningLine').style.display = 'none';
-		document.getElementById('Pgardening').style.display = 'block';
-	} else {
-		document.getElementById('gardeningLine').style.display = 'inline';
-		document.getElementById('Pgardening').style.display = 'none';
-		if (upgrades.harvesting && herbs.total >= 40){
-			document.getElementById('gardening').disabled = false;
-		} else {
-			document.getElementById('gardening').disabled = true;
-		}
-	}
-	//extraction
-	if (upgrades.extraction == 1){
-		document.getElementById('extractionLine').style.display = 'none';
-		document.getElementById('Pextraction').style.display = 'block';
-	} else {
-		document.getElementById('extractionLine').style.display = 'inline';
-		document.getElementById('Pextraction').style.display = 'none';
-		if (upgrades.prospecting && metal.total >= 40){
-			document.getElementById('extraction').disabled = false;
-		} else {
-			document.getElementById('extraction').disabled = true;
-		}
-	}
-	//crop rotation
-	if (upgrades.croprotation == 1){
-		document.getElementById('cropRotationLine').style.display = 'none';
-		document.getElementById('Pcroprotation').style.display = 'block';
-	} else {
-		document.getElementById('cropRotationLine').style.display = 'inline';
-		document.getElementById('Pcroprotation').style.display = 'none';
-		if (herbs.total >= 5000 && piety.total >= 1000){
-			document.getElementById('croprotation').disabled = false;
-		} else {
-			document.getElementById('croprotation').disabled = true;
-		}
-	}
-	//selective breeding
-	if (upgrades.selectivebreeding == 1){
-		document.getElementById('selectiveBreedingLine').style.display = 'none';
-		document.getElementById('Pselectivebreeding').style.display = 'block';
-	} else {
-		document.getElementById('selectiveBreedingLine').style.display = 'inline';
-		document.getElementById('Pselectivebreeding').style.display = 'none';
-		if (skins.total >= 5000 && piety.total >= 1000){
-			document.getElementById('selectivebreeding').disabled = false;
-		} else {
-			document.getElementById('selectivebreeding').disabled = true;
-		}
-	}
-	//fertilisers
-	if (upgrades.fertilisers == 1){
-		document.getElementById('fertilisersLine').style.display = 'none';
-		document.getElementById('Pfertilisers').style.display = 'block';
-	} else {
-		document.getElementById('fertilisersLine').style.display = 'inline';
-		document.getElementById('Pfertilisers').style.display = 'none';
-		if (ore.total >= 5000 && piety.total >= 1000){
-			document.getElementById('fertilisers').disabled = false;
-		} else {
-			document.getElementById('fertilisers').disabled = true;
-		}
-	}
-	//flensing
-	if (upgrades.flensing == 1){
-		document.getElementById('flensingLine').style.display = 'none';
-		document.getElementById('Pflensing').style.display = 'block';
-	} else {
-		document.getElementById('flensingLine').style.display = 'inline';
-		document.getElementById('Pflensing').style.display = 'none';
-		if (metal.total >= 1000){
-			document.getElementById('flensing').disabled = false;
-		} else {
-			document.getElementById('flensing').disabled = true;
-		}
-	}
-	//macerating
-	if (upgrades.macerating == 1){
-		document.getElementById('maceratingLine').style.display = 'none';
-		document.getElementById('Pmacerating').style.display = 'block';
-	} else {
-		document.getElementById('maceratingLine').style.display = 'inline';
-		document.getElementById('Pmacerating').style.display = 'none';
-		if (leather.total >= 500 && stone.total >= 500){
-			document.getElementById('macerating').disabled = false;
-		} else {
-			document.getElementById('macerating').disabled = true;
-		}
-	}
+
+// Internal convenience function
+// Pass the name of the upgrade and a boolean indicating if it should be enabled.
+// upgradeId - The ID of the upgrade.
+// havePrice - Can the player afford to buy it?
+// havePrereqs - Does the player have the prereqs? [optional; if omitted, assume no prereqs]
+function updateUpgrade(upgradeId, havePrice, havePrereqs) {
+	if (havePrereqs === undefined) { havePrereqs = true; } // No prereqs
+	setElemDisplay(document.getElementById(upgradeId+'Line'),(havePrereqs && (upgrades[upgradeId] != 1)));
+	setElemDisplay(document.getElementById('P'+upgradeId),(upgrades[upgradeId] == 1));
+	// If we can get it but haven't yet, it's visible; update its enabled status.
+	if (havePrereqs && upgrades[upgradeId] != 1){ document.getElementById(upgradeId).disabled = (!havePrice); }
+}
+
+	updateUpgrade('domestication'    , (leather.total >= 20));
+	updateUpgrade('ploughshares'     , (metal.total >= 20));
+	updateUpgrade('irrigation'       , (wood.total >= 500 && stone.total >= 200));
+	updateUpgrade('skinning'         , (skins.total >= 10));
+	updateUpgrade('harvesting'       , (herbs.total >= 10));
+	updateUpgrade('prospecting'      , (ore.total >= 10));
+	updateUpgrade('butchering'       , (leather.total >= 40), upgrades.skinning);
+	updateUpgrade('gardening'        , (herbs.total >= 40), upgrades.harvesting);
+	updateUpgrade('extraction'       , (metal.total >= 40), upgrades.prospecting);
+	updateUpgrade('croprotation'     , (herbs.total >= 5000 && piety.total >= 1000));
+	updateUpgrade('selectivebreeding', (skins.total >= 5000 && piety.total >= 1000));
+	updateUpgrade('fertilisers'      , (ore.total >= 5000 && piety.total >= 1000));
+	updateUpgrade('flensing'         , (metal.total >= 1000));
+	updateUpgrade('macerating'       , (leather.total >= 500 && stone.total >= 500));
+
 	//BUILDING TECHS
 	//masonry
+	updateUpgrade('masonry'          , (wood.total >= 100 && stone.total >= 100));
 	if (upgrades.masonry == 1){
-		document.getElementById('masonryLine').style.display = 'none';
-		document.getElementById('Pmasonry').style.display = 'block';
 		//unlock masonry buildings
-		document.getElementById('cottageRow').style.display = 'table-row';
-		document.getElementById('tanneryRow').style.display = 'table-row';
-		document.getElementById('smithyRow').style.display = 'table-row';
-		document.getElementById('apothecaryRow').style.display = 'table-row';
-		document.getElementById('templeRow').style.display = 'table-row';
-		document.getElementById('barracksRow').style.display = 'table-row';
+		setElemDisplay(document.getElementById('cottageRow'),true);
+		setElemDisplay(document.getElementById('tanneryRow'),true);
+		setElemDisplay(document.getElementById('smithyRow'),true);
+		setElemDisplay(document.getElementById('apothecaryRow'),true);
+		setElemDisplay(document.getElementById('templeRow'),true);
+		setElemDisplay(document.getElementById('barracksRow'),true);
 		//unlock masonry upgrades
-		document.getElementById('constructionLine').style.display = 'inline';
-		document.getElementById('basicFarming').style.display = 'inline';
-		document.getElementById('granariesLine').style.display = 'inline';
-		document.getElementById('masonryTech').style.display = 'inline';
-	} else {
-		document.getElementById('masonryLine').style.display = 'inline';
-		document.getElementById('Pmasonry').style.display = 'none';
-		if (wood.total >= 100 && stone.total >= 100){
-			document.getElementById('masonry').disabled = false;
-		} else {
-			document.getElementById('masonry').disabled = true;
-		}
+		setElemDisplay(document.getElementById('constructionLine'),true);
+		setElemDisplay(document.getElementById('basicFarming'),true);
+		setElemDisplay(document.getElementById('granariesLine'),true);
+		setElemDisplay(document.getElementById('masonryTech'),true);
 	}
 	//construction
+	updateUpgrade('construction'     , (wood.total >= 1000 && stone.total >= 1000), upgrades.masonry);
 	if (upgrades.construction == 1){
-		document.getElementById('constructionLine').style.display = 'none';
-		document.getElementById('Pconstruction').style.display = 'block';
 		//unlock construction buildings
-		document.getElementById('houseRow').style.display = 'table-row';
+		setElemDisplay(document.getElementById('houseRow'),true);
 		//unlock construction upgrades
-		document.getElementById('architectureLine').style.display = 'inline';
-		document.getElementById('specialFarming').style.display = 'inline';
-		document.getElementById('tenementsLine').style.display = 'inline';
-		document.getElementById('palisadeLine').style.display = 'inline';
-	} else {
-		document.getElementById('Pconstruction').style.display = 'none';
-		if (upgrades.masonry){
-			document.getElementById('constructionLine').style.display = 'inline';
-		}
-		if (upgrades.masonry && wood.total >= 1000 && stone.total >= 1000){
-			document.getElementById('construction').disabled = false;
-		} else {
-			document.getElementById('construction').disabled = true;
-		}
+		setElemDisplay(document.getElementById('architectureLine'),true);
+		setElemDisplay(document.getElementById('specialFarming'),true);
+		setElemDisplay(document.getElementById('tenementsLine'),true);
+		setElemDisplay(document.getElementById('palisadeLine'),true);
 	}
 	//architecture
+	updateUpgrade('architecture'     , (wood.total >= 10000 && stone.total >= 10000), upgrades.construction);
 	if (upgrades.architecture == 1){
-		document.getElementById('architectureLine').style.display = 'none';
-		document.getElementById('Parchitecture').style.display = 'block';
 		//unlock architecture buildings
-		document.getElementById('mansionRow').style.display = 'table-row';
-		document.getElementById('fortificationRow').style.display = 'table-row';
+		setElemDisplay(document.getElementById('mansionRow'),true);
+		setElemDisplay(document.getElementById('fortificationRow'),true);
 		//unlock architecture upgrades
-		document.getElementById('improvedFarming').style.display = 'inline';
-		document.getElementById('specFreq').style.display = 'inline';
-		document.getElementById('slumsLine').style.display = 'inline';
-		document.getElementById('civilserviceLine').style.display = 'inline';
-		document.getElementById('wonderLine').style.display = 'inline';
-	} else {
-		document.getElementById('Parchitecture').style.display = 'none';
-		if (upgrades.construction){
-			document.getElementById('architectureLine').style.display = 'inline';
-		}
-		if (upgrades.construction && wood.total >= 10000 && stone.total >= 10000){
-			document.getElementById('architecture').disabled = false;
-		} else {
-			document.getElementById('architecture').disabled = true;
-		}
-	}
+		setElemDisplay(document.getElementById('improvedFarming'),true);
+		setElemDisplay(document.getElementById('specFreq'),true);
+		setElemDisplay(document.getElementById('slumsLine'),true);
+		setElemDisplay(document.getElementById('civilserviceLine'),true);
+		setElemDisplay(document.getElementById('wonderLine'),true);
+	} 
 	//wheel
+	updateUpgrade('wheel'            , (wood.total >= 500 && stone.total >= 500));
 	if (upgrades.wheel == 1){
-		document.getElementById('millRow').style.display = 'table-row';
-		document.getElementById('wheelLine').style.display = 'none';
-		document.getElementById('Pwheel').style.display = 'block';
-	} else {
-		document.getElementById('wheelLine').style.display = 'inline';
-		document.getElementById('Pwheel').style.display = 'none';
-		if (wood.total >= 500 && stone.total >= 500){
-			document.getElementById('wheel').disabled = false;
-		} else {
-			document.getElementById('wheel').disabled = true;
-		}
+		setElemDisplay(document.getElementById('millRow'),true);
 	}
 	//horseback
+	updateUpgrade('horseback'        , (food.total >= 500 && wood.total >= 500));
 	if (upgrades.horseback == 1){
-		document.getElementById('stableRow').style.display = 'table-row';
-		document.getElementById('fcavalrygroup').style.display = "table-row";
-		document.getElementById('horsebackLine').style.display = 'none';
-		document.getElementById('Phorseback').style.display = 'block';
-	} else {
-		document.getElementById('horsebackLine').style.display = 'inline';
-		document.getElementById('Phorseback').style.display = 'none';
-		if (food.total >= 500 && wood.total >= 500){
-			document.getElementById('horseback').disabled = false;
-		} else {
-			document.getElementById('horseback').disabled = true;
-		}
+		setElemDisplay(document.getElementById('stableRow'),true);
+		setElemDisplay(document.getElementById('fcavalrygroup'),true);
 	}
-	//tenements
-	if (upgrades.tenements == 1){
-		document.getElementById('tenementsLine').style.display = 'none';
-		document.getElementById('Ptenements').style.display = 'block';
-	} else {
-		document.getElementById('Ptenements').style.display = 'none';
-		if (upgrades.construction){
-			document.getElementById('tenementsLine').style.display = 'inline';
-		}
-		if (upgrades.construction && food.total >= 200 && wood.total >= 500 && stone.total >= 500){
-			document.getElementById('tenements').disabled = false;
-		} else {
-			document.getElementById('tenements').disabled = true;
-		}
-	}
-	//slums
-	if (upgrades.slums == 1){
-		document.getElementById('slumsLine').style.display = 'none';
-		document.getElementById('Pslums').style.display = 'block';
-	} else {
-		document.getElementById('Pslums').style.display = 'none';
-		if (upgrades.architecture){
-			document.getElementById('slumsLine').style.display = 'inline';
-		}
-		if (upgrades.architecture && food.total >= 500 && wood.total >= 1000 && stone.total >= 1000){
-			document.getElementById('slums').disabled = false;
-		} else {
-			document.getElementById('slums').disabled = true;
-		}
-	}
-	//granaries
-	if (upgrades.granaries == 1){
-		document.getElementById('granariesLine').style.display = 'none';
-		document.getElementById('Pgranaries').style.display = 'block';
-	} else {
-		document.getElementById('Pgranaries').style.display = 'none';
-		if (upgrades.masonry){
-			document.getElementById('granariesLine').style.display = 'inline';
-		}
-		if (upgrades.masonry && wood.total >= 1000 && stone.total >= 1000){
-			document.getElementById('granaries').disabled = false;
-		} else {
-			document.getElementById('granaries').disabled = true;
-		}
-	}
-	//palisade
-	if (upgrades.palisade == 1){
-		document.getElementById('palisadeLine').style.display = 'none';
-		document.getElementById('Ppalisade').style.display = 'block';
-	} else {
-		document.getElementById('Ppalisade').style.display = 'none';
-		if (upgrades.construction){
-			document.getElementById('palisadeLine').style.display = 'inline';
-		}
-		if (upgrades.construction && wood.total >= 2000 && stone.total >= 1000){
-			document.getElementById('palisade').disabled = false;
-		} else {
-			document.getElementById('palisade').disabled = true;
-		}
-	}
-	//weaponry
-	if (upgrades.weaponry == 1){
-		document.getElementById('weaponryLine').style.display = 'none';
-		document.getElementById('Pweaponry').style.display = 'block';
-	} else {
-		document.getElementById('Pweaponry').style.display = 'none';
-		if (upgrades.masonry){
-			document.getElementById('weaponryLine').style.display = 'inline';
-		}
-		if (upgrades.masonry && wood.total >= 500 && metal.total >= 500){
-			document.getElementById('weaponry').disabled = false;
-		} else {
-			document.getElementById('weaponry').disabled = true;
-		}
-	}
-	//shields
-	if (upgrades.shields == 1){
-		document.getElementById('shieldsLine').style.display = 'none';
-		document.getElementById('Pshields').style.display = 'block';
-	} else {
-		document.getElementById('Pshields').style.display = 'none';
-		if (upgrades.masonry){
-			document.getElementById('shieldsLine').style.display = 'inline';
-		}
-		if (upgrades.masonry && wood.total >= 500 && leather.total >= 500){
-			document.getElementById('shields').disabled = false;
-		} else {
-			document.getElementById('shields').disabled = true;
-		}
-	}
-	//writing
-	if (upgrades.writing == 1){
-		document.getElementById('writingTech').style.display = 'block';
-		document.getElementById('writingLine').style.display = 'none';
-		document.getElementById('Pwriting').style.display = 'block';
-	} else {
-		document.getElementById('writingTech').style.display = 'none';
-		document.getElementById('Pwriting').style.display = 'none';
-		if (upgrades.masonry){
-			document.getElementById('writingLine').style.display = 'inline';
-		}
-		if (upgrades.masonry && skins.total >= 500){
-			document.getElementById('writing').disabled = false;
-		} else {
-			document.getElementById('writing').disabled = true;
-		}
-	}
-	//administration
-	if (upgrades.administration == 1){
-		document.getElementById('administrationLine').style.display = 'none';
-		document.getElementById('Padministration').style.display = 'block';
-	} else {
-		document.getElementById('administrationLine').style.display = 'inline';
-		document.getElementById('Padministration').style.display = 'none';
-		if (stone.total >= 1000 && skins.total >= 1000){
-			document.getElementById('administration').disabled = false;
-		} else {
-			document.getElementById('administration').disabled = true;
-		}
-	}
-	//code of laws
-	if (upgrades.codeoflaws == 1){
-		document.getElementById('codeoflawsLine').style.display = 'none';
-		document.getElementById('Pcodeoflaws').style.display = 'block';
-	} else {
-		document.getElementById('codeoflawsLine').style.display = 'inline';
-		document.getElementById('Pcodeoflaws').style.display = 'none';
-		if (stone.total >= 1000 && skins.total >= 1000){
-			document.getElementById('codeoflaws').disabled = false;
-		} else {
-			document.getElementById('codeoflaws').disabled = true;
-		}
-	}
-	//mathematics
-	if (upgrades.mathematics == 1){
-		document.getElementById('fsiegegroup').style.display = "table-row";
-		document.getElementById('mathematicsLine').style.display = 'none';
-		document.getElementById('Pmathematics').style.display = 'block';
-	} else {
-		document.getElementById('fsiegegroup').style.display = "none";
-		document.getElementById('mathematicsLine').style.display = 'inline';
-		document.getElementById('Pmathematics').style.display = 'none';
-		if (herbs.total >= 1000 && piety.total >= 1000){
-			document.getElementById('mathematics').disabled = false;
-		} else {
-			document.getElementById('mathematics').disabled = true;
-		}
-	}
-	//aesthetics
-	if (upgrades.aesthetics == 1){
-		document.getElementById('aestheticsLine').style.display = 'none';
-		document.getElementById('Paesthetics').style.display = 'block';
-	} else {
-		document.getElementById('aestheticsLine').style.display = 'inline';
-		document.getElementById('Paesthetics').style.display = 'none';
-		if (piety.total >= 5000){
-			document.getElementById('aesthetics').disabled = false;
-		} else {
-			document.getElementById('aesthetics').disabled = true;
-		}
-	}
-	//civil service
-	if (upgrades.civilservice == 1){
-		document.getElementById('civilTech').style.display = 'block';
-		document.getElementById('civilserviceLine').style.display = 'none';
-		document.getElementById('Pcivilservice').style.display = 'block';
-	} else {
-		document.getElementById('civilTech').style.display = 'none';
-		document.getElementById('Pcivilservice').style.display = 'none';
-		if (upgrades.architecture){
-			document.getElementById('civilserviceLine').style.display = 'inline';
-		}
-		if (upgrades.architecture && piety.total >= 5000){
-			document.getElementById('civilservice').disabled = false;
-		} else {
-			document.getElementById('civilservice').disabled = true;
-		}
-	}
-	//feudalism
-	if (upgrades.feudalism == 1){
-		document.getElementById('feudalismLine').style.display = 'none';
-		document.getElementById('Pfeudalism').style.display = 'block';
-	} else {
-		document.getElementById('feudalismLine').style.display = 'inline';
-		document.getElementById('Pfeudalism').style.display = 'none';
-		if (piety.total >= 10000){
-			document.getElementById('feudalism').disabled = false;
-		} else {
-			document.getElementById('feudalism').disabled = true;
-		}
-	}
-	//guilds
-	if (upgrades.guilds == 1){
-		document.getElementById('guildsLine').style.display = 'none';
-		document.getElementById('Pguilds').style.display = 'block';
-	} else {
-		document.getElementById('guildsLine').style.display = 'inline';
-		document.getElementById('Pguilds').style.display = 'none';
-		if (piety.total >= 10000){
-			document.getElementById('guilds').disabled = false;
-		} else {
-			document.getElementById('guilds').disabled = true;
-		}
-	}
-	//serfs
-	if (upgrades.serfs == 1){
-		document.getElementById('serfsLine').style.display = 'none';
-		document.getElementById('Pserfs').style.display = 'block';
-	} else {
-		document.getElementById('serfsLine').style.display = 'inline';
-		document.getElementById('Pserfs').style.display = 'none';
-		if (piety.total >= 20000){
-			document.getElementById('serfs').disabled = false;
-		} else {
-			document.getElementById('serfs').disabled = true;
-		}
-	}
-	//nationalism
-	if (upgrades.nationalism == 1){
-		document.getElementById('nationalismLine').style.display = 'none';
-		document.getElementById('Pnationalism').style.display = 'block';
-	} else {
-		document.getElementById('nationalismLine').style.display = 'inline';
-		document.getElementById('Pnationalism').style.display = 'none';
-		if (piety.total >= 50000){
-			document.getElementById('nationalism').disabled = false;
-		} else {
-			document.getElementById('nationalism').disabled = true;
-		}
-	}
+
+	updateUpgrade('tenements'        , (food.total >= 200 && wood.total >= 500 && stone.total >= 500), upgrades.construction);
+	updateUpgrade('slums'            , (food.total >= 500 && wood.total >= 1000 && stone.total >= 1000), upgrades.architecture);
+	updateUpgrade('granaries'        , (wood.total >= 1000 && stone.total >= 1000), upgrades.masonry);
+	updateUpgrade('palisade'         , (wood.total >= 2000 && stone.total >= 1000), upgrades.construction);
+	updateUpgrade('weaponry'         , (wood.total >= 500 && metal.total >= 500), upgrades.masonry);
+	updateUpgrade('shields'          , (wood.total >= 500 && leather.total >= 500), upgrades.masonry);
+	updateUpgrade('writing'          , (skins.total >= 500), upgrades.masonry);
+	updateUpgrade('administration'   , (stone.total >= 1000 && skins.total >= 1000));
+	updateUpgrade('codeoflaws'       , (stone.total >= 1000 && skins.total >= 1000));
+	updateUpgrade('mathematics'      , (herbs.total >= 1000 && piety.total >= 1000));
+	setElemDisplay(document.getElementById('fsiegegroup'), (upgrades.mathematics == 1));
+	updateUpgrade('aesthetics'       , (piety.total >= 5000));
+	updateUpgrade('civilservice'     , (piety.total >= 5000), upgrades.architecture);
+	setElemDisplay(document.getElementById('civilTech'), (upgrades.civilservice == 1));
+	updateUpgrade('feudalism'        , (piety.total >= 10000));
+	updateUpgrade('guilds'           , (piety.total >= 10000));
+	updateUpgrade('serfs'            , (piety.total >= 20000));
+	updateUpgrade('nationalism'      , (piety.total >= 50000));
+
 	//deity techs
+	setElemDisplay(document.getElementById('deityLine'),(upgrades.deity != 1));
+	setElemDisplay(document.getElementById('Pworship'),(upgrades.deity == 1));
+	document.getElementById('renameDeity').disabled = (upgrades.deity != 1);
 	if (upgrades.deity == 1){
-		document.getElementById('deityLine').style.display = 'none';
-		document.getElementById('Pworship').style.display = 'block';
-		document.getElementById('renameDeity').disabled = false;
-		if (deity.type == ""){
-			document.getElementById('deitySpecialisation').style.display = "inline";
-		} else {
-			document.getElementById('deitySpecialisation').style.display = "none";
-		}
-		if (deity.type == "Battle"){
-			document.getElementById('battleUpgrades').style.display = 'inline';
-		} else {
-			document.getElementById('battleUpgrades').style.display = 'none';
-		}
-		if (deity.type == "the Fields"){
-			document.getElementById('fieldsUpgrades').style.display = 'inline';
-		} else {
-			document.getElementById('fieldsUpgrades').style.display = 'none';
-		}
-		if (deity.type == "the Underworld"){
-			document.getElementById('underworldUpgrades').style.display = 'inline';
-			document.getElementById('zombieWorkers').style.display = 
-				(population.zombies > 0) ? 'table-row' : 'none';
-		} else {
-			document.getElementById('underworldUpgrades').style.display = 'none';
-			document.getElementById('zombieWorkers').style.display = 'none';
-		}
-		if (deity.type == "Cats"){
-			document.getElementById('catsUpgrades').style.display = 'inline';
-		} else {
-			document.getElementById('catsUpgrades').style.display = 'none';
-		}
-	} else {
-		document.getElementById('deityLine').style.display = 'block';
-		document.getElementById('Pworship').style.display = 'none';
-		document.getElementById('renameDeity').disabled = true;
+		setElemDisplay(document.getElementById('deitySpecialisation'),(deity.type == ""));
+		setElemDisplay(document.getElementById('battleUpgrades'),(deity.type == "Battle"));
+		setElemDisplay(document.getElementById('fieldsUpgrades'),(deity.type == "the Fields"));
+		setElemDisplay(document.getElementById('underworldUpgrades'),(deity.type == "the Underworld"));
+		setElemDisplay(document.getElementById('zombieWorkers'), (population.zombies > 0));
+		setElemDisplay(document.getElementById('catsUpgrades'),(deity.type == "Cats"));
 	}
 	//standard
-	if (upgrades.standard == 1){
-		document.getElementById('standardLine').style.display = 'none';
-		document.getElementById('Pstandard').style.display = 'block';
-		document.getElementById('conquest').style.display = 'block';
-		updateTargets();
-	} else {
-		document.getElementById('standardLine').style.display = 'inline';
-		document.getElementById('Pstandard').style.display = 'none';
-		document.getElementById('conquest').style.display = 'none';
+	setElemDisplay(document.getElementById('standardLine'),(upgrades.standard != 1));
+	setElemDisplay(document.getElementById('Pstandard'),(upgrades.standard == 1));
+	setElemDisplay(document.getElementById('conquest'),(upgrades.standards == 1));
+	if (upgrades.standard == 1) { updateTargets(); }
+
+	// Another internal convenience function (a subset of updateUpgrade())
+	function enableIfOwned(upgradeId) {
+		if (upgrades[upgradeId] == 1){
+			document.getElementById(upgradeId).disabled = true;
+			setElemDisplay(document.getElementById('P'+upgradeId),true); } 
 	}
-	//cats - lure
-	if (upgrades.lure == 1){
-		document.getElementById('lure').disabled = true;
-		document.getElementById('pLure').style.display = 'table-row';
-	}
-	//cats - companion
-	if (upgrades.companion == 1){
-		document.getElementById('companion').disabled = true;
-		document.getElementById('pCompanion').style.display = 'table-row';
-	}
-	//cats - comfort
-	if (upgrades.comfort == 1){
-		document.getElementById('comfort').disabled = true;
-		document.getElementById('pComfort').style.display = 'table-row';
-	}
-	//fields - blessing
-	if (upgrades.blessing == 1){
-		document.getElementById('blessing').disabled = true;
-		document.getElementById('pBlessing').style.display = 'table-row';
-	}
-	//fields - waste
-	if (upgrades.waste == 1){
-		document.getElementById('waste').disabled = true;
-		document.getElementById('pWaste').style.display = 'table-row';
-	}
-	//fields - stay
-	if (upgrades.stay == 1){
-		document.getElementById('stay').disabled = true;
-		document.getElementById('pStay').style.display = 'table-row';
-	}
-	//battle - riddle
-	if (upgrades.riddle == 1){
-		document.getElementById('riddle').disabled = true;
-		document.getElementById('pRiddle').style.display = 'table-row';
-	}
-	//battle - throne
-	if (upgrades.throne == 1){
-		document.getElementById('throne').disabled = true;
-		document.getElementById('pThrone').style.display = 'table-row';
-	}
-	//battle - lament
-	if (upgrades.lament == 1){
-		document.getElementById('lament').disabled = true;
-		document.getElementById('pLament').style.display = 'table-row';
-	}
-	//underworld - book
-	if (upgrades.book == 1){
-		document.getElementById('book').disabled = true;
-		document.getElementById('pBook').style.display = 'table-row';
-	}
-	//underworld - feast
-	if (upgrades.feast == 1){
-		document.getElementById('feast').disabled = true;
-		document.getElementById('pFeast').style.display = 'table-row';
-	}
-	//underworld - secrets
-	if (upgrades.secrets == 1){
-		document.getElementById('secrets').disabled = true;
-		document.getElementById('pSecrets').style.display = 'table-row';
-	}
-	//trade - trade
-	if (upgrades.trade == 1){
-		document.getElementById('tradeLine').style.display = 'none';
-		document.getElementById('Ptrade').style.display = 'block';
-		document.getElementById('tradeUpgradeContainer').style.display = 'block';
-	} else {
-		document.getElementById('tradeLine').style.display = 'inline';
-		document.getElementById('Ptrade').style.display = 'none';
-		document.getElementById('tradeUpgradeContainer').style.display = 'none';
-	}
-	//trade - currency
-	if (upgrades.currency == 1){
-		document.getElementById('currencyLine').style.display = 'none';
-		document.getElementById('Pcurrency').style.display = 'block';
-	} else {
-		document.getElementById('currencyLine').style.display = 'inline';
-		document.getElementById('Pcurrency').style.display = 'none';
-		if (gold.total >= 10 && ore.total >= 1000){
-			document.getElementById('currency').disabled = false;
-		} else {
-			document.getElementById('currency').disabled = true;
-		}
-	}
-	//trade - commerce
-	if (upgrades.commerce == 1){
-		document.getElementById('commerceLine').style.display = 'none';
-		document.getElementById('Pcommerce').style.display = 'block';
-	} else {
-		document.getElementById('commerceLine').style.display = 'inline';
-		document.getElementById('Pcommerce').style.display = 'none';
-		if (gold.total >= 100 && piety.total >= 10000){
-			document.getElementById('commerce').disabled = false;
-		} else {
-			document.getElementById('commerce').disabled = true;
-		}
-	}
+
+	//cats
+	enableIfOwned('lure');
+	enableIfOwned('companion');
+	enableIfOwned('comfort');
+	//fields
+	enableIfOwned('blessing');
+	enableIfOwned('waste');
+	enableIfOwned('stay');
+	//battle
+	enableIfOwned('riddle');
+	enableIfOwned('throne');
+	enableIfOwned('lament');
+	//underworld
+	enableIfOwned('book');
+	enableIfOwned('feast');
+	enableIfOwned('secrets');
+
+	//trade
+	setElemDisplay(document.getElementById('tradeLine'),(upgrades.trade != 1));
+	setElemDisplay(document.getElementById('Ptrade'),(upgrades.trade == 1));
+	setElemDisplay(document.getElementById('tradeUpgradeContainer'),(upgrades.trade == 1));
+	updateUpgrade('currency'         , (gold.total >= 10 && ore.total >= 1000));
+	updateUpgrade('commerce'         , (gold.total >= 100 && ore.total >= 10000));
 }
 
 function updateDeity(){
@@ -2073,8 +1565,8 @@ function updateDeity(){
 function updateOldDeities(){
 	var i,j;
 	if (deityArray.length > 0){
-		document.getElementById('oldDeities').style.display = 'table';
-		document.getElementById('iconoclasmGroup').style.display = 'block';
+		setElemDisplay(document.getElementById('oldDeities'),true);
+		setElemDisplay(document.getElementById('iconoclasmGroup'),true);
 	}
 	if (oldDeities){
 		document.getElementById('oldDeities').innerHTML = oldDeities;
@@ -2098,36 +1590,16 @@ function updateOldDeities(){
 
 function updateMobs(){
 	//Check through each mob type and update numbers or hide as necessary.
-	if (population.wolves > 0){
-		document.getElementById('wolfgroup').style.display = 'table-row';
-		document.getElementById('wolves').innerHTML = prettify(population.wolves);
-	} else {
-		document.getElementById('wolfgroup').style.display = 'none';
-	}
-	if (population.bandits > 0){
-		document.getElementById('banditgroup').style.display = 'table-row';
-		document.getElementById('bandits').innerHTML = prettify(population.bandits);
-	} else {
-		document.getElementById('banditgroup').style.display = 'none';
-	}
-	if (population.barbarians > 0){
-		document.getElementById('barbariangroup').style.display = 'table-row';
-		document.getElementById('barbarians').innerHTML = prettify(population.barbarians);
-	} else {
-		document.getElementById('barbariangroup').style.display = 'none';
-	}
-	if (population.esiege > 0){
-		document.getElementById('esiegegroup').style.display = 'table-row';
-		document.getElementById('esiege').innerHTML = prettify(population.esiege);
-	} else {
-		document.getElementById('esiegegroup').style.display = 'none';
-	}
-	if (population.shades > 0){
-		document.getElementById('shadesgroup').style.display = 'table-row';
-		document.getElementById('shades').innerHTML = prettify(population.shades);
-	} else {
-		document.getElementById('shadesgroup').style.display = 'none';
-	}
+	setElemDisplay(document.getElementById('wolfgroup'), (population.wolves > 0));
+	document.getElementById('wolves').innerHTML = prettify(population.wolves);
+	setElemDisplay(document.getElementById('banditgroup'), (population.bandits > 0));
+	document.getElementById('bandits').innerHTML = prettify(population.bandits);
+	setElemDisplay(document.getElementById('barbariangroup'), (population.barbarians > 0));
+	document.getElementById('barbarians').innerHTML = prettify(population.barbarians);
+	setElemDisplay(document.getElementById('esiegegroup'), (population.esiege > 0));
+	document.getElementById('esiege').innerHTML = prettify(population.esiege);
+	setElemDisplay(document.getElementById('shadesgroup'), (population.shades > 0));
+	document.getElementById('shades').innerHTML = prettify(population.shades);
 }
 
 function updateDevotion(){
@@ -2223,45 +1695,45 @@ function updateRequirements(buildingObj){
 function updateAchievements(){
 	//Displays achievements if they are unlocked
 	//civ size
-	if (achievements.hamlet) { document.getElementById('achHamlet').style.display = "block"; }
-	if (achievements.village) { document.getElementById('achVillage').style.display = "block"; }
-	if (achievements.smallTown) { document.getElementById('achSmallTown').style.display = "block"; }
-	if (achievements.largeTown) { document.getElementById('achLargeTown').style.display = "block"; }
-	if (achievements.smallCity) { document.getElementById('achSmallCity').style.display = "block"; }
-	if (achievements.largeCity) { document.getElementById('achLargeCity').style.display = "block"; }
-	if (achievements.metropolis) { document.getElementById('achMetropolis').style.display = "block"; }
-	if (achievements.smallNation) { document.getElementById('achSmallNation').style.display = "block"; }
-	if (achievements.nation) { document.getElementById('achNation').style.display = "block"; }
-	if (achievements.largeNation) { document.getElementById('achLargeNation').style.display = "block"; }
-	if (achievements.empire) { document.getElementById('achEmpire').style.display = "block"; }
+	if (achievements.hamlet) { setElemDisplay(document.getElementById('achHamlet'),true); }
+	if (achievements.village) { setElemDisplay(document.getElementById('achVillage'),true); }
+	if (achievements.smallTown) { setElemDisplay(document.getElementById('achSmallTown'),true); }
+	if (achievements.largeTown) { setElemDisplay(document.getElementById('achLargeTown'),true); }
+	if (achievements.smallCity) { setElemDisplay(document.getElementById('achSmallCity'),true); }
+	if (achievements.largeCity) { setElemDisplay(document.getElementById('achLargeCity'),true); }
+	if (achievements.metropolis) { setElemDisplay(document.getElementById('achMetropolis'),true); }
+	if (achievements.smallNation) { setElemDisplay(document.getElementById('achSmallNation'),true); }
+	if (achievements.nation) { setElemDisplay(document.getElementById('achNation'),true); }
+	if (achievements.largeNation) { setElemDisplay(document.getElementById('achLargeNation'),true); }
+	if (achievements.empire) { setElemDisplay(document.getElementById('achEmpire'),true); }
 	//conquest
-	if (achievements.raider) { document.getElementById('achRaider').style.display = "block"; }
-	if (achievements.engineer) { document.getElementById('achEngineer').style.display = "block"; }
-	if (achievements.domination) { document.getElementById('achDomination').style.display = "block"; }
+	if (achievements.raider) { setElemDisplay(document.getElementById('achRaider'),true); }
+	if (achievements.engineer) { setElemDisplay(document.getElementById('achEngineer'),true); }
+	if (achievements.domination) { setElemDisplay(document.getElementById('achDomination'),true); }
 	//happiness
-	if (achievements.hated) { document.getElementById('achHated').style.display = "block"; }
-	if (achievements.loved) { document.getElementById('achLoved').style.display = "block"; }
+	if (achievements.hated) { setElemDisplay(document.getElementById('achHated'),true); }
+	if (achievements.loved) { setElemDisplay(document.getElementById('achLoved'),true); }
 	//other population
-	if (achievements.plague) { document.getElementById('achPlague').style.display = "block"; }
-	if (achievements.ghostTown) { document.getElementById('achGhostTown').style.display = "block"; }
+	if (achievements.plague) { setElemDisplay(document.getElementById('achPlague'),true); }
+	if (achievements.ghostTown) { setElemDisplay(document.getElementById('achGhostTown'),true); }
 	//cats
-	if (achievements.cat) { document.getElementById('achCat').style.display = "block"; }
-	if (achievements.glaring) { document.getElementById('achGlaring').style.display = "block"; }
-	if (achievements.clowder) { document.getElementById('achClowder').style.display = "block"; }
+	if (achievements.cat) { setElemDisplay(document.getElementById('achCat'),true); }
+	if (achievements.glaring) { setElemDisplay(document.getElementById('achGlaring'),true); }
+	if (achievements.clowder) { setElemDisplay(document.getElementById('achClowder'),true); }
 	//deities
-	if (achievements.battle) { document.getElementById('achBattle').style.display = "block"; }
-	if (achievements.cats) { document.getElementById('achCats').style.display = "block"; }
-	if (achievements.fields) { document.getElementById('achFields').style.display = "block"; }
-	if (achievements.underworld) { document.getElementById('achUnderworld').style.display = "block"; }
-	if (achievements.fullHouse) { document.getElementById('achFullHouse').style.display = "block"; }
+	if (achievements.battle) { setElemDisplay(document.getElementById('achBattle'),true); }
+	if (achievements.cats) { setElemDisplay(document.getElementById('achCats'),true); }
+	if (achievements.fields) { setElemDisplay(document.getElementById('achFields'),true); }
+	if (achievements.underworld) { setElemDisplay(document.getElementById('achUnderworld'),true); }
+	if (achievements.fullHouse) { setElemDisplay(document.getElementById('achFullHouse'),true); }
 	//wonders
-	if (achievements.wonder) { document.getElementById('achWonder').style.display = "block"; }
-	if (achievements.seven) { document.getElementById('achSeven').style.display = "block"; }
+	if (achievements.wonder) { setElemDisplay(document.getElementById('achWonder'),true); }
+	if (achievements.seven) { setElemDisplay(document.getElementById('achSeven'),true); }
 	//trading
-	if (achievements.merchant) { document.getElementById('achMerchant').style.display = "block"; }
-	if (achievements.rushed) { document.getElementById('achRushed').style.display = "block"; }
+	if (achievements.merchant) { setElemDisplay(document.getElementById('achMerchant'),true); }
+	if (achievements.rushed) { setElemDisplay(document.getElementById('achRushed'),true); }
 	//other
-	if (achievements.neverclick) { document.getElementById('achNeverclick').style.display = "block"; }
+	if (achievements.neverclick) { setElemDisplay(document.getElementById('achNeverclick'),true); }
 }
 
 function updateParty(){
