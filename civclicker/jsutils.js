@@ -19,7 +19,7 @@
 function isValid(variable) {
     return ((variable !== null) &&
             (variable !== undefined) &&
-            (variable !== NaN));
+            (!isNaN(variable));
 }
 
 
@@ -174,3 +174,11 @@ function setElemDisplay(htmlElem,visible)
     htmlElem.style.display = displayVal;
 }
 
+
+// Workaround for IE's lack of support for the dataset property.
+function dataset(elem,attr,value)
+{
+	if (value === undefined) { return elem.getAttribute('data-'+attr); }
+
+	return elem.setAttribute('data-'+attr,value);
+}

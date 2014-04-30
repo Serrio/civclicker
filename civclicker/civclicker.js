@@ -24,6 +24,12 @@
 
 
 var version = 19;
+var versionData = {
+	major:  1,
+	minor:  1,
+	sub:   17,
+	mod:   'alpha'
+};
 var logRepeat = 1;
 console.log('running');
 
@@ -348,7 +354,7 @@ apothecary = {
 		piety:0,
 		corpses:0
 	},
-	effectText:"allows 1 apothecary"
+	effectText:"allows 1 healer"
 },
 temple = {
 	id:"temple",
@@ -594,7 +600,7 @@ population = {
 	miners:0,
 	tanners:0,
 	blacksmiths:0,
-	apothecaries:0,
+	healers:0,
 	clerics:0,
 	labourers:0,
 	soldiers:0,
@@ -617,7 +623,7 @@ population = {
 	minersIll:0,
 	tannersIll:0,
 	blacksmithsIll:0,
-	apothecariesIll:0,
+	healersIll:0,
 	clericsIll:0,
 	labourersIll:0,
 	soldiersIll:0,
@@ -642,7 +648,7 @@ efficiency = {
 	miners:0.2,
 	tanners:0.5,
 	blacksmiths:0.5,
-	apothecaries:0.1,
+	healers:0.1,
 	clerics:0.05,
 	soldiers:0.05,
 	cavalry:0.08
@@ -910,7 +916,21 @@ function load(loadType){
 	}
 	
 	// BACKWARD COMPATIBILITY SECTION //////////////////
-	if (isValid(loadVar.population.corpses)) { corpses.total = loadVar.population.corpses; }  // Moved in 1.1.13
+	// population.corpses moved to corpses.total (v1.1.13)
+	if (!isValid(loadVar.corpses)) { loadVar.corpses = {}; }
+	if (isValid(loadVar.population.corpses)) { 
+		if (!isValid(loadVar.population.corpses)) { 
+			loadVar.corpses.total = loadVar.population.corpses; 
+		}
+		loadVar.population.corpses = undefined; 
+	}
+	// population.apothecaries moved to population.healers (v1.1.17)
+	if (isValid(loadVar.population.apothecaries)) { 
+		if (!isValid(loadVar.population.apothecaries)) { 
+			loadVar.population.healers = loadVar.population.apothecaries; 
+		}
+		loadVar.population.apothecaries = undefined; 
+	}
 	////////////////////////////////////////////////////
 	//
 	//xxx Why are we saving and restoring the names of basic resources?
@@ -930,9 +950,7 @@ function load(loadType){
 	if (isValid(loadVar.gold)){
 		gold = mergeObj(gold, loadVar.gold);
 	}
-	if (isValid(loadVar.corpses)){ // Did not exist until 1.1.13
-		corpses = mergeObj(corpses, loadVar.corpses);
-	}
+	corpses = mergeObj(corpses, loadVar.corpses);
 	if (isValid(loadVar2.wonder)){
 		wonder = mergeObj(wonder, loadVar2.wonder);
 	}
@@ -1047,7 +1065,7 @@ function updateResourceTotals(){
 	for (i=0;i<displayElems.length;++i)
 	{
 		elem = displayElems[i];
-		elem.innerHTML = prettify(Math.floor(window[elem.dataset.target].total));
+		elem.innerHTML = prettify(Math.floor(window[dataset(elem,target)].total));
 	}
 
 	// Update net production values for primary resources.  Same as the above,
@@ -1056,7 +1074,7 @@ function updateResourceTotals(){
 	for (i=0;i<displayElems.length;++i)
 	{
 		elem = displayElems[i];
-		val = window[elem.dataset.target].net.toFixed(1);
+		val = window[dataset(elem,target)].net.toFixed(1);
 		elem.innerHTML = prettify(val);
 		// Colourise net production values.
 		if      (val < 0) { elem.style.color='#f00'; }
@@ -1082,7 +1100,7 @@ function updateResourceTotals(){
 	//Unlock jobs predicated on having certain buildings
 	if (smithy.total > 0) { setElemDisplay(document.getElementById('blacksmithgroup'),true); }
 	if (tannery.total > 0) { setElemDisplay(document.getElementById('tannergroup'),true); }
-	if (apothecary.total > 0) { setElemDisplay(document.getElementById('apothecarygroup'),true); }
+	if (apothecary.total > 0) { setElemDisplay(document.getElementById('healergroup'),true); }
 	if (temple.total > 0) { setElemDisplay(document.getElementById('clericgroup'),true); }
 	if (barracks.total > 0) { setElemDisplay(document.getElementById('soldiergroup'),true); }
 	if (stable.total > 0) { setElemDisplay(document.getElementById('cavalrygroup'),true); }
@@ -1113,13 +1131,13 @@ function updatePopulation(){
 	//Update population cap by multiplying out housing numbers
 	population.cap = tent.total + (whut.total * 3) + (cottage.total * 6) + (house.total * (10 + (upgrades.tenements * 2) + (upgrades.slums * 2))) + (mansion.total * 50);
 	//Update sick workers
-	population.totalSick = population.farmersIll + population.woodcuttersIll + population.minersIll + population.tannersIll + population.blacksmithsIll + population.apothecariesIll + population.clericsIll + population.labourersIll + population.soldiersIll + population.cavalryIll + population.unemployedIll;
+	population.totalSick = population.farmersIll + population.woodcuttersIll + population.minersIll + population.tannersIll + population.blacksmithsIll + population.healersIll + population.clericsIll + population.labourersIll + population.soldiersIll + population.cavalryIll + population.unemployedIll;
 	//Display or hide the sick row
 	if (population.totalSick > 0){
 		setElemDisplay(document.getElementById('sickGroup'),true);
 	}
 	//Calculate healthy workers
-	population.healthy = population.unemployed + population.farmers + population.woodcutters + population.miners + population.tanners + population.blacksmiths + population.apothecaries + population.clerics + population.soldiers + population.cavalry + population.labourers - population.zombies;
+	population.healthy = population.unemployed + population.farmers + population.woodcutters + population.miners + population.tanners + population.blacksmiths + population.healers + population.clerics + population.soldiers + population.cavalry + population.labourers - population.zombies;
 	//Calculate maximum population based on workers that require housing (i.e. not zombies)
 	population.current = population.healthy + population.totalSick + population.soldiersParty + population.cavalryParty;
     //Zombie soldiers dying can drive population.current negative if they are killed and zombies are the only thing left.
@@ -1130,7 +1148,7 @@ function updatePopulation(){
 			population.current = 0;
 		} else {
 			//something else is wrong
-			console.log('Something has gone wrong. Population levels are: ' + population.unemployed + ', ' + population.farmers + ', ' + population.woodcutters + ', ' + population.miners + ', ' + population.blacksmiths + ', ' + population.apothecaries + ', ' + population.clerics + ', ' + population.soldiers + ', ' + population.soldiersParty + ', ' + population.cavalry + ', ' + population.cavalryParty + ', ' + population.labourers);
+			console.log('Something has gone wrong. Population levels are: ' + population.unemployed + ', ' + population.farmers + ', ' + population.woodcutters + ', ' + population.miners + ', ' + population.blacksmiths + ', ' + population.healers + ', ' + population.clerics + ', ' + population.soldiers + ', ' + population.soldiersParty + ', ' + population.cavalry + ', ' + population.cavalryParty + ', ' + population.labourers);
 		}
 	}
 	//Update page with numbers
@@ -1168,7 +1186,7 @@ function updatePopulation(){
 	var i;
 	if (population.current + population.zombies >= 10) {
 		if (!customIncrements){	
-			setElemDisplay(document.getElementById('spawn10',true));
+			setElemDisplay(document.getElementById('spawn10'),true);
 			elems = document.getElementsByClassName('job10');
 			for(i = 0; i < elems.length; i++) {
 				setElemDisplay(elems[i],true);
@@ -1289,8 +1307,8 @@ function updateJobs(){
 	updateJobButtons('tanners','tanner',tannery,1);
 	document.getElementById('blacksmiths').innerHTML = prettify(population.blacksmiths);
 	updateJobButtons('blacksmiths','blacksmith',smithy,1);
-	document.getElementById('apothecaries').innerHTML = prettify(population.apothecaries);
-	updateJobButtons('apothecaries','apothecary',apothecary,1);
+	document.getElementById('healers').innerHTML = prettify(population.healers);
+	updateJobButtons('healers','healer',apothecary,1);
 	document.getElementById('clerics').innerHTML = prettify(population.clerics);
 	updateJobButtons('clerics','cleric',temple,1);
 	document.getElementById('labourers').innerHTML = prettify(population.labourers);
@@ -1793,7 +1811,7 @@ function updateTargets(){
 	{
 		// Disable if we have no army, or they are too big a target.
 		curElem = raidButtons[i];
-		curElem.disabled = ((!haveArmy) || (civSizes[curElem.dataset.civtype] > civSizes[targetMax]));
+		curElem.disabled = ((!haveArmy) || (civSizes[dataset(curElem,civtype)] > civSizes[targetMax]));
 	}
 }
 
@@ -2161,7 +2179,7 @@ function jobCull(){
 		population.soldiersIll -= 1;
 		population.soldiersCasIll -= 1;
 		if (population.soldiersCasIll < 0) { population.soldiersCasIll = 0; }
-	} else if (population.apothecariesIll > 0){ population.apothecariesIll -= 1; }
+	} else if (population.healersIll > 0){ population.healersIll -= 1; }
 	else if (population.labourersIll > 0){ population.labourersIll -= 1; }
 	else if (population.farmersIll > 0){ population.farmersIll -= 1; }
 	else if (population.unemployed > 0){ population.unemployed -= 1; }
@@ -2179,7 +2197,7 @@ function jobCull(){
 		population.soldiers -= 1;
 		population.soldiersCas -= 1;
 		if (population.soldiersCas < 0) { population.soldiersCas = 0; }
-	} else if (population.apothecaries > 0){ population.apothecaries -= 1; }
+	} else if (population.healers > 0){ population.healers -= 1; }
 	else if (population.farmers > 0){ population.farmers -= 1; }
 	else if (population.cavalryParty > 0){
 		population.cavalryParty -= 1;
@@ -2220,8 +2238,8 @@ function hire(job,num){
 	if (job == 'blacksmiths'){
 		num = Math.min(num, (smithy.total - population[job] - population.blacksmithsIll));
 	}
-	if (job == 'apothecaries'){
-		num = Math.min(num, (apothecary.total - population[job] - population.apothecariesIll));
+	if (job == 'healers'){
+		num = Math.min(num, (apothecary.total - population[job] - population.healersIll));
 	}
 	if (job == 'clerics'){
 		num = Math.min(num, (temple.total - population[job] - population.clericsIll));
@@ -2643,7 +2661,7 @@ function randomWorker(){
 		pMiner = population.miners / population.healthy,
 		pTanner = population.tanners / population.healthy,
 		pBlacksmith = population.blacksmiths / population.healthy,
-		pApothecary = population.apothecaries / population.healthy,
+		pHealer = population.healers / population.healthy,
 		pCleric = population.clerics / population.healthy,
 		pLabourer = population.labourers / population.healthy,
 		pCavalry = population.cavalry / population.healthy,
@@ -2660,13 +2678,13 @@ function randomWorker(){
 		{ return 'tanner'; } 
 	if (num <= pUnemployed + pFarmer + pWoodcutter + pMiner + pTanner + pBlacksmith)
 		{ return 'blacksmith'; } 
-	if (num <= pUnemployed + pFarmer + pWoodcutter + pMiner + pTanner + pBlacksmith + pApothecary)
-		{ return 'apothecary'; } 
-	if (num <= pUnemployed + pFarmer + pWoodcutter + pMiner + pTanner + pBlacksmith + pApothecary + pCleric)
+	if (num <= pUnemployed + pFarmer + pWoodcutter + pMiner + pTanner + pBlacksmith + pHealer)
+		{ return 'healer'; } 
+	if (num <= pUnemployed + pFarmer + pWoodcutter + pMiner + pTanner + pBlacksmith + pHealer + pCleric)
 		{ return 'cleric'; } 
-	if (num <= pUnemployed + pFarmer + pWoodcutter + pMiner + pTanner + pBlacksmith + pApothecary + pCleric + pLabourer)
+	if (num <= pUnemployed + pFarmer + pWoodcutter + pMiner + pTanner + pBlacksmith + pHealer + pCleric + pLabourer)
 		{ return 'labourer'; } 
-	if (num <= pUnemployed + pFarmer + pWoodcutter + pMiner + pTanner + pBlacksmith + pApothecary + pCleric + pLabourer + pCavalry)
+	if (num <= pUnemployed + pFarmer + pWoodcutter + pMiner + pTanner + pBlacksmith + pHealer + pCleric + pLabourer + pCavalry)
 		{ return 'cavalry'; } 
 
 	return 'soldier';
@@ -2695,8 +2713,8 @@ function wickerman(){
 		if (selected == 'blacksmith'){
 			population.blacksmiths -= 1;
 		}
-		if (selected == 'apothecary'){
-			population.apothecaries -= 1;
+		if (selected == 'healer'){
+			population.healers -= 1;
 		}
 		if (selected == 'cleric'){
 			population.clerics -= 1;
@@ -2811,9 +2829,9 @@ function plague(sickNum){
 					population.blacksmiths -= 1;
 					population.blacksmithsIll += 1;
 				}
-				if (selected == 'apothecary' && population.apothecaries > 0){
-					population.apothecaries -= 1;
-					population.apothecariesIll += 1;
+				if (selected == 'healer' && population.healers > 0){
+					population.healers -= 1;
+					population.healersIll += 1;
 				}
 				if (selected == 'cleric' && population.clerics > 0){
 					population.clerics -= 1;
@@ -2837,8 +2855,8 @@ function plague(sickNum){
 				}
 			}
 			//COPIED FROM updatePopulation();
-			population.totalSick = population.farmersIll + population.woodcuttersIll + population.minersIll + population.tannersIll + population.blacksmithsIll + population.apothecariesIll + population.clericsIll + population.labourersIll + population.soldiersIll + population.cavalryIll + population.unemployedIll;
-			population.healthy = population.unemployed + population.farmers + population.woodcutters + population.miners + population.tanners + population.blacksmiths + population.apothecaries + population.clerics + population.labourers + population.soldiers + population.cavalry - population.zombies;
+			population.totalSick = population.farmersIll + population.woodcuttersIll + population.minersIll + population.tannersIll + population.blacksmithsIll + population.healersIll + population.clericsIll + population.labourersIll + population.soldiersIll + population.cavalryIll + population.unemployedIll;
+			population.healthy = population.unemployed + population.farmers + population.woodcutters + population.miners + population.tanners + population.blacksmiths + population.healers + population.clerics + population.labourers + population.soldiers + population.cavalry - population.zombies;
 			population.current = population.healthy + population.totalSick + population.soldiersParty + population.cavalryParty;
 		}
 	}
@@ -3104,7 +3122,7 @@ function invade(ecivtype){
 	updateParty();
 	document.getElementById('raidGroup').style.display = 'none'; //Hides raid buttons until the raid is finished
 }
-function onInvade(event) { return invade(event.target.dataset.civtype); }
+function onInvade(event) { return invade(dataset(event.target,civtype)); }
 
 function plunder(){
 	//capture land
@@ -3338,7 +3356,6 @@ function save(savetype){
 	//Each individual cookie stores only ~4000 characters, therefore split currently across two cookies
 	//Save files now also stored in localStorage, cookies relegated to backup
 
-
 	var saveVar = {
 		food:food,
 		wood:wood,
@@ -3364,7 +3381,8 @@ function save(savetype){
 		graceCost:graceCost,
 		walkTotal:walkTotal,
 		targetMax:targetMax,
-		size:size
+		size:size,
+		versionData:versionData
 	};
 	var saveVar2 = {
 		land:land,
@@ -3395,6 +3413,10 @@ function save(savetype){
 	};
 
 	// BACKWARD COMPATIBILITY SECTION //////////////////
+	// population.apothecaries moved to population.healers (v1.1.17)
+	saveVar.population.apothecaries = saveVar.population.healers;
+
+	// population.corpses moved to corpses.total (v1.1.13)
 	saveVar.population.corpses = saveVar.corpses.total; // v1.1.13 change
 	////////////////////////////////////////////////////
 
@@ -3555,7 +3577,6 @@ function reset(){
 	apothecary.total = 0;
 	temple.total = 0;
 	barracks.total = 0;
-	apothecary.total = 0;
 	stable.total = 0;
 	graveyard.total = 0;
 	mill.total = 0;
@@ -3602,7 +3623,7 @@ function reset(){
 		miners:0,
 		tanners:0,
 		blacksmiths:0,
-		apothecaries:0,
+		healers:0,
 		clerics:0,
 		labourers:0,
 		soldiers:0,
@@ -3625,7 +3646,7 @@ function reset(){
 		minersIll:0,
 		tannersIll:0,
 		blacksmithsIll:0,
-		apothecariesIll:0,
+		healersIll:0,
 		clericsIll:0,
 		labourersIll:0,
 		soldiersIll:0,
@@ -3651,7 +3672,7 @@ function reset(){
 		miners:0.2,
 		tanners:0.5,
 		blacksmiths:0.5,
-		apothecaries:0.1,
+		healers:0.1,
 		clerics:0.05,
 		soldiers:0.05,
 		cavalry:0.08
@@ -3790,7 +3811,7 @@ function reset(){
 	document.getElementById('fortificationRow').style.display = 'none';
 	document.getElementById('tannergroup').style.display = 'none';
 	document.getElementById('blacksmithgroup').style.display = 'none';
-	document.getElementById('apothecarygroup').style.display = 'none';
+	document.getElementById('healergroup').style.display = 'none';
 	document.getElementById('clericgroup').style.display = 'none';
 	document.getElementById('soldiergroup').style.display = 'none';
 	document.getElementById('cavalrygroup').style.display = 'none';
@@ -4065,7 +4086,7 @@ window.setInterval(function(){
 				else if (target == "miner")      { population.miners -= 1; } 
 				else if (target == "tanner")     { population.tanners -= 1; } 
 				else if (target == "blacksmith") { population.blacksmiths -= 1; } 
-				else if (target == "apothecary") { population.apothecaries -= 1; } 
+				else if (target == "healer")     { population.healers -= 1; } 
 				else if (target == "cleric")     { population.clerics -= 1; } 
 				else if (target == "labourer")   { population.labourers -= 1; } 
 				else if (target == "soldier"){
@@ -4262,7 +4283,7 @@ window.setInterval(function(){
 					else if (target == "miner")      { population.miners -= 1; } 
 					else if (target == "tanner")     { population.tanners -= 1; } 
 					else if (target == "blacksmith") { population.blacksmiths -= 1; } 
-					else if (target == "apothecary") { population.apothecaries -= 1; } 
+					else if (target == "healer")     { population.healers -= 1; } 
 					else if (target == "cleric")     { population.clerics -= 1; } 
 					else if (target == "labourer")   { population.labourers -= 1; } 
 					else if (target == "soldier"){
@@ -4572,20 +4593,20 @@ window.setInterval(function(){
 		}
 		updatePopulation();
 	}
-	if (population.totalSick > 0 && population.apothecaries + (population.cats * upgrades.companion) > 0){
-		//Apothecaries curing sick people
-		for (i=0;i<population.apothecaries + (population.cats * upgrades.companion);i++){
+	if (population.totalSick > 0 && population.healers + (population.cats * upgrades.companion) > 0){
+		//Healers curing sick people
+		for (i=0;i<population.healers + (population.cats * upgrades.companion);i++){
 			if (herbs.total > 0){
 				//Increment efficiency counter
-				cureCounter += (efficiency.apothecaries * efficiency.happiness);
+				cureCounter += (efficiency.healers * efficiency.happiness);
 				while (cureCounter >= 1 && herbs.total >= 1){ //OH GOD WHY AM I USING THIS
 					//Decrement counter
 					//This is doubly important because of the While loop
 					cureCounter -= 1;
 					//Select a sick worker to cure, with certain priorities
-					if (population.apothecariesIll > 0){ //Don't all get sick
-						population.apothecariesIll -= 1;
-						population.apothecaries += 1;
+					if (population.healersIll > 0){ //Don't all get sick
+						population.healersIll -= 1;
+						population.healers += 1;
 						herbs.total -= 1;
 					} else if (population.farmersIll > 0){ //Don't starve
 						population.farmersIll -= 1;
@@ -4679,9 +4700,9 @@ window.setInterval(function(){
 				} else if (target == "blacksmith"){
 					population.current -= 1;
 					population.blacksmiths -= 1;
-				} else if (target == "apothecary"){
+				} else if (target == "healer"){
 					population.current -= 1;
-					population.apothecaries -= 1;
+					population.healers -= 1;
 				} else if (target == "cleric"){
 					population.current -= 1;
 					population.clerics -= 1;
