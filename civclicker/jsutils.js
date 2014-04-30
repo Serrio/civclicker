@@ -19,7 +19,7 @@
 function isValid(variable) {
     return ((variable !== null) &&
             (variable !== undefined) &&
-            (!isNaN(variable));
+            !isNaN(variable));
 }
 
 

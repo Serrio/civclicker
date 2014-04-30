@@ -27,7 +27,7 @@ var version = 19;
 var versionData = {
 	major:  1,
 	minor:  1,
-	sub:   17,
+	sub:   18,
 	mod:   'alpha'
 };
 var logRepeat = 1;
@@ -141,18 +141,9 @@ tent = {
 	name:"tent",
 	plural:"tents",
 	total:0,
-	devotion:0,
 	require:{
-		food:0,
 		wood:2,
-		stone:0,
-		skins:2,
-		herbs:0,
-		ore:0,
-		leather:0,
-		metal:0,
-		piety:0,
-		corpses:0
+		skins:2
 	},
 	effectText:"+1 max pop."
 },
@@ -161,18 +152,9 @@ whut = {
 	name:"wooden hut",
 	plural:"wooden huts",
 	total:0,
-	devotion:0,
 	require:{
-		food:0,
 		wood:20,
-		stone:0,
-		skins:1,
-		herbs:0,
-		ore:0,
-		leather:0,
-		metal:0,
-		piety:0,
-		corpses:0
+		skins:1
 	},
 	effectText:"+3 max pop."
 },
@@ -181,18 +163,9 @@ cottage = {
 	name:"cottage",
 	plural:"cottages",
 	total:0,
-	devotion:0,
 	require:{
-		food:0,
 		wood:10,
-		stone:30,
-		skins:0,
-		herbs:0,
-		ore:0,
-		leather:0,
-		metal:0,
-		piety:0,
-		corpses:0
+		stone:30
 	},
 	effectText:"+6 max pop."
 },
@@ -201,18 +174,9 @@ house = {
 	name:"house",
 	plural:"houses",
 	total:0,
-	devotion:0,
 	require:{
-		food:0,
 		wood:30,
-		stone:70,
-		skins:0,
-		herbs:0,
-		ore:0,
-		leather:0,
-		metal:0,
-		piety:0,
-		corpses:0
+		stone:70
 	},
 	effectText:"+10 max pop."
 },
@@ -221,18 +185,10 @@ mansion = {
 	name:"mansion",
 	plural:"mansions",
 	total:0,
-	devotion:0,
 	require:{
-		food:0,
 		wood:200,
 		stone:200,
-		skins:0,
-		herbs:0,
-		ore:0,
-		leather:20,
-		metal:0,
-		piety:0,
-		corpses:0
+		leather:20
 	},
 	effectText:"+50 max pop."
 },
@@ -241,18 +197,8 @@ barn = {
 	name:"barn",
 	plural:"barns",
 	total:0,
-	devotion:0,
 	require:{
-		food:0,
-		wood:100,
-		stone:0,
-		skins:0,
-		herbs:0,
-		ore:0,
-		leather:0,
-		metal:0,
-		piety:0,
-		corpses:0
+		wood:100
 	},
 	effectText:"store +200 food"
 },
@@ -261,18 +207,8 @@ woodstock = {
 	name:"wood stockpile",
 	plural:"wood stockpiles",
 	total:0,
-	devotion:0,
 	require:{
-		food:0,
-		wood:100,
-		stone:0,
-		skins:0,
-		herbs:0,
-		ore:0,
-		leather:0,
-		metal:0,
-		piety:0,
-		corpses:0
+		wood:100
 	},
 	effectText:"store +200 wood"
 },
@@ -281,18 +217,8 @@ stonestock = {
 	name:"stone stockpile",
 	plural:"stone stockpiles",
 	total:0,
-	devotion:0,
 	require:{
-		food:0,
-		wood:100,
-		stone:0,
-		skins:0,
-		herbs:0,
-		ore:0,
-		leather:0,
-		metal:0,
-		piety:0,
-		corpses:0
+		wood:100
 	},
 	effectText:"store +200 stone"
 },
@@ -301,18 +227,10 @@ tannery = {
 	name:"tannery",
 	plural:"tanneries",
 	total:0,
-	devotion:0,
 	require:{
-		food:0,
 		wood:30,
 		stone:70,
-		skins:2,
-		herbs:0,
-		ore:0,
-		leather:0,
-		metal:0,
-		piety:0,
-		corpses:0
+		skins:2
 	},
 	effectText:"allows 1 tanner"
 },
@@ -321,18 +239,10 @@ smithy = {
 	name:"smithy",
 	plural:"smithies",
 	total:0,
-	devotion:0,
 	require:{
-		food:0,
 		wood:30,
 		stone:70,
-		skins:0,
-		herbs:0,
-		ore:2,
-		leather:0,
-		metal:0,
-		piety:0,
-		corpses:0
+		ore:2
 	},
 	effectText:"allows 1 blacksmith"
 },
@@ -341,18 +251,10 @@ apothecary = {
 	name:"apothecary",
 	plural:"apothecaries",
 	total:0,
-	devotion:0,
 	require:{
-		food:0,
 		wood:30,
 		stone:70,
-		skins:0,
-		herbs:2,
-		ore:0,
-		leather:0,
-		metal:0,
-		piety:0,
-		corpses:0
+		herbs:2
 	},
 	effectText:"allows 1 healer"
 },
@@ -361,18 +263,9 @@ temple = {
 	name:"temple",
 	plural:"temples",
 	total:0,
-	devotion:0,
 	require:{
-		food:0,
 		wood:30,
-		stone:120,
-		skins:0,
-		herbs:10,
-		ore:0,
-		leather:0,
-		metal:0,
-		piety:0,
-		corpses:0
+		stone:120
 	},
 	effectText:"allows 1 cleric"
 },
@@ -381,18 +274,11 @@ barracks = {
 	name:"barracks",
 	plural:"barracks",
 	total:0,
-	devotion:0,
 	require:{
 		food:20,
 		wood:60,
 		stone:120,
-		skins:0,
-		herbs:0,
-		ore:0,
-		leather:0,
-		metal:10,
-		piety:0,
-		corpses:0
+		metal:10
 	},
 	effectText:"allows 10 soldiers"
 },
@@ -401,18 +287,11 @@ stable = {
 	name:"stable",
 	plural:"stables",
 	total:0,
-	devotion:0,
 	require:{
 		food:60,
 		wood:60,
 		stone:120,
-		skins:0,
-		herbs:0,
-		ore:0,
-		leather:10,
-		metal:0,
-		piety:0,
-		corpses:0
+		leather:10
 	},
 	effectText:"allows 10 cavalry"
 },
@@ -421,18 +300,9 @@ mill = {
 	name:"mill",
 	plural:"mills",
 	total:0,
-	devotion:0,
 	require:{
-		food:0,
 		wood:100,
-		stone:100,
-		skins:0,
-		herbs:0,
-		ore:0,
-		leather:0,
-		metal:0,
-		piety:0,
-		corpses:0
+		stone:100
 	},
 	effectText:"improves farmers"
 },
@@ -441,18 +311,10 @@ graveyard = {
 	name:"graveyard",
 	plural:"graveyards",
 	total:0,
-	devotion:0,
 	require:{
-		food:0,
 		wood:50,
 		stone:200,
-		skins:0,
-		herbs:50,
-		ore:0,
-		leather:0,
-		metal:0,
-		piety:0,
-		corpses:0
+		herbs:50
 	},
 	effectText:"contains 100 graves"
 },
@@ -461,39 +323,63 @@ fortification = {
 	name:"fortification",
 	plural:"fortifications",
 	total:0,
-	devotion:0,
 	require:{
-		food:0,
-		wood:0,
-		stone:100,
-		skins:0,
-		herbs:0,
-		ore:0,
-		leather:0,
-		metal:0,
-		piety:0,
-		corpses:0
+		stone:100
 	},
 	effectText:"helps protect against attack"
 };
 
-// Get a building's requirements in text form.
-// Pass it the building's definition object.
-function getReqText(bldObj)
+// Get an object's requirements in text form.
+// Pass it a cost object.
+// DOES NOT WORK for nonlinear building cost buildings!
+function getReqText(costObj)
 {
-	var i, qty;
+	var i, num;
 	var text = "";
-	for(i in bldObj.require){ if (bldObj.require.hasOwnProperty(i))
+	for(i in costObj)
 	{
-		qty = bldObj.require[i];
-		if (qty == 0) { continue; }
+		num = costObj[i];
+		if (num == 0) { continue; }
 		if (text != "") { text += ", "; }
-		text += prettify(Math.round(qty)) + " " + window[i].name;
-	}}
+		text += prettify(Math.round(num)) + " " + window[i].name;
+	}
 
 	return text;
 }
 
+// Returns how many of this item the player can afford.
+// DOES NOT WORK for nonlinear building cost buildings!
+function canAfford(costObj)
+{
+	var i, num = Infinity;
+	for(i in costObj)
+	{
+		if (costObj[i] == 0) { continue; }
+		num = Math.min(num,Math.floor(window[i].total/costObj[i]));
+		if (num == 0) { return num; }
+	}
+
+	return num;
+}
+// Tries to pay for the specified number of the given cost object.
+// Pays for fewer if the whole amount cannot be paid.
+// Return the number that could be afforded.
+// DOES NOT WORK for nonlinear building cost buildings!
+function payFor(costObj, num)
+{
+	var i;
+	if (num === undefined) { num = 1; } // default to 1
+
+	num = Math.min(num,canAfford(costObj));
+	if (num == 0) { return 0; }
+
+	for(i in costObj)
+	{
+		window[i].total -= costObj[i] * num;
+	}
+
+	return num;
+}
 
 var battleAltar = {
 	id:"battleAltar",
@@ -502,16 +388,9 @@ var battleAltar = {
 	total:0,
 	devotion:1,
 	require:{
-		food:0,
-		wood:0,
 		stone:200,
-		skins:0,
-		herbs:0,
-		ore:0,
-		leather:0,
 		metal:50,
-		piety:200,
-		corpses:0
+		piety:200
 	}
 },
 fieldsAltar = {
@@ -524,13 +403,7 @@ fieldsAltar = {
 		food:500,
 		wood:500,
 		stone:200,
-		skins:0,
-		herbs:0,
-		ore:0,
-		leather:0,
-		metal:0,
-		piety:200,
-		corpses:0
+		piety:200
 	}
 },
 underworldAltar = {
@@ -540,14 +413,7 @@ underworldAltar = {
 	total:0,
 	devotion:1,
 	require:{
-		food:0,
-		wood:0,
 		stone:200,
-		skins:0,
-		herbs:0,
-		ore:0,
-		leather:0,
-		metal:0,
 		piety:200,
 		corpses:1
 	}
@@ -559,16 +425,9 @@ catAltar = {
 	total:0,
 	devotion:1,
 	require:{
-		food:0,
-		wood:0,
 		stone:200,
-		skins:0,
 		herbs:100,
-		ore:0,
-		leather:0,
-		metal:0,
-		piety:200,
-		corpses:0
+		piety:200
 	}
 },
 wonder = {
@@ -812,7 +671,7 @@ function getBuildingRowText(buildingObj, onlyOnes)
 	}
 	s += "<td class=\"buildingnames\">"+buildingObj.plural+": </td>";
 	s += "<td class=\"number\"><span data-action=\"display\" data-target=\""+bldId+"\">0</span></td>";
-	s += "<td><span id=\""+bldId+"Cost\"class=\"cost\">"+getReqText(buildingObj)+"</span><span class=\"note\">: "+buildingObj.effectText+"</span></td>";
+	s += "<td><span id=\""+bldId+"Cost\"class=\"cost\">"+getReqText(buildingObj.require)+"</span><span class=\"note\">: "+buildingObj.effectText+"</span></td>";
 	s += "</tr>";
 	return s;
 }
@@ -1065,7 +924,7 @@ function updateResourceTotals(){
 	for (i=0;i<displayElems.length;++i)
 	{
 		elem = displayElems[i];
-		elem.innerHTML = prettify(Math.floor(window[dataset(elem,target)].total));
+		elem.innerHTML = prettify(Math.floor(window[dataset(elem,'target')].total));
 	}
 
 	// Update net production values for primary resources.  Same as the above,
@@ -1074,7 +933,7 @@ function updateResourceTotals(){
 	for (i=0;i<displayElems.length;++i)
 	{
 		elem = displayElems[i];
-		val = window[dataset(elem,target)].net.toFixed(1);
+		val = window[dataset(elem,'target')].net.toFixed(1);
 		elem.innerHTML = prettify(val);
 		// Colourise net production values.
 		if      (val < 0) { elem.style.color='#f00'; }
@@ -1707,7 +1566,7 @@ function updateRequirements(buildingObj){
 		buildingObj.require.stone = 100 * (buildingObj.total + 1) * Math.pow(1.05,buildingObj.total);
 	}
 	var displayNode = document.getElementById(buildingObj.id + 'Cost');
-	if (displayNode) { displayNode.innerHTML = getReqText(buildingObj); }
+	if (displayNode) { displayNode.innerHTML = getReqText(buildingObj.require); }
 }
 
 function updateAchievements(){
@@ -1811,7 +1670,7 @@ function updateTargets(){
 	{
 		// Disable if we have no army, or they are too big a target.
 		curElem = raidButtons[i];
-		curElem.disabled = ((!haveArmy) || (civSizes[dataset(curElem,civtype)] > civSizes[targetMax]));
+		curElem.disabled = ((!haveArmy) || (civSizes[dataset(curElem,'civtype')] > civSizes[targetMax]));
 	}
 }
 
@@ -1924,35 +1783,19 @@ function updateBuildingButtons(){
 	updateBuildingRow(fieldsAltar);
 	updateBuildingRow(catAltar);
 }
+
 function updateBuildingRow(buildingObj){
 	var i;
-	var num;
 	//this works by trying to access the children of the table rows containing the buttons in sequence
+	var numBuildable = canAfford(buildingObj.require);
 	for (i=0;i<4;i++){
-		//fortunately the index numbers of the children map directly onto the powers of 10 used by the buttons
-		num = Math.pow(10,i);
-		//check resources based on this num
-		if ( food.total >= (buildingObj.require.food * num) 
-		  && wood.total >= (buildingObj.require.wood * num) 
-		  && stone.total >= (buildingObj.require.stone * num) 
-		  && skins.total >= (buildingObj.require.skins * num) 
-		  && herbs.total >= (buildingObj.require.herbs * num) 
-		  && ore.total >= (buildingObj.require.ore * num) 
-		  && leather.total >= (buildingObj.require.leather * num) 
-		  && metal.total >= (buildingObj.require.metal * num) 
-		  && piety.total >= (buildingObj.require.piety * num) 
-		  && corpses.total >= (buildingObj.require.corpses * num)){
-			try { //try-catch required because fortifications and mills do not have more than one child button. This should probably be cleaned up in the future.
-				// This also includes altars.
-				document.getElementById(buildingObj.id + 'Row').children[i].children[0].disabled = false;
-			} catch(ignore){}
-		} else {
-			try {
-				document.getElementById(buildingObj.id + 'Row').children[i].children[0].disabled = true;
-			} catch(ignore){}
-		}		
-	}	
-	//document.getElementById(buildingObj.id + 'Row').children[4].children[0].disabled = false; //Custom button (do something with this later)
+		try { // try-catch required because fortifications, mills, and altars do not have more than one child button. 
+		      // This should probably be cleaned up in the future.
+		      // Fortunately the index numbers of the children map directly onto the powers of 10 used by the buttons
+				document.getElementById(buildingObj.id + 'Row').children[i].children[0].disabled = (numBuildable <= Math.pow(10,i));
+		} catch(ignore){}
+	}		
+	try { document.getElementById(buildingObj.id + 'Row').children[4].children[0].disabled = (numBuildable > 0); } catch(ignore){} //Custom button
 }
 
 function updateReset(){
@@ -2030,22 +1873,13 @@ function increment(material){
 
 function createBuilding(building,num){
 	//First check the building requirements
-	if (food.total >= (building.require.food * num) && wood.total >= (building.require.wood * num) && stone.total >= (building.require.stone * num) && skins.total >= (building.require.skins * num) && herbs.total >= (building.require.herbs * num) && ore.total >= (building.require.ore * num) && leather.total >= (building.require.leather * num) && metal.total >= (building.require.metal * num) && piety.total >= (building.require.piety * num) && corpses.total >= (building.require.corpses * num)){
-		//Then deduct resources
-		food.total = food.total - building.require.food * num;
-		wood.total = wood.total - building.require.wood * num;
-		stone.total = stone.total - building.require.stone * num;
-		skins.total = skins.total - building.require.skins * num;
-		herbs.total = herbs.total - building.require.herbs * num;
-		ore.total = ore.total - building.require.ore * num;
-		leather.total = leather.total - building.require.leather * num;
-		metal.total = metal.total - building.require.metal * num;
-		piety.total = piety.total - building.require.piety * num;
-		corpses.total = corpses.total - building.require.corpses * num;
+	//Then deduct resources
+	num = payFor(building.require,num);
+	if (num > 0) {
 		//Then increment the total number of that building
-		building.total += 1 * num;
+		building.total += num;
 		//Increase devotion if the building was an altar.
-		deity.devotion += building.devotion * num;
+		if (isValid(building.devotion)) { deity.devotion += building.devotion * num; }
 		//If building was graveyard, create graves
 		if (building == graveyard) { digGraves(num); }
 		//if building was temple and aesthetics has been activated, increase happiness
@@ -3122,7 +2956,7 @@ function invade(ecivtype){
 	updateParty();
 	document.getElementById('raidGroup').style.display = 'none'; //Hides raid buttons until the raid is finished
 }
-function onInvade(event) { return invade(dataset(event.target,civtype)); }
+function onInvade(event) { return invade(dataset(event.target,'civtype')); }
 
 function plunder(){
 	//capture land
