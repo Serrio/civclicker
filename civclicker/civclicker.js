@@ -1792,10 +1792,10 @@ function updateBuildingRow(buildingObj){
 		try { // try-catch required because fortifications, mills, and altars do not have more than one child button. 
 		      // This should probably be cleaned up in the future.
 		      // Fortunately the index numbers of the children map directly onto the powers of 10 used by the buttons
-				document.getElementById(buildingObj.id + 'Row').children[i].children[0].disabled = (numBuildable <= Math.pow(10,i));
+				document.getElementById(buildingObj.id + 'Row').children[i].children[0].disabled = (numBuildable < Math.pow(10,i));
 		} catch(ignore){}
 	}		
-	try { document.getElementById(buildingObj.id + 'Row').children[4].children[0].disabled = (numBuildable > 0); } catch(ignore){} //Custom button
+	try { document.getElementById(buildingObj.id + 'Row').children[4].children[0].disabled = (numBuildable < 1); } catch(ignore){} //Custom button
 }
 
 function updateReset(){
@@ -2059,52 +2059,42 @@ function jobCull(){
 // Pass 'custom' or 'negcustom' to use the custom increment.
 // Returns the actual number hired or fired (negative if fired).
 function hire(job,num){
-	if (num == 'custom') { num = getCustomJobNumber(); }
+	var buildingLimit = Infinity; // Additional limit from buildings.
+	var resourceNeeds = {};
+	if (num == 'custom')    { num =  getCustomJobNumber(); }
 	if (num == 'negcustom') { num = -getCustomJobNumber(); }
 
 	num = Math.min(num, population.unemployed);  // Cap hiring by # of available workers.
 	num = Math.max(num, -population[job]);  // Cap firing by # in that job.
 	
-	// Apply hiring caps from buildings.
-	if (job == 'tanners'){
-		num = Math.min(num, (tannery.total - population[job] - population.tannersIll));
-	}
-	if (job == 'blacksmiths'){
-		num = Math.min(num, (smithy.total - population[job] - population.blacksmithsIll));
-	}
-	if (job == 'healers'){
-		num = Math.min(num, (apothecary.total - population[job] - population.healersIll));
-	}
-	if (job == 'clerics'){
-		num = Math.min(num, (temple.total - population[job] - population.clericsIll));
-	}
+	// See if this job has limits from buildings or resource costs.
+	if (job == 'tanners')     { buildingLimit =    tannery.total; }
+	if (job == 'blacksmiths') { buildingLimit =    smithy.total; }
+	if (job == 'healers')     { buildingLimit =    apothecary.total; }
+	if (job == 'clerics')     { buildingLimit =    temple.total; }
+	if (job == 'soldiers')    { buildingLimit = 10*barracks.total; resourceNeeds = { metal:10, leather:10 }; }
+	if (job == 'cavalry')     { buildingLimit = 10*stable.total;   resourceNeeds = {  food:20, leather:20 }; }
 
-	//Soldiers require buildings and resources
-	if (job == 'soldiers'){
-		num = Math.min(num, ((10*barracks.total) - population[job] - population.soldiersIll - population.soldiersParty));
-		num = Math.min(num, metal.total/10, leather.total/10);
-		population.soldiersCas += num;
-		//It's possible that firing the last soldier, if injured, could put population.soldiersCas negative
-		if (population.soldiersCas < 0){ population.soldiersCas = 0; }
-		metal.total -= (10 * num);
-		leather.total -= (10 * num);
-	}
-	//as do cavalry
-	if (job == 'cavalry'){
-		num = Math.min(num, ((10*stable.total) - population[job] - population.cavalryIll - population.cavalryParty));
-		num = Math.min(num, food.total/20, leather.total/20);
-		population.cavalryCas += num;
-		//It's possible that firing the last cavalry, if injured, could put population.cavalryCas negative
-		if (population.cavalryCas < 0){ population.cavalryCas = 0; }
-		food.total -= (20 * num);
-		leather.total -= (20 * num);
-	}
+	// Check the building limit against the current numbers (including sick and
+	// partied units, if applicable).
+	num = Math.min(num, buildingLimit - population[job] - population[job+'Ill'] 
+	    - (isValid(population[job+'Party']) ? population[job+'Party'] : 0) );
 
-	// All other jobs need no special treatment.
+	// Tries to pay for them; returns fewer if we can't afford them all
+	num = payFor(resourceNeeds, num);
+
+	// Do the actual hiring
 	population[job] += num;
 	population.unemployed -= num;
 
-	updateJobs(); //Updates the page with the num in each job.
+	if (isValid(population[job+'Cas'])) // If this unit can have casualties
+	{
+		population[job+'Cas'] += num;
+		// It's possible that firing the last unit, if injured, could put its 'Cas' negative
+		if (population[job+'Cas'] < 0) { population[job+'Cas'] = 0; }
+	}
+
+	updateJobs(); // Updates the page with the num in each job.
 
 	return num;
 }
@@ -2486,7 +2476,7 @@ function digGraves(num){
 	updatePopulation(); //Update page with grave numbers
 }
 
-function randomWorker(){
+function randomHealthyWorker(){
 	//Selects a random healthy worker based on their proportions in the current job distribution.
 	var num = Math.random(),
 		pUnemployed = population.unemployed / population.healthy,
@@ -2528,7 +2518,7 @@ function wickerman(){
 	//Selects a random worker, kills them, and then adds a random resource
 	if (population.healthy > 0 && wood.total >= 500){
 		//Select and kill random worker
-		var selected = randomWorker();
+		var selected = randomHealthyWorker();
 		if (selected == 'unemployed'){
 			population.unemployed -= 1;
 		}
@@ -2571,31 +2561,34 @@ function wickerman(){
 		wood.total -= 500;
 		//Select a random resource (not piety)
 		var num = Math.random();
+		var msg;
 		if (num < 1/8){
-			food.total += Math.floor((Math.random() * 1000));
-			gameLog("Burned a " + selected + ". The crops are abundant!");
+			food.total += Math.floor(Math.random() * 1000);
+			msg = "The crops are abundant!";
 		} else if (num < 2/8){
-			wood.total += Math.floor((Math.random() * 500) + 500);
-			gameLog("Burned a " + selected + ". The trees grow stout!");
+			wood.total += 500; // Guaranteed to at least restore initial cost.
+			wood.total += Math.floor(Math.random() * 500);
+			msg = "The trees grow stout!";
 		} else if (num < 3/8){
-			stone.total += Math.floor((Math.random() * 1000));
-			gameLog("Burned a " + selected + ". The stone splits easily!");
+			stone.total += Math.floor(Math.random() * 1000);
+			msg = "The stone splits easily!";
 		} else if (num < 4/8){
-			skins.total += Math.floor((Math.random() * 1000));
-			gameLog("Burned a " + selected + ". The animals are healthy!");
+			skins.total += Math.floor(Math.random() * 1000);
+			msg = "The animals are healthy!";
 		} else if (num < 5/8){
-			herbs.total += Math.floor((Math.random() * 1000));
-			gameLog("Burned a " + selected + ". The gardens flourish!");
+			herbs.total += Math.floor(Math.random() * 1000);
+			msg = "The gardens flourish!";
 		} else if (num < 6/8){
-			ore.total += Math.floor((Math.random() * 1000));
-			gameLog("Burned a " + selected + ". A new vein is struck!");
+			ore.total += Math.floor(Math.random() * 1000);
+			msg = "A new vein is struck!";
 		} else if (num < 7/8){
-			leather.total += Math.floor((Math.random() * 1000));
-			gameLog("Burned a " + selected + ". The tanneries are productive!");
+			leather.total += Math.floor(Math.random() * 1000);
+			msg = "The tanneries are productive!";
 		} else {
-			metal.total += Math.floor((Math.random() * 1000));
-			gameLog("Burned a " + selected + ". The steel runs pure.");
+			metal.total += Math.floor(Math.random() * 1000);
+			msg = "The steel runs pure.";
 		}
+		gameLog("Burned a " + selected + ". " + msg);
 		updateResourceTotals(); //Adds new resources
 		updatePopulation(); //Removes killed worker
 	}
@@ -2637,7 +2630,7 @@ function plague(sickNum){
 	for (i=0;i<sickNum;i++){
 		if (population.healthy > 0){ //Makes sure there is someone healthy to get ill.
 			if (population.current > 0){ //Makes sure zombies aren't getting ill.
-				selected = randomWorker();
+				selected = randomHealthyWorker();
 				actualNum += 1;
 				if (selected == 'unemployed' && population.unemployed > 0){
 					population.unemployed -= 1;
@@ -3905,7 +3898,7 @@ window.setInterval(function(){
 			//Check to see if there are workers that the wolves can eat
 			if (population.healthy > 0){
 				//Choose random worker
-				target = randomWorker();
+				target = randomHealthyWorker();
 				if (Math.random() > 0.5){ //Wolves will sometimes not disappear after eating someone
 					population.wolves -= 1;
 					population.wolvesCas -= 1;
@@ -4103,7 +4096,7 @@ window.setInterval(function(){
 				//Kill people, see wolves
 				if (population.healthy > 0){
 					//No honor in killing the sick who will starve anyway
-					target = randomWorker(); //Choose random worker
+					target = randomHealthyWorker(); //Choose random worker
 					population.barbarians -= 1; //Barbarians always disappear after killing
 					population.barbariansCas -= 1;
 					if (population.barbariansCas < 0) { population.barbariansCas = 0; }
@@ -4515,7 +4508,7 @@ window.setInterval(function(){
 	if (walkTotal > 0){
 		if (population.healthy > 0){
 			for (i=0;i<walkTotal;i++){
-				target = randomWorker();
+				target = randomHealthyWorker();
 				if (target == "unemployed"){
 					population.current -= 1;
 					population.unemployed -= 1;
