@@ -27,7 +27,7 @@ var version = 19;
 var versionData = {
 	major:  1,
 	minor:  1,
-	sub:   18,
+	sub:   20,
 	mod:   'alpha'
 };
 var logRepeat = 1;
@@ -1353,7 +1353,7 @@ function updateUpgrade(upgradeId, havePrice, havePrereqs) {
 	//standard
 	setElemDisplay(document.getElementById('standardLine'),(upgrades.standard != 1));
 	setElemDisplay(document.getElementById('Pstandard'),(upgrades.standard == 1));
-	setElemDisplay(document.getElementById('conquest'),(upgrades.standards == 1));
+	setElemDisplay(document.getElementById('conquest'),(upgrades.standard == 1));
 	if (upgrades.standard == 1) { updateTargets(); }
 
 	// Another internal convenience function (a subset of updateUpgrade())
@@ -1908,20 +1908,15 @@ function createBuilding(building,num){
 
 function getCustomNumber(elemId){
 	var elem = document.getElementById(elemId);
-	var num = elem.value;
-	//Here we must coerce the variable type to be a number for browsers such
-	//as Firefox, which don't understand the number type for input elements.
-	//If this fails, it should return NaN so we can exclude that later.
-	num = num - 0;
-	//then we make sure it's an integer and at least 0
-	num = Math.floor(num);
-	if (num < 1)  { num = NaN; }
+	var num = Number(elem.value);
 
-	//finally, check the above operations haven't returned NaN
+	// Check the above operations haven't returned NaN
 	if (isNaN(num)){
 		elem.style.background = "#f99"; //notify user that the input failed
 		return 0;
 	} 
+
+	num = Math.floor(num); // Round down
 
 	elem.value = num; //reset fractional numbers, check nothing odd happened
 	elem.style.background = "#fff";
@@ -2899,7 +2894,7 @@ function party(job,num){
 		// checks that there are sufficient cavalry to remove from pool
 		num = Math.min(num, population.cavalry);
 		// checks that there are sufficient cavalry to remove from army
-		num = Math.max(num, -population.soldiersParty);
+		num = Math.max(num, -population.cavalryParty);
 		population.cavalryParty += num;
 		population.cavalryPartyCas += num;
 		population.cavalry -= num;
@@ -3164,7 +3159,7 @@ function buy(material){
 
 function speedWonder(){
 	if (gold.total >= 100){
-		wonder.progress += 1 / (1 * Math.pow(1.5,wonder.total));
+		wonder.progress += 1 / (Math.pow(1.5,wonder.total));
 		gold.total -= 100;
 		updateWonder();
 		if (!achievements.rushed){
@@ -3659,6 +3654,75 @@ function reset(){
 	renameCiv();
 	renameRuler();
 }
+
+function doHealers() {
+	if (population.totalSick <= 0) { return 0; } // Everyone's fine.
+    var numHealers = population.healers + (population.cats * upgrades.companion);
+	if (numHealers <= 0) { return 0; }  // No healers.
+
+	//Healers curing sick people
+	for (i=0;i<numHealers;i++){
+		if (herbs.total < 1) { break; } // Out of herbs
+		//Increment efficiency counter
+		cureCounter += (efficiency.healers * efficiency.happiness);
+		while (cureCounter >= 1 && herbs.total >= 1){ //OH GOD WHY AM I USING THIS
+			//Decrement counter
+			//This is doubly important because of the While loop
+			cureCounter -= 1;
+			//Select a sick worker to cure, with certain priorities
+			if (population.healersIll > 0){ //Don't all get sick
+				population.healersIll -= 1;
+				population.healers += 1;
+				herbs.total -= 1;
+			} else if (population.farmersIll > 0){ //Don't starve
+				population.farmersIll -= 1;
+				population.farmers += 1;
+				herbs.total -= 1;
+			} else if (population.soldiersIll > 0){ //Don't get attacked
+				population.soldiersIll -= 1;
+				population.soldiers += 1;
+				population.soldiersCas += 1;
+				herbs.total -= 1;
+			} else if (population.cavalryIll > 0){ //Don't get attacked
+				population.cavalryIll -= 1;
+				population.cavalry += 1;
+				population.cavalryCas += 1;
+				herbs.total -= 1;
+			} else if (population.clericsIll > 0){ //Bury corpses to make this problem go away
+				population.clericsIll -= 1;
+				population.clerics += 1;
+				herbs.total -= 1;
+			} else if (population.labourersIll > 0){
+				population.labourersIll -= 1;
+				population.labourers += 1;
+				herbs.total -= 1;
+			} else if (population.woodcuttersIll > 0){
+				population.woodcuttersIll -= 1;
+				population.woodcutters += 1;
+				herbs.total -= 1;
+			} else if (population.minersIll > 0){
+				population.minersIll -= 1;
+				population.miners += 1;
+				herbs.total -= 1;
+			} else if (population.tannersIll > 0){
+				population.tannersIll -= 1;
+				population.tanners += 1;
+				herbs.total -= 1;
+			} else if (population.blacksmithsIll > 0){
+				population.blacksmithsIll -= 1;
+				population.blacksmiths += 1;
+				herbs.total -= 1;
+			} else if (population.unemployedIll > 0){
+				population.unemployedIll -= 1;
+				population.unemployed += 1;
+				herbs.total -= 1;
+			}
+		}
+	}
+	updatePopulation();
+}
+
+
 
 /* Timed functions */
 
@@ -4420,69 +4484,9 @@ window.setInterval(function(){
 		}
 		updatePopulation();
 	}
-	if (population.totalSick > 0 && population.healers + (population.cats * upgrades.companion) > 0){
-		//Healers curing sick people
-		for (i=0;i<population.healers + (population.cats * upgrades.companion);i++){
-			if (herbs.total > 0){
-				//Increment efficiency counter
-				cureCounter += (efficiency.healers * efficiency.happiness);
-				while (cureCounter >= 1 && herbs.total >= 1){ //OH GOD WHY AM I USING THIS
-					//Decrement counter
-					//This is doubly important because of the While loop
-					cureCounter -= 1;
-					//Select a sick worker to cure, with certain priorities
-					if (population.healersIll > 0){ //Don't all get sick
-						population.healersIll -= 1;
-						population.healers += 1;
-						herbs.total -= 1;
-					} else if (population.farmersIll > 0){ //Don't starve
-						population.farmersIll -= 1;
-						population.farmers += 1;
-						herbs.total -= 1;
-					} else if (population.soldiersIll > 0){ //Don't get attacked
-						population.soldiersIll -= 1;
-						population.soldiers += 1;
-						population.soldiersCas += 1;
-						herbs.total -= 1;
-					} else if (population.cavalryIll > 0){ //Don't get attacked
-						population.cavalryIll -= 1;
-						population.cavalry += 1;
-						population.cavalryCas += 1;
-						herbs.total -= 1;
-					} else if (population.clericsIll > 0){ //Bury corpses to make this problem go away
-						population.clericsIll -= 1;
-						population.clerics += 1;
-						herbs.total -= 1;
-					} else if (population.labourersIll > 0){
-						population.labourersIll -= 1;
-						population.labourers += 1;
-						herbs.total -= 1;
-					} else if (population.woodcuttersIll > 0){
-						population.woodcuttersIll -= 1;
-						population.woodcutters += 1;
-						herbs.total -= 1;
-					} else if (population.minersIll > 0){
-						population.minersIll -= 1;
-						population.miners += 1;
-						herbs.total -= 1;
-					} else if (population.tannersIll > 0){
-						population.tannersIll -= 1;
-						population.tanners += 1;
-						herbs.total -= 1;
-					} else if (population.blacksmithsIll > 0){
-						population.blacksmithsIll -= 1;
-						population.blacksmiths += 1;
-						herbs.total -= 1;
-					} else if (population.unemployedIll > 0){
-						population.unemployedIll -= 1;
-						population.unemployed += 1;
-						herbs.total -= 1;
-					}
-				}
-			}
-		}
-		updatePopulation();
-	}
+
+	doHealers();
+
 	if (corpses.total > 0){
 		//Corpses lying around will occasionally make people sick.
 		var sickChance = Math.random() * (50 + (upgrades.feast * 50));

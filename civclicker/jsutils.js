@@ -19,7 +19,8 @@
 function isValid(variable) {
     return ((variable !== null) &&
             (variable !== undefined) &&
-            !isNaN(variable));
+            (variable === variable)); // This is a way to test for NaN that
+			// isn't subject to the unexpected behavior of isNaN().
 }
 
 
