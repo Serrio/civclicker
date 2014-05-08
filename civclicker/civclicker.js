@@ -27,7 +27,7 @@ var version = 19;
 var versionData = {
 	major:  1,
 	minor:  1,
-	sub:   20,
+	sub:   21,
 	mod:   'alpha'
 };
 var logRepeat = 1;
@@ -641,6 +641,22 @@ trader = {
 	worksafe = false,
 	size = 1,
 	body = document.getElementsByTagName('body')[0];
+
+function getSingularJob(job)
+{
+	if (job == "unemployed")  { return "unemployed"; }
+	if (job == "farmers")     { return "farmer"; }
+	if (job == "woodcutters") { return "woodcutter"; }
+	if (job == "miners")      { return "miner"; }
+	if (job == "tanners")     { return "tanner"; }
+	if (job == "blacksmiths") { return "blacksmith"; }
+	if (job == "healers")     { return "healer"; }
+	if (job == "clerics")     { return "cleric"; }
+	if (job == "labourers")   { return "labourer"; }
+	if (job == "soldiers")    { return "soldier"; }
+	if (job == "cavalry")     { return "cavalry"; }
+	return ""; 
+}
 
 // Start of init program code
 
@@ -2471,122 +2487,71 @@ function digGraves(num){
 	updatePopulation(); //Update page with grave numbers
 }
 
+//Selects a random healthy worker based on their proportions in the current job distribution.
 function randomHealthyWorker(){
-	//Selects a random healthy worker based on their proportions in the current job distribution.
-	var num = Math.random(),
-		pUnemployed = population.unemployed / population.healthy,
-		pFarmer = population.farmers / population.healthy,
-		pWoodcutter = population.woodcutters / population.healthy,
-		pMiner = population.miners / population.healthy,
-		pTanner = population.tanners / population.healthy,
-		pBlacksmith = population.blacksmiths / population.healthy,
-		pHealer = population.healers / population.healthy,
-		pCleric = population.clerics / population.healthy,
-		pLabourer = population.labourers / population.healthy,
-		pCavalry = population.cavalry / population.healthy,
-		pSoldier = population.soldiers / population.healthy;
-	if (num <= pUnemployed) 
-		{ return 'unemployed'; }
-	if (num <= pUnemployed + pFarmer)
-		{ return 'farmer'; }
-	if (num <= pUnemployed + pFarmer + pWoodcutter)
-		{ return 'woodcutter'; } 
-	if (num <= pUnemployed + pFarmer + pWoodcutter + pMiner)
-		{ return 'miner'; } 
-	if (num <= pUnemployed + pFarmer + pWoodcutter + pMiner + pTanner)
-		{ return 'tanner'; } 
-	if (num <= pUnemployed + pFarmer + pWoodcutter + pMiner + pTanner + pBlacksmith)
-		{ return 'blacksmith'; } 
-	if (num <= pUnemployed + pFarmer + pWoodcutter + pMiner + pTanner + pBlacksmith + pHealer)
-		{ return 'healer'; } 
-	if (num <= pUnemployed + pFarmer + pWoodcutter + pMiner + pTanner + pBlacksmith + pHealer + pCleric)
-		{ return 'cleric'; } 
-	if (num <= pUnemployed + pFarmer + pWoodcutter + pMiner + pTanner + pBlacksmith + pHealer + pCleric + pLabourer)
-		{ return 'labourer'; } 
-	if (num <= pUnemployed + pFarmer + pWoodcutter + pMiner + pTanner + pBlacksmith + pHealer + pCleric + pLabourer + pCavalry)
-		{ return 'cavalry'; } 
+	var num = Math.random() * population.healthy;
+	var jobs=['unemployed','farmers','woodcutters','miners','tanners','blacksmiths',
+			  'healers','clerics','labourers','cavalry','soldiers'];
+	var chance = 0;
+	var i;
+	for (i=0;i<jobs.length;++i)
+	{
+		chance += population[jobs[i]];
+		if (chance > num) { return jobs[i]; }
+	}
 
-	return 'soldier';
+	return '';
 }
 
 function wickerman(){
 	//Selects a random worker, kills them, and then adds a random resource
-	if (population.healthy > 0 && wood.total >= 500){
-		//Select and kill random worker
-		var selected = randomHealthyWorker();
-		if (selected == 'unemployed'){
-			population.unemployed -= 1;
-		}
-		if (selected == 'farmer'){
-			population.farmers -= 1;
-		}
-		if (selected == 'woodcutter'){
-			population.woodcutters -= 1;
-		}
-		if (selected == 'miner'){
-			population.miners -= 1;
-		}
-		if (selected == 'tanner'){
-			population.tanners -= 1;
-		}
-		if (selected == 'blacksmith'){
-			population.blacksmiths -= 1;
-		}
-		if (selected == 'healer'){
-			population.healers -= 1;
-		}
-		if (selected == 'cleric'){
-			population.clerics -= 1;
-		}
-		if (selected == 'labourer'){
-			population.labourers -= 1;
-		}
-		if (selected == 'soldier'){
-			population.soldiers -= 1;
-			population.soldiersCas -= 1;
-			//Killing the last soldier can send population.soldiersCas negative
-			if (population.soldiersCas < 0) { population.soldiersCas = 0; }
-		}
-		if (selected == 'cavalry'){
-			population.cavalry -= 1;
-			population.cavalryCas -= 1;
-			if (population.cavalryCas < 0) { population.cavalryCas = 0; }
-		}
-		//Remove wood
-		wood.total -= 500;
-		//Select a random resource (not piety)
-		var num = Math.random();
-		var msg;
-		if (num < 1/8){
-			food.total += Math.floor(Math.random() * 1000);
-			msg = "The crops are abundant!";
-		} else if (num < 2/8){
-			wood.total += 500; // Guaranteed to at least restore initial cost.
-			wood.total += Math.floor(Math.random() * 500);
-			msg = "The trees grow stout!";
-		} else if (num < 3/8){
-			stone.total += Math.floor(Math.random() * 1000);
-			msg = "The stone splits easily!";
-		} else if (num < 4/8){
-			skins.total += Math.floor(Math.random() * 1000);
-			msg = "The animals are healthy!";
-		} else if (num < 5/8){
-			herbs.total += Math.floor(Math.random() * 1000);
-			msg = "The gardens flourish!";
-		} else if (num < 6/8){
-			ore.total += Math.floor(Math.random() * 1000);
-			msg = "A new vein is struck!";
-		} else if (num < 7/8){
-			leather.total += Math.floor(Math.random() * 1000);
-			msg = "The tanneries are productive!";
-		} else {
-			metal.total += Math.floor(Math.random() * 1000);
-			msg = "The steel runs pure.";
-		}
-		gameLog("Burned a " + selected + ". " + msg);
-		updateResourceTotals(); //Adds new resources
-		updatePopulation(); //Removes killed worker
+	if (wood.total < 500) { return; }
+
+	//Select and kill random worker
+	var job = randomHealthyWorker();
+	if (job == '') { return; }
+
+	--population[job];
+	if (job == 'soldiers' || job == 'cavalry') {
+		--population[job+'Cas'];
+		//Killing the last soldier can send population.soldiersCas negative
+		if (population[job+'Cas'] < 0) { population[job+'Cas'] = 0; }
 	}
+
+	//Remove wood
+	wood.total -= 500;
+	//Select a random resource (not piety)
+	var num = Math.random();
+	var msg;
+	if (num < 1/8){
+		food.total += Math.floor(Math.random() * 1000);
+		msg = "The crops are abundant!";
+	} else if (num < 2/8){
+		wood.total += 500; // Guaranteed to at least restore initial cost.
+		wood.total += Math.floor(Math.random() * 500);
+		msg = "The trees grow stout!";
+	} else if (num < 3/8){
+		stone.total += Math.floor(Math.random() * 1000);
+		msg = "The stone splits easily!";
+	} else if (num < 4/8){
+		skins.total += Math.floor(Math.random() * 1000);
+		msg = "The animals are healthy!";
+	} else if (num < 5/8){
+		herbs.total += Math.floor(Math.random() * 1000);
+		msg = "The gardens flourish!";
+	} else if (num < 6/8){
+		ore.total += Math.floor(Math.random() * 1000);
+		msg = "A new vein is struck!";
+	} else if (num < 7/8){
+		leather.total += Math.floor(Math.random() * 1000);
+		msg = "The tanneries are productive!";
+	} else {
+		metal.total += Math.floor(Math.random() * 1000);
+		msg = "The steel runs pure.";
+	}
+	gameLog("Burned a " + getSingularJob(job) + ". " + msg);
+	updateResourceTotals(); //Adds new resources
+	updatePopulation(); //Removes killed worker
 }
 
 function walk(increment){
@@ -2602,6 +2567,31 @@ function walk(increment){
 	}
 }
 
+function doWalk() {
+	var target = '';
+	if (walkTotal <= 0) { return; }
+
+	for (i=0;i<walkTotal;i++){
+		target = randomHealthyWorker();
+		if (target == ''){
+			walkTotal = 0;
+			document.getElementById('ceaseWalk').disabled = true;
+			break;
+		} 
+		--population.current;
+		--population[target];
+
+		if (target == "soldiers" || target == "cavalry"){
+			--population[target+"Cas"];
+			if (population[target+"Cas"] < 0){
+				population[target] = 0;
+				population[target+"Cas"] = 0;
+			}
+		}
+	}
+	updatePopulation();
+}
+
 function pestControl(length){
 	//First check player has sufficient piety
 	if (piety.total >= 100){
@@ -2615,82 +2605,6 @@ function pestControl(length){
 	}
 }
 
-function plague(sickNum){
-	//Selects random workers, transfers them to their Ill variants
-	var actualNum = 0;
-	var i;
-	var selected;
-
-	updatePopulation();
-	for (i=0;i<sickNum;i++){
-		if (population.healthy > 0){ //Makes sure there is someone healthy to get ill.
-			if (population.current > 0){ //Makes sure zombies aren't getting ill.
-				selected = randomHealthyWorker();
-				actualNum += 1;
-				if (selected == 'unemployed' && population.unemployed > 0){
-					population.unemployed -= 1;
-					population.unemployedIll += 1;
-				}
-				if (selected == 'farmer' && population.farmers > 0){
-					population.farmers -= 1;
-					population.farmersIll += 1;
-				}
-				if (selected == 'woodcutter' && population.woodcutters > 0){
-					population.woodcutters -= 1;
-					population.woodcuttersIll += 1;
-				}
-				if (selected == 'miner' && population.miners > 0){
-					population.miners -= 1;
-					population.minersIll += 1;
-				}
-				if (selected == 'tanner' && population.tanners > 0){
-					population.tanners -= 1;
-					population.tannersIll += 1;
-				}
-				if (selected == 'blacksmith' && population.blacksmiths > 0){
-					population.blacksmiths -= 1;
-					population.blacksmithsIll += 1;
-				}
-				if (selected == 'healer' && population.healers > 0){
-					population.healers -= 1;
-					population.healersIll += 1;
-				}
-				if (selected == 'cleric' && population.clerics > 0){
-					population.clerics -= 1;
-					population.clericsIll += 1;
-				}
-				if (selected == 'labourer' && population.labourers > 0){
-					population.labourers -= 1;
-					population.labourersIll += 1;
-				}
-				if (selected == 'soldier' && population.soldiers > 0){
-					population.soldiers -= 1;
-					population.soldiersCas -= 1;
-					population.soldiersIll +=1;
-					population.soldiersCasIll +=1;
-				}
-				if (selected == 'cavalry' && population.cavalry > 0){
-					population.cavalry -= 1;
-					population.cavalryCas -= 1;
-					population.cavalryIll +=1;
-					population.cavalryCasIll +=1;
-				}
-			}
-			//COPIED FROM updatePopulation();
-			population.totalSick = population.farmersIll + population.woodcuttersIll + population.minersIll + population.tannersIll + population.blacksmithsIll + population.healersIll + population.clericsIll + population.labourersIll + population.soldiersIll + population.cavalryIll + population.unemployedIll;
-			population.healthy = population.unemployed + population.farmers + population.woodcutters + population.miners + population.tanners + population.blacksmiths + population.healers + population.clerics + population.labourers + population.soldiers + population.cavalry - population.zombies;
-			population.current = population.healthy + population.totalSick + population.soldiersParty + population.cavalryParty;
-		}
-	}
-	updatePopulation();
-	console.log('Plague: ' + actualNum + ' workers affected.');
-	gameLog(prettify(actualNum) + ' workers got sick'); //notify player
-	if (population.totalSick > population.healthy && !achievements.plague){ //Plagued achievement requires sick people to outnumber healthy
-		achievements.plague = 1;
-		gameLog('Achievement Unlocked: Plagued');
-		updateAchievements();
-	}
-}
 
 /* Iconoclasm */
 
@@ -3655,73 +3569,112 @@ function reset(){
 	renameRuler();
 }
 
-function doHealers() {
-	if (population.totalSick <= 0) { return 0; } // Everyone's fine.
-    var numHealers = population.healers + (population.cats * upgrades.companion);
-	if (numHealers <= 0) { return 0; }  // No healers.
-
-	//Healers curing sick people
-	for (i=0;i<numHealers;i++){
-		if (herbs.total < 1) { break; } // Out of herbs
-		//Increment efficiency counter
-		cureCounter += (efficiency.healers * efficiency.happiness);
-		while (cureCounter >= 1 && herbs.total >= 1){ //OH GOD WHY AM I USING THIS
-			//Decrement counter
-			//This is doubly important because of the While loop
-			cureCounter -= 1;
-			//Select a sick worker to cure, with certain priorities
-			if (population.healersIll > 0){ //Don't all get sick
-				population.healersIll -= 1;
-				population.healers += 1;
-				herbs.total -= 1;
-			} else if (population.farmersIll > 0){ //Don't starve
-				population.farmersIll -= 1;
-				population.farmers += 1;
-				herbs.total -= 1;
-			} else if (population.soldiersIll > 0){ //Don't get attacked
-				population.soldiersIll -= 1;
-				population.soldiers += 1;
-				population.soldiersCas += 1;
-				herbs.total -= 1;
-			} else if (population.cavalryIll > 0){ //Don't get attacked
-				population.cavalryIll -= 1;
-				population.cavalry += 1;
-				population.cavalryCas += 1;
-				herbs.total -= 1;
-			} else if (population.clericsIll > 0){ //Bury corpses to make this problem go away
-				population.clericsIll -= 1;
-				population.clerics += 1;
-				herbs.total -= 1;
-			} else if (population.labourersIll > 0){
-				population.labourersIll -= 1;
-				population.labourers += 1;
-				herbs.total -= 1;
-			} else if (population.woodcuttersIll > 0){
-				population.woodcuttersIll -= 1;
-				population.woodcutters += 1;
-				herbs.total -= 1;
-			} else if (population.minersIll > 0){
-				population.minersIll -= 1;
-				population.miners += 1;
-				herbs.total -= 1;
-			} else if (population.tannersIll > 0){
-				population.tannersIll -= 1;
-				population.tanners += 1;
-				herbs.total -= 1;
-			} else if (population.blacksmithsIll > 0){
-				population.blacksmithsIll -= 1;
-				population.blacksmiths += 1;
-				herbs.total -= 1;
-			} else if (population.unemployedIll > 0){
-				population.unemployedIll -= 1;
-				population.unemployed += 1;
-				herbs.total -= 1;
-			}
-		}
+// Try to heal the specified number of people in the specified job
+// Makes them sick if the number is negative.
+function heal(job,num)
+{
+	if (!isValid(job) || job == '') { return 0; }
+	if (num === undefined) { num = 1; } // default to 1
+	num = Math.min(num,population[job+'Ill']);
+	num = Math.max(num,-population[job]);
+	population[job+'Ill'] -= num;
+	population[job] += num;
+	if (job == 'soldiers' || job == 'cavalry') { 
+		population[job+'Cas'+'Ill'] -= num; 
+		population[job+'Cas'] += num; 
 	}
-	updatePopulation();
+
+	return num;
 }
 
+function plague(sickNum){
+	//Selects random workers, transfers them to their Ill variants
+	var actualNum = 0;
+	var i;
+
+	updatePopulation();
+	for (i=0;i<sickNum;i++){
+		actualNum += -heal(randomHealthyWorker(),-1);
+
+		//COPIED FROM updatePopulation();
+		population.totalSick = population.farmersIll + population.woodcuttersIll + population.minersIll + population.tannersIll + population.blacksmithsIll + population.healersIll + population.clericsIll + population.labourersIll + population.soldiersIll + population.cavalryIll + population.unemployedIll;
+		population.healthy = population.unemployed + population.farmers + population.woodcutters + population.miners + population.tanners + population.blacksmiths + population.healers + population.clerics + population.labourers + population.soldiers + population.cavalry - population.zombies;
+		population.current = population.healthy + population.totalSick + population.soldiersParty + population.cavalryParty;
+		if (population.healthy < 1) { break; } //Makes sure there is someone healthy to get ill.
+		if (population.current < 1) { break; } //Makes sure zombies aren't getting ill.
+	}
+
+	return actualNum;
+}
+
+// Select a sick worker to cure, with certain priorities
+function getNextPatient()
+{
+	var jobs=['unemployed','farmers','woodcutters','miners','tanners','blacksmiths',
+			  'healers','clerics','labourers','cavalry','soldiers'];
+	for (var i=0;i<jobs.length;++i)
+	{
+		if (population[jobs[i]] > 0) { return jobs[i]; }
+	}
+
+	if (population.healersIll     > 0) { return 'healers'     ; } // Don't all get sick
+	if (population.farmersIll     > 0) { return 'farmers'     ; } // Don't starve
+	if (population.soldiersIll    > 0) { return 'soldiers'    ; } // Don't get attacked
+	if (population.cavalryIll     > 0) { return 'cavalry'     ; } // Don't get attacked
+	if (population.clericsIll     > 0) { return 'clerics'     ; } // Bury corpses to make this problem go away
+	if (population.labourersIll   > 0) { return 'labourers'   ; } 
+	if (population.woodcuttersIll > 0) { return 'woodcutters' ; } 
+	if (population.minersIll      > 0) { return 'miners'      ; } 
+	if (population.tannersIll     > 0) { return 'tanners'     ; } 
+	if (population.blacksmithsIll > 0) { return 'blacksmiths' ; } 
+	if (population.unemployedIll  > 0) { return 'unemployed'  ; }
+
+	return '';
+}
+
+function doHealers() {
+	var job, numHealed = 0;
+    var numHealers = population.healers + (population.cats * upgrades.companion);
+
+	// How much healing can we do?
+	cureCounter += (numHealers * efficiency.healers * efficiency.happiness);
+
+	// We can't cure more sick people than there are
+	cureCounter = Math.min(cureCounter, population.totalSick);
+
+	// Cure people until we run out of healing capacity or herbs
+	while (cureCounter >= 1 && herbs.total >= 1) {
+		job = getNextPatient();
+		if (job == '') { break; }
+		heal(job); 
+		--cureCounter;
+		--herbs.total;
+		++numHealed;
+	}
+
+	updatePopulation();
+	return numHealed;
+}
+
+function doCorpses() {
+	if (corpses.total <= 0) { return; }
+
+	// Corpses lying around will occasionally make people sick.
+	// 1-in-50 chance (1-in-100 with feast)
+	var sickChance = Math.random() * (50 + (upgrades.feast * 50));
+	if (sickChance >= 1) { return; }
+
+	// Infect up to 1% of the population.
+	var num = Math.floor(population.current/100 * Math.random());
+	if (num <= 0) {  return; }
+
+	num = plague(num);
+	if (num > 0) {
+		updatePopulation();
+		console.log('Plague: ' + num + ' workers affected.');
+		gameLog(prettify(num) + ' workers got sick'); //notify player
+	}
+}
 
 
 /* Timed functions */
@@ -3959,40 +3912,23 @@ window.setInterval(function(){
 			//Updates population figures (including total population)
 			updatePopulation();
 		} else {
+			target = randomHealthyWorker(); //Choose random worker
 			//Check to see if there are workers that the wolves can eat
-			if (population.healthy > 0){
-				//Choose random worker
-				target = randomHealthyWorker();
+			if (target != '') { 
 				if (Math.random() > 0.5){ //Wolves will sometimes not disappear after eating someone
 					population.wolves -= 1;
 					population.wolvesCas -= 1;
 				}
 				if (population.wolvesCas < 0) { population.wolvesCas = 0; }
-				console.log('Wolves ate a ' + target);
-                gameLog('Wolves ate a ' + target);
-				population.current -= 1;
-				if      (target == "unemployed") { population.unemployed -= 1; } 
-				else if (target == "farmer")     { population.farmers -= 1; } 
-				else if (target == "woodcutter") { population.woodcutters -= 1; } 
-				else if (target == "miner")      { population.miners -= 1; } 
-				else if (target == "tanner")     { population.tanners -= 1; } 
-				else if (target == "blacksmith") { population.blacksmiths -= 1; } 
-				else if (target == "healer")     { population.healers -= 1; } 
-				else if (target == "cleric")     { population.clerics -= 1; } 
-				else if (target == "labourer")   { population.labourers -= 1; } 
-				else if (target == "soldier"){
-					population.soldiers -= 1;
-					population.soldiersCas -= 1;
-					if (population.soldiersCas < 0){
-						population.soldiers = 0;
-						population.soldiersCas = 0;
-					}
-				} else if (target == "cavalry"){
-					population.cavalry -= 1;
-					population.cavalryCas -= 1;
-					if (population.cavalryCas < 0){
-						population.cavalry = 0;
-						population.cavalryCas = 0;
+				console.log('Wolves ate a ' + getSingularJob(target));
+                gameLog('Wolves ate a ' + getSingularJob(target));
+				--population.current;
+				--population[target];
+				if (target == "soldiers" || target == "cavalry"){
+					--population[target+"Cas"];
+					if (population[target+"Cas"] < 0){
+						population[target] = 0;
+						population[target+"Cas"] = 0;
 					}
 				}
 				updatePopulation();
@@ -4164,35 +4100,19 @@ window.setInterval(function(){
 					population.barbarians -= 1; //Barbarians always disappear after killing
 					population.barbariansCas -= 1;
 					if (population.barbariansCas < 0) { population.barbariansCas = 0; }
-					console.log('Barbarians killed a ' + target);
-					gameLog('Barbarians killed a ' + target);
+					console.log('Barbarians killed a ' + getSingularJob(target));
+					gameLog('Barbarians killed a ' + getSingularJob(target));
 
-					population.current -= 1;
-					if (target == "unemployed")      { population.unemployed -= 1; } 
-					else if (target == "farmer")     { population.farmers -= 1; } 
-					else if (target == "woodcutter") { population.woodcutters -= 1; } 
-					else if (target == "miner")      { population.miners -= 1; } 
-					else if (target == "tanner")     { population.tanners -= 1; } 
-					else if (target == "blacksmith") { population.blacksmiths -= 1; } 
-					else if (target == "healer")     { population.healers -= 1; } 
-					else if (target == "cleric")     { population.clerics -= 1; } 
-					else if (target == "labourer")   { population.labourers -= 1; } 
-					else if (target == "soldier"){
-						population.soldiers -= 1;
-						population.soldiersCas -= 1;
-						if (population.soldiersCas < 0){
-							population.soldiers = 0;
-							population.soldiersCas = 0;
-						}
-					} else if (target == "cavalry"){
-						population.cavalry -= 1;
-						population.cavalryCas -= 1;
-						if (population.cavalryCas < 0){
-							population.cavalry = 0;
-							population.cavalryCas = 0;
+					--population.current;
+					--population[target];
+					if (target == "soldiers" || target == "cavalry"){
+						--population[target+"Cas"];
+						if (population[target+"Cas"] < 0){
+							population[target] = 0;
+							population[target+"Cas"] = 0;
 						}
 					}
-					corpses.total += 1; //Unlike wolves, Barbarians leave corpses behind
+					++corpses.total; //Unlike wolves, Barbarians leave corpses behind
 					updatePopulation();
 				} else {
 					leaving = Math.ceil(population.barbarians * Math.random() * (1/3));
@@ -4486,16 +4406,14 @@ window.setInterval(function(){
 	}
 
 	doHealers();
+	doCorpses();
 
-	if (corpses.total > 0){
-		//Corpses lying around will occasionally make people sick.
-		var sickChance = Math.random() * (50 + (upgrades.feast * 50));
-		if (sickChance < 1){
-			var sickNum = Math.floor(population.current/100 * Math.random());
-			if (sickNum > 0) { plague(sickNum); }
-		}
+	if (population.totalSick > population.healthy && !achievements.plague){ //Plagued achievement requires sick people to outnumber healthy
+		achievements.plague = 1;
+		gameLog('Achievement Unlocked: Plagued');
+		updateAchievements();
 	}
-	
+
 	if (throneCount >= 100){
 		//If sufficient enemies have been slain, build new temples for free
 		temple.total += Math.floor(throneCount/100);
@@ -4509,61 +4427,7 @@ window.setInterval(function(){
 		document.getElementById('graceCost').innerHTML = prettify(graceCost);
 	}
 	
-	if (walkTotal > 0){
-		if (population.healthy > 0){
-			for (i=0;i<walkTotal;i++){
-				target = randomHealthyWorker();
-				if (target == "unemployed"){
-					population.current -= 1;
-					population.unemployed -= 1;
-				} else if (target == "farmer"){
-					population.current -= 1;
-					population.farmers -= 1;
-				} else if (target == "woodcutter"){
-					population.current -= 1;
-					population.woodcutters -= 1;
-				} else if (target == "miner"){
-					population.current -= 1;
-					population.miners -= 1;
-				} else if (target == "tanner"){
-					population.current -= 1;
-					population.tanners -= 1;
-				} else if (target == "blacksmith"){
-					population.current -= 1;
-					population.blacksmiths -= 1;
-				} else if (target == "healer"){
-					population.current -= 1;
-					population.healers -= 1;
-				} else if (target == "cleric"){
-					population.current -= 1;
-					population.clerics -= 1;
-				} else if (target == "labourer"){
-					population.current -= 1;
-					population.labourers -= 1;
-				} else if (target == "soldier"){
-					population.current -= 1;
-					population.soldiers -= 1;
-					population.soldiersCas -= 1;
-					if (population.soldiersCas < 0){
-						population.soldiers = 0;
-						population.soldiersCas = 0;
-					}
-				} else if (target == "cavalry"){
-					population.current -= 1;
-					population.cavalry -= 1;
-					population.cavalryCas -= 1;
-					if (population.cavalryCas < 0){
-						population.cavalry = 0;
-						population.cavalryCas = 0;
-					}
-				}
-			}
-			updatePopulation();
-		} else {
-			walkTotal = 0;
-			document.getElementById('ceaseWalk').disabled = true;
-		}
-	}
+	doWalk();
 	
 	if (wonder.building){
 		if (wonder.progress >= 100){
