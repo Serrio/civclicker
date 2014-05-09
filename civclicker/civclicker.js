@@ -973,11 +973,11 @@ function updateResourceTotals(){
 	document.getElementById('totalLand').innerHTML = prettify(land);
 	document.getElementById('totalBuildings').innerHTML = prettify(Math.round(totalBuildings));
 	//Unlock jobs predicated on having certain buildings
-	if (smithy.total > 0) { setElemDisplay(document.getElementById('blacksmithgroup'),true); }
-	if (tannery.total > 0) { setElemDisplay(document.getElementById('tannergroup'),true); }
-	if (apothecary.total > 0) { setElemDisplay(document.getElementById('healergroup'),true); }
-	if (temple.total > 0) { setElemDisplay(document.getElementById('clericgroup'),true); }
-	if (barracks.total > 0) { setElemDisplay(document.getElementById('soldiergroup'),true); }
+	if (smithy.total > 0) { setElemDisplay(document.getElementById('blacksmithsgroup'),true); }
+	if (tannery.total > 0) { setElemDisplay(document.getElementById('tannersgroup'),true); }
+	if (apothecary.total > 0) { setElemDisplay(document.getElementById('healersgroup'),true); }
+	if (temple.total > 0) { setElemDisplay(document.getElementById('clericsgroup'),true); }
+	if (barracks.total > 0) { setElemDisplay(document.getElementById('soldiersgroup'),true); }
 	if (stable.total > 0) { setElemDisplay(document.getElementById('cavalrygroup'),true); }
 
 	//Unlock upgrades predicated on having certain buildings
@@ -1408,11 +1408,7 @@ function updateDeity(){
 	if (upgrades.deity == 1){
 		//Update page with deity details
 		document.getElementById('deity' + deity.seniority + 'Name').innerHTML = deity.name;
-		if (deity.type) {
-			document.getElementById('deity' + deity.seniority + 'Type').innerHTML = ", deity of " + deity.type;
-		} else {
-			document.getElementById('deity' + deity.seniority + 'Type').innerHTML = "";
-		}
+		document.getElementById('deity' + deity.seniority + 'Type').innerHTML = (deity.type) ? ", deity of "+deity.type : "";
 		document.getElementById('devotion' + deity.seniority).innerHTML = deity.devotion;
 		//Toggles deity types on for later playthroughs.
 		if (deity.type == 'Battle'){
@@ -1483,11 +1479,11 @@ function updateOldDeities(){
 
 function updateMobs(){
 	//Check through each mob type and update numbers or hide as necessary.
-	setElemDisplay(document.getElementById('wolfgroup'), (population.wolves > 0));
+	setElemDisplay(document.getElementById('wolvesgroup'), (population.wolves > 0));
 	document.getElementById('wolves').innerHTML = prettify(population.wolves);
-	setElemDisplay(document.getElementById('banditgroup'), (population.bandits > 0));
+	setElemDisplay(document.getElementById('banditsgroup'), (population.bandits > 0));
 	document.getElementById('bandits').innerHTML = prettify(population.bandits);
-	setElemDisplay(document.getElementById('barbariangroup'), (population.barbarians > 0));
+	setElemDisplay(document.getElementById('barbariansgroup'), (population.barbarians > 0));
 	document.getElementById('barbarians').innerHTML = prettify(population.barbarians);
 	setElemDisplay(document.getElementById('esiegegroup'), (population.esiege > 0));
 	document.getElementById('esiege').innerHTML = prettify(population.esiege);
@@ -1636,7 +1632,7 @@ function updateParty(){
 	document.getElementById('siegeParty').innerHTML = prettify(population.siege);
 	document.getElementById('esoldiers').innerHTML = prettify(population.esoldiers);
 	document.getElementById('eforts').innerHTML = prettify(population.eforts);
-	document.getElementById('esoldiergroup').style.display = (population.esoldiers > 0) ? 'table-row' : 'none';
+	document.getElementById('esoldiersgroup').style.display = (population.esoldiers > 0) ? 'table-row' : 'none';
 	document.getElementById('efortgroup').style.display = (population.eforts > 0) ? 'table-row' : 'none';
 }
 
@@ -1644,7 +1640,7 @@ function updatePartyButtons(){
 	var fsolgroup, fcavgroup, fsgegroup;
 	var pacifist = !upgrades.standard;
 
-	fsolgroup = document.getElementById('fsoldiergroup');
+	fsolgroup = document.getElementById('fsoldiersgroup');
 	fsolgroup.children[ 0].children[0].disabled = pacifist || (population.soldiersParty <   1); // None
 	fsolgroup.children[ 2].children[0].disabled = pacifist || (population.soldiersParty < 100); // -100
 	fsolgroup.children[ 3].children[0].disabled = pacifist || (population.soldiersParty <  10); // - 10
@@ -1721,7 +1717,7 @@ function updateWonder(){
 	//updates the display of wonders and wonder building
 	if (wonder.building){
 		//show building area and labourers
-		document.getElementById('labourergroup').style.display = 'table-row';
+		document.getElementById('labourersgroup').style.display = 'table-row';
 		document.getElementById('wondersContainer').style.display = 'block';
 		if (wonder.completed){
 			document.getElementById('inProgress').style.display = 'none';
@@ -1736,7 +1732,7 @@ function updateWonder(){
 		}
 	} else {
 		//hide building area and labourers
-		document.getElementById('labourergroup').style.display = 'none';
+		document.getElementById('labourersgroup').style.display = 'none';
 		document.getElementById('wondersContainer').style.display = 'none';
 	}
 	updateWonderList();
@@ -1982,7 +1978,7 @@ function maybeSpawnCat()
 // Creates or destroys workers
 function spawn(num){
 	if (num == 'custom') { num = getCustomSpawnNumber(); }
-	if (num == 'negcustom') { num = -getCustomSpawnNumber(); }
+	if (num == '-custom') { num = -getCustomSpawnNumber(); }
 
 	// Find the most workers we can spawn
 	num = Math.max(num, -population.unemployed);  // Cap firing by # in that job.
@@ -2067,13 +2063,13 @@ function jobCull(){
 // Pass a positive number to hire, a negative number to fire.
 // If it can't add/remove as many as requested, does as many as it can.
 // Pass Infinity/-Infinity as the num to get the max possible.
-// Pass 'custom' or 'negcustom' to use the custom increment.
+// Pass 'custom' or '-custom' to use the custom increment.
 // Returns the actual number hired or fired (negative if fired).
 function hire(job,num){
 	var buildingLimit = Infinity; // Additional limit from buildings.
 	var resourceNeeds = {};
 	if (num == 'custom')    { num =  getCustomJobNumber(); }
-	if (num == 'negcustom') { num = -getCustomJobNumber(); }
+	if (num == '-custom') { num = -getCustomJobNumber(); }
 
 	num = Math.min(num, population.unemployed);  // Cap hiring by # of available workers.
 	num = Math.max(num, -population[job]);  // Cap firing by # in that job.
@@ -2116,11 +2112,11 @@ function hire(job,num){
 // Only unemployed zombies can be destroyed.
 // If it can't create/destroy as many as requested, does as many as it can.
 // Pass Infinity/-Infinity as the num to get the max possible.
-// Pass 'custom' or 'negcustom' to use the custom increment.
+// Pass 'custom' or '-custom' to use the custom increment.
 // Returns the actual number created or destroyed (negative if destroyed).
 function raiseDead(num){
 	if (num == 'custom') { num = getCustomSpawnNumber(); }
-	if (num == 'negcustom') { num = -getCustomSpawnNumber(); }
+	if (num == '-custom') { num = -getCustomSpawnNumber(); }
 
 	// Find the most zombies we can raise
 	num = Math.min(num, corpses.total);
@@ -2146,13 +2142,15 @@ function raiseDead(num){
 }
 
 function shade(){
-	if (piety.total < 1000) { return; }
-	if (population.enemiesSlain <= 0) { return; }
+	if (piety.total < 1000) { return 0; }
+	if (population.enemiesSlain <= 0) { return 0; }
 
 	piety.total -= 1000;
 	var num = Math.ceil(population.enemiesSlain/4 + (Math.random() * population.enemiesSlain/4));
 	population.enemiesSlain -= num;
 	population.shades += num;
+
+	return num;
 }
 
 function upgrade(name){
@@ -2557,14 +2555,12 @@ function wickerman(){
 function walk(increment){
 	if(increment){
 		walkTotal += increment;
-		document.getElementById('ceaseWalk').disabled = false;
 		document.getElementById('walkStat').innerHTML = prettify(walkTotal);
-		document.getElementById('walkGroup').style.display = 'inline';
 	} else {
 		walkTotal = 0;
-		document.getElementById('ceaseWalk').disabled = true;
-		document.getElementById('walkGroup').style.display = 'none';
 	}
+	document.getElementById('ceaseWalk').disabled = (walkTotal > 0);
+	setElemDisplay(document.getElementById('walkGroup'),(walkTotal > 0));
 }
 
 function doWalk() {
@@ -2594,15 +2590,14 @@ function doWalk() {
 
 function pestControl(length){
 	//First check player has sufficient piety
-	if (piety.total >= 100){
-		//Set food production bonus and set timer
-		efficiency.pestBonus = 0.1;
-		pestTimer = length * population.cats;
-		//Inform player
-		gameLog("The vermin are exterminated.");
-		//Deduct piety
-		piety.total -= 100;
-	}
+	if (piety.total < 100) { return; }
+	//Deduct piety
+	piety.total -= 100;
+	//Set food production bonus and set timer
+	efficiency.pestBonus = 0.1;
+	pestTimer = length * population.cats;
+	//Inform player
+	gameLog("The vermin are exterminated.");
 }
 
 
@@ -2650,7 +2645,7 @@ function iconoclasm(index){
 /* Enemies */
 
 function summonMob(mobtype){
-	//Calls spawnMob() if the player has the correct resources (currently used by Deities of Battle)
+	//Calls spawnMob() if the player has the correct resources (was used by Deities of Battle)
 	if (piety.total >= 100){
 		piety.total -= 100;
 		spawnMob(mobtype);
@@ -2658,163 +2653,81 @@ function summonMob(mobtype){
 }
 
 function spawnMob(mobtype){
-	var num, pop, tot, clt, nus, tos, cls;
+	var max_mob = 0, num_mob = 0, pct_sge = 0, num_sge = 0, msg='';
 	//Creates enemies based on current population
-	if (mobtype == 'wolf'){
-		//Calculates appropriate number
-		num = Math.random();
-		pop = (population.current / 50);
-		tot = num * pop;
-		clt = Math.ceil(tot);
-		population.wolves += clt;
-		population.wolvesCas += clt;
-		//Informs player
-        if (clt > 0) { gameLog(prettify(clt) + ' wolves attacked'); }
-		document.getElementById('wolfgroup').style.display = 'table-row';
+	if (mobtype == 'wolves'){
+		max_mob = (population.current / 50);
+		pct_sge = 0; // Wolves don't use siege engines.
 	}
-	if(mobtype == 'bandit'){
-		num = Math.random();
-		pop = ((population.current + population.zombies) / 50);
-		tot = num * pop;
-		clt = Math.ceil(tot);
-		nus = Math.random();
-		tos = nus * clt/500;
-		cls = Math.floor(tos);
-		population.bandits += clt;
-		population.banditsCas += clt;
-		population.esiege += cls;
-        if (cls > 0){
-			gameLog(prettify(clt) + ' bandits attacked, with ' + prettify(cls) + ' siege engines');
-			document.getElementById('banditgroup').style.display = 'table-row';
-			document.getElementById('esiegegroup').style.display = 'table-row';
-		} else if (clt > 0){
-			gameLog(prettify(clt) + ' bandits attacked');
-			document.getElementById('banditgroup').style.display = 'table-row';
-		}
+	if(mobtype == 'bandits'){
+		max_mob = ((population.current + population.zombies) / 50);
+		pct_sge = Math.random();
 	}
-	if (mobtype == 'barbarian'){
-		num = Math.random();
-		pop = ((population.current + population.zombies) / 50);
-		tot = num * pop;
-		clt = Math.ceil(tot);
-		nus = Math.random();
-		tos = nus * clt/100;
-		cls = Math.floor(tos);
-		population.barbarians += clt;
-		population.barbariansCas += clt;
-		population.esiege += cls;
-        if (cls > 0){
-			gameLog(prettify(clt) + ' barbarians attacked, with ' + prettify(cls) + ' siege engines');
-			document.getElementById('barbariangroup').style.display = 'table-row';
-			document.getElementById('esiegegroup').style.display = 'table-row';
-		} else if (clt > 0){
-			gameLog(prettify(clt) + ' barbarians attacked');
-			document.getElementById('barbariangroup').style.display = 'table-row';
-		}
+	if (mobtype == 'barbarians'){
+		max_mob = ((population.current + population.zombies) / 50);
+		pct_sge = Math.random();
 	}
+	num_mob = Math.ceil(max_mob*Math.random());
+	num_sge = Math.floor(pct_sge * num_mob/100);
+
+	if (num_mob == 0) { return num_mob; }  // Nobody came
+
+	population[mobtype] += num_mob;
+	population[mobtype+'Cas'] += num_mob;
+	population.esiege += num_sge;
+
+	msg = prettify(num_mob) + ' ' + mobtype + ' attacked';  //xxx L10N
+ 	if (num_sge > 0) { 
+		msg += ', with ' + prettify(num_sge) + ' siege engines';  //xxx L10N
+		document.getElementById('esiegegroup').style.display = 'table-row';
+	} 
+	gameLog(msg);
+	document.getElementById(mobtype+'group').style.display = 'table-row';
 	updateMobs(); //updates page with numbers
+
+	return num_mob;
 }
 
-function smite(){
-	var num;
-	if (population.barbarians > 0){
-		if (piety.total >= population.barbarians * 100){
-			piety.total -= population.barbarians * 100;
-			population.enemiesSlain += population.barbarians;
-			corpses.total += population.barbarians;
-			gameLog('Struck down ' + population.barbarians + ' barbarians');
-			if (upgrades.throne) { throneCount += population.barbarians; }
-			if (upgrades.book) { piety.total += population.barbarians * 10; }
-			population.barbarians = 0;
-			population.barbariansCas = 0;
-		} else if (piety.total >= 100){
-			num = Math.floor(piety.total/100);
-			gameLog('Struck down ' + num + ' barbarians');
-			population.barbarians -= num;
-			population.barbariansCas -= num;
-			population.enemiesSlain += num;
-			corpses.total += num;
-			piety.total -= num * 100;
-			if (upgrades.throne) { throneCount += num; }
-			if (upgrades.book) { piety.total += num * 10; }
-		}
-	}
-	if (population.bandits > 0){
-		if (piety.total >= population.bandits * 100){
-			piety.total -= population.bandits * 100;
-			population.enemiesSlain += population.bandits;
-			corpses.total += population.bandits;
-			gameLog('Struck down ' + population.bandits + ' bandits');
-			if (upgrades.throne) { throneCount += population.bandits; }
-			if (upgrades.book) { piety.total += population.bandits * 10; }
-			population.bandits = 0;
-			population.banditsCas = 0;
-		} else if (piety.total >= 100){
-			num = Math.floor(piety.total/100);
-			gameLog('Struck down ' + num + ' bandits');
-			population.bandits -= num;
-			population.banditsCas -= num;
-			population.enemiesSlain += num;
-			corpses.total += num;
-			piety.total -= num * 100;
-			if (upgrades.throne) { throneCount += num; }
-			if (upgrades.book) { piety.total += num * 10; }
-		}
-	}
-	if (population.wolves > 0){
-		if (piety.total >= population.wolves * 100){
-			piety.total -= population.wolves * 100;
-			population.enemiesSlain += population.wolves;
-			corpses.total += population.wolves;
-			gameLog('Struck down ' + population.wolves + ' wolves');
-			if (upgrades.throne) { throneCount += population.wolves; }
-			if (upgrades.book) { piety.total += population.wolves * 10; }
-			population.wolves = 0;
-			population.wolvesCas = 0;
-		} else if (piety.total >= 100){
-			num = Math.floor(piety.total/100);
-			gameLog('Struck down ' + num + ' wolves');
-			population.wolves -= num;
-			population.wolvesCas -= num;
-			population.enemiesSlain += num;
-			corpses.total += num;
-			piety.total -= num * 100;
-			if (upgrades.throne) { throneCount += num; }
-			if (upgrades.book) { piety.total += num * 10; }
-		}
-	}
+function smiteMob(mobtype) {
+	if (population[mobtype] <= 0) { return 0; }
+	var num = Math.min(population[mobtype],Math.floor(piety.total/100));
+	piety.total -= num * 100;
+	population[mobtype] -= num;
+	population[mobtype+'Cas'] -= num;
+	corpses.total += num; //xxx Should wolves count as corpses?
+	population.enemiesSlain += num;
+	if (upgrades.throne) { throneCount += num; }
+	if (upgrades.book) { piety.total += num * 10; }
+	gameLog('Struck down ' + num + ' ' + mobtype); // L10N
+	return num;
+}
+
+function smiteMobs(){
+	smiteMob('barbariancs');
+	smiteMob('bandits');
+	smiteMob('wolves');
 	updateResourceTotals();
 	updateMobs();
 }
 
 /* War Functions */
 
-//Adds or removes soldiers from army
+//Adds or removes units from army
 function party(job,num){
 	if (num == 'custom') { num = getCustomArmyNumber(); }
-	if (num == 'negcustom') { num = -getCustomArmyNumber(); }
+	if (num == '-custom') { num = -getCustomArmyNumber(); }
 
-	if (job == "soldiersParty"){
-		// checks that there are sufficient soldiers to remove from pool
-		num = Math.min(num, population.soldiers);
-		// checks that there are sufficient soldiers to remove from army
-		num = Math.max(num, -population.soldiersParty);
-		population.soldiersParty += num;
-		population.soldiersPartyCas += num;
-		population.soldiers -= num;
-		population.soldiersCas -= num;
+	if (job == 'soldiers' || job == 'cavalry'){
+		// checks that there are sufficient units in pool
+		num = Math.min(num, population[job]);
+		// checks that there are sufficient units in army
+		num = Math.max(num, -population[job+'Party']);
+		population[job+'Party'] += num;
+		population[job+'Party'+'Cas'] += num;
+		population[job] -= num;
+		population[job+'Cas'] -= num;
 	}
-	if (job == "cavalryParty"){
-		// checks that there are sufficient cavalry to remove from pool
-		num = Math.min(num, population.cavalry);
-		// checks that there are sufficient cavalry to remove from army
-		num = Math.max(num, -population.cavalryParty);
-		population.cavalryParty += num;
-		population.cavalryPartyCas += num;
-		population.cavalry -= num;
-		population.cavalryCas -= num;
-	}
-	if (job == 'siegeParty'){
+	if (job == 'siege'){
 		num = Math.min(num,Math.floor(wood.total/200),Math.floor(metal.total/50),Math.floor(leather.total/50));
 		population.siege += num;
 		wood.total -= 200 * num;
@@ -2861,36 +2774,32 @@ function invade(ecivtype){
 function onInvade(event) { return invade(dataset(event.target,'civtype')); }
 
 function plunder(){
+	var plunderMsg = '';
 	//capture land
-	var landCaptured = raiding.iterations * (10 + (10 * upgrades.administration));
+	var plunderLand = Math.round((1 + upgrades.administration) * raiding.iterations * 10);
 	//randomise loot
-	var plunderFood = Math.round(Math.random() * raiding.iterations * 10),
-		plunderWood = Math.round(Math.random() * raiding.iterations * 10),
-		plunderStone = Math.round(Math.random() * raiding.iterations * 10),
-		plunderSkins = Math.round(Math.random() * raiding.iterations * 10),
-		plunderHerbs = Math.round(Math.random() * raiding.iterations * 10),
-		plunderOre = Math.round(Math.random() * raiding.iterations * 10),
-		plunderLeather = Math.round(Math.random() * raiding.iterations * 10),
-		plunderMetal = Math.round(Math.random() * raiding.iterations * 10);
+	var plunderLoot = {
+		food    : Math.round(Math.random() * raiding.iterations * 10),
+		wood    : Math.round(Math.random() * raiding.iterations * 10),
+		stone   : Math.round(Math.random() * raiding.iterations * 10),
+		skins   : Math.round(Math.random() * raiding.iterations * 10),
+		herbs   : Math.round(Math.random() * raiding.iterations * 10),
+		ore     : Math.round(Math.random() * raiding.iterations * 10),
+		leather : Math.round(Math.random() * raiding.iterations * 10),
+		metal   : Math.round(Math.random() * raiding.iterations * 10)
+	};
+
+	//add loot
+	updateResourceTotals();
+	payFor(plunder,-1);  // We pay for -1 of these to receive them.
+	land += plunderLand;
 
 	// create message to notify player
-	// Special handling for 'a'/'an' ('empire' is the only one that starts with a vowel)
-	var prettyLast = (raiding.last == 'empire') ? 'an ' : 'a ';
-	prettyLast += civSizes[civSizes[raiding.last]].name;
+	plunderMessage = civSizes[civSizes[raiding.last]].name + " defeated! ";
+	plunderMessage += "Plundered " + getReqText(plunderLoot) + ". ";
+	plunderMessage += "Captured " + prettify(plunderLand) + " land.";
+	gameLog(plunderMessage); 
 
-	var plunderMessage = "Defeated " + prettyLast + ". Plundered " + prettify(plunderFood) + " food, " + prettify(plunderWood) + " wood, " + prettify(plunderStone) + " stone, " + prettify(plunderSkins) + " skins, " + prettify(plunderHerbs) + " herbs, " + prettify(plunderOre) + " ore, " + prettify(plunderLeather) + " leather, and " + prettify(plunderMetal) + " metal. Captured " + prettify(landCaptured) + " land.";
-	//add loot
-	land += landCaptured;
-	updateResourceTotals();
-	food.total += plunderFood;
-	wood.total += plunderWood;
-	stone.total += plunderStone;
-	skins.total += plunderSkins;
-	herbs.total += plunderHerbs;
-	ore.total += plunderOre;
-	leather.total += plunderLeather;
-	metal.total += plunderMetal;
-	gameLog(plunderMessage); //notify player
 	raiding.raiding = false; //ends the raid state
 	raiding.victory = false; //ends the victory state
 	document.getElementById('victoryGroup').style.display = 'none';
@@ -3545,11 +3454,11 @@ function reset(){
 	document.getElementById('stableRow').style.display = 'none';
 	document.getElementById('millRow').style.display = 'none';
 	document.getElementById('fortificationRow').style.display = 'none';
-	document.getElementById('tannergroup').style.display = 'none';
-	document.getElementById('blacksmithgroup').style.display = 'none';
-	document.getElementById('healergroup').style.display = 'none';
-	document.getElementById('clericgroup').style.display = 'none';
-	document.getElementById('soldiergroup').style.display = 'none';
+	document.getElementById('tannersgroup').style.display = 'none';
+	document.getElementById('blacksmithsgroup').style.display = 'none';
+	document.getElementById('healersgroup').style.display = 'none';
+	document.getElementById('clericsgroup').style.display = 'none';
+	document.getElementById('soldiersgroup').style.display = 'none';
 	document.getElementById('cavalrygroup').style.display = 'none';
 	document.getElementById('conquest').style.display = 'none';
 	document.getElementById('basicFarming').style.display = 'none';
@@ -3607,27 +3516,16 @@ function plague(sickNum){
 	return actualNum;
 }
 
-// Select a sick worker to cure, with certain priorities
+// Select a sick worker type to cure, with certain priorities
 function getNextPatient()
-{
-	var jobs=['unemployed','farmers','woodcutters','miners','tanners','blacksmiths',
-			  'healers','clerics','labourers','cavalry','soldiers'];
-	for (var i=0;i<jobs.length;++i)
+{ 
+	var i;
+	var jobs=['healers','farmers','soldiers','cavalry','clerics','labourers',
+		'woodcutters','miners','tanners','blacksmiths','unemployed'];
+	for (i=0;i<jobs.length;++i)
 	{
-		if (population[jobs[i]] > 0) { return jobs[i]; }
+		if (population[jobs[i]+'Ill'] > 0) { return jobs[i]; }
 	}
-
-	if (population.healersIll     > 0) { return 'healers'     ; } // Don't all get sick
-	if (population.farmersIll     > 0) { return 'farmers'     ; } // Don't starve
-	if (population.soldiersIll    > 0) { return 'soldiers'    ; } // Don't get attacked
-	if (population.cavalryIll     > 0) { return 'cavalry'     ; } // Don't get attacked
-	if (population.clericsIll     > 0) { return 'clerics'     ; } // Bury corpses to make this problem go away
-	if (population.labourersIll   > 0) { return 'labourers'   ; } 
-	if (population.woodcuttersIll > 0) { return 'woodcutters' ; } 
-	if (population.minersIll      > 0) { return 'miners'      ; } 
-	if (population.tannersIll     > 0) { return 'tanners'     ; } 
-	if (population.blacksmithsIll > 0) { return 'blacksmiths' ; } 
-	if (population.unemployedIll  > 0) { return 'unemployed'  ; }
 
 	return '';
 }
@@ -3792,20 +3690,20 @@ window.setInterval(function(){
 			if (population.current + population.zombies >= 10000){
 				var choose = Math.random();
 				if (choose > 0.5){
-					spawnMob('barbarian');
+					spawnMob('barbarians');
 				} else if (choose > 0.2){
-					spawnMob('bandit');
+					spawnMob('bandits');
 				} else {
-					spawnMob('wolf');
+					spawnMob('wolves');
 				}
 			} else if (population.current + population.zombies >= 1000){
 				if (Math.random() > 0.5){
-					spawnMob('bandit');
+					spawnMob('bandits');
 				} else {
-					spawnMob('wolf');
+					spawnMob('wolves');
 				}
 			} else {
-				spawnMob('wolf');
+				spawnMob('wolves');
 			}
 		}
 	}
