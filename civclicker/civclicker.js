@@ -27,7 +27,7 @@ var version = 19;
 var versionData = {
 	major:  1,
 	minor:  1,
-	sub:   21,
+	sub:   22,
 	mod:   'alpha'
 };
 var logRepeat = 1;
@@ -1173,33 +1173,33 @@ function updateJobs(){
 	//Update the page with the latest worker distribution and stats
 	document.getElementById('unemployed').innerHTML = prettify(population.unemployed);
 	document.getElementById('farmers').innerHTML = prettify(population.farmers);
-	updateJobButtons('farmers','farmer',false,false);
+	updateJobButtons('farmers',false,false);
 	document.getElementById('woodcutters').innerHTML = prettify(population.woodcutters);
-	updateJobButtons('woodcutters','woodcutter',false,false);
+	updateJobButtons('woodcutters',false,false);
 	document.getElementById('miners').innerHTML = prettify(population.miners);
-	updateJobButtons('miners','miner',false,false);
+	updateJobButtons('miners',false,false);
 	document.getElementById('tanners').innerHTML = prettify(population.tanners);
-	updateJobButtons('tanners','tanner',tannery,1);
+	updateJobButtons('tanners',tannery,1);
 	document.getElementById('blacksmiths').innerHTML = prettify(population.blacksmiths);
-	updateJobButtons('blacksmiths','blacksmith',smithy,1);
+	updateJobButtons('blacksmiths',smithy,1);
 	document.getElementById('healers').innerHTML = prettify(population.healers);
-	updateJobButtons('healers','healer',apothecary,1);
+	updateJobButtons('healers',apothecary,1);
 	document.getElementById('clerics').innerHTML = prettify(population.clerics);
-	updateJobButtons('clerics','cleric',temple,1);
+	updateJobButtons('clerics',temple,1);
 	document.getElementById('labourers').innerHTML = prettify(population.labourers);
-	updateJobButtons('labourers','labourer',false,false);
+	updateJobButtons('labourers',false,false);
 	document.getElementById('soldiers').innerHTML = prettify(population.soldiers);
-	updateJobButtons('soldiers','soldier',barracks,10);
+	updateJobButtons('soldiers',barracks,10);
 	document.getElementById('cavalry').innerHTML = prettify(population.cavalry);
-	updateJobButtons('cavalry','cavalry',stable,10);
+	updateJobButtons('cavalry',stable,10);
 	document.getElementById('corpses').innerHTML = prettify(corpses.total);
 	document.getElementById('popzombies').innerHTML = prettify(population.zombies);
 	document.getElementById('cats').innerHTML = prettify(population.cats);
 	document.getElementById('enemiesSlain').innerHTML = prettify(population.enemiesSlain);
 }
 //xxx BUG:  This function isn't taking illness or deployment into account.
-function updateJobButtons(job,name,building,support){
-	var elem = document.getElementById(name + 'group');
+function updateJobButtons(job,building,support){
+	var elem = document.getElementById(job + 'group');
 	if (building){
 		elem.children[0].children[0].disabled = (population[job] <   1); // None
 		elem.children[2].children[0].disabled = (population[job] < 100); // -100
@@ -2004,59 +2004,58 @@ function spawn(num){
 	return num;
 }
 
-function jobCull(){
-	//This should probably be renamed the starve function. Culls workers when they starve, in a specific order.
-	if (population.unemployedIll > 0){ population.unemployedIll -= 1; }
-	else if (population.blacksmithsIll > 0){ population.blacksmithsIll -= 1; }
-	else if (population.tannersIll > 0){ population.tannersIll -= 1; }
-	else if (population.minersIll > 0){ population.minersIll -= 1; }
-	else if (population.woodcuttersIll > 0){ population.woodcuttersIll -= 1; }
-	else if (population.clericsIll > 0){ population.clericsIll -= 1; }
-	else if (population.cavalryIll > 0){
-		population.cavalryIll -= 1;
-		population.cavalryCasIll -= 1;
-		if (population.cavalryCasIll < 0) { population.cavalryCasIll = 0; }
-	} else if (population.soldiersIll > 0){
-		population.soldiersIll -= 1;
-		population.soldiersCasIll -= 1;
-		if (population.soldiersCasIll < 0) { population.soldiersCasIll = 0; }
-	} else if (population.healersIll > 0){ population.healersIll -= 1; }
-	else if (population.labourersIll > 0){ population.labourersIll -= 1; }
-	else if (population.farmersIll > 0){ population.farmersIll -= 1; }
-	else if (population.unemployed > 0){ population.unemployed -= 1; }
-	else if (population.blacksmiths > 0){ population.blacksmiths -= 1; }
-	else if (population.tanners > 0){ population.tanners -= 1; }
-	else if (population.miners > 0){ population.miners -= 1; }
-	else if (population.woodcutters > 0){ population.woodcutters -= 1; }
-	else if (population.labourers > 0){ population.labourers -= 1; }
-	else if (population.clerics > 0){ population.clerics -= 1; }
-	else if (population.cavalry > 0){
-		population.cavalry -= 1;
-		population.cavalryCas -= 1;
-		if (population.cavalryCas < 0) { population.cavalryCas = 0; }
-	} else if (population.soldiers > 0){
-		population.soldiers -= 1;
-		population.soldiersCas -= 1;
-		if (population.soldiersCas < 0) { population.soldiersCas = 0; }
-	} else if (population.healers > 0){ population.healers -= 1; }
-	else if (population.farmers > 0){ population.farmers -= 1; }
-	else if (population.cavalryParty > 0){
-		population.cavalryParty -= 1;
-		population.cavalryPartyCas -= 1;
-		if (population.cavalryPartyCas < 0) { population.cavalryPartyCas = 0; }
-		updateParty();
-	} else if (population.soldiersParty > 0) {
-		population.soldiersParty -= 1;
-		population.soldiersPartyCas -= 1;
-		if (population.soldiersPartyCas < 0) { population.soldiersPartyCas = 0; }
-		updateParty();
+// Picks the next worker to starve.  Kills the sick first, then the healthy.
+// Deployed military starve last.
+// Return a structure with two fields:
+//   job: The job ID of the selected target.
+//   base: The base occupation of the selected target.
+function pickStarveTarget() {
+	var modNum,jobNum;
+	var modList=['Ill','']; // The sick starve first
+	var jobList=['unemployed','blacksmiths','tanners','miners','woodcutters',
+		'clerics','cavalry','soldiers','healers','labourers','farmers'];
+
+	for (modNum=0;modNum<modList.length;++modNum)
+	{
+		for (jobNum=0;jobNum<jobList.length;++jobNum)
+		{
+			if (population[jobList[jobNum]+modList[modNum]] > 0) 
+				{ return {job:  jobList[jobNum]+modList[modNum], 
+				          base: jobList[jobNum]}; }
+		}
 	}
-	//Increments corpse number
-	corpses.total += 1;
-	//Workers dying may trigger Book of the Dead
-	if (upgrades.book) {
-		piety.total += 10;
+	if (population.cavalryParty > 0) { return {job: 'cavalryParty', base: 'cavalry'}; }
+	if (population.soldiersParty > 0) { return {job: 'soldiersParty', base: 'soldiers'}; }
+
+	return {job: '', base:''};
+}
+
+// Culls workers when they starve.
+function starve(num) {
+	var target,i;
+	if (num === undefined) { num = 1; }
+	num = Math.min(num,population.current);
+
+	for (i=0;i<num;++i)
+	{
+		target = pickStarveTarget();
+		if (target.job == '') { return i; }
+
+		--population[target.job];
+
+		if (target.base == 'soldiers' || target.base == 'cavalry')
+		{
+			if (--population[target.job+'Cas'] < 0)
+				{ population[target.job+'Cas'] = 0; }
+			updateParty();
+		}
+
+		++corpses.total; //Increments corpse number
+		//Workers dying may trigger Book of the Dead
+		if (upgrades.book) { piety.total += 10; }
 	}
+
+	return num;
 }
 
 // Hires or fires workers to/from a specific job.
@@ -2486,6 +2485,7 @@ function digGraves(num){
 }
 
 //Selects a random healthy worker based on their proportions in the current job distribution.
+//xxx Doesn't currently pick from the army
 function randomHealthyWorker(){
 	var num = Math.random() * population.healthy;
 	var jobs=['unemployed','farmers','woodcutters','miners','tanners','blacksmiths',
@@ -2795,10 +2795,10 @@ function plunder(){
 	land += plunderLand;
 
 	// create message to notify player
-	plunderMessage = civSizes[civSizes[raiding.last]].name + " defeated! ";
-	plunderMessage += "Plundered " + getReqText(plunderLoot) + ". ";
-	plunderMessage += "Captured " + prettify(plunderLand) + " land.";
-	gameLog(plunderMessage); 
+	plunderMsg = civSizes[civSizes[raiding.last]].name + " defeated! ";
+	plunderMsg += "Plundered " + getReqText(plunderLoot) + ". ";
+	plunderMsg += "Captured " + prettify(plunderLand) + " land.";
+	gameLog(plunderMsg); 
 
 	raiding.raiding = false; //ends the raid state
 	raiding.victory = false; //ends the victory state
@@ -3478,6 +3478,61 @@ function reset(){
 	renameRuler();
 }
 
+function doFarmers() {
+	var millMod = 1;
+	if (population.current > 0 || population.zombies > 0) { millMod = population.current / (population.current + population.zombies); }
+	food.net = population.farmers * (1 + (efficiency.farmers * efficiency.happiness)) * (1 + efficiency.pestBonus) * (1 + (wonder.food/10)) * (1 + walkTotal/120) * (1 + mill.total * millMod / 200); //Farmers farm food
+	food.net -= population.current; //The living population eats food.
+	food.total += food.net;
+	if (upgrades.skinning == 1 && population.farmers > 0){ //and sometimes get skins
+		var num_skins = food.specialchance * (food.increment + (upgrades.butchering * population.farmers / 15.0)) * (1 + (wonder.skins/10));
+		skins.total += Math.floor(num_skins);
+		if (Math.random() < (num_skins - Math.floor(num_skins))) { ++skins.total; }
+	}
+}
+function doWoodcutters() {
+	wood.net = population.woodcutters * (efficiency.woodcutters * efficiency.happiness) * (1 + (wonder.wood/10)); //Woodcutters cut wood
+	wood.total += wood.net;
+	if (upgrades.harvesting == 1 && population.woodcutters > 0){ //and sometimes get herbs
+		var num_herbs = wood.specialchance * (wood.increment + (upgrades.gardening * population.woodcutters / 5.0)) * (1 + (wonder.wood/10));
+		herbs.total += Math.floor(num_herbs);
+		if (Math.random() < (num_herbs - Math.floor(num_herbs))) { ++herbs.total; }
+	}
+}
+
+function doMiners() {
+	stone.net = population.miners * (efficiency.miners * efficiency.happiness) * (1 + (wonder.stone/10)); //Miners mine stone
+	stone.total += stone.net;
+	if (upgrades.prospecting == 1 && population.miners > 0){ //and sometimes get ore
+		var num_ore = stone.specialchance * (stone.increment + (upgrades.extraction * population.miners / 5.0)) * (1 + (wonder.ore/10));
+		ore.total += Math.floor(num_ore);
+		if (Math.random() < (num_ore - Math.floor(num_ore))) { ++ore.total; }
+	}
+}
+
+function doBlacksmiths() {
+	if (ore.total >= population.blacksmiths * (efficiency.blacksmiths * efficiency.happiness)){
+		metal.total += population.blacksmiths * (efficiency.blacksmiths * efficiency.happiness) * (1 + (wonder.metal/10));
+		ore.total -= population.blacksmiths * (efficiency.blacksmiths * efficiency.happiness);
+	} else if (population.blacksmiths) {
+		metal.total += ore.total * (1 + (wonder.metal/10));
+		ore.total = 0;
+	}
+}
+
+function doTanners() {
+	if (skins.total >= population.tanners * (efficiency.tanners * efficiency.happiness)){
+		leather.total += population.tanners * (efficiency.tanners * efficiency.happiness) * (1 + (wonder.leather/10));
+		skins.total -= population.tanners * (efficiency.tanners * efficiency.happiness);
+	} else if (population.tanners) {
+		leather.total += skins.total * (1 + (wonder.leather/10));
+		skins.total = 0;
+	}
+}
+
+function doClerics() {
+	piety.total += population.clerics * (efficiency.clerics + (efficiency.clerics * upgrades.writing)) * (1 + (upgrades.secrets * (1 - 100/(graveyard.total + 100)))) * efficiency.happiness * (1 + (wonder.piety/10));
+}
 // Try to heal the specified number of people in the specified job
 // Makes them sick if the number is negative.
 function heal(job,num)
@@ -3554,6 +3609,20 @@ function doHealers() {
 	return numHealed;
 }
 
+function doGraveyards()
+{
+	if (corpses.total > 0 && population.graves > 0){
+		//Clerics will bury corpses if there are graves to fill and corpses lying around
+		for (i=0;i<population.clerics;i++){
+			if (corpses.total > 0 && population.graves > 0){
+				corpses.total -= 1;
+				population.graves -= 1;
+			}
+		}
+		updatePopulation();
+	}
+}
+
 function doCorpses() {
 	if (corpses.total <= 0) { return; }
 
@@ -3574,167 +3643,8 @@ function doCorpses() {
 	}
 }
 
-
-/* Timed functions */
-
-window.setInterval(function(){
+function doMobs() {
 	var i;
-	//The whole game runs on a single setInterval clock. Basically this whole list is run every second
-	//and should probably be minimised as much as possible.
-
-	//debugging - mark beginning of loop execution
-	//var start = new Date().getTime();
-	
-	//Autosave
-	if (autosave == "on") {
-		autosaveCounter += 1;
-		if (autosaveCounter >= 60){ //Currently autosave is every minute. Might change to 5 mins in future.
-			save('auto');
-			autosaveCounter = 1;
-		}
-	}
-	
-	//Resource-related
-	
-	var millMod = 1;
-	if (population.current > 0 || population.zombies > 0) { millMod = population.current / (population.current + population.zombies); }
-	food.net = population.farmers * (1 + (efficiency.farmers * efficiency.happiness)) * (1 + efficiency.pestBonus) * (1 + (wonder.food/10)) * (1 + walkTotal/120) * (1 + mill.total * millMod / 200); //Farmers farm food
-	food.net -= population.current; //The living population eats food.
-	food.total += food.net;
-	if (upgrades.skinning == 1 && population.farmers > 0){ //and sometimes get skins
-		var num_skins = food.specialchance * (food.increment + (upgrades.butchering * population.farmers / 15.0)) * (1 + (wonder.skins/10));
-		skins.total += Math.floor(num_skins);
-		if (Math.random() < (num_skins - Math.floor(num_skins))) { ++skins.total; }
-	}
-	wood.net = population.woodcutters * (efficiency.woodcutters * efficiency.happiness) * (1 + (wonder.wood/10)); //Woodcutters cut wood
-	wood.total += wood.net;
-	if (upgrades.harvesting == 1 && population.woodcutters > 0){ //and sometimes get herbs
-		var num_herbs = wood.specialchance * (wood.increment + (upgrades.gardening * population.woodcutters / 5.0)) * (1 + (wonder.wood/10));
-		herbs.total += Math.floor(num_herbs);
-		if (Math.random() < (num_herbs - Math.floor(num_herbs))) { ++herbs.total; }
-	}
-	stone.net = population.miners * (efficiency.miners * efficiency.happiness) * (1 + (wonder.stone/10)); //Miners mine stone
-	stone.total += stone.net;
-	if (upgrades.prospecting == 1 && population.miners > 0){ //and sometimes get ore
-		var num_ore = stone.specialchance * (stone.increment + (upgrades.extraction * population.miners / 5.0)) * (1 + (wonder.ore/10));
-		ore.total += Math.floor(num_ore);
-		if (Math.random() < (num_ore - Math.floor(num_ore))) { ++ore.total; }
-	}
-	var starve;
-	if (food.total < 0) { //and will starve if they don't have enough
-		if (upgrades.waste && corpses.total >= (food.total * -1)){ //population eats corpses instead
-			corpses.total = Math.floor(corpses.total + food.total);
-		} else if (upgrades.waste && corpses.total > 0){ //corpses mitigate starvation
-			starve = Math.ceil((population.current - corpses.total)/1000);
-			if (starve == 1) { gameLog('A worker starved to death'); }
-			if (starve > 1) { gameLog(prettify(starve) + ' workers starved to death'); }
-			for (i=0; i<starve; i++){
-				jobCull();
-			}
-			updateJobs();
-			corpses.total = 0;
-		} else { //they just starve
-			starve = Math.ceil(population.current/1000);
-			if (starve == 1) { gameLog('A worker starved to death'); }
-			if (starve > 1) { gameLog(prettify(starve) + ' workers starved to death'); }
-			for (i=0; i<starve; i++){
-				jobCull();
-			}
-			updateJobs();
-			mood(-0.01);
-		}
-		food.total = 0;
-		updatePopulation(); //Called because jobCull doesn't. May just change jobCull?
-	}
-	//Workers convert secondary resources into tertiary resources
-	if (ore.total >= population.blacksmiths * (efficiency.blacksmiths * efficiency.happiness)){
-		metal.total += population.blacksmiths * (efficiency.blacksmiths * efficiency.happiness) * (1 + (wonder.metal/10));
-		ore.total -= population.blacksmiths * (efficiency.blacksmiths * efficiency.happiness);
-	} else if (population.blacksmiths) {
-		metal.total += ore.total * (1 + (wonder.metal/10));
-		ore.total = 0;
-	}
-	if (skins.total >= population.tanners * (efficiency.tanners * efficiency.happiness)){
-		leather.total += population.tanners * (efficiency.tanners * efficiency.happiness) * (1 + (wonder.leather/10));
-		skins.total -= population.tanners * (efficiency.tanners * efficiency.happiness);
-	} else if (population.tanners) {
-		leather.total += skins.total * (1 + (wonder.leather/10));
-		skins.total = 0;
-	}
-
-	//Resources occasionally go above their caps.
-	//Cull the excess /after/ the blacksmiths and tanners take their inputs.
-	if (food.total > 200 + ((barn.total + (barn.total * upgrades.granaries)) * 200)){
-		food.total = 200 + ((barn.total + (barn.total * upgrades.granaries)) * 200);
-	}
-	if (wood.total > 200 + (woodstock.total * 200)){
-		wood.total = 200 + (woodstock.total * 200);
-	}
-	if (stone.total > 200 + (stonestock.total * 200)){
-		stone.total = 200 + (stonestock.total * 200);
-	}
-
-	//Clerics generate piety
-	piety.total += population.clerics * (efficiency.clerics + (efficiency.clerics * upgrades.writing)) * (1 + (upgrades.secrets * (1 - 100/(graveyard.total + 100)))) * efficiency.happiness * (1 + (wonder.piety/10));
-	
-	//Timers - routines that do not occur every second
-	
-	//Checks when mobs will attack
-	var check;
-	if (population.current + population.zombies > 0) { attackCounter += 1; }
-	if (population.current + population.zombies > 0 && attackCounter > (60 * 5)){ //Minimum 5 minutes
-		check = Math.random() * 600;
-		if (check < 1){
-			attackCounter = 0;
-			//Chooses which kind of mob will attack
-			if (population.current + population.zombies >= 10000){
-				var choose = Math.random();
-				if (choose > 0.5){
-					spawnMob('barbarians');
-				} else if (choose > 0.2){
-					spawnMob('bandits');
-				} else {
-					spawnMob('wolves');
-				}
-			} else if (population.current + population.zombies >= 1000){
-				if (Math.random() > 0.5){
-					spawnMob('bandits');
-				} else {
-					spawnMob('wolves');
-				}
-			} else {
-				spawnMob('wolves');
-			}
-		}
-	}
-	//Decrements the pestTimer, and resets the bonus once it runs out
-	if (pestTimer > 0){
-		pestTimer -= 1;
-	} else {
-		efficiency.pestBonus = 0;
-	}
-	
-	//Handles the Glory bonus
-	if (gloryTimer > 0){
-		document.getElementById('gloryTimer').innerHTML = gloryTimer;
-		gloryTimer -= 1;
-	} else {
-		document.getElementById('gloryGroup').style.display = 'none';
-	}
-	
-	//traders occasionally show up
-	if (population.current + population.zombies > 0) { tradeCounter += 1; }
-	if (population.current + population.zombies > 0 && tradeCounter > (60 * (3 - upgrades.currency - upgrades.commerce))){
-		check = Math.random() * (60 * (3 - upgrades.currency - upgrades.commerce));
-		if (check < (1 + (0.2 * upgrades.comfort))){
-			tradeCounter = 0;
-			tradeTimer();
-		}
-	}
-	
-	updateResourceTotals(); //This is the point where the page is updated with new resource totals
-	
-	//Population-related
 	var mobCasualties,
 		mobCasFloor,
 		casualties,
@@ -4078,6 +3988,7 @@ window.setInterval(function(){
 			}
 		}	
 	}
+
 	if (population.shades > 0){
 		if (population.wolves >= population.shades/4){
 			population.wolves -= Math.floor(population.shades/4);
@@ -4145,6 +4056,17 @@ window.setInterval(function(){
 		}
 		updateMobs();
 	}
+}
+
+function doRaid() {
+	var i;
+	var mobCasualties,
+		mobCasFloor,
+		casualties,
+		casFloor;
+
+	var hit;
+	var firing;
 
 	if (raiding.raiding){ //handles the raiding subroutine
 		if (population.soldiersParty > 0 || population.cavalryParty || raiding.victory){ //technically you can win, then remove all your soldiers
@@ -4291,42 +4213,9 @@ window.setInterval(function(){
 	} else {
 		document.getElementById('raidGroup').style.display = 'block';
 	}
-	
-	if (corpses.total > 0 && population.graves > 0){
-		//Clerics will bury corpses if there are graves to fill and corpses lying around
-		for (i=0;i<population.clerics;i++){
-			if (corpses.total > 0 && population.graves > 0){
-				corpses.total -= 1;
-				population.graves -= 1;
-			}
-		}
-		updatePopulation();
-	}
+}
 
-	doHealers();
-	doCorpses();
-
-	if (population.totalSick > population.healthy && !achievements.plague){ //Plagued achievement requires sick people to outnumber healthy
-		achievements.plague = 1;
-		gameLog('Achievement Unlocked: Plagued');
-		updateAchievements();
-	}
-
-	if (throneCount >= 100){
-		//If sufficient enemies have been slain, build new temples for free
-		temple.total += Math.floor(throneCount/100);
-		throneCount = 0;
-		updateResourceTotals();
-	}
-	
-	if (graceCost > 1000) {
-		graceCost -= 1;
-		graceCost = Math.floor(graceCost);
-		document.getElementById('graceCost').innerHTML = prettify(graceCost);
-	}
-	
-	doWalk();
-	
+function doLabourers() {
 	if (wonder.building){
 		if (wonder.progress >= 100){
 			//Wonder is finished! First, send workers home
@@ -4396,9 +4285,159 @@ window.setInterval(function(){
 		}
 		updateWonder();
 	}
+}	
+
+/* Timed functions */
+
+window.setInterval(function(){
+	//The whole game runs on a single setInterval clock. Basically this whole list is run every second
+	//and should probably be minimised as much as possible.
+
+	//debugging - mark beginning of loop execution
+	//var start = new Date().getTime();
 	
+	//Autosave
+	if (autosave == "on") {
+		autosaveCounter += 1;
+		if (autosaveCounter >= 60){ //Currently autosave is every minute. Might change to 5 mins in future.
+			save('auto');
+			autosaveCounter = 1;
+		}
+	}
+	
+	//Resource-related
+	doFarmers();
+	doWoodcutters();
+	doMiners();
+	
+	// Check for starvation
+	var corpsesEaten;
+	if (food.total < 0 && upgrades.waste) // Workers eat corpses if needed
+	{
+		corpsesEaten = Math.min(corpses.total,-food.total);
+		corpses.total -= corpsesEaten;
+		food.total += corpsesEaten;
+	}
+
+	var num_starve;
+	if (food.total < 0) { // starve if there's not enough food.
+		//xxx This is very kind.  Only 0.1% deaths no matter how big the shortage?
+		num_starve = starve(Math.ceil(population.current/1000));
+		if (num_starve == 1) { gameLog('A worker starved to death'); }
+		if (num_starve > 1) { gameLog(prettify(num_starve) + ' workers starved to death'); }
+		updateJobs();
+		mood(-0.01);
+		food.total = 0;
+		updatePopulation(); //Called because starve() doesn't. May just change starve()?
+	}
+	//Workers convert secondary resources into tertiary resources
+	doBlacksmiths();
+	doTanners();
+
+	//Resources occasionally go above their caps.
+	//Cull the excess /after/ the blacksmiths and tanners take their inputs.
+	if (food.total > 200 + ((barn.total + (barn.total * upgrades.granaries)) * 200)){
+		food.total = 200 + ((barn.total + (barn.total * upgrades.granaries)) * 200);
+	}
+	if (wood.total > 200 + (woodstock.total * 200)){
+		wood.total = 200 + (woodstock.total * 200);
+	}
+	if (stone.total > 200 + (stonestock.total * 200)){
+		stone.total = 200 + (stonestock.total * 200);
+	}
+
+	//Clerics generate piety
+	doClerics();
+	
+	//Timers - routines that do not occur every second
+	
+	//Checks when mobs will attack
+	var check;
+	if (population.current + population.zombies > 0) { attackCounter += 1; }
+	if (population.current + population.zombies > 0 && attackCounter > (60 * 5)){ //Minimum 5 minutes
+		check = Math.random() * 600;
+		if (check < 1){
+			attackCounter = 0;
+			//Chooses which kind of mob will attack
+			if (population.current + population.zombies >= 10000){
+				var choose = Math.random();
+				if (choose > 0.5){
+					spawnMob('barbarians');
+				} else if (choose > 0.2){
+					spawnMob('bandits');
+				} else {
+					spawnMob('wolves');
+				}
+			} else if (population.current + population.zombies >= 1000){
+				if (Math.random() > 0.5){
+					spawnMob('bandits');
+				} else {
+					spawnMob('wolves');
+				}
+			} else {
+				spawnMob('wolves');
+			}
+		}
+	}
+	//Decrements the pestTimer, and resets the bonus once it runs out
+	if (pestTimer > 0){
+		pestTimer -= 1;
+	} else {
+		efficiency.pestBonus = 0;
+	}
+	
+	//Handles the Glory bonus
+	if (gloryTimer > 0){
+		document.getElementById('gloryTimer').innerHTML = gloryTimer;
+		gloryTimer -= 1;
+	} else {
+		document.getElementById('gloryGroup').style.display = 'none';
+	}
+	
+	//traders occasionally show up
+	if (population.current + population.zombies > 0) { tradeCounter += 1; }
+	if (population.current + population.zombies > 0 && tradeCounter > (60 * (3 - upgrades.currency - upgrades.commerce))){
+		check = Math.random() * (60 * (3 - upgrades.currency - upgrades.commerce));
+		if (check < (1 + (0.2 * upgrades.comfort))){
+			tradeCounter = 0;
+			tradeTimer();
+		}
+	}
+	
+	updateResourceTotals(); //This is the point where the page is updated with new resource totals
+	
+	//Population-related
+	doMobs();
+	doRaid();
+
+	doGraveyards();
+	doHealers();
+	doCorpses();
+
+	if (population.totalSick > population.healthy && !achievements.plague){ //Plagued achievement requires sick people to outnumber healthy
+		achievements.plague = 1;
+		gameLog('Achievement Unlocked: Plagued');
+		updateAchievements();
+	}
+
+	if (throneCount >= 100){
+		//If sufficient enemies have been slain, build new temples for free
+		temple.total += Math.floor(throneCount/100);
+		throneCount = 0;
+		updateResourceTotals();
+	}
+	
+	if (graceCost > 1000) {
+		graceCost -= 1;
+		graceCost = Math.floor(graceCost);
+		document.getElementById('graceCost').innerHTML = prettify(graceCost);
+	}
+	
+	doWalk();
+	
+	doLabourers();
+
 	//Trader stuff
-	
 	if (trader.timer > 0){
 		if (trader.timer > 1){
 			trader.timer -= 1;

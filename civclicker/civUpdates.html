@@ -24,52 +24,49 @@
 <h1>CivClicker Updates</h1>
 	<h2>2014-05-09: v1.1.22(alpha)</h2>
 	<p>
-		Significant refactoring of the mob code.
-		Some more refactoring of the healing code.
+		Fix a bug in the healing code, introduced in v1.1.21.
+	</p><p>
+		Major refactoring of the main game loop, breaking it into functions.
+	</p><p>
+		Significant refactoring of the mob, starvation, and healing code.
+	</p><p>
 		Made a variety of identifiers more consistent to facilitate further refactoring.
 	</p>
 	<h2>2014-05-08: v1.1.21(alpha)</h2>
 	<p>
 		The 'Plagued' achievement is tested more frequently, instead of only
 		when someone gets sick.
-	</p>
-	<p>
+	</p><p>
 		Refactor the code for plague and healing.
 	</p>
 	<h2>2014-05-05: v1.1.20(alpha)</h2>
 	<p>
 		Fix a bug in isValid(), which affected the loading of Object-type data.
-	</p>
-	<p>
+	</p><p>
 		Fix a bug in the conquest pane display.
 	</p>
 	<h2>2014-05-01: v1.1.19 (alpha)</h2>
 	<p>
 		Fix a bug in the building code introduced in v1.1.18.
-	</p>
-	<p>
+	</p><p>
 		Some more refactoring of the hire/fire routine.
 	</p>
 	<h2>2014-04-30: v1.1.18 (alpha)</h2>
 	<p>
 		Make the requirements and building devotion handling code more robust,
 		so that buildings don't have to specify them if they are zero.
-	</p>
-	<p>
+	</p><p>
 		Fix some more dataset related bugs.
 	</p>
 	<h2>2014-04-29: v1.1.17 (alpha)</h2>
 	<p>
 		Apothecary (the profession) renamed to 'Healer' to avoid confusion with
 		Apothecary (the building).
-	</p>
-	<p>
+	</p><p>
 		Save games now have embedded version information.
-	</p>
-	<p>
+	</p><p>
 		Put in a shim around the HTML dataset API so IE &lt; 11 doesn't break.
-	</p>
-	<p>
+	</p><p>
 		Fix a bug introduced in v1.1.16 that prevented the +10 Workers from
 		appearing properly.
 	</p>
@@ -77,77 +74,62 @@
 	<p>
 		The Deity, Conquest, and Trade panels are now hidden until they
 		become useful.
-	</p>
-	<p>
+	</p><p>
 		Refactor the upgrade code to less than 20% its former size.
 	</p>
 	<h2>2014-04-27: v1.1.15 (alpha)</h2>
 	<p>
 		Wonder progress is now displayed to two decimal places.
-	</p>
-	<p>
+	</p><p>
 		There is now a log message for manual discovery of special resources.
-	</p>
-	<p>
+	</p><p>
 		Battle Standard, Deity, and Trade buttons are now properly disabled
 		when the player cannot afford them (Original Bug)
-	</p>
-	<p>
+	</p><p>
 		Refactored the combat party code and some of the tab panel code.
 	</p>
 	<h2>2014-04-25: v1.1.14 (alpha)</h2>
 	<p>
 		Raid buttons are now disabled when you have no combat troops deployed.
-	</p>
-	<p>
+	</p><p>
 		Civilization and ruler names are no longer left undefined after
 		resetting (Original Bug)
-	</p>
-	<p>
+	</p><p>
 		Simplify the reset and saved game loading routines.
 	</p>
 	<h2>2014-04-24: v1.1.13 (alpha)</h2>
 	<p>
 		Worker (and zombie) spawn buttons now include a 'Max' option (which
 		operates in O(lg(n)) time, which should be acceptably responsive)
-	</p>
-	<p>
+	</p><p>
 		Corpses are now treated as a resource, rather than a population unit.
 		Unfortunately, this slightly breaks compatibility with prior versions;
 		v1.1.13+ will load prior save games, but prior versions will lose their
 		corpses if they try to load a v1.1.13+ save game.
-	</p>
-	<p>
+	</p><p>
 		Moved the displays for happiness, free land, and zombies to be in more 
 		useful places.
-	</p>
-	<p>
+	</p><p>
 		Removed the panel subheadings; they were taking up space, and not
 		conveying useful information.
-	</p>
-	<p>
+	</p><p>
 		All costs are now calculated to full precision, although the display is
 		rounded to the nearest integer.  Button emable/disable is also now
 		performed on the unrounded values, so users may occasionally see that
 		button enable/disable effects are not perfectly synchronized with the
 		number displayed.  This is because the enable/disable uses the exact
 		value, whereas the number displayed rounded first.
-	</p>
-	<p>
+	</p><p>
 		Fix the dynamic cost updates broken by 1.1.12 changes.
-	</p>
-	<p>
+	</p><p>
 		Fix the background so it stretches to cover again.
-	</p>
-	<p>
+	</p><p>
 		Raise Dead buttons now enable and disable properly.
-	</p>
-	<p>
+	</p><p>
 		Replaced the worker and zombie cost iterative calculator with a
 		constant-time formula version.  This should improve responsiveness
 		with large numbers.
-	</p>
-	<p>
+	</p><p>
 		Consolidated all of the assorted hire/fire functions into one.
 	</p>
 	<h2>2014-04-06: v1.1.12 (alpha)</h2>
@@ -202,16 +184,13 @@
 		New workers now start as farmers.  This should prevent them from
 		starving before starting to feed themselves, and save a lot of tedious
 		clicking while growing population in the late game.
-	</p>
-	<p>
+	</p><p>
 		Secondary resource collection should happen more smoothly as your
 		empire grows.
-	</p>
-	<p>
+	</p><p>
 		Soldiers and cavalry now return their equipment resources when
 		reallocated (not when killed).
-	</p>
-	<p>
+	</p><p>
 		Fixed a bug where if you used the +All button for Cavalry, it only
 		deducted half the normal food and leather price. (Original Bug)
 	</p>
@@ -219,16 +198,13 @@
 	<p>
 		I'm going to call this version 1.1 to denote the hosting change, even
 		though the changes are relatively minor.
-	</p>
-	<p>
+	</p><p>
 		Updated references to the web hosting location to point to the new
 		site.
-	</p>
-	<p>
+	</p><p>
 		Ran all the HTML and CSS through the W3C validator, and fixed the
 		issues it found.
-	</p>
-	<p>
+	</p><p>
 		Removed the Google tracking code.
 	</p>
 	<h2>2014-02-13: v1.0</h2>
