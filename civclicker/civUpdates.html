@@ -22,6 +22,15 @@
 </head>
 <body class="hasBackground">
 <h1>CivClicker Updates</h1>
+	<h2>2014-05-12: v1.1.23(alpha)</h2>
+	<p>
+		Dynamically generate the job controls (major refactoring).
+	</p><p>
+		Fix a bug that prevented the writing-based upgrades from being
+		offered.
+	</p><p>
+		Fix a bug that prevented the 'Cease Walk' button from enabling.
+	</p>
 	<h2>2014-05-09: v1.1.22(alpha)</h2>
 	<p>
 		Fix a bug in the healing code, introduced in v1.1.21.
@@ -30,7 +39,7 @@
 	</p><p>
 		Significant refactoring of the mob, starvation, and healing code.
 	</p><p>
-		Made a variety of identifiers more consistent to facilitate further refactoring.
+		Made a variety of in-code identifiers more consistent to facilitate further refactoring.
 	</p>
 	<h2>2014-05-08: v1.1.21(alpha)</h2>
 	<p>
@@ -60,12 +69,12 @@
 	</p>
 	<h2>2014-04-29: v1.1.17 (alpha)</h2>
 	<p>
-		Apothecary (the profession) renamed to 'Healer' to avoid confusion with
+		Apothecaries (the profession) renamed to 'Healers' to avoid confusion with
 		Apothecary (the building).
 	</p><p>
 		Save games now have embedded version information.
 	</p><p>
-		Put in a shim around the HTML dataset API so IE &lt; 11 doesn't break.
+		Put in a polyfill for the HTML dataset API so IE &lt; 11 doesn't break.
 	</p><p>
 		Fix a bug introduced in v1.1.16 that prevented the +10 Workers from
 		appearing properly.
@@ -83,7 +92,7 @@
 	</p><p>
 		There is now a log message for manual discovery of special resources.
 	</p><p>
-		Battle Standard, Deity, and Trade buttons are now properly disabled
+		Battle Standard, Worship, and Trade buttons are now properly disabled
 		when the player cannot afford them (Original Bug)
 	</p><p>
 		Refactored the combat party code and some of the tab panel code.
@@ -114,11 +123,11 @@
 		conveying useful information.
 	</p><p>
 		All costs are now calculated to full precision, although the display is
-		rounded to the nearest integer.  Button emable/disable is also now
+		rounded to the nearest integer.  Button enable/disable is also now
 		performed on the unrounded values, so users may occasionally see that
 		button enable/disable effects are not perfectly synchronized with the
 		number displayed.  This is because the enable/disable uses the exact
-		value, whereas the number displayed rounded first.
+		value, whereas the number displayed is rounded off first.
 	</p><p>
 		Fix the dynamic cost updates broken by 1.1.12 changes.
 	</p><p>

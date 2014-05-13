@@ -146,7 +146,7 @@ button:disabled{
 #party .jobCustom button{
 	width:90px;
 }
-.buildCustom button{
+.buildingCustom button{
 	width:90px;
 }
 #party button{
@@ -316,52 +316,58 @@ button:disabled{
 .jobCustom{
 	display:none;
 }
-.buildCustom{
+.buildingCustom{
 	display:none;
 }
-#tannersgroup{
+.job{
+	text-transform:capitalize;
+}
+#tannersRow{
 	display:none;
 }
-#blacksmithsgroup{
+#blacksmithsRow{
 	display:none;
 }
-#healersgroup{
+#healersRow{
 	display:none;
 }
-#clericsgroup{
+#clericsRow{
 	display:none;
 }
-#labourersgroup{
+#labourersRow{
 	display:none;
 }
-#soldiersgroup{
+#soldiersRow{
 	display:none;
 }
-#cavalrygroup{
+#cavalryRow{
 	display:none;
 }
-#wolvesgroup{
+.enemy{
+	text-transform:capitalize;
+}
+#wolvesRow{
 	display:none;
 }
-#banditsgroup{
+#banditsRow{
 	display:none;
 }
-#barbariansgroup{
+#barbariansRow{
 	display:none;
 }
-#esiegegroup{
+#esiegeRow{
 	display:none;
 }
-#fcavalrygroup{
+#cavalryPartyRow{
 	display:none;
 }
-#fsiegegroup{
+#siegeRow{
 	display:none;
 }
-#esoldiersgroup{
+#esoldiersRow{
 	display:none;
 }
-#efortgroup{
+#efortsRow{
 	display:none;
 }
 #victoryGroup{
@@ -471,10 +477,10 @@ button.build{
 	z-index:1;
 	width:100%;
 }
-#sickGroup{
+#totalSickRow{
 	display:none;
 }
-#shadesgroup{
+#shadesRow{
 	display:none;
 }
 
