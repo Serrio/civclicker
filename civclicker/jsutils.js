@@ -150,11 +150,20 @@ function mergeObj(o1, o2)
 // May not support all HTML elements.
 function setElemDisplay(htmlElem,visible)
 {
+	var tagName = htmlElem.tagName.toUpperCase();
+
+/* xxx This is disabled because browser support for visibility: collapse is too inconsistent.
+	// If it's a <col> element, use visibility: collapse instead.
+	if (tagName == 'COL') {
+		htmlElem.style.visibility = visible ? 'inherit' : 'collapse'; 
+		return;
+	}
+*/
+
 	var displayVal = (!visible) ? 'none' : 'initial';
     if (visible)
     {
         // Note that HTML comes in upper case, XML in lower.
-        var tagName = htmlElem.tagName.toUpperCase();
         switch(tagName)
         {
             case 'SPAN': displayVal = 'inline'; break;

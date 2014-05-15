@@ -146,7 +146,7 @@ button:disabled{
 #party .jobCustom button{
 	width:90px;
 }
-.buildingCustom button{
+#buildings .buildingCustom button{
 	width:90px;
 }
 #party button{
@@ -258,6 +258,9 @@ button:disabled{
 .job100{
 	display:none;
 }
+.jobCustom{
+	display:none;
+}
 .jobAll{
 	display:none;
 }
@@ -311,12 +314,6 @@ button:disabled{
 	display:none;
 }
 #customSpawnIncrement{
-	display:none;
-}
-.jobCustom{
-	display:none;
-}
-.buildingCustom{
 	display:none;
 }
 .job{
@@ -380,13 +377,16 @@ button:disabled{
 button.build{
 	text-transform:capitalize;
 }
-.buildingten{
+.building10{
 	display:none;
 }
-.buildinghundred{
+.building100{
 	display:none;
 }
-.buildingthousand{
+.building1000{
+	display:none;
+}
+.buildingCustom{
 	display:none;
 }
 #buildings button{

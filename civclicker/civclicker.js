@@ -27,7 +27,7 @@ var version = 19;
 var versionData = {
 	major:  1,
 	minor:  1,
-	sub:   23,
+	sub:   24,
 	mod:   'alpha'
 };
 var logRepeat = 1;
@@ -498,6 +498,7 @@ function getReqText(costObj)
 // DOES NOT WORK for nonlinear building cost buildings!
 function canAfford(costObj)
 {
+	if (!isValid(costObj)) { costObj = {}; }
 	var i, num = Infinity;
 	for(i in costObj)
 	{
@@ -793,6 +794,21 @@ trader = {
 
 // Interface initialization code
 
+// Much of this interface consists of tables of buttons, columns of which get
+// revealed or hidden based on toggles and population.  Currently, we do this
+// by setting the 'display' property on every affected <td>.  This is very
+// inefficient, because it forces a table re-layout after every cell change.
+//
+// A better approach tried but ultimately abandoned was to use <col> elements
+// to try to manipulate the columns wholesale.  Unfortunately, <col> is
+// minimally useful, because only a few CSS properties are supported on <col>.
+// Even though one of those, 'visibility', purports to have the 'collapse' 
+// value for just this purpose, it doesn't work; brower support for this
+// property is very inconsistent, particularly in the handling of cell borders.
+//
+// Eventually, I hope to implement dynamic CSS rules, so that I can restyle 
+// lots of elements at once.
+
 
 // Pass this the building definition object.
 // Also pass 'true' to only generate the x1 button (for mills and fortifications)
@@ -807,14 +823,14 @@ function getBuildingRowText(buildingObj, onlyOnes)
 	// Note that updateBuildingRow() relies on the <tr>'s children being in this particular layout.
 	s += "<td><button class='build' onmousedown=\"createBuilding("+bldId+",1)\">Build "+bldName+"</button></td>";
 	if (onlyOnes===undefined || onlyOnes !== true) {
-	s += "<td class='buildingten'><button class='x10' onmousedown=\"createBuilding("+bldId+",10)\">x10</button></td>";
-	s += "<td class='buildinghundred'><button class='x100' onmousedown=\"createBuilding("+bldId+",100)\">x100</button></td>";
-	s += "<td class='buildingthousand'><button class='x1000' onmousedown=\"createBuilding("+bldId+",1000)\">x1k</button></td>";
+	s += "<td class='building10'><button class='x10' onmousedown=\"createBuilding("+bldId+",10)\">x10</button></td>";
+	s += "<td class='building100'><button class='x100' onmousedown=\"createBuilding("+bldId+",100)\">x100</button></td>";
+	s += "<td class='building1000'><button class='x1000' onmousedown=\"createBuilding("+bldId+",1000)\">x1k</button></td>";
 	s += "<td class='buildingCustom'><button onmousedown=\"createBuilding("+bldId+",'custom')\">+Custom</button></td>";
 	}
 	else {
-	s += "<td class='buildingten'></td><td class='buildinghundred'></td>" +
-	     "<td class='buildingthousand'></td><td class='buildingCustom'></td>";
+	s += "<td class='building10'></td><td class='building100'></td>" +
+	     "<td class='building1000'></td><td class='buildingCustom'></td>";
 	}
 	s += "<td class='buildingnames'>"+buildingObj.plural+": </td>";
 	s += "<td class='number'><span data-action='display' data-target='"+bldId+"'>0</span></td>";
@@ -947,8 +963,8 @@ function addPartyRows()
 		+ getJobRowText(units.esoldiers,false,null,"enemy")
 		+ getJobRowText(units.eforts,false,null,"enemy");
 }
-
 addPartyRows();
+
 
 //Prompt player for names
 if (!read_cookie('civ') && !localStorage.getItem('civ')){
@@ -1186,7 +1202,7 @@ function updateResourceTotals(){
 		else              { elem.style.color='#000'; }
 	}
 
-	if (Math.round(gold.total) > 0){
+	if (gold.total >= 1){
 		setElemDisplay(document.getElementById('goldRow'),true);
 		if (!upgrades.trade) { document.getElementById('tradeUpgrade').disabled = false; }
 	}
@@ -1201,6 +1217,7 @@ function updateResourceTotals(){
 	document.getElementById('freeLand').innerHTML = prettify(land - Math.round(totalBuildings));
 	document.getElementById('totalLand').innerHTML = prettify(land);
 	document.getElementById('totalBuildings').innerHTML = prettify(Math.round(totalBuildings));
+
 	//Unlock jobs predicated on having certain buildings
 	if (smithy.total > 0) { setElemDisplay(document.getElementById('blacksmithsRow'),true); }
 	if (tannery.total > 0) { setElemDisplay(document.getElementById('tannersRow'),true); }
@@ -1309,7 +1326,7 @@ function updatePopulation(){
 	if (population.current + population.zombies >= 100) {
 		if (!customIncrements){
 			setElemDisplay(document.getElementById('spawn100'),true);
-			elems = document.getElementsByClassName('buildingten');
+			elems = document.getElementsByClassName('building10');
 			for(i = 0; i < elems.length; i++) {
 				setElemDisplay(elems[i],true);
 			}
@@ -1323,7 +1340,7 @@ function updatePopulation(){
 		if (!customIncrements){
 			setElemDisplay(document.getElementById('spawn1000'),true);
 			setElemDisplay(document.getElementById('spawnMax'),true);
-			elems = document.getElementsByClassName('buildinghundred');
+			elems = document.getElementsByClassName('building100');
 			for(i = 0; i < elems.length; i++) {
 				setElemDisplay(elems[i],true);
 			}
@@ -1340,7 +1357,7 @@ function updatePopulation(){
 	}
 	if (population.current + population.zombies >= 10000) {
 		if (!customIncrements){
-			elems = document.getElementsByClassName('buildingthousand');
+			elems = document.getElementsByClassName('building1000');
 			for(i = 0; i < elems.length; i++) {
 				setElemDisplay(elems[i],true);
 			}
@@ -1366,8 +1383,10 @@ function updateSpawnButtons(){
 	//Turning on/off buttons based on free space.
 	if ((population.current + 1) <= population.cap && food.total >= calcWorkerCost(1)){
 		document.getElementById('spawn1').disabled = false;
+		document.getElementById('spawnCustomButton').disabled = false;
 	} else {
 		document.getElementById('spawn1').disabled = true;
+		document.getElementById('spawnCustomButton').disabled = true;
 	}
 	if ((population.current + 10) <= population.cap && food.total >= calcWorkerCost(10)){
 		document.getElementById('spawn10button').disabled = false;
@@ -1393,84 +1412,48 @@ function updateSpawnButtons(){
 	var canRaise = (deity.type == 'the Underworld' && deity.devotion >= 20);
 	if (canRaise && (corpses.total >= 1) && piety.total >= calcZombieCost(1)){
 		document.getElementById('raiseDead').disabled = false;
+		document.getElementById('raiseDeadMax').disabled = false;
 	} else {
 		document.getElementById('raiseDead').disabled = true;
+		document.getElementById('raiseDeadMax').disabled = true;
 	}
 	if (canRaise && (corpses.total >= 100) && piety.total >= calcZombieCost(100)){
 		document.getElementById('raiseDead100').disabled = false;
 	} else {
 		document.getElementById('raiseDead100').disabled = true;
 	}
-	if (canRaise && (corpses.total >= 1) && piety.total >= calcZombieCost(1)){
-		document.getElementById('raiseDeadMax').disabled = false;
-	} else {
-		document.getElementById('raiseDeadMax').disabled = true;
-	}
 }
+
 
 function updateJobs(){
 	//Update the page with the latest worker distribution and stats
-	updateJobButtons('farmers',false,false);
-	updateJobButtons('woodcutters',false,false);
-	updateJobButtons('miners',false,false);
-	updateJobButtons('tanners',tannery,1);
-	updateJobButtons('blacksmiths',smithy,1);
-	updateJobButtons('healers',apothecary,1);
-	updateJobButtons('clerics',temple,1);
-	updateJobButtons('labourers',false,false);
+	updateJobButtons('farmers');
+	updateJobButtons('woodcutters');
+	updateJobButtons('miners');
+	updateJobButtons('tanners',tannery);
+	updateJobButtons('blacksmiths',smithy);
+	updateJobButtons('healers',apothecary);
+	updateJobButtons('clerics',temple);
+	updateJobButtons('labourers');
 	updateJobButtons('soldiers',barracks,10);
 	updateJobButtons('cavalry',stable,10);
 }
-//xxx BUG:  This function isn't taking illness or deployment into account.
-function updateJobButtons(job,building,support){
+// job - The job ID to update
+function updateJobButtons(job){
+	var numHire = canHire(job);
+	var numFire = -canHire(job,-Infinity);
 	var elem = document.getElementById(job + 'Row');
-	if (building){
-		elem.children[0].children[0].disabled = (population[job] <   1); // None
-		elem.children[2].children[0].disabled = (population[job] < 100); // -100
-		elem.children[3].children[0].disabled = (population[job] <  10); // - 10
-		elem.children[4].children[0].disabled = (population[job] <   1); // -  1
 
-		if ((job == 'soldiers' && metal.total >= 10 && leather.total >= 10 && population.unemployed >= 1 && population[job] + 1 <= building.total * support) 
-			|| (job == 'cavalry' && food.total >= 20 && leather.total >= 20 && population.unemployed >= 1 && population[job] + 1 <= building.total * support) 
-			|| (job != 'soldiers' && job != 'cavalry' && population.unemployed >= 1 && population[job] + 1 <= building.total * support)){ //1
-			elem.children[7].children[0].disabled = false;
-		} else {
-			elem.children[7].children[0].disabled = true;
-		}
-		if ((job == 'soldiers' && metal.total >= 100 && leather.total >= 100 && population.unemployed >= 10 && population[job] + 10 <= building.total * support) 
-			|| (job == 'cavalry' && food.total >= 200 && leather.total >= 200 && population.unemployed >= 10 && population[job] + 10 <= building.total * support) 
-			|| (job != 'soldiers' && job != 'cavalry' && population.unemployed >= 10 && population[job] + 10 <= building.total * support)){ //10
-			elem.children[8].children[0].disabled = false;
-		} else {
-			elem.children[8].children[0].disabled = true;
-		}
-		if ((job == 'soldiers' && metal.total >= 1000 && leather.total >= 1000 && population.unemployed >= 100 && population[job] + 100 <= building.total * support) 
-			|| (job == 'cavalry' && food.total >= 2000 && leather.total >= 2000 && population.unemployed >= 100 && population[job] + 100 <= building.total * support) 
-			|| (job != 'soldiers' && job != 'cavalry' && population.unemployed >= 100 && population[job] + 100 <= building.total * support)){ //100
-			elem.children[9].children[0].disabled = false;
-		} else {
-			elem.children[9].children[0].disabled = true;
-		}
-		if ((job == 'soldiers' && metal.total >= 10 && leather.total >= 10 && population.unemployed >= 1 && population[job] + 1 <= building.total * support) 
-			|| (job == 'cavalry' && food.total >= 20 && leather.total >= 20 && population.unemployed >= 1 && population[job] + 1 <= building.total * support) 
-			|| (job != 'soldiers' && job != 'cavalry' && population.unemployed >= 1 && population[job] + 1 <= building.total * support)){ //Max
-			elem.children[11].children[0].disabled = false;
-		} else {
-			elem.children[11].children[0].disabled = true;
-		}
-	} else {
-		elem.children[0 ].children[0].disabled = (population[job]       <   1); // None
-		elem.children[2 ].children[0].disabled = (population[job]       < 100); // -100
-		elem.children[3 ].children[0].disabled = (population[job]       <  10); // - 10
-		elem.children[4 ].children[0].disabled = (population[job]       <   1); // -  1
-		elem.children[7 ].children[0].disabled = (population.unemployed <   1); //    1
-		elem.children[8 ].children[0].disabled = (population.unemployed <  10); //   10
-		elem.children[9 ].children[0].disabled = (population.unemployed < 100); //  100
-		elem.children[11].children[0].disabled = (population.unemployed <   1); //  Max
-	}
-	//do something with these later
-	//elem.children[ 1].children[0].disabled = false; // -Custom
-	//elem.children[10].children[0].disabled = false; //  Custom
+	elem.children[ 0].children[0].disabled = (numFire <   1); // -   All
+	elem.children[ 1].children[0].disabled = (numFire <   1); // -Custom
+	elem.children[ 2].children[0].disabled = (numFire < 100); // -   100
+	elem.children[ 3].children[0].disabled = (numFire <  10); // -    10
+	elem.children[ 4].children[0].disabled = (numFire <   1); // -     1
+	elem.children[ 7].children[0].disabled = (numHire <   1); //       1
+	elem.children[ 8].children[0].disabled = (numHire <  10); //      10
+	elem.children[ 9].children[0].disabled = (numHire < 100); //     100
+	elem.children[10].children[0].disabled = (numHire <   1); //  Custom
+	elem.children[11].children[0].disabled = (numHire <   1); //     Max
 }
 
 
@@ -1856,37 +1839,39 @@ function updatePartyButtons(){
 	var pacifist = !upgrades.standard;
 
 	soldiersPartyRow = document.getElementById('soldiersPartyRow');
-	soldiersPartyRow.children[ 0].children[0].disabled = pacifist || (population.soldiersParty <   1); // None
-	soldiersPartyRow.children[ 2].children[0].disabled = pacifist || (population.soldiersParty < 100); // -100
-	soldiersPartyRow.children[ 3].children[0].disabled = pacifist || (population.soldiersParty <  10); // - 10
-	soldiersPartyRow.children[ 4].children[0].disabled = pacifist || (population.soldiersParty <   1); // -  1
-	soldiersPartyRow.children[ 7].children[0].disabled = pacifist || (population.soldiers      <   1); //    1
-	soldiersPartyRow.children[ 8].children[0].disabled = pacifist || (population.soldiers      <  10); //   10
-	soldiersPartyRow.children[ 9].children[0].disabled = pacifist || (population.soldiers      < 100); //  100
-	soldiersPartyRow.children[11].children[0].disabled = pacifist || (population.soldiers      <   1); //  Max
+	soldiersPartyRow.children[ 0].children[0].disabled = pacifist || (population.soldiersParty <   1); //    None
+	soldiersPartyRow.children[ 1].children[0].disabled = pacifist || (population.soldiersParty <   1); // -Custom
+	soldiersPartyRow.children[ 2].children[0].disabled = pacifist || (population.soldiersParty < 100); // -   100
+	soldiersPartyRow.children[ 3].children[0].disabled = pacifist || (population.soldiersParty <  10); // -    10
+	soldiersPartyRow.children[ 4].children[0].disabled = pacifist || (population.soldiersParty <   1); // -     1
+	soldiersPartyRow.children[ 7].children[0].disabled = pacifist || (population.soldiers      <   1); //       1
+	soldiersPartyRow.children[ 8].children[0].disabled = pacifist || (population.soldiers      <  10); //      10
+	soldiersPartyRow.children[ 9].children[0].disabled = pacifist || (population.soldiers      < 100); //     100
+	soldiersPartyRow.children[10].children[0].disabled = pacifist || (population.soldiersParty <   1); //  Custom
+	soldiersPartyRow.children[11].children[0].disabled = pacifist || (population.soldiers      <   1); //     Max
 
 	cavalryPartyRow = document.getElementById('cavalryPartyRow');
-	cavalryPartyRow.children[ 0].children[0].disabled = pacifist || (population.cavalryParty <   1); // None
-	cavalryPartyRow.children[ 2].children[0].disabled = pacifist || (population.cavalryParty < 100); // -100
-	cavalryPartyRow.children[ 3].children[0].disabled = pacifist || (population.cavalryParty <  10); // - 10
-	cavalryPartyRow.children[ 4].children[0].disabled = pacifist || (population.cavalryParty <   1); // -  1
-	cavalryPartyRow.children[ 7].children[0].disabled = pacifist || (population.cavalry      <   1); //    1
-	cavalryPartyRow.children[ 8].children[0].disabled = pacifist || (population.cavalry      <  10); //   10
-	cavalryPartyRow.children[ 9].children[0].disabled = pacifist || (population.cavalry      < 100); //  100
-	cavalryPartyRow.children[11].children[0].disabled = pacifist || (population.cavalry      <   1); //  Max
+	cavalryPartyRow.children[ 0].children[0].disabled = pacifist || (population.cavalryParty <   1); //    None
+	cavalryPartyRow.children[ 1].children[0].disabled = pacifist || (population.cavalryParty <   1); // -Custom
+	cavalryPartyRow.children[ 2].children[0].disabled = pacifist || (population.cavalryParty < 100); // -   100
+	cavalryPartyRow.children[ 3].children[0].disabled = pacifist || (population.cavalryParty <  10); // -    10
+	cavalryPartyRow.children[ 4].children[0].disabled = pacifist || (population.cavalryParty <   1); // -     1
+	cavalryPartyRow.children[ 7].children[0].disabled = pacifist || (population.cavalry      <   1); //       1
+	cavalryPartyRow.children[ 8].children[0].disabled = pacifist || (population.cavalry      <  10); //      10
+	cavalryPartyRow.children[ 9].children[0].disabled = pacifist || (population.cavalry      < 100); //     100
+	cavalryPartyRow.children[10].children[0].disabled = pacifist || (population.cavalry      <   1); //  Custom
+	cavalryPartyRow.children[11].children[0].disabled = pacifist || (population.cavalry      <   1); //     Max
 
 	siegePartyRow = document.getElementById('siegeRow');
-	siegePartyRow.children[ 7].children[0].disabled = pacifist ||  
-		(metal.total <   50 || leather.total <   50 || wood.total <   200); //   1
-	siegePartyRow.children[ 8].children[0].disabled = pacifist ||  
-		(metal.total <  500 || leather.total <  500 || wood.total <  2000); //  10
-	siegePartyRow.children[ 9].children[0].disabled = pacifist ||  
-		(metal.total < 5000 || leather.total < 5000 || wood.total < 20000); // 100
+	var numHire = canAfford(units.siege.require);
+	
+	siegePartyRow.children[ 7].children[0].disabled = pacifist || (numHire <   1); //       1
+	siegePartyRow.children[ 8].children[0].disabled = pacifist || (numHire <  10); //      10
+	siegePartyRow.children[ 9].children[0].disabled = pacifist || (numHire < 100); //     100
+	siegePartyRow.children[10].children[0].disabled = pacifist || (numHire <   1); //  Custom
 	// Siege max disabled; too easy to overspend.
-	// siegePartyRow.children[11].children[0].disabled = pacifist ||  
-	//	(metal.total <   50 || leather.total <   50 || wood.total <   200); // Max
+	// siegePartyRow.children[11].children[0].disabled = pacifist || (numHire <  1); // Max
 }
-
 // Enable the raid buttons for eligible targets.
 function updateTargets(){
 	var i;
@@ -1904,25 +1889,14 @@ function updateTargets(){
 function updateHappiness(){
 	//updates the happiness stat
 	var text, color;
-	//first checks there's someone to be happy or unhappy, not including zombies
-	if (population.current < 1){ efficiency.happiness = 1; }
+	//first check there's someone to be happy or unhappy, not including zombies
+	if (population.current < 1) { efficiency.happiness = 1; }
 
-	if (efficiency.happiness > 1.4){
-		text = "Blissful";
-		color = "#f0f";
-	} else if (efficiency.happiness > 1.2){
-		text = "Happy";
-		color = "#00f";
-	} else if (efficiency.happiness > 0.8){
-		text = "Content";
-		color = "#0b0"; // Was "#0d0" if pop == 0
-	} else if (efficiency.happiness > 0.6){
-		text = "Unhappy";
-		color = "#880";
-	} else {
-		text = "Angry";
-		color = "#f00";
-	}
+	if      (efficiency.happiness > 1.4) { text = "Blissful"; color = "#f0f"; }
+	else if (efficiency.happiness > 1.2) { text = "Happy";    color = "#00f"; }
+	else if (efficiency.happiness > 0.8) { text = "Content";  color = "#0b0"; } // Was "#0d0" if pop == 0
+	else if (efficiency.happiness > 0.6) { text = "Unhappy";  color = "#880"; }
+	else                                 { text = "Angry";    color = "#f00"; }
 
 	document.getElementById('happiness').innerHTML = text;
 	document.getElementById('happiness').style.color = color;
@@ -2208,7 +2182,7 @@ function spawn(num){
 	population.current += num;
 
 	//This is intentionally independent of the number of workers spawned
-	if (Math.random() * 100 >= 1 + upgrades.lure) { spawnCat(); }
+	if (Math.random() * 100 < 1 + upgrades.lure) { spawnCat(); }
 
 	updateResourceTotals(); //update with new resource number
 	updatePopulation(); //Run through the population->job update cycle
@@ -2259,7 +2233,6 @@ function starve(num) {
 		{
 			if (--population[target.job+'Cas'] < 0)
 				{ population[target.job+'Cas'] = 0; }
-			updateParty();
 		}
 
 		++corpses.total; //Increments corpse number
@@ -2270,18 +2243,14 @@ function starve(num) {
 	return num;
 }
 
-// Hires or fires workers to/from a specific job.
-// Pass a positive number to hire, a negative number to fire.
-// If it can't add/remove as many as requested, does as many as it can.
-// Pass Infinity/-Infinity as the num to get the max possible.
-// Pass 'custom' or '-custom' to use the custom increment.
-// Returns the actual number hired or fired (negative if fired).
-function hire(job,num){
+// job - The job ID to update
+// num - Maximum limit to hire/fire (use -Infinity find the max fireable)
+// Returns the number that could be hired or fired (negative if fired).
+function canHire(job,num)
+{
 	var buildingLimit = Infinity; // Additional limit from buildings.
-	var resourceNeeds = {};
-	if (num == 'custom')    { num =  getCustomJobNumber(); }
-	if (num == '-custom') { num = -getCustomJobNumber(); }
 
+	if (num === undefined) { num = Infinity; } // Default to as many as we can.
 	num = Math.min(num, population.unemployed);  // Cap hiring by # of available workers.
 	num = Math.max(num, -population[job]);  // Cap firing by # in that job.
 	
@@ -2290,16 +2259,32 @@ function hire(job,num){
 	if (job == 'blacksmiths') { buildingLimit =    smithy.total; }
 	if (job == 'healers')     { buildingLimit =    apothecary.total; }
 	if (job == 'clerics')     { buildingLimit =    temple.total; }
-	if (job == 'soldiers')    { buildingLimit = 10*barracks.total; resourceNeeds = { metal:10, leather:10 }; }
-	if (job == 'cavalry')     { buildingLimit = 10*stable.total;   resourceNeeds = {  food:20, leather:20 }; }
+	if (job == 'soldiers')    { buildingLimit = 10*barracks.total; }
+	if (job == 'cavalry')     { buildingLimit = 10*stable.total; }
 
 	// Check the building limit against the current numbers (including sick and
 	// partied units, if applicable).
 	num = Math.min(num, buildingLimit - population[job] - population[job+'Ill'] 
 	    - (isValid(population[job+'Party']) ? population[job+'Party'] : 0) );
 
-	// Tries to pay for them; returns fewer if we can't afford them all
-	num = payFor(resourceNeeds, num);
+	// See if we can afford them; returns fewer if we can't afford them all
+	return Math.min(num,canAfford(units[job].require));
+}
+
+// Hires or fires workers to/from a specific job.
+// Pass a positive number to hire, a negative number to fire.
+// If it can't add/remove as many as requested, does as many as it can.
+// Pass Infinity/-Infinity as the num to get the max possible.
+// Pass 'custom' or '-custom' to use the custom increment.
+// Returns the actual number hired or fired (negative if fired).
+function hire(job,num){
+	if (num ==  'custom') { num =  getCustomJobNumber(); }
+	if (num == '-custom') { num = -getCustomJobNumber(); }
+
+	num = canHire(job,num);  // How many can we actually get?
+
+	// Pay for them if we're buying
+	if (num > 0) { payFor(units[job].require,num); }
 
 	// Do the actual hiring
 	population[job] += num;
@@ -3128,31 +3113,31 @@ function tradeTimer(){
 	if (upgrades.stay) { trader.timer += 5; }
 	//then set material and requested values
 	var random = Math.random();
-	var baseAmt = Math.ceil(Math.random() * 20);
+	trader.requested = Math.ceil(Math.random() * 20);
 	if (random < 1/8){
 		trader.material = food;
-		trader.requested = 5000 * baseAmt;
+		trader.requested *= 5000;
 	} else if (random < 2/8){
 		trader.material = wood;
-		trader.requested = 5000 * baseAmt;
+		trader.requested *= 5000;
 	} else if (random < 3/8){
 		trader.material = stone;
-		trader.requested = 5000 * baseAmt;
+		trader.requested *= 5000;
 	} else if (random < 4/8){
 		trader.material = skins;
-		trader.requested = 500 * baseAmt;
+		trader.requested *= 500;
 	} else if (random < 5/8){
 		trader.material = herbs;
-		trader.requested = 500 * baseAmt;
+		trader.requested *= 500;
 	} else if (random < 6/8){
 		trader.material = ore;
-		trader.requested = 500 * baseAmt;
+		trader.requested *= 500;
 	} else if (random < 7/8){
 		trader.material = leather;
-		trader.requested = 250 * baseAmt;
+		trader.requested *= 250;
 	} else {
 		trader.material = metal;
-		trader.requested = 250 * baseAmt;
+		trader.requested *= 250;
 	}
 	document.getElementById('tradeContainer').style.display = 'block';
 	document.getElementById('tradeType').innerHTML = trader.material.name;
@@ -3160,46 +3145,45 @@ function tradeTimer(){
 }
 
 function trade(){
-	//check to see if we can trade
-	if (trader.material){
-		//check we have enough of the right type of resources to trade
-		if (trader.material.total >= trader.requested){
-			//subtract resources, add gold
-			trader.material.total -= trader.requested;
-			gold.total += 1;
-			updateResourceTotals();
-			gameLog('Traded ' + trader.requested + ' ' + trader.material.name);
-			if (!achievements.merchant){
-				gameLog('Achievement Unlocked: Merchant');
-				achievements.merchant = 1;
-				updateAchievements();
-			}
-		} else {
-			gameLog('Not enough resources to trade.');
-		}
+	//check we have enough of the right type of resources to trade
+	if (!trader.material || (trader.material.total < trader.requested)) {
+		gameLog('Not enough resources to trade.');
+		return;
+	}
+
+	//subtract resources, add gold
+	trader.material.total -= trader.requested;
+	++gold.total;
+	updateResourceTotals();
+	gameLog('Traded ' + trader.requested + ' ' + trader.material.name);
+	if (!achievements.merchant){
+		gameLog('Achievement Unlocked: Merchant');
+		achievements.merchant = 1;
+		updateAchievements();
 	}
 }
 
 function buy(material){
-	if (gold.total >= 1){
-		if (material == food || material == wood || material == stone) { material.total += 5000; }
-		if (material == skins || material == herbs || material == ore) { material.total += 500; }
-		if (material == leather || material == metal) { material.total += 250; }
-		gold.total -= 1;
-		updateResourceTotals();
-	}
+	if (gold.total < 1) { return; }
+	--gold.total;
+
+	if (material == food    || material == wood  || material == stone) { material.total += 5000; }
+	if (material == skins   || material == herbs || material == ore)   { material.total +=  500; }
+	if (material == leather || material == metal)                      { material.total +=  250; }
+
+	updateResourceTotals();
 }
 
 function speedWonder(){
-	if (gold.total >= 100){
-		wonder.progress += 1 / (Math.pow(1.5,wonder.total));
-		gold.total -= 100;
-		updateWonder();
-		if (!achievements.rushed){
-			gameLog('Achievement Unlocked: Rushed');
-			achievements.rushed = 1;
-			updateAchievements();
-		}
+	if (gold.total < 100) { return; }
+	gold.total -= 100;
+
+	wonder.progress += 1 / (Math.pow(1.5,wonder.total));
+	updateWonder();
+	if (!achievements.rushed){
+		gameLog('Achievement Unlocked: Rushed');
+		achievements.rushed = 1;
+		updateAchievements();
 	}
 }
 
@@ -3615,6 +3599,7 @@ function reset(){
 	updateOldDeities();
 	updateDevotion();
 	updateTargets();
+	updateMobs();
 	updateParty();
 	updateWonder();
 	//Reset upgrades and other interface elements that might have been unlocked
@@ -4695,99 +4680,49 @@ function paneSelect(name){
 function toggleCustomIncrements(){
 	var i;
 	var elems;
-	if(customIncrements){
-		customIncrements = false;
-		document.getElementById('toggleCustomIncrements').innerHTML = "Enable Custom Increments";
-		document.getElementById('customJobIncrement').style.display = "none";
-		document.getElementById('customBuildIncrement').style.display = "none";
-		document.getElementById('customArmyIncrement').style.display = "none";
-		document.getElementById('customSpawnIncrement').style.display = "none";
-		document.getElementById('spawn1group').style.display = "block";
-		document.getElementById('spawnMax').style.display="block";
-		if (population.current + population.zombies >= 10) {
-			document.getElementById('spawn10').style.display="block";
-			elems = document.getElementsByClassName('job10');
-			for(i = 0; i < elems.length; i++) {
-				elems[i].style.display = 'table-cell';
-			}
-		}
-		if (population.current + population.zombies >= 100) {
-			document.getElementById('spawn100').style.display="block";
-			elems = document.getElementsByClassName('job100');
-			for(i = 0; i < elems.length; i++) {
-				elems[i].style.display = 'table-cell';
-			}
-			elems = document.getElementsByClassName('buildingten');
-			for(i = 0; i < elems.length; i++) {
-				elems[i].style.display = 'table-cell';
-			}
-		}
-		if (population.current + population.zombies >= 1000) {
-			document.getElementById('spawn1000').style.display="block";
-			elems = document.getElementsByClassName('buildinghundred');
-			for(i = 0; i < elems.length; i++) {
-				elems[i].style.display = 'table-cell';
-			}
-		}
-		if (population.current + population.zombies >= 10000) {
-			elems = document.getElementsByClassName('buildingthousand');
-			for(i = 0; i < elems.length; i++) {
-				elems[i].style.display = 'table-cell';
-			}
-		}
-		elems = document.getElementsByClassName('jobCustom');
-		for(i = 0; i < elems.length; i++) {
-			elems[i].style.display = 'none';
-		}
-		elems = document.getElementsByClassName('buildingCustom');
-		for(i = 0; i < elems.length; i++) {
-			elems[i].style.display = 'none';
-		}
-	} else {
-		customIncrements = true;
-		document.getElementById('toggleCustomIncrements').innerHTML = "Disable Custom Increments";
-		document.getElementById('customJobIncrement').style.display = "table-row";
-		document.getElementById('customArmyIncrement').style.display = "table-row";
-		document.getElementById('customBuildIncrement').style.display = "block";
-		document.getElementById('customSpawnIncrement').style.display = "block";
-		document.getElementById('spawn1group').style.display="none";
-		document.getElementById('spawn10').style.display="none";
-		document.getElementById('spawn100').style.display="none";
-		document.getElementById('spawn1000').style.display="none";
-		document.getElementById('spawnMax').style.display="none";
-		elems = document.getElementsByClassName('job10');
-		for(i = 0; i < elems.length; i++) {
-			elems[i].style.display = 'none';
-		}
-		elems = document.getElementsByClassName('job100');
-		for(i = 0; i < elems.length; i++) {
-			elems[i].style.display = 'none';
-		}
-		elems = document.getElementsByClassName('buildingten');
-		for(i = 0; i < elems.length; i++) {
-			elems[i].style.display = 'none';
-		}
-		elems = document.getElementsByClassName('buildinghundred');
-		for(i = 0; i < elems.length; i++) {
-			elems[i].style.display = 'none';
-		}
-		elems = document.getElementsByClassName('buildingthousand');
-		for(i = 0; i < elems.length; i++) {
-			elems[i].style.display = 'none';
-		}
-		elems = document.getElementsByClassName('jobCustom');
-		for(i = 0; i < elems.length; i++) {
-			elems[i].style.display = 'table-cell';
-		}
-		elems = document.getElementsByClassName('buildingCustom');
-		for(i = 0; i < elems.length; i++) {
-			elems[i].style.display = 'table-cell';
-		}
-	}
+	var curPop = population.current + population.zombies;
+
+	customIncrements = !customIncrements;
+	document.getElementById('toggleCustomIncrements').innerHTML = 
+		customIncrements ? "Disable Custom Increments" : "Enable Custom Increments";
+	setElemDisplay(document.getElementById('customJobIncrement'),customIncrements);
+	setElemDisplay(document.getElementById('customArmyIncrement'),customIncrements);
+	setElemDisplay(document.getElementById('customBuildIncrement'),customIncrements);
+	setElemDisplay(document.getElementById('customSpawnIncrement'),customIncrements);
+	setElemDisplay(document.getElementById('spawn1group'),!customIncrements);
+	setElemDisplay(document.getElementById('spawn10'  ),!customIncrements && (curPop >=   10));
+	setElemDisplay(document.getElementById('spawn100' ),!customIncrements && (curPop >=  100));
+	setElemDisplay(document.getElementById('spawn1000'),!customIncrements && (curPop >= 1000));
+	setElemDisplay(document.getElementById('spawnMax' ),!customIncrements && (curPop >= 1000));
+
+	elems = document.getElementsByClassName('job10');
+	for (i = 0; i < elems.length; ++i) { setElemDisplay(elems[i],!customIncrements && (curPop >= 10)); }
+
+	elems = document.getElementsByClassName('job100');
+	for (i = 0; i < elems.length; ++i) { setElemDisplay(elems[i],!customIncrements && (curPop >= 100)); }
+
+	elems = document.getElementsByClassName('job1000');
+	for (i = 0; i < elems.length; ++i) { setElemDisplay(elems[i],!customIncrements && (curPop >= 1000)); }
+
+	elems = document.getElementsByClassName('building10');
+	for (i = 0; i < elems.length; ++i) { setElemDisplay(elems[i],!customIncrements && (curPop >= 100)); }
+
+	elems = document.getElementsByClassName('building100');
+	for (i = 0; i < elems.length; ++i) { setElemDisplay(elems[i],!customIncrements && (curPop >= 1000)); }
+
+	elems = document.getElementsByClassName('building1000');
+	for (i = 0; i < elems.length; ++i) { setElemDisplay(elems[i],!customIncrements && (curPop >= 10000)); }
+
+	elems = document.getElementsByClassName('jobCustom');
+	for (i = 0; i < elems.length; ++i) { setElemDisplay(elems[i],customIncrements); }
+
+	elems = document.getElementsByClassName('buildingCustom');
+	for (i = 0; i < elems.length; ++i) { setElemDisplay(elems[i],customIncrements); }
 }
 
+// Toggles the display of the .notes class
+//xxx It seems like it would be better to make a setting variable for this.
 function toggleNotes(){
-	//toggles the display of the .notes class
 	var i;
 	var elems = document.getElementsByClassName('note');
 	for(i = 0; i < elems.length; i++) {
