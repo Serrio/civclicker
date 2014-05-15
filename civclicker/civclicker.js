@@ -30,8 +30,9 @@ var versionData = {
 	sub:   24,
 	mod:   'alpha'
 };
+var saveTag1 = 'civ';
+var saveTag2 = 'civ2';
 var logRepeat = 1;
-console.log('running');
 
 // Civ size category minimums
 var civSizes = [];
@@ -2985,10 +2986,10 @@ function load(loadType){
 		
 	if (loadType === 'cookie'){
 		//check for cookies
-		if (read_cookie('civ') && read_cookie('civ2')){
+		if (read_cookie(saveTag1) && read_cookie(saveTag2)){
 			//set variables to load from
-			loadVar = read_cookie('civ');
-			loadVar2 = read_cookie('civ2');
+			loadVar = read_cookie(saveTag1);
+			loadVar2 = read_cookie(saveTag2);
 			//notify user
 			gameLog('Loaded saved game from cookie');
 			gameLog('Save system switching to localStorage.');
@@ -3004,8 +3005,8 @@ function load(loadType){
 		var string2;
 		var msg;
 		try {
-			string1 = localStorage.getItem('civ');
-			string2 = localStorage.getItem('civ2');
+			string1 = localStorage.getItem(saveTag1);
+			string2 = localStorage.getItem(saveTag2);
 		} catch(err) {
 			if (err instanceof SecurityError)
 				{ msg = 'Browser security settings blocked access to local storage.'; }
@@ -3230,12 +3231,12 @@ function save(savetype){
 	////////////////////////////////////////////////////
 
 	//Create the cookies
-	bake_cookie('civ',saveVar);
-	bake_cookie('civ2',saveVar2);
+	bake_cookie(saveTag1,saveVar);
+	bake_cookie(saveTag2,saveVar2);
 	//set localstorage
 	try {
-		localStorage.setItem('civ', JSON.stringify(saveVar));
-		localStorage.setItem('civ2', JSON.stringify(saveVar2));
+		localStorage.setItem(saveTag1, JSON.stringify(saveVar));
+		localStorage.setItem(saveTag2, JSON.stringify(saveVar2));
 	} catch(err) {
 		console.log('Cannot access localStorage - browser may be old or storage may be corrupt');
 	}
@@ -3249,7 +3250,8 @@ function save(savetype){
 		document.getElementById('impexpField').value = compressed;
 		gameLog('Saved game and exported to base64');
 	}
-	if ((read_cookie('civ') && read_cookie('civ2')) || (localStorage.getItem('civ') && localStorage.getItem('civ2'))){
+	if ((read_cookie(saveTag1) && read_cookie(saveTag2)) 
+	|| (localStorage.getItem(saveTag1) && localStorage.getItem(saveTag2))){
 		console.log('Savegame exists');
 		if (savetype == 'auto'){
 			console.log('Autosave');
@@ -3295,10 +3297,10 @@ function deleteSave(){
 	//Deletes the current savegame by setting the game's cookies to expire in the past.
 	var really = confirm('Really delete save?'); //Check the player really wanted to do that.
 	if (really){
-        document.cookie = ['civ', '=; expires=Thu, 01-Jan-1970 00:00:01 GMT; path=/; domain=.', window.location.host.toString()].join('');
-		document.cookie = ['civ2', '=; expires=Thu, 01-Jan-1970 00:00:01 GMT; path=/; domain=.', window.location.host.toString()].join('');
-		localStorage.removeItem('civ');
-		localStorage.removeItem('civ2');
+        document.cookie = [saveTag1, '=; expires=Thu, 01-Jan-1970 00:00:01 GMT; path=/; domain=.', window.location.host.toString()].join('');
+		document.cookie = [saveTag2, '=; expires=Thu, 01-Jan-1970 00:00:01 GMT; path=/; domain=.', window.location.host.toString()].join('');
+		localStorage.removeItem(saveTag1);
+		localStorage.removeItem(saveTag2);
         gameLog('Save Deleted');
 	}
 }
@@ -4479,6 +4481,7 @@ if (!worksafe){
 }
 
 /* Timed functions */
+console.log('running');
 window.setInterval(function(){
 	//The whole game runs on a single setInterval clock. Basically this whole list is run every second
 	//and should probably be minimised as much as possible.
