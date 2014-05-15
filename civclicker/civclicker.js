@@ -27,7 +27,7 @@ var version = 19;
 var versionData = {
 	major:  1,
 	minor:  1,
-	sub:   24,
+	sub:   25,
 	mod:   'alpha'
 };
 var saveTag1 = 'civ';
@@ -1070,7 +1070,7 @@ function updatePartyButtons(){
 	soldiersPartyRow.children[ 7].children[0].disabled = pacifist || (population.soldiers      <   1); //       1
 	soldiersPartyRow.children[ 8].children[0].disabled = pacifist || (population.soldiers      <  10); //      10
 	soldiersPartyRow.children[ 9].children[0].disabled = pacifist || (population.soldiers      < 100); //     100
-	soldiersPartyRow.children[10].children[0].disabled = pacifist || (population.soldiersParty <   1); //  Custom
+	soldiersPartyRow.children[10].children[0].disabled = pacifist || (population.soldiers      <   1); //  Custom
 	soldiersPartyRow.children[11].children[0].disabled = pacifist || (population.soldiers      <   1); //     Max
 
 	cavalryPartyRow = document.getElementById('cavalryPartyRow');
@@ -1181,7 +1181,7 @@ function updateResourceTotals(){
 }
 
 function updatePopulation(){
-	var elem, displayElems;
+	var i, elem, elems, displayElems;
 	//Update population cap by multiplying out housing numbers
 	population.cap = tent.total + (whut.total * 3) + (cottage.total * 6) + (house.total * (10 + (upgrades.tenements * 2) + (upgrades.slums * 2))) + (mansion.total * 50);
 	//Update sick workers
@@ -1244,8 +1244,6 @@ function updatePopulation(){
 	document.getElementById('civType').innerHTML = civType;
 
 	//Unlocking interface elements as population increases to reduce unnecessary clicking
-	var elems;
-	var i;
 	if (population.current + population.zombies >= 10) {
 		if (!customIncrements){	
 			setElemDisplay(document.getElementById('spawn10'),true);
@@ -2550,6 +2548,7 @@ function walk(increment){
 }
 
 function doWalk() {
+	var i;
 	var target = '';
 	if (walkTotal <= 0) { return; }
 
@@ -2783,7 +2782,7 @@ function plunder(){
 
 	//add loot
 	updateResourceTotals();
-	payFor(plunder,-1);  // We pay for -1 of these to receive them.
+	payFor(plunderLoot,-1);  // We pay for -1 of these to receive them.
 	land += plunderLand;
 
 	// create message to notify player
@@ -3778,6 +3777,7 @@ function doHealers() {
 
 function doGraveyards()
 {
+	var i;
 	if (corpses.total > 0 && population.graves > 0){
 		//Clerics will bury corpses if there are graves to fill and corpses lying around
 		for (i=0;i<population.clerics;i++){
@@ -4454,31 +4454,34 @@ function doLabourers() {
 }	
 
 // Start of init program code
-addBuildingRows();
-addJobRows();
-addPartyRows();
+function initCivclicker() {
+	addBuildingRows();
+	addJobRows();
+	addPartyRows();
 
-//Prompt player for names
-if (!read_cookie('civ') && !localStorage.getItem('civ')){
-	renameCiv();
-	renameRuler();
-}
+	//Prompt player for names
+	if (!read_cookie('civ') && !localStorage.getItem('civ')){
+		renameCiv();
+		renameRuler();
+	}
 
-load('localStorage');//immediately attempts to load
+	load('localStorage');//immediately attempts to load
 
-body.style.fontSize = size + "em";
-if (!worksafe){
-	body.classList.add("hasBackground");
-} else {
-	body.classList.remove("hasBackground");
-	if (!usingWords){
-		var elems = document.getElementsByClassName('icon');
-		var i;
-		for(i = 0; i < elems.length; i++) {
-			elems[i].style.visibility = 'hidden';
+	body.style.fontSize = size + "em";
+	if (!worksafe){
+		body.classList.add("hasBackground");
+	} else {
+		body.classList.remove("hasBackground");
+		if (!usingWords){
+			var elems = document.getElementsByClassName('icon');
+			var i;
+			for(i = 0; i < elems.length; i++) {
+				elems[i].style.visibility = 'hidden';
+			}
 		}
 	}
 }
+initCivclicker();
 
 /* Timed functions */
 console.log('running');
