@@ -27,6 +27,9 @@ body{
 	text-shadow:none;
 }
 
+/* You can't easily apply opacity to a background image.  This does it by
+ * placing the background image on a layer beneath the item, and setting
+ * opacity on the entire layer. */
 .hasBackground::after {
     content : "";
     position: fixed;
@@ -189,18 +192,14 @@ button:disabled{
 .devcost{
 	padding-right:1em;
 }
-#upgradesPane{
-	display:none;
-}
-#deityPane{
-	display:none;
-}
-#conquestPane{
-	display:none;
-}
+
+#upgradesPane,
+#deityPane,
+#conquestPane,
 #tradePane{
 	display:none;
 }
+
 #conquest{
 	display:none;
 }
@@ -240,33 +239,22 @@ button:disabled{
 	float:left;
 	width:50%;
 }
-#spawn10{
-	display:none;
-}
-#spawn100{
-	display:none;
-}
-#spawn1000{
-	display:none;
-}
+
+#spawn10,
+#spawn100,
+#spawn1000,
 #spawnMax{
 	display:none;
 }
-.job10{
-	display:none;
-}
-.job100{
-	display:none;
-}
-.jobCustom{
-	display:none;
-}
-.jobAll{
-	display:none;
-}
+
+.job10,
+.job100,
+.jobCustom,
+.jobAll,
 .jobNone{
 	display:none;
 }
+
 .deityType{
 	padding-right:20px;
 }
@@ -287,15 +275,10 @@ button:disabled{
 #deitySpecialisation{
 	display:none;
 }
-#battleUpgrades{
-	display:none;
-}
-#fieldsUpgrades{
-	display:none;
-}
-#underworldUpgrades{
-	display:none;
-}
+
+#battleUpgrades,
+#fieldsUpgrades,
+#underworldUpgrades,
 #catsUpgrades{
 	display:none;
 }
@@ -319,54 +302,38 @@ button:disabled{
 .job{
 	text-transform:capitalize;
 }
-#tannersRow{
-	display:none;
-}
-#blacksmithsRow{
-	display:none;
-}
-#healersRow{
-	display:none;
-}
-#clericsRow{
-	display:none;
-}
-#labourersRow{
-	display:none;
-}
-#soldiersRow{
-	display:none;
-}
+
+#tannersRow,
+#blacksmithsRow,
+#healersRow,
+#clericsRow,
+#labourersRow,
+#soldiersRow,
 #cavalryRow{
 	display:none;
 }
+
 .enemy{
 	text-transform:capitalize;
 }
-#wolvesRow{
-	display:none;
-}
-#banditsRow{
-	display:none;
-}
-#barbariansRow{
-	display:none;
-}
+
+#wolvesRow,
+#banditsRow,
+#barbariansRow,
 #esiegeRow{
 	display:none;
 }
-#cavalryPartyRow{
-	display:none;
-}
+
+#cavalryPartyRow,
 #siegeRow{
 	display:none;
 }
-#esoldiersRow{
-	display:none;
-}
+
+#esoldiersRow,
 #efortsRow{
 	display:none;
 }
+
 #victoryGroup{
 	display:none;
 }
@@ -377,33 +344,20 @@ button:disabled{
 button.build{
 	text-transform:capitalize;
 }
-.building10{
-	display:none;
-}
-.building100{
-	display:none;
-}
-.building1000{
-	display:none;
-}
+
+.building10,
+.building100,
+.building1000,
 .buildingCustom{
 	display:none;
 }
+
 #buildings button{
 	margin-right:3px;
 }
-.x10{
-	width:48px;
-	text-shadow:none;
-	font-weight:normal;
-	font-size:0.9em;
-}
-.x100{
-	width:48px;
-	text-shadow:none;
-	font-weight:normal;
-	font-size:0.9em;
-}
+
+.x10,
+.x100,
 .x1000{
 	width:48px;
 	text-shadow:none;
@@ -414,42 +368,21 @@ button.build{
 	display:none;
 }
 
-#Plure{
-	display:none;
-}
-#Pcompanion{
-	display:none;
-}
-#Pcomfort{
-	display:none;
-}
-#Pblessing{
-	display:none;
-}
-#Priddle{
-	display:none;
-}
-#Pthrone{
-	display:none;
-}
-#Pbook{
-	display:none;
-}
-#Pfeast{
-	display:none;
-}
-#Psecrets{
-	display:none;
-}
-#Plament{
-	display:none;
-}
-#Pstay{
-	display:none;
-}
+#Plure,
+#Pcompanion,
+#Pcomfort,
+#Pblessing,
+#Priddle,
+#Pthrone,
+#Pbook,
+#Pfeast,
+#Psecrets,
+#Plament,
+#Pstay,
 #Pwaste{
 	display:none;
 }
+
 #logTable td{
     padding-right:20px;
 }
@@ -509,96 +442,37 @@ button.build{
 	font-weight:normal;
 	background-color:#fff;
 }
-#achHamlet{
-	display:none;
-}
-#achVillage{
-	display:none;
-}
-#achSmallTown{
-	display:none;
-}
-#achLargeTown{
-	display:none;
-}
-#achSmallCity{
-	display:none;
-}
-#achLargeCity{
-	display:none;
-}
-#achMetropolis{
-	display:none;
-}
-#achSmallNation{
-	display:none;
-}
-#achNation{
-	display:none;
-}
-#achLargeNation{
-	display:none;
-}
-#achEmpire{
-	display:none;
-}
-#achRaider{
-	display:none;
-}
-#achEngineer{
-	display:none;
-}
-#achDomination{
-	display:none;
-}
-#achHated{
-	display:none;
-}
-#achLoved{
-	display:none;
-}
-#achCat{
-	display:none;
-}
-#achGlaring{
-	display:none;
-}
-#achClowder{
-	display:none;
-}
-#achBattle{
-	display:none;
-}
-#achCats{
-	display:none;
-}
-#achFields{
-	display:none;
-}
-#achUnderworld{
-	display:none;
-}
-#achFullHouse{
-	display:none;
-}
-#achPlague{
-	display:none;
-}
-#achGhostTown{
-	display:none;
-}
-#achWonder{
-	display:none;
-}
-#achSeven{
-	display:none;
-}
-#achMerchant{
-	display:none;
-}
-#achRushed{
-	display:none;
-}
+
+#achHamlet,
+#achVillage,
+#achSmallTown,
+#achLargeTown,
+#achSmallCity,
+#achLargeCity,
+#achMetropolis,
+#achSmallNation,
+#achNation,
+#achLargeNation,
+#achEmpire,
+#achRaider,
+#achEngineer,
+#achDomination,
+#achHated,
+#achLoved,
+#achCat,
+#achGlaring,
+#achClowder,
+#achBattle,
+#achCats,
+#achFields,
+#achUnderworld,
+#achFullHouse,
+#achPlague,
+#achGhostTown,
+#achWonder,
+#achSeven,
+#achMerchant,
+#achRushed,
 #achNeverclick{
 	display:none;
 }
@@ -637,39 +511,21 @@ button.build{
 #civilTech{
 	display:none;
 }
-#cottageRow{
-	display:none;
-}
-#houseRow{
-	display:none;
-}
-#mansionRow{
-	display:none;
-}
-#tanneryRow{
-	display:none;
-}
-#smithyRow{
-	display:none;
-}
-#apothecaryRow{
-	display:none;
-}
-#templeRow{
-	display:none;
-}
-#barracksRow{
-	display:none;
-}
-#stableRow{
-	display:none;
-}
-#millRow{
-	display:none;
-}
+
+#cottageRow,
+#houseRow,
+#mansionRow,
+#tanneryRow,
+#smithyRow,
+#apothecaryRow,
+#templeRow,
+#barracksRow,
+#stableRow,
+#millRow,
 #fortificationRow{
 	display:none;
 }
+
 #specFreq{
 	display:none;
 }
@@ -788,108 +644,41 @@ button.build{
 #purchased *{
 	line-height:1.5em;
 }
-#Pskinning{
-	display:none;
-}
-#Pharvesting{
-	display:none;
-}
-#Pprospecting{
-	display:none;
-}
-#Pdomestication{
-	display:none;
-}
-#Pploughshares{
-	display:none;
-}
-#Pirrigation{
-	display:none;
-}
-#Pbutchering{
-	display:none;
-}
-#Pgardening{
-	display:none;
-}
-#Pextraction{
-	display:none;
-}
-#Pflensing{
-	display:none;
-}
-#Pmacerating{
-	display:none;
-}
-#Pcroprotation{
-	display:none;
-}
-#Pselectivebreeding{
-	display:none;
-}
-#Pfertilisers{
-	display:none;
-}
-#Pmasonry{
-	display:none;
-}
-#Pconstruction{
-	display:none;
-}
-#Parchitecture{
-	display:none;
-}
-#Ptenements{
-	display:none;
-}
-#Pslums{
-	display:none;
-}
-#Pgranaries{
-	display:none;
-}
-#Ppalisade{
-	display:none;
-}
-#Pweaponry{
-	display:none;
-}
-#Pshields{
-	display:none;
-}
-#Phorseback{
-	display:none;
-}
-#Pwheel{
-	display:none;
-}
-#Pwriting{
-	display:none;
-}
-#Padministration{
-	display:none;
-}
-#Pcodeoflaws{
-	display:none;
-}
-#Pmathematics{
-	display:none;
-}
-#Paesthetics{
-	display:none;
-}
-#Pcivilservice{
-	display:none;
-}
-#Pfeudalism{
-	display:none;
-}
-#Pserfs{
-	display:none;
-}
-#Pguilds{
-	display:none;
-}
+
+#Pskinning,
+#Pharvesting,
+#Pprospecting,
+#Pdomestication,
+#Pploughshares,
+#Pirrigation,
+#Pbutchering,
+#Pgardening,
+#Pextraction,
+#Pflensing,
+#Pmacerating,
+#Pcroprotation,
+#Pselectivebreeding,
+#Pfertilisers,
+#Pmasonry,
+#Pconstruction,
+#Parchitecture,
+#Ptenements,
+#Pslums,
+#Pgranaries,
+#Ppalisade,
+#Pweaponry,
+#Pshields,
+#Phorseback,
+#Pwheel,
+#Pwriting,
+#Padministration,
+#Pcodeoflaws,
+#Pmathematics,
+#Paesthetics,
+#Pcivilservice,
+#Pfeudalism,
+#Pserfs,
+#Pguilds,
 #Pnationalism{
 	display:none;
 }

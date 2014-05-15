@@ -67,7 +67,7 @@ civSizes.getMaxPop = function(civType) {
 	return -1;
 };
 
-// Initialise Data
+// Initialize Data
 var civName = "Woodstock",
 rulerName = 'Orteil',
 food = {
@@ -476,59 +476,6 @@ eforts: {
 function getSingularJob(job) { return units[job].singular; }
 
 
-// Get an object's requirements in text form.
-// Pass it a cost object.
-// DOES NOT WORK for nonlinear building cost buildings!
-function getReqText(costObj)
-{
-	var i, num;
-	var text = "";
-	for(i in costObj)
-	{
-		num = costObj[i];
-		if (num == 0) { continue; }
-		if (text != "") { text += ", "; }
-		text += prettify(Math.round(num)) + " " + window[i].name;
-	}
-
-	return text;
-}
-
-// Returns how many of this item the player can afford.
-// DOES NOT WORK for nonlinear building cost buildings!
-function canAfford(costObj)
-{
-	if (!isValid(costObj)) { costObj = {}; }
-	var i, num = Infinity;
-	for(i in costObj)
-	{
-		if (costObj[i] == 0) { continue; }
-		num = Math.min(num,Math.floor(window[i].total/costObj[i]));
-		if (num == 0) { return num; }
-	}
-
-	return num;
-}
-// Tries to pay for the specified number of the given cost object.
-// Pays for fewer if the whole amount cannot be paid.
-// Return the number that could be afforded.
-// DOES NOT WORK for nonlinear building cost buildings!
-function payFor(costObj, num)
-{
-	var i;
-	if (num === undefined) { num = 1; } // default to 1
-
-	num = Math.min(num,canAfford(costObj));
-	if (num == 0) { return 0; }
-
-	for(i in costObj)
-	{
-		window[i].total -= costObj[i] * num;
-	}
-
-	return num;
-}
-
 var battleAltar = {
 	id:"battleAltar",
 	name:"battle altar",
@@ -763,34 +710,114 @@ trader = {
 	requested:0,
 	timer:0
 },
-	civType = 'Thorp',
-	targetMax = 'thorp',
-	raiding = {
-		raiding:false,
-		victory:false,
-		iterations:0,
-		last:""
-	},
-	oldDeities = "",
-	deityArray = [],
-	resourceClicks = 0,
-	attackCounter = 0,
-	tradeCounter = 0,
-	throneCount = 0,
-	pestTimer = 0,
-	gloryTimer = 0,
-	cureCounter = 0,
-	graceCost = 1000,
-	walkTotal = 0,
-	autosave = "on",
-	autosaveCounter = 1,
-	customIncrements = false,
-	usingWords = false,
-	worksafe = false,
-	size = 1,
-	body = document.getElementsByTagName('body')[0];
+civType = 'Thorp',
+targetMax = 'thorp',
+raiding = {
+	raiding:false,
+	victory:false,
+	iterations:0,
+	last:""
+},
+oldDeities = "",
+deityArray = [],
+resourceClicks = 0,
+attackCounter = 0,
+tradeCounter = 0,
+throneCount = 0,
+pestTimer = 0,
+gloryTimer = 0,
+cureCounter = 0,
+graceCost = 1000,
+walkTotal = 0,
+autosave = "on",
+autosaveCounter = 1,
+customIncrements = false,
+usingWords = false,
+worksafe = false,
+size = 1,
+body = document.getElementsByTagName('body')[0];
 
-// Start of init program code
+
+// Get an object's requirements in text form.
+// Pass it a cost object.
+// DOES NOT WORK for nonlinear building cost buildings!
+function getReqText(costObj)
+{
+	var i, num;
+	var text = "";
+	for(i in costObj)
+	{
+		num = costObj[i];
+		if (num == 0) { continue; }
+		if (text != "") { text += ", "; }
+		text += prettify(Math.round(num)) + " " + window[i].name;
+	}
+
+	return text;
+}
+
+// Returns how many of this item the player can afford.
+// DOES NOT WORK for nonlinear building cost buildings!
+function canAfford(costObj)
+{
+	if (!isValid(costObj)) { costObj = {}; }
+	var i, num = Infinity;
+	for(i in costObj)
+	{
+		if (costObj[i] == 0) { continue; }
+		num = Math.min(num,Math.floor(window[i].total/costObj[i]));
+		if (num == 0) { return num; }
+	}
+
+	return num;
+}
+// Tries to pay for the specified number of the given cost object.
+// Pays for fewer if the whole amount cannot be paid.
+// Return the number that could be afforded.
+// DOES NOT WORK for nonlinear building cost buildings!
+function payFor(costObj, num)
+{
+	var i;
+	if (num === undefined) { num = 1; } // default to 1
+
+	num = Math.min(num,canAfford(costObj));
+	if (num == 0) { return 0; }
+
+	for(i in costObj)
+	{
+		window[i].total -= costObj[i] * num;
+	}
+
+	return num;
+}
+
+// job - The job ID to update
+// num - Maximum limit to hire/fire (use -Infinity find the max fireable)
+// Returns the number that could be hired or fired (negative if fired).
+function canHire(job,num)
+{
+	var buildingLimit = Infinity; // Additional limit from buildings.
+
+	if (num === undefined) { num = Infinity; } // Default to as many as we can.
+	num = Math.min(num, population.unemployed);  // Cap hiring by # of available workers.
+	num = Math.max(num, -population[job]);  // Cap firing by # in that job.
+	
+	// See if this job has limits from buildings or resource costs.
+	if (job == 'tanners')     { buildingLimit =    tannery.total; }
+	if (job == 'blacksmiths') { buildingLimit =    smithy.total; }
+	if (job == 'healers')     { buildingLimit =    apothecary.total; }
+	if (job == 'clerics')     { buildingLimit =    temple.total; }
+	if (job == 'soldiers')    { buildingLimit = 10*barracks.total; }
+	if (job == 'cavalry')     { buildingLimit = 10*stable.total; }
+
+	// Check the building limit against the current numbers (including sick and
+	// partied units, if applicable).
+	num = Math.min(num, buildingLimit - population[job] - population[job+'Ill'] 
+	    - (isValid(population[job+'Party']) ? population[job+'Party'] : 0) );
+
+	// See if we can afford them; returns fewer if we can't afford them all
+	return Math.min(num,canAfford(units[job].require));
+}
 
 // Interface initialization code
 
@@ -842,7 +869,6 @@ function getBuildingRowText(buildingObj, onlyOnes)
 	s += "</tr>";
 	return s;
 }
-
 // Dynamically create the building controls table.
 function addBuildingRows()
 {
@@ -869,7 +895,44 @@ function addBuildingRows()
 		+ getBuildingRowText(fortification,true);
 }
 
-addBuildingRows();
+function updateBuildingRow(buildingObj){
+	var i;
+	//this works by trying to access the children of the table rows containing the buttons in sequence
+	var numBuildable = canAfford(buildingObj.require);
+	for (i=0;i<4;i++){
+		try { // try-catch required because fortifications, mills, and altars do not have more than one child button. 
+		      // This should probably be cleaned up in the future.
+		      // Fortunately the index numbers of the children map directly onto the powers of 10 used by the buttons
+				document.getElementById(buildingObj.id + 'Row').children[i].children[0].disabled = (numBuildable < Math.pow(10,i));
+		} catch(ignore){}
+	}		
+	try { document.getElementById(buildingObj.id + 'Row').children[4].children[0].disabled = (numBuildable < 1); } catch(ignore){} //Custom button
+}
+function updateBuildingButtons(){
+	//enables/disabled building buttons - calls each type of building in turn
+	updateBuildingRow(tent);
+	updateBuildingRow(whut);
+	updateBuildingRow(cottage);
+	updateBuildingRow(house);
+	updateBuildingRow(mansion);
+	updateBuildingRow(barn);
+	updateBuildingRow(woodstock);
+	updateBuildingRow(stonestock);
+	updateBuildingRow(tannery);
+	updateBuildingRow(smithy);
+	updateBuildingRow(apothecary);
+	updateBuildingRow(temple);
+	updateBuildingRow(barracks);
+	updateBuildingRow(stable);
+	updateBuildingRow(graveyard);
+	updateBuildingRow(mill);
+	updateBuildingRow(fortification);
+	updateBuildingRow(battleAltar);
+	updateBuildingRow(underworldAltar);
+	updateBuildingRow(fieldsAltar);
+	updateBuildingRow(catAltar);
+}
+
 
 // Pass this the job definition object.
 // Also pass 'true' to only generate the x1 buttons 
@@ -927,7 +990,6 @@ function getJobRowText(jobObj, onlyOnes, funcName, displayClass, allowSell)
 	s += "</tr>";
 	return s;
 }
-
 // Dynamically create the job controls table.
 function addJobRows()
 {
@@ -951,7 +1013,37 @@ function addJobRows()
 		+ getJobRowText(units.esiege,false,null,"enemy");
 }
 
-addJobRows();
+// job - The job ID to update
+function updateJobButtons(job){
+	var numHire = canHire(job);
+	var numFire = -canHire(job,-Infinity);
+	var elem = document.getElementById(job + 'Row');
+
+	elem.children[ 0].children[0].disabled = (numFire <   1); // -   All
+	elem.children[ 1].children[0].disabled = (numFire <   1); // -Custom
+	elem.children[ 2].children[0].disabled = (numFire < 100); // -   100
+	elem.children[ 3].children[0].disabled = (numFire <  10); // -    10
+	elem.children[ 4].children[0].disabled = (numFire <   1); // -     1
+	elem.children[ 7].children[0].disabled = (numHire <   1); //       1
+	elem.children[ 8].children[0].disabled = (numHire <  10); //      10
+	elem.children[ 9].children[0].disabled = (numHire < 100); //     100
+	elem.children[10].children[0].disabled = (numHire <   1); //  Custom
+	elem.children[11].children[0].disabled = (numHire <   1); //     Max
+}
+function updateJobs(){
+	//Update the page with the latest worker distribution and stats
+	updateJobButtons('farmers');
+	updateJobButtons('woodcutters');
+	updateJobButtons('miners');
+	updateJobButtons('tanners',tannery);
+	updateJobButtons('blacksmiths',smithy);
+	updateJobButtons('healers',apothecary);
+	updateJobButtons('clerics',temple);
+	updateJobButtons('labourers');
+	updateJobButtons('soldiers',barracks,10);
+	updateJobButtons('cavalry',stable,10);
+}
+
 
 // Dynamically create the Party controls table.
 function addPartyRows()
@@ -963,215 +1055,54 @@ function addPartyRows()
 		+ getJobRowText(units.esoldiers,false,null,"enemy")
 		+ getJobRowText(units.eforts,false,null,"enemy");
 }
-addPartyRows();
 
+function updatePartyButtons(){
+	var soldiersPartyRow, cavalryPartyRow, siegePartyRow;
+	var pacifist = !upgrades.standard;
 
-//Prompt player for names
-if (!read_cookie('civ') && !localStorage.getItem('civ')){
-	renameCiv();
-	renameRuler();
+	soldiersPartyRow = document.getElementById('soldiersPartyRow');
+	soldiersPartyRow.children[ 0].children[0].disabled = pacifist || (population.soldiersParty <   1); //    None
+	soldiersPartyRow.children[ 1].children[0].disabled = pacifist || (population.soldiersParty <   1); // -Custom
+	soldiersPartyRow.children[ 2].children[0].disabled = pacifist || (population.soldiersParty < 100); // -   100
+	soldiersPartyRow.children[ 3].children[0].disabled = pacifist || (population.soldiersParty <  10); // -    10
+	soldiersPartyRow.children[ 4].children[0].disabled = pacifist || (population.soldiersParty <   1); // -     1
+	soldiersPartyRow.children[ 7].children[0].disabled = pacifist || (population.soldiers      <   1); //       1
+	soldiersPartyRow.children[ 8].children[0].disabled = pacifist || (population.soldiers      <  10); //      10
+	soldiersPartyRow.children[ 9].children[0].disabled = pacifist || (population.soldiers      < 100); //     100
+	soldiersPartyRow.children[10].children[0].disabled = pacifist || (population.soldiersParty <   1); //  Custom
+	soldiersPartyRow.children[11].children[0].disabled = pacifist || (population.soldiers      <   1); //     Max
+
+	cavalryPartyRow = document.getElementById('cavalryPartyRow');
+	cavalryPartyRow.children[ 0].children[0].disabled = pacifist || (population.cavalryParty <   1); //    None
+	cavalryPartyRow.children[ 1].children[0].disabled = pacifist || (population.cavalryParty <   1); // -Custom
+	cavalryPartyRow.children[ 2].children[0].disabled = pacifist || (population.cavalryParty < 100); // -   100
+	cavalryPartyRow.children[ 3].children[0].disabled = pacifist || (population.cavalryParty <  10); // -    10
+	cavalryPartyRow.children[ 4].children[0].disabled = pacifist || (population.cavalryParty <   1); // -     1
+	cavalryPartyRow.children[ 7].children[0].disabled = pacifist || (population.cavalry      <   1); //       1
+	cavalryPartyRow.children[ 8].children[0].disabled = pacifist || (population.cavalry      <  10); //      10
+	cavalryPartyRow.children[ 9].children[0].disabled = pacifist || (population.cavalry      < 100); //     100
+	cavalryPartyRow.children[10].children[0].disabled = pacifist || (population.cavalry      <   1); //  Custom
+	cavalryPartyRow.children[11].children[0].disabled = pacifist || (population.cavalry      <   1); //     Max
+
+	siegePartyRow = document.getElementById('siegeRow');
+	var numHire = canAfford(units.siege.require);
+	
+	siegePartyRow.children[ 7].children[0].disabled = pacifist || (numHire <   1); //       1
+	siegePartyRow.children[ 8].children[0].disabled = pacifist || (numHire <  10); //      10
+	siegePartyRow.children[ 9].children[0].disabled = pacifist || (numHire < 100); //     100
+	siegePartyRow.children[10].children[0].disabled = pacifist || (numHire <   1); //  Custom
+	// Siege max disabled; too easy to overspend.
+	// siegePartyRow.children[11].children[0].disabled = pacifist || (numHire <  1); // Max
+}
+function updateParty(){
+	//updates the party (and enemies)
+	setElemDisplay(document.getElementById('esoldiersRow'),(population.esoldiers > 0));
+	setElemDisplay(document.getElementById('efortsRow'),(population.eforts > 0));
 }
 
-// Load in saved data
-
-function load(loadType){
-	//define load variables
-	var loadVar = {},
-		loadVar2 = {};
-		
-	if (loadType === 'cookie'){
-		//check for cookies
-		if (read_cookie('civ') && read_cookie('civ2')){
-			//set variables to load from
-			loadVar = read_cookie('civ');
-			loadVar2 = read_cookie('civ2');
-			//notify user
-			gameLog('Loaded saved game from cookie');
-			gameLog('Save system switching to localStorage.');
-		} else {
-			console.log('Unable to find cookie');
-			return false;
-		}
-	}
-	
-	if (loadType === 'localStorage'){
-		//check for local storage
-		var string1;
-		var string2;
-		var msg;
-		try {
-			string1 = localStorage.getItem('civ');
-			string2 = localStorage.getItem('civ2');
-		} catch(err) {
-			if (err instanceof SecurityError)
-				{ msg = 'Browser security settings blocked access to local storage.'; }
-			else 
-				{ msg = 'Cannot access localStorage - browser may not support localStorage, or storage may be corrupt'; }
-			console.log(msg);
-		}
-		if (string1 && string2){
-			loadVar = JSON.parse(string1);
-			loadVar2 = JSON.parse(string2);
-			//notify user
-			gameLog('Loaded saved game from localStorage');
-		} else {
-			console.log('Unable to find variables in localStorage. Attempting to load cookie.');
-			load('cookie');
-			return false;
-		}
-	}
-	
-	if (loadType === 'import'){
-		//take the import string, decompress and parse it
-		var compressed = document.getElementById('impexpField').value;
-		var decompressed = LZString.decompressFromBase64(compressed);
-		var revived = JSON.parse(decompressed);
-		//set variables to load from
-		loadVar = revived[0];
-		loadVar2 = revived[1];
-		//notify user
-		gameLog('Imported saved game');
-		//close import/export dialog
-		//impexp();
-	}
-	
-	// BACKWARD COMPATIBILITY SECTION //////////////////
-	// population.corpses moved to corpses.total (v1.1.13)
-	if (!isValid(loadVar.corpses)) { loadVar.corpses = {}; }
-	if (isValid(loadVar.population.corpses)) { 
-		if (!isValid(loadVar.population.corpses)) { 
-			loadVar.corpses.total = loadVar.population.corpses; 
-		}
-		loadVar.population.corpses = undefined; 
-	}
-	// population.apothecaries moved to population.healers (v1.1.17)
-	if (isValid(loadVar.population.apothecaries)) { 
-		if (!isValid(loadVar.population.apothecaries)) { 
-			loadVar.population.healers = loadVar.population.apothecaries; 
-		}
-		loadVar.population.apothecaries = undefined; 
-	}
-	////////////////////////////////////////////////////
-	//
-	//xxx Why are we saving and restoring the names of basic resources?
-	//    We should move the static values to prototype objects.
-	//Note also that names are now used for the user-facing names.
-	food = mergeObj(food, loadVar.food);
-	wood = mergeObj(wood, loadVar.wood);
-	stone = mergeObj(stone, loadVar.stone);
-	skins = mergeObj(skins, loadVar.skins);
-	herbs = mergeObj(herbs, loadVar.herbs);
-	ore = mergeObj(ore, loadVar.ore);
-	leather = mergeObj(leather, loadVar.leather);
-	metal = mergeObj(metal, loadVar.metal);
-	piety = mergeObj(piety, loadVar.piety);
-	gold = mergeObj(gold, loadVar.gold);
-	corpses = mergeObj(corpses, loadVar.corpses);
-	if (isValid(loadVar.gold)){
-		gold = mergeObj(gold, loadVar.gold);
-	}
-	corpses = mergeObj(corpses, loadVar.corpses);
-	if (isValid(loadVar2.wonder)){
-		wonder = mergeObj(wonder, loadVar2.wonder);
-	}
-	land =mergeObj(land, loadVar2.land);
-	tent = mergeObj(tent, loadVar2.tent);
-	whut = mergeObj(whut, loadVar2.whut);
-	cottage =mergeObj(cottage, loadVar2.cottage);
-	house = mergeObj(house, loadVar2.house);
-	mansion = mergeObj(mansion, loadVar2.mansion);
-	barn = mergeObj(barn, loadVar2.barn);
-	woodstock = mergeObj(woodstock, loadVar2.woodstock);
-	stonestock = mergeObj(stonestock, loadVar2.stonestock);
-	tannery = mergeObj(tannery, loadVar2.tannery);
-	smithy = mergeObj(smithy, loadVar2.smithy);
-	apothecary = mergeObj(apothecary, loadVar2.apothecary);
-	temple = mergeObj(temple, loadVar2.temple);
-	barracks = mergeObj(barracks, loadVar2.barracks);
-	stable = mergeObj(stable, loadVar2.stable);
-	mill = mergeObj(mill, loadVar2.mill);
-	updateRequirements(mill);
-	graveyard = mergeObj(graveyard, loadVar2.graveyard);
-	fortification = mergeObj(fortification, loadVar2.fortification);
-	updateRequirements(fortification);
-	battleAltar = mergeObj(battleAltar, loadVar2.battleAltar);
-	updateRequirements(battleAltar);
-	fieldsAltar = mergeObj(fieldsAltar, loadVar2.fieldsAltar);
-	updateRequirements(fieldsAltar);
-	underworldAltar = mergeObj(underworldAltar, loadVar2.underworldAltar);
-	updateRequirements(underworldAltar);
-	catAltar = mergeObj(catAltar, loadVar2.catAltar);
-	updateRequirements(catAltar);
-	if (isValid(loadVar2.resourceClicks)){
-		resourceClicks = mergeObj(resourceClicks, loadVar2.resourceClicks);
-	} else {
-		resourceClicks = 999; //stops people getting the achievement with an old save version
-	}
-	worksafe = mergeObj(worksafe, loadVar2.worksafe);
-	population = mergeObj(population, loadVar.population);
-	efficiency = mergeObj(efficiency, loadVar.efficiency);
-	upgrades = mergeObj(upgrades, loadVar.upgrades);
-	if (isValid(loadVar.deity)) {
-		deity = mergeObj(deity, loadVar.deity);
-		if (deity.seniority > 1){
-			document.getElementById('activeDeity').innerHTML = '<tr id="deity' + deity.seniority + '"><td><strong><span id="deity' + deity.seniority + 'Name">No deity</span></strong><span id="deity' + deity.seniority + 'Type" class="deityType"></span></td><td>Devotion: <span id="devotion' + deity.seniority + '">0</span></td><td class="removeDeity"><button class="removeDeity" onclick="removeDeity(deity' + deity.seniority + ')">X</button></td></tr>';
-		}
-	}
-	if (isValid(loadVar.achievements)){
-		achievements = mergeObj(achievements, loadVar.achievements);
-	}
-	if (isValid(loadVar.raiding)){
-		raiding = mergeObj(raiding, loadVar.raiding);
-	}
-	if (isValid(loadVar.targetMax)) { targetMax = mergeObj(targetMax, loadVar.targetMax); }
-	if (isValid(loadVar.oldDeities)) { oldDeities = mergeObj(oldDeities, loadVar.oldDeities); }
-	if (isValid(loadVar.deityArray)){ deityArray = mergeObj(deityArray, loadVar.deityArray); }
-	if (isValid(loadVar.graceCost)){ graceCost = mergeObj(graceCost, loadVar.graceCost); }
-	if (isValid(loadVar.walkTotal)){ walkTotal = mergeObj(walkTotal, loadVar.walkTotal); }
-	if (isValid(loadVar.autosave)){ autosave = mergeObj(autosave, loadVar.autosave); }
-	if (isValid(loadVar.size)) { size = mergeObj(size, loadVar.size); }
-	civName = mergeObj(civName, loadVar.civName);
-	rulerName = mergeObj(rulerName, loadVar.rulerName);
-	updateResourceTotals();
-	updateMobs();
-	updateDeity();
-	updateUpgrades();
-	updateOldDeities();
-	updateDevotion();
-	updateParty();
-	mood(0);
-	updateHappiness();
-	updateWonder();
-	document.getElementById("clicks").innerHTML = prettify(Math.round(resourceClicks));
-	document.getElementById('civName').innerHTML = civName;
-	document.getElementById('rulerName').innerHTML = rulerName;
-	document.getElementById('wonderNameP').innerHTML = wonder.name;
-	document.getElementById('wonderNameC').innerHTML = wonder.name;
-	document.getElementById('startWonder').disabled = (wonder.completed || wonder.building);
-		
-	//Upgrade-related checks
-	efficiency.farmers = 0.2 + (0.1 * upgrades.domestication) + (0.1 * upgrades.ploughshares) + (0.1 * upgrades.irrigation) + (0.1 * upgrades.croprotation) + (0.1 * upgrades.selectivebreeding) + (0.1 * upgrades.fertilisers) + (0.1 * upgrades.blessing);
-	efficiency.soldiers = 0.05 + (0.01 * upgrades.riddle) + (0.01 * upgrades.weaponry) + (0.01 * upgrades.shields);
-	efficiency.cavalry = 0.08 + (0.01 * upgrades.riddle) + (0.01 * upgrades.weaponry) + (0.01 * upgrades.shields);
-}
-
-load('localStorage');//immediately attempts to load
-
-body.style.fontSize = size + "em";
-if (!worksafe){
-	body.classList.add("hasBackground");
-} else {
-	body.classList.remove("hasBackground");
-	if (!usingWords){
-		var elems = document.getElementsByClassName('icon');
-		var i;
-		for(i = 0; i < elems.length; i++) {
-			elems[i].style.visibility = 'hidden';
-		}
-	}
-}
 
 // Update functions. Called by other routines in order to update the interface.
+
 //xxx Maybe add a function here to look in various locations for vars, so it
 //doesn't need multiple action types?
 function updateResourceTotals(){
@@ -1422,38 +1353,6 @@ function updateSpawnButtons(){
 	} else {
 		document.getElementById('raiseDead100').disabled = true;
 	}
-}
-
-
-function updateJobs(){
-	//Update the page with the latest worker distribution and stats
-	updateJobButtons('farmers');
-	updateJobButtons('woodcutters');
-	updateJobButtons('miners');
-	updateJobButtons('tanners',tannery);
-	updateJobButtons('blacksmiths',smithy);
-	updateJobButtons('healers',apothecary);
-	updateJobButtons('clerics',temple);
-	updateJobButtons('labourers');
-	updateJobButtons('soldiers',barracks,10);
-	updateJobButtons('cavalry',stable,10);
-}
-// job - The job ID to update
-function updateJobButtons(job){
-	var numHire = canHire(job);
-	var numFire = -canHire(job,-Infinity);
-	var elem = document.getElementById(job + 'Row');
-
-	elem.children[ 0].children[0].disabled = (numFire <   1); // -   All
-	elem.children[ 1].children[0].disabled = (numFire <   1); // -Custom
-	elem.children[ 2].children[0].disabled = (numFire < 100); // -   100
-	elem.children[ 3].children[0].disabled = (numFire <  10); // -    10
-	elem.children[ 4].children[0].disabled = (numFire <   1); // -     1
-	elem.children[ 7].children[0].disabled = (numHire <   1); //       1
-	elem.children[ 8].children[0].disabled = (numHire <  10); //      10
-	elem.children[ 9].children[0].disabled = (numHire < 100); //     100
-	elem.children[10].children[0].disabled = (numHire <   1); //  Custom
-	elem.children[11].children[0].disabled = (numHire <   1); //     Max
 }
 
 
@@ -1828,50 +1727,6 @@ function updateAchievements(){
 	if (achievements.neverclick) { setElemDisplay(document.getElementById('achNeverclick'),true); }
 }
 
-function updateParty(){
-	//updates the party (and enemies)
-	setElemDisplay(document.getElementById('esoldiersRow'),(population.esoldiers > 0));
-	setElemDisplay(document.getElementById('efortsRow'),(population.eforts > 0));
-}
-
-function updatePartyButtons(){
-	var soldiersPartyRow, cavalryPartyRow, siegePartyRow;
-	var pacifist = !upgrades.standard;
-
-	soldiersPartyRow = document.getElementById('soldiersPartyRow');
-	soldiersPartyRow.children[ 0].children[0].disabled = pacifist || (population.soldiersParty <   1); //    None
-	soldiersPartyRow.children[ 1].children[0].disabled = pacifist || (population.soldiersParty <   1); // -Custom
-	soldiersPartyRow.children[ 2].children[0].disabled = pacifist || (population.soldiersParty < 100); // -   100
-	soldiersPartyRow.children[ 3].children[0].disabled = pacifist || (population.soldiersParty <  10); // -    10
-	soldiersPartyRow.children[ 4].children[0].disabled = pacifist || (population.soldiersParty <   1); // -     1
-	soldiersPartyRow.children[ 7].children[0].disabled = pacifist || (population.soldiers      <   1); //       1
-	soldiersPartyRow.children[ 8].children[0].disabled = pacifist || (population.soldiers      <  10); //      10
-	soldiersPartyRow.children[ 9].children[0].disabled = pacifist || (population.soldiers      < 100); //     100
-	soldiersPartyRow.children[10].children[0].disabled = pacifist || (population.soldiersParty <   1); //  Custom
-	soldiersPartyRow.children[11].children[0].disabled = pacifist || (population.soldiers      <   1); //     Max
-
-	cavalryPartyRow = document.getElementById('cavalryPartyRow');
-	cavalryPartyRow.children[ 0].children[0].disabled = pacifist || (population.cavalryParty <   1); //    None
-	cavalryPartyRow.children[ 1].children[0].disabled = pacifist || (population.cavalryParty <   1); // -Custom
-	cavalryPartyRow.children[ 2].children[0].disabled = pacifist || (population.cavalryParty < 100); // -   100
-	cavalryPartyRow.children[ 3].children[0].disabled = pacifist || (population.cavalryParty <  10); // -    10
-	cavalryPartyRow.children[ 4].children[0].disabled = pacifist || (population.cavalryParty <   1); // -     1
-	cavalryPartyRow.children[ 7].children[0].disabled = pacifist || (population.cavalry      <   1); //       1
-	cavalryPartyRow.children[ 8].children[0].disabled = pacifist || (population.cavalry      <  10); //      10
-	cavalryPartyRow.children[ 9].children[0].disabled = pacifist || (population.cavalry      < 100); //     100
-	cavalryPartyRow.children[10].children[0].disabled = pacifist || (population.cavalry      <   1); //  Custom
-	cavalryPartyRow.children[11].children[0].disabled = pacifist || (population.cavalry      <   1); //     Max
-
-	siegePartyRow = document.getElementById('siegeRow');
-	var numHire = canAfford(units.siege.require);
-	
-	siegePartyRow.children[ 7].children[0].disabled = pacifist || (numHire <   1); //       1
-	siegePartyRow.children[ 8].children[0].disabled = pacifist || (numHire <  10); //      10
-	siegePartyRow.children[ 9].children[0].disabled = pacifist || (numHire < 100); //     100
-	siegePartyRow.children[10].children[0].disabled = pacifist || (numHire <   1); //  Custom
-	// Siege max disabled; too easy to overspend.
-	// siegePartyRow.children[11].children[0].disabled = pacifist || (numHire <  1); // Max
-}
 // Enable the raid buttons for eligible targets.
 function updateTargets(){
 	var i;
@@ -1958,45 +1813,6 @@ function updateWonderList(){
 			updateAchievements();
 		}
 	}
-}
-
-function updateBuildingButtons(){
-	//enables/disabled building buttons - calls each type of building in turn
-	updateBuildingRow(tent);
-	updateBuildingRow(whut);
-	updateBuildingRow(cottage);
-	updateBuildingRow(house);
-	updateBuildingRow(mansion);
-	updateBuildingRow(barn);
-	updateBuildingRow(woodstock);
-	updateBuildingRow(stonestock);
-	updateBuildingRow(tannery);
-	updateBuildingRow(smithy);
-	updateBuildingRow(apothecary);
-	updateBuildingRow(temple);
-	updateBuildingRow(barracks);
-	updateBuildingRow(stable);
-	updateBuildingRow(graveyard);
-	updateBuildingRow(mill);
-	updateBuildingRow(fortification);
-	updateBuildingRow(battleAltar);
-	updateBuildingRow(underworldAltar);
-	updateBuildingRow(fieldsAltar);
-	updateBuildingRow(catAltar);
-}
-
-function updateBuildingRow(buildingObj){
-	var i;
-	//this works by trying to access the children of the table rows containing the buttons in sequence
-	var numBuildable = canAfford(buildingObj.require);
-	for (i=0;i<4;i++){
-		try { // try-catch required because fortifications, mills, and altars do not have more than one child button. 
-		      // This should probably be cleaned up in the future.
-		      // Fortunately the index numbers of the children map directly onto the powers of 10 used by the buttons
-				document.getElementById(buildingObj.id + 'Row').children[i].children[0].disabled = (numBuildable < Math.pow(10,i));
-		} catch(ignore){}
-	}		
-	try { document.getElementById(buildingObj.id + 'Row').children[4].children[0].disabled = (numBuildable < 1); } catch(ignore){} //Custom button
 }
 
 function updateReset(){
@@ -2241,34 +2057,6 @@ function starve(num) {
 	}
 
 	return num;
-}
-
-// job - The job ID to update
-// num - Maximum limit to hire/fire (use -Infinity find the max fireable)
-// Returns the number that could be hired or fired (negative if fired).
-function canHire(job,num)
-{
-	var buildingLimit = Infinity; // Additional limit from buildings.
-
-	if (num === undefined) { num = Infinity; } // Default to as many as we can.
-	num = Math.min(num, population.unemployed);  // Cap hiring by # of available workers.
-	num = Math.max(num, -population[job]);  // Cap firing by # in that job.
-	
-	// See if this job has limits from buildings or resource costs.
-	if (job == 'tanners')     { buildingLimit =    tannery.total; }
-	if (job == 'blacksmiths') { buildingLimit =    smithy.total; }
-	if (job == 'healers')     { buildingLimit =    apothecary.total; }
-	if (job == 'clerics')     { buildingLimit =    temple.total; }
-	if (job == 'soldiers')    { buildingLimit = 10*barracks.total; }
-	if (job == 'cavalry')     { buildingLimit = 10*stable.total; }
-
-	// Check the building limit against the current numbers (including sick and
-	// partied units, if applicable).
-	num = Math.min(num, buildingLimit - population[job] - population[job+'Ill'] 
-	    - (isValid(population[job+'Party']) ? population[job+'Party'] : 0) );
-
-	// See if we can afford them; returns fewer if we can't afford them all
-	return Math.min(num,canAfford(units[job].require));
 }
 
 // Hires or fires workers to/from a specific job.
@@ -3187,7 +2975,189 @@ function speedWonder(){
 	}
 }
 
-/* Settings functions */
+// Game infrastructure functions
+
+// Load in saved data
+function load(loadType){
+	//define load variables
+	var loadVar = {},
+		loadVar2 = {};
+		
+	if (loadType === 'cookie'){
+		//check for cookies
+		if (read_cookie('civ') && read_cookie('civ2')){
+			//set variables to load from
+			loadVar = read_cookie('civ');
+			loadVar2 = read_cookie('civ2');
+			//notify user
+			gameLog('Loaded saved game from cookie');
+			gameLog('Save system switching to localStorage.');
+		} else {
+			console.log('Unable to find cookie');
+			return false;
+		}
+	}
+	
+	if (loadType === 'localStorage'){
+		//check for local storage
+		var string1;
+		var string2;
+		var msg;
+		try {
+			string1 = localStorage.getItem('civ');
+			string2 = localStorage.getItem('civ2');
+		} catch(err) {
+			if (err instanceof SecurityError)
+				{ msg = 'Browser security settings blocked access to local storage.'; }
+			else 
+				{ msg = 'Cannot access localStorage - browser may not support localStorage, or storage may be corrupt'; }
+			console.log(msg);
+		}
+		if (string1 && string2){
+			loadVar = JSON.parse(string1);
+			loadVar2 = JSON.parse(string2);
+			//notify user
+			gameLog('Loaded saved game from localStorage');
+		} else {
+			console.log('Unable to find variables in localStorage. Attempting to load cookie.');
+			load('cookie');
+			return false;
+		}
+	}
+	
+	if (loadType === 'import'){
+		//take the import string, decompress and parse it
+		var compressed = document.getElementById('impexpField').value;
+		var decompressed = LZString.decompressFromBase64(compressed);
+		var revived = JSON.parse(decompressed);
+		//set variables to load from
+		loadVar = revived[0];
+		loadVar2 = revived[1];
+		//notify user
+		gameLog('Imported saved game');
+		//close import/export dialog
+		//impexp();
+	}
+	
+	// BACKWARD COMPATIBILITY SECTION //////////////////
+	// population.corpses moved to corpses.total (v1.1.13)
+	if (!isValid(loadVar.corpses)) { loadVar.corpses = {}; }
+	if (isValid(loadVar.population.corpses)) { 
+		if (!isValid(loadVar.population.corpses)) { 
+			loadVar.corpses.total = loadVar.population.corpses; 
+		}
+		loadVar.population.corpses = undefined; 
+	}
+	// population.apothecaries moved to population.healers (v1.1.17)
+	if (isValid(loadVar.population.apothecaries)) { 
+		if (!isValid(loadVar.population.apothecaries)) { 
+			loadVar.population.healers = loadVar.population.apothecaries; 
+		}
+		loadVar.population.apothecaries = undefined; 
+	}
+	////////////////////////////////////////////////////
+	//
+	//xxx Why are we saving and restoring the names of basic resources?
+	//    We should move the static values to prototype objects.
+	//Note also that names are now used for the user-facing names.
+	food = mergeObj(food, loadVar.food);
+	wood = mergeObj(wood, loadVar.wood);
+	stone = mergeObj(stone, loadVar.stone);
+	skins = mergeObj(skins, loadVar.skins);
+	herbs = mergeObj(herbs, loadVar.herbs);
+	ore = mergeObj(ore, loadVar.ore);
+	leather = mergeObj(leather, loadVar.leather);
+	metal = mergeObj(metal, loadVar.metal);
+	piety = mergeObj(piety, loadVar.piety);
+	gold = mergeObj(gold, loadVar.gold);
+	corpses = mergeObj(corpses, loadVar.corpses);
+	if (isValid(loadVar.gold)){
+		gold = mergeObj(gold, loadVar.gold);
+	}
+	corpses = mergeObj(corpses, loadVar.corpses);
+	if (isValid(loadVar2.wonder)){
+		wonder = mergeObj(wonder, loadVar2.wonder);
+	}
+	land = mergeObj(land, loadVar2.land);
+	tent = mergeObj(tent, loadVar2.tent);
+	whut = mergeObj(whut, loadVar2.whut);
+	cottage = mergeObj(cottage, loadVar2.cottage);
+	house = mergeObj(house, loadVar2.house);
+	mansion = mergeObj(mansion, loadVar2.mansion);
+	barn = mergeObj(barn, loadVar2.barn);
+	woodstock = mergeObj(woodstock, loadVar2.woodstock);
+	stonestock = mergeObj(stonestock, loadVar2.stonestock);
+	tannery = mergeObj(tannery, loadVar2.tannery);
+	smithy = mergeObj(smithy, loadVar2.smithy);
+	apothecary = mergeObj(apothecary, loadVar2.apothecary);
+	temple = mergeObj(temple, loadVar2.temple);
+	barracks = mergeObj(barracks, loadVar2.barracks);
+	stable = mergeObj(stable, loadVar2.stable);
+	mill = mergeObj(mill, loadVar2.mill);
+	updateRequirements(mill);
+	graveyard = mergeObj(graveyard, loadVar2.graveyard);
+	fortification = mergeObj(fortification, loadVar2.fortification);
+	updateRequirements(fortification);
+	battleAltar = mergeObj(battleAltar, loadVar2.battleAltar);
+	updateRequirements(battleAltar);
+	fieldsAltar = mergeObj(fieldsAltar, loadVar2.fieldsAltar);
+	updateRequirements(fieldsAltar);
+	underworldAltar = mergeObj(underworldAltar, loadVar2.underworldAltar);
+	updateRequirements(underworldAltar);
+	catAltar = mergeObj(catAltar, loadVar2.catAltar);
+	updateRequirements(catAltar);
+	if (isValid(loadVar2.resourceClicks)){
+		resourceClicks = mergeObj(resourceClicks, loadVar2.resourceClicks);
+	} else {
+		resourceClicks = 999; //stops people getting the achievement with an old save version
+	}
+	worksafe = mergeObj(worksafe, loadVar2.worksafe);
+	population = mergeObj(population, loadVar.population);
+	efficiency = mergeObj(efficiency, loadVar.efficiency);
+	upgrades = mergeObj(upgrades, loadVar.upgrades);
+	if (isValid(loadVar.deity)) {
+		deity = mergeObj(deity, loadVar.deity);
+		if (deity.seniority > 1){
+			document.getElementById('activeDeity').innerHTML = '<tr id="deity' + deity.seniority + '"><td><strong><span id="deity' + deity.seniority + 'Name">No deity</span></strong><span id="deity' + deity.seniority + 'Type" class="deityType"></span></td><td>Devotion: <span id="devotion' + deity.seniority + '">0</span></td><td class="removeDeity"><button class="removeDeity" onclick="removeDeity(deity' + deity.seniority + ')">X</button></td></tr>';
+		}
+	}
+	if (isValid(loadVar.achievements)){
+		achievements = mergeObj(achievements, loadVar.achievements);
+	}
+	if (isValid(loadVar.raiding)){
+		raiding = mergeObj(raiding, loadVar.raiding);
+	}
+	if (isValid(loadVar.targetMax)) { targetMax = mergeObj(targetMax, loadVar.targetMax); }
+	if (isValid(loadVar.oldDeities)) { oldDeities = mergeObj(oldDeities, loadVar.oldDeities); }
+	if (isValid(loadVar.deityArray)){ deityArray = mergeObj(deityArray, loadVar.deityArray); }
+	if (isValid(loadVar.graceCost)){ graceCost = mergeObj(graceCost, loadVar.graceCost); }
+	if (isValid(loadVar.walkTotal)){ walkTotal = mergeObj(walkTotal, loadVar.walkTotal); }
+	if (isValid(loadVar.autosave)){ autosave = mergeObj(autosave, loadVar.autosave); }
+	if (isValid(loadVar.size)) { size = mergeObj(size, loadVar.size); }
+	civName = mergeObj(civName, loadVar.civName);
+	rulerName = mergeObj(rulerName, loadVar.rulerName);
+	updateResourceTotals();
+	updateMobs();
+	updateDeity();
+	updateUpgrades();
+	updateOldDeities();
+	updateDevotion();
+	updateParty();
+	mood(0);
+	updateHappiness();
+	updateWonder();
+	document.getElementById("clicks").innerHTML = prettify(Math.round(resourceClicks));
+	document.getElementById('civName').innerHTML = civName;
+	document.getElementById('rulerName').innerHTML = rulerName;
+	document.getElementById('wonderNameP').innerHTML = wonder.name;
+	document.getElementById('wonderNameC').innerHTML = wonder.name;
+	document.getElementById('startWonder').disabled = (wonder.completed || wonder.building);
+		
+	//Upgrade-related checks
+	efficiency.farmers = 0.2 + (0.1 * upgrades.domestication) + (0.1 * upgrades.ploughshares) + (0.1 * upgrades.irrigation) + (0.1 * upgrades.croprotation) + (0.1 * upgrades.selectivebreeding) + (0.1 * upgrades.fertilisers) + (0.1 * upgrades.blessing);
+	efficiency.soldiers = 0.05 + (0.01 * upgrades.riddle) + (0.01 * upgrades.weaponry) + (0.01 * upgrades.shields);
+	efficiency.cavalry = 0.08 + (0.01 * upgrades.riddle) + (0.01 * upgrades.weaponry) + (0.01 * upgrades.shields);
+}
 
 function save(savetype){
 	var xmlhttp;
@@ -4481,8 +4451,34 @@ function doLabourers() {
 	}
 }	
 
-/* Timed functions */
+// Start of init program code
+addBuildingRows();
+addJobRows();
+addPartyRows();
 
+//Prompt player for names
+if (!read_cookie('civ') && !localStorage.getItem('civ')){
+	renameCiv();
+	renameRuler();
+}
+
+load('localStorage');//immediately attempts to load
+
+body.style.fontSize = size + "em";
+if (!worksafe){
+	body.classList.add("hasBackground");
+} else {
+	body.classList.remove("hasBackground");
+	if (!usingWords){
+		var elems = document.getElementsByClassName('icon');
+		var i;
+		for(i = 0; i < elems.length; i++) {
+			elems[i].style.visibility = 'hidden';
+		}
+	}
+}
+
+/* Timed functions */
 window.setInterval(function(){
 	//The whole game runs on a single setInterval clock. Basically this whole list is run every second
 	//and should probably be minimised as much as possible.
