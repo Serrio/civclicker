@@ -194,3 +194,11 @@ function dataset(elem,attr,value)
 
 	return elem.setAttribute('data-'+attr,value);
 }
+
+
+// Probabilistic rounding function
+function rndRound(num)
+{
+	var baseVal = Math.floor(num);
+	return baseVal + ((Math.random() < (num - baseVal)) ? 1 : 0)
+}

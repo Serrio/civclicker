@@ -3678,8 +3678,7 @@ function doFarmers() {
 	food.total += food.net;
 	if (upgrades.skinning == 1 && population.farmers > 0){ //and sometimes get skins
 		var num_skins = food.specialchance * (food.increment + (upgrades.butchering * population.farmers / 15.0)) * (1 + (wonder.skins/10));
-		skins.total += Math.floor(num_skins);
-		if (Math.random() < (num_skins - Math.floor(num_skins))) { ++skins.total; }
+		skins.total += rndRound(num_skins);
 	}
 }
 function doWoodcutters() {
@@ -3687,8 +3686,7 @@ function doWoodcutters() {
 	wood.total += wood.net;
 	if (upgrades.harvesting == 1 && population.woodcutters > 0){ //and sometimes get herbs
 		var num_herbs = wood.specialchance * (wood.increment + (upgrades.gardening * population.woodcutters / 5.0)) * (1 + (wonder.wood/10));
-		herbs.total += Math.floor(num_herbs);
-		if (Math.random() < (num_herbs - Math.floor(num_herbs))) { ++herbs.total; }
+		herbs.total += rndRound(num_herbs);
 	}
 }
 
@@ -3697,8 +3695,7 @@ function doMiners() {
 	stone.total += stone.net;
 	if (upgrades.prospecting == 1 && population.miners > 0){ //and sometimes get ore
 		var num_ore = stone.specialchance * (stone.increment + (upgrades.extraction * population.miners / 5.0)) * (1 + (wonder.ore/10));
-		ore.total += Math.floor(num_ore);
-		if (Math.random() < (num_ore - Math.floor(num_ore))) { ++ore.total; }
+		ore.total += rndRound(num_ore);
 	}
 }
 
@@ -4304,14 +4301,14 @@ function doRaid() {
 			//Handles cavalry
 			if (population.cavalryParty > 0){
 				//Calculate each side's casualties inflicted and subtract them from an effective strength value (xCas)
-					population.esoldiersCas -= (population.cavalryParty * efficiency.cavalryParty) * Math.max(1 - (population.eforts * efficiency.eforts),0);
-					population.cavalryPartyCas -= (population.esoldiers * efficiency.esoldiers * 1.5); //Cavalry takes 50% more casualties vs. infantry
+				population.esoldiersCas -= (population.cavalryParty * efficiency.cavalryParty) * Math.max(1 - (population.eforts * efficiency.eforts),0);
+				population.cavalryPartyCas -= (population.esoldiers * efficiency.esoldiers * 1.5); //Cavalry takes 50% more casualties vs. infantry
 				//If this reduces effective strengths below 0, reset it to 0.
-					if (population.esoldiersCas < 0){
-						population.esoldiersCas = 0;
+				if (population.esoldiersCas < 0){
+					population.esoldiersCas = 0;
 				}
-					if (population.cavalryPartyCas < 0){
-						population.cavalryPartyCas = 0;
+				if (population.cavalryPartyCas < 0){
+					population.cavalryPartyCas = 0;
 				}
 				//Calculates the casualties dealt based on difference between actual numbers and new effective strength
 				mobCasualties = population.esoldiers - population.esoldiersCas;
