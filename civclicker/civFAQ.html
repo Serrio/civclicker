@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 	<title>CivClicker FAQ</title>
 	<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
@@ -30,7 +30,9 @@
 	<h2>Getting Started</h2>
 	<dl>
 		<dt>How do I get started?</dt>
-		<dd>If you want people, you'll need to have enough food to support them, and they will need to have a place to live. Make sure you have enough food and at least a tent or wooden hut to start with.</dd>
+		<dd>If you want people, you'll need to have enough food to support 
+		them, and they will need to have a place to live. Make sure you 
+		have enough food and at least a tent or wooden hut to start with.</dd>
 		<dt>I made a worker, but they died straight away!</dt>
 		<dd>Workers eat food. Do you have enough spare?</dd>
 	</dl>
@@ -40,33 +42,69 @@
 		<dt>How do I get more cats?</dt>
 		<dd>It is a mystery.</dd>
 		<dt>How do I get more deities?</dt>
-		<dd>You'll need to reset your game; you get one deity per playthrough (collect them all!).</dd>
+		<dd>You'll need to reset your game; you get one deity per 
+		playthrough (collect them all!).</dd>
 		<dt>But if I reset, don't I lose everything?</dt>
-		<dd>You get to keep your achievements (you <em>need</em> to reset to get them all), your old deities and some of their upgrades (the Pantheon Upgrades section lists the permanent ones), your wonders, and your cats.</dd>
+		<dd>You get to keep your achievements (you <em>need</em> to reset
+		to get them all), your old deities and some of their upgrades 
+		(the Pantheon Upgrades section lists the permanent ones), your 
+		wonders, and your cats.</dd>
 		<dt>How do I get gold?</dt>
 		<dd>You need to trade for it with the traders who show up randomly.</dd>
 		<dt>What are all the achievements? How do I get them?</dt>
-		<dd>Finding out is part of the fun! If you really need to know, check the source code or ask around on <a href="http://www.reddit.com/r/civclicker">Reddit</a>.</dd>
+		<dd>Finding out is part of the fun! If you really need to know, 
+		check the source code or ask around on <a href="http://www.reddit.com/r/civclicker">Reddit</a>.</dd>
 		<dt>Can I buy bonuses for old deities?</dt>
-		<dd>You can only buy upgrades for your current deity. You'll be able to do more stuff with old deities in the future.</dd>
+		<dd>You can only buy upgrades for your current deity. You'll be 
+		able to do more stuff with old deities in the future.</dd>
 		<dt>My people hate me! How can I fix this?</dt>
-		<dd>For the moment, happiness is boosted by victorious raids, or if you have Aesthetics, by building lots of temples.</dd>
-		<dt>I don't seem to be making any progress on my wonder. Am I doing it right?</dt>
-		<dd>You need a lot of labourers and a lot of every kind of resource. Really a lot.</dd>
+		<dd>For the moment, happiness is boosted by victorious raids, or 
+		if you have Aesthetics, by building lots of temples.</dd>
+		<dt>I don't seem to be making any progress on my wonder. 
+		Am I doing it right?</dt>
+		<dd>You need a lot of labourers and a lot of every kind of resource. 
+		Really a lot.</dd>
 	</dl>
 	
 	<h2>The Future</h2>
 	<dl>
 		<dt>Is the game complete?</dt>
-		<dd>David Holley, the original author, has stated that he does not intend to develop it further.  However, David&mdash;</dd>
+		<dd>David Holley, the original author, has stated that he does not
+		intend to develop it further.  However, David&mdash;</dd>
 		<dt>&mdash;Gosh, that's awful.  So no new features?</dt>
-		<dd>Don't interrupt.  As I was saying, David generously released the code under the <a href="http://www.gnu.org/licenses/gpl.html">GPL</a>, 
+		<dd>Don't interrupt.  As I was saying, David generously released the
+		code under the <a href="http://www.gnu.org/licenses/gpl.html">GPL</a>, 
 		which made this continuation of the project possible.</dd>
+		<dt>So the game is open source now?  Does that mean that I can do
+		whatever I want with it?</dt>
+		<dd>Not quite.  The GPL is an open-source license, but there are still
+		a few things that it prohibits:
+		<ul><li>You can't change the copyright license.</li>
+		<li>You can't remove anyone's name from the AUTHORS file.  You can add
+		your own name, if you release your own version).</li>
+		<li>You can't release the code in an obscured (obfuscated or JSMin-ed)
+		form unless you also publish the unobscured version.</li>
+		<li>You can't mix the CivClicker code with code under another license
+		unless that license is compatible with the GPL.</li>
+		<li>You can't try to legally restrict anyone's ability to distribute
+		the program.</li></ul>
+		That last one can be important, because some places, like the Apple App
+		Store, have DRM restrictions that conflict with it.
+		</dd>
 		<dt>So...what's the plan from here?</dt>
 		<dd>First, I'm going to take some time to learn the code, and refactor
 		it to be more extensible.  This will allow bigger and better things
 		in time.  However, it means that there will probably only be minor
 		bugfixes for a while.</dd>
+	</dl>
+
+	<h2>The Present</h2>
+	<dl>
+		<dt>So who is working on CivClicker now that Dave's retired?</dt>
+		<dd>I'm Scott Colcord, the primary maintainer of CivClicker on 
+		SourceForge.  I'm the one doing most of the coding at this point,
+		although the team is likely to eventually grow with the addition of
+		artists and translators.</dd>
 	</dl>
 	
 	<h2>The Past</h2>
@@ -90,11 +128,17 @@
 		<dt>Why do you need so many farmers?</dt>
 		<dd>In pre-industrial society, farmers operated at barely above subsistence level, so the numbers aren't actually too far off real life. With lots of upgrades and mills, the efficiency of farmers improves significantly.</dd>
 		<dt>What browsers does CivClicker support?</dt>
-		<dd>I've used both Firefox and Chrome in development. People have reported issues with Opera (check your cookie settings) and, predictably, Internet Explorer. If you are having problems with a particular browser I'd like to know.</dd>
+		<dd>I'm using Firefox, so it gets the most testing.  My intent is that
+		CivClicker should work on any version of the major browsers that's less
+		than a year old.</dd>
 		<dt>Can I help?</dt>
 		<dd>If you like the game, I'd appreciate if you shared a link so more people can see it. :)</dd>
 		<dt>I meant, do you need any help coding?</dt>
-		<dd>This was a bit of a personal project, both game design-wise and coding-wise, but now that the game is licensed under the GPL you can make improvements yourself!</dd>
+		<dd>Not at the moment; I'm refactoring the code pretty quickly, and
+		having more people on it would probably slow the process down with
+		coordination overhead.  Once I finish the refactoring phase, however,
+		I'm likely to want better graphics, sound, and translations, though,
+		so if your skills lie in those areas, please let me know!</dd>
 		<dt>Where did you get those icons?</dt>
 		<dd>The icons are modified from originals found on <a href="http://game-icons.net">game-icons.net</a>. They are used under the CC-BY license (original author details <a href="http://game-icons.net/about.html#authors">here</a>).</dd>
 		<dt>And the background?</dt>

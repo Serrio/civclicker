@@ -1,26 +1,22 @@
 "use strict";
 /**
- * CivClicker
- * Copyright (C) 2014 David Holley <dhmholley@gmail.com>
+    CivClicker
+    Copyright (C) 2014; see the AUTHORS file for authorship.
 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program (if you are reading this on the original
- * author's website, you can find a copy at <http://dhmholley.co.uk/gpl.txt>). 
- * If not, see <http://www.gnu.org/licenses/>.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program in the LICENSE file.
+    If it is not there, see <http://www.gnu.org/licenses/>.
+**/
 
 
 var version = 19;
@@ -50,11 +46,11 @@ civSizes.largeNation = civSizes.length; civSizes[civSizes.largeNation] = { min_p
 civSizes.empire      = civSizes.length; civSizes[civSizes.empire     ] = { min_pop : 500000, name : "Empire"      , id : "empire"     };
 
 civSizes.getCivSize = function(popcnt) {
-    var i;
-    for(i = this.length - 1; i >= 0; --i){
-        if (popcnt >= this[i].min_pop) { return this[i]; }
-    }
-    return this[0];
+	var i;
+	for(i = this.length - 1; i >= 0; --i){
+		if (popcnt >= this[i].min_pop) { return this[i]; }
+	}
+	return this[0];
 };
 
 // To find the max pop, we look at the next entry's min_pop and subtract one.
@@ -606,7 +602,16 @@ efficiency = {
 	healers:0.1,
 	clerics:0.05,
 	soldiers:0.05,
-	cavalry:0.08
+	cavalry:0.08,
+	soldiersParty:0.05,
+	cavalryParty:0.08,
+	wolves:0.05,
+	bandits:0.07,
+	barbarians:0.09,
+	esoldiers:0.05,
+	esiege:0.1, //each siege engine has 10% to hit
+	eforts:0.01, // -1% damage
+	fortification:0.01
 },
 upgrades = {
 	domestication:0,
@@ -847,7 +852,7 @@ function getBuildingRowText(buildingObj, onlyOnes)
 
 	var bldId = buildingObj.id;
 	var bldName = buildingObj.name;
-    var s = "<tr id='"+bldId+"Row'>";
+	var s = "<tr id='"+bldId+"Row'>";
 	// Note that updateBuildingRow() relies on the <tr>'s children being in this particular layout.
 	s += "<td><button class='build' onmousedown=\"createBuilding("+bldId+",1)\">Build "+bldName+"</button></td>";
 	if (onlyOnes===undefined || onlyOnes !== true) {
@@ -947,7 +952,7 @@ function getJobRowText(jobObj, onlyOnes, funcName, displayClass, allowSell)
 	if (allowSell===undefined) { allowSell = true; }
 
 	var jobId = jobObj.id;
-    var s = "<tr id='"+jobId+"Row'>";
+	var s = "<tr id='"+jobId+"Row'>";
 	// Note that updateJobRow() relies on the <tr>'s children being in this particular layout.
 	if (!onlyOnes && funcName && allowSell) {
 	s += "<td class='jobNone'><button onmousedown=\""+funcName+"('"+jobId+"',-Infinity)\">-All</button></td>";
@@ -1194,7 +1199,7 @@ function updatePopulation(){
 	population.healthy = population.unemployed + population.farmers + population.woodcutters + population.miners + population.tanners + population.blacksmiths + population.healers + population.clerics + population.soldiers + population.cavalry + population.labourers - population.zombies;
 	//Calculate maximum population based on workers that require housing (i.e. not zombies)
 	population.current = population.healthy + population.totalSick + population.soldiersParty + population.cavalryParty;
-    //Zombie soldiers dying can drive population.current negative if they are killed and zombies are the only thing left.
+	//Zombie soldiers dying can drive population.current negative if they are killed and zombies are the only thing left.
 	if (population.current < 0){
 		if (population.zombies > 0){
 			//This fixes that by removing zombies and setting to zero.
@@ -1230,8 +1235,8 @@ function updatePopulation(){
 		}
 	}
 
-    // Update our civ type name and score achievement if warranted.
-    var civTypeInfo = civSizes.getCivSize(population.current);
+	// Update our civ type name and score achievement if warranted.
+	var civTypeInfo = civSizes.getCivSize(population.current);
 	civType = civTypeInfo.name;
 	if (achievements.hasOwnProperty(civTypeInfo.id) && !achievements[civTypeInfo.id]) {
 		achievements[civTypeInfo.id] = 1;
@@ -2256,6 +2261,8 @@ function upgrade(name){
 		metal.total -= 500;
 		efficiency.soldiers += 0.01;
 		efficiency.cavalry += 0.01;
+		efficiency.soldiersParty += 0.01;
+		efficiency.cavalryParty += 0.01;
 	}
 	if (name == 'shields' && wood.total >= 500 && leather.total >= 500){
 		upgrades.shields = 1;
@@ -2263,6 +2270,8 @@ function upgrade(name){
 		leather.total -= 500;
 		efficiency.soldiers += 0.01;
 		efficiency.cavalry += 0.01;
+		efficiency.soldiersParty += 0.01;
+		efficiency.cavalryParty += 0.01;
 	}
 	if (name == 'writing' && skins.total >= 500){
 		upgrades.writing = 1;
@@ -2408,6 +2417,8 @@ function upgrade(name){
 		piety.total -= 1000;
 		efficiency.soldiers += 0.01;
 		efficiency.cavalry += 0.01;
+		efficiency.soldiersParty += 0.01;
+		efficiency.cavalryParty += 0.01;
 		document.getElementById('riddle').disabled = true;
 		updateDeity();
 	}
@@ -3038,6 +3049,10 @@ function load(loadType){
 		//close import/export dialog
 		//impexp();
 	}
+
+	var versionData = mergeObj(loadVar.versionData);
+	console.log('Loading save game version ' + versionData.major +
+		'.' + versionData.minor + '.' + versionData.sub + '(' + versionData.mod + ').');
 	
 	// BACKWARD COMPATIBILITY SECTION //////////////////
 	// population.corpses moved to corpses.total (v1.1.13)
@@ -3157,6 +3172,8 @@ function load(loadType){
 	efficiency.farmers = 0.2 + (0.1 * upgrades.domestication) + (0.1 * upgrades.ploughshares) + (0.1 * upgrades.irrigation) + (0.1 * upgrades.croprotation) + (0.1 * upgrades.selectivebreeding) + (0.1 * upgrades.fertilisers) + (0.1 * upgrades.blessing);
 	efficiency.soldiers = 0.05 + (0.01 * upgrades.riddle) + (0.01 * upgrades.weaponry) + (0.01 * upgrades.shields);
 	efficiency.cavalry = 0.08 + (0.01 * upgrades.riddle) + (0.01 * upgrades.weaponry) + (0.01 * upgrades.shields);
+	efficiency.soldiersParty = 0.05 + (0.01 * upgrades.riddle) + (0.01 * upgrades.weaponry) + (0.01 * upgrades.shields);
+	efficiency.cavalryParty = 0.08 + (0.01 * upgrades.riddle) + (0.01 * upgrades.weaponry) + (0.01 * upgrades.shields);
 }
 
 function save(savetype){
@@ -3296,11 +3313,11 @@ function deleteSave(){
 	//Deletes the current savegame by setting the game's cookies to expire in the past.
 	var really = confirm('Really delete save?'); //Check the player really wanted to do that.
 	if (really){
-        document.cookie = [saveTag1, '=; expires=Thu, 01-Jan-1970 00:00:01 GMT; path=/; domain=.', window.location.host.toString()].join('');
+		document.cookie = [saveTag1, '=; expires=Thu, 01-Jan-1970 00:00:01 GMT; path=/; domain=.', window.location.host.toString()].join('');
 		document.cookie = [saveTag2, '=; expires=Thu, 01-Jan-1970 00:00:01 GMT; path=/; domain=.', window.location.host.toString()].join('');
 		localStorage.removeItem(saveTag1);
 		localStorage.removeItem(saveTag2);
-        gameLog('Save Deleted');
+		gameLog('Save Deleted');
 	}
 }
 
@@ -3485,7 +3502,16 @@ function reset(){
 		healers:0.1,
 		clerics:0.05,
 		soldiers:0.05,
-		cavalry:0.08
+		cavalry:0.08,
+		soldiersParty:0.05,
+		cavalryParty:0.08,
+		wolves:0.05,
+		bandits:0.07,
+		barbarians:0.09,
+		esoldiers:0.05,
+		esiege:0.1, //each siege engine has 10% to hit
+		eforts:0.01, // -1% damage
+		fortification:0.01
 	};
 
 	upgrades = {
@@ -3753,7 +3779,7 @@ function getNextPatient()
 
 function doHealers() {
 	var job, numHealed = 0;
-    var numHealers = population.healers + (population.cats * upgrades.companion);
+	var numHealers = population.healers + (population.cats * upgrades.companion);
 
 	// How much healing can we do?
 	cureCounter += (numHealers * efficiency.healers * efficiency.happiness);
@@ -3827,7 +3853,7 @@ function doMobs() {
 			if (population.cavalry > 0){
 				//Calculate each side's casualties inflicted and subtract them from an effective strength value (xCas)
 				population.wolvesCas -= (population.cavalry * efficiency.cavalry);
-				population.cavalryCas -= (population.wolves * (0.05 - (0.01 * upgrades.palisade)) * Math.max(1 - (fortification.total/100),0));
+				population.cavalryCas -= (population.wolves * (efficiency.wolves - (0.01 * upgrades.palisade)) * Math.max(1 - (fortification.total * efficiency.fortification),0));
 				//If this reduces effective strengths below 0, reset it to 0.
 				if (population.wolvesCas < 0){
 					population.wolvesCas = 0;
@@ -3857,7 +3883,7 @@ function doMobs() {
 			if (population.soldiers > 0){
 				//Calculate each side's casualties inflicted and subtract them from an effective strength value (xCas)
 				population.wolvesCas -= (population.soldiers * efficiency.soldiers);
-				population.soldiersCas -= (population.wolves * (0.05 - (0.01 * upgrades.palisade)) * Math.max(1 - (fortification.total/100),0));
+				population.soldiersCas -= (population.wolves * (efficiency.wolves - (0.01 * upgrades.palisade)) * Math.max(1 - (fortification.total * efficiency.fortification),0));
 				//If this reduces effective strengths below 0, reset it to 0.
 				if (population.wolvesCas < 0){
 					population.wolvesCas = 0;
@@ -3895,7 +3921,7 @@ function doMobs() {
 				}
 				if (population.wolvesCas < 0) { population.wolvesCas = 0; }
 				console.log('Wolves ate a ' + getSingularJob(target));
-                gameLog('Wolves ate a ' + getSingularJob(target));
+				gameLog('Wolves ate a ' + getSingularJob(target));
 				--population.current;
 				--population[target];
 				if (target == "soldiers" || target == "cavalry"){
@@ -3921,7 +3947,7 @@ function doMobs() {
 			if (population.cavalry > 0){
 				//Calculate each side's casualties inflicted and subtract them from an effective strength value
 				population.banditsCas -= (population.cavalry * efficiency.cavalry);
-				population.cavalryCas -= (population.bandits * (0.07 - (0.01 * upgrades.palisade)) * Math.max(1 - (fortification.total/100),0)) * 1.5; //cavalry take 50% more casualties vs infantry
+				population.cavalryCas -= (population.bandits * (efficiency.bandits - (0.01 * upgrades.palisade)) * Math.max(1 - (fortification.total * efficiency.fortification),0)) * 1.5; //cavalry take 50% more casualties vs infantry
 				//If this reduces effective strengths below 0, reset it to 0.
 				if (population.banditsCas < 0){
 					population.banditsCas = 0;
@@ -3951,7 +3977,7 @@ function doMobs() {
 			if (population.soldiers > 0){
 				//Calculate each side's casualties inflicted and subtract them from an effective strength value
 				population.banditsCas -= (population.soldiers * efficiency.soldiers);
-				population.soldiersCas -= (population.bandits * (0.07 - (0.01 * upgrades.palisade)) * Math.max(1 - (fortification.total/100),0));
+				population.soldiersCas -= (population.bandits * (efficiency.bandits - (0.01 * upgrades.palisade)) * Math.max(1 - (fortification.total * efficiency.fortification),0));
 				//If this reduces effective strengths below 0, reset it to 0.
 				if (population.banditsCas < 0){
 					population.banditsCas = 0;
@@ -4006,7 +4032,7 @@ function doMobs() {
 			if (population.cavalry > 0){
 				//Calculate each side's casualties inflicted and subtract them from an effective strength value
 				population.barbariansCas -= (population.cavalry * efficiency.cavalry);
-				population.cavalryCas -= (population.barbarians * (0.09 - (0.01 * upgrades.palisade)) * Math.max(1 - (fortification.total/100),0)) * 1.5; //Cavalry take 50% more casualties vs. infantry
+				population.cavalryCas -= (population.barbarians * (efficiency.barbarians - (0.01 * upgrades.palisade)) * Math.max(1 - (fortification.total * efficiency.fortification),0)) * 1.5; //Cavalry take 50% more casualties vs. infantry
 				//If this reduces effective strengths below 0, reset it to 0.
 				if (population.barbariansCas < 0){
 					population.barbariansCas = 0;
@@ -4036,7 +4062,7 @@ function doMobs() {
 			if (population.soldiers > 0){
 				//Calculate each side's casualties inflicted and subtract them from an effective strength value
 				population.barbariansCas -= (population.soldiers * efficiency.soldiers);
-				population.soldiersCas -= (population.barbarians * (0.09 - (0.01 * upgrades.palisade)) * Math.max(1 - (fortification.total/100),0));
+				population.soldiersCas -= (population.barbarians * (efficiency.barbarians - (0.01 * upgrades.palisade)) * Math.max(1 - (fortification.total * efficiency.fortification),0));
 				//If this reduces effective strengths below 0, reset it to 0.
 				if (population.barbariansCas < 0){
 					population.barbariansCas = 0;
@@ -4197,7 +4223,7 @@ function doMobs() {
 				for (i = 0; i < firing; i++){
 					if (fortification.total > 0){ //still needs to be something to fire at
 						hit = Math.random();
-						if (hit < 0.1){ //each siege engine has 10% to hit
+						if (hit < efficiency.esiege){
 							fortification.total -= 1;
 							gameLog('Enemy siege engine damaged our fortifications');
 							updateRequirements(fortification);
@@ -4224,6 +4250,38 @@ function doMobs() {
 	}
 }
 
+function raidWin() {
+	gameLog('Raid victorious!'); //notify player
+	raiding.victory = true; //set victory for future handling
+	//conquest achievements
+	if (!achievements.raider){
+		achievements.raider = 1;
+		updateAchievements();
+	}
+
+	// If we beat the largest opponent, grant bonus achievement.
+	if (raiding.last == civSizes[civSizes.length-1].id) 
+	{
+		if (!achievements.domination){
+			achievements.domination = 1;
+			updateAchievements();
+		}
+	}
+	else if (raiding.last == targetMax)
+	{
+		// We fought our largest eligible foe.  Raise the limit.
+		targetMax = civSizes[civSizes[targetMax] + 1].id;
+	}
+		// Improve mood based on size of defeated foe.
+	mood((civSizes[raiding.last] + 1)/100);
+
+	//lamentation
+	if (upgrades.lament){
+		attackCounter -= Math.ceil(raiding.iterations/100);
+	}
+}
+
+
 function doRaid() {
 	var i;
 	var mobCasualties,
@@ -4234,150 +4292,123 @@ function doRaid() {
 	var hit;
 	var firing;
 
-	if (raiding.raiding){ //handles the raiding subroutine
-		if (population.soldiersParty > 0 || population.cavalryParty || raiding.victory){ //technically you can win, then remove all your soldiers
-			if (population.esoldiers > 0){
-				/* FIGHT! */
-				//Handles cavalry
-				if (population.cavalryParty > 0){
-					//Calculate each side's casualties inflicted and subtract them from an effective strength value (xCas)
-					population.esoldiersCas -= (population.cavalryParty * efficiency.cavalry) * Math.max(1 - population.eforts/100,0);
-					population.cavalryPartyCas -= (population.esoldiers * 0.05 * 1.5); //Cavalry takes 50% more casualties vs. infantry
-					//If this reduces effective strengths below 0, reset it to 0.
+	if (!raiding.raiding){ //handles the raiding subroutine
+		// We're not raiding right now.
+		document.getElementById('raidGroup').style.display = 'block';
+		return;
+	}
+
+	if (((population.soldiersParty + population.cavalryParty) > 0) || raiding.victory){ //technically you can win, then remove all your soldiers
+		if (population.esoldiers > 0){
+			/* FIGHT! */
+			//Handles cavalry
+			if (population.cavalryParty > 0){
+				//Calculate each side's casualties inflicted and subtract them from an effective strength value (xCas)
+					population.esoldiersCas -= (population.cavalryParty * efficiency.cavalryParty) * Math.max(1 - (population.eforts * efficiency.eforts),0);
+					population.cavalryPartyCas -= (population.esoldiers * efficiency.esoldiers * 1.5); //Cavalry takes 50% more casualties vs. infantry
+				//If this reduces effective strengths below 0, reset it to 0.
 					if (population.esoldiersCas < 0){
 						population.esoldiersCas = 0;
-					}
+				}
 					if (population.cavalryPartyCas < 0){
 						population.cavalryPartyCas = 0;
-					}
-					//Calculates the casualties dealt based on difference between actual numbers and new effective strength
-					mobCasualties = population.esoldiers - population.esoldiersCas;
-					mobCasFloor = Math.floor(mobCasualties);
-					casualties = population.cavalryParty - population.cavalryPartyCas;
-					casFloor = Math.floor(casualties);
-					if (!(mobCasFloor > 0)) { mobCasFloor = 0; } //weirdness with floating point numbers. not sure why this is necessary
-					if (!(casFloor > 0)) { casFloor = 0; }
-					//Increments enemies slain, corpses, and piety
-					population.enemiesSlain += mobCasFloor;
-					if (upgrades.throne) { throneCount += mobCasFloor; }
-					corpses.total += (casFloor + mobCasFloor);
-					updatePopulation();
-					if (upgrades.book) {
-						piety.total += (casFloor + mobCasFloor) * 10;
-						updateResourceTotals();
-					}
-					//Resets the actual numbers based on effective strength
-					population.esoldiers = Math.ceil(population.esoldiersCas);
-					population.cavalryParty = Math.ceil(population.cavalryPartyCas);
 				}
-				//Handles infantry
-				if (population.soldiersParty > 0){
-					//Calculate each side's casualties inflicted and subtract them from an effective strength value (xCas)
-					population.esoldiersCas -= (population.soldiersParty * efficiency.soldiers) * Math.max(1 - population.eforts/100,0);
-					population.soldiersPartyCas -= (population.esoldiers * 0.05);
-					//If this reduces effective strengths below 0, reset it to 0.
-					if (population.esoldiersCas < 0){
-						population.esoldiersCas = 0;
-					}
-					if (population.soldiersPartyCas < 0){
-						population.soldiersPartyCas = 0;
-					}
-					//Calculates the casualties dealt based on difference between actual numbers and new effective strength
-					mobCasualties = population.esoldiers - population.esoldiersCas;
-					mobCasFloor = Math.floor(mobCasualties);
-					casualties = population.soldiersParty - population.soldiersPartyCas;
-					casFloor = Math.floor(casualties);
-					if (!(mobCasFloor > 0)) { mobCasFloor = 0; } //weirdness with floating point numbers. not sure why this is necessary
-					if (!(casFloor > 0)) { casFloor = 0; }
-					//Increments enemies slain, corpses, and piety
-					population.enemiesSlain += mobCasFloor;
-					if (upgrades.throne) { throneCount += mobCasFloor; }
-					corpses.total += (casFloor + mobCasFloor);
-					updatePopulation();
-					if (upgrades.book) {
-						piety.total += (casFloor + mobCasFloor) * 10;
-						updateResourceTotals();
-					}
-					//Resets the actual numbers based on effective strength
-					population.esoldiers = Math.ceil(population.esoldiersCas);
-					population.soldiersParty = Math.ceil(population.soldiersPartyCas);
+				//Calculates the casualties dealt based on difference between actual numbers and new effective strength
+				mobCasualties = population.esoldiers - population.esoldiersCas;
+				mobCasFloor = Math.floor(mobCasualties);
+				casualties = population.cavalryParty - population.cavalryPartyCas;
+				casFloor = Math.floor(casualties);
+				if (!(mobCasFloor > 0)) { mobCasFloor = 0; } //weirdness with floating point numbers. not sure why this is necessary
+				if (!(casFloor > 0)) { casFloor = 0; }
+				//Increments enemies slain, corpses, and piety
+				population.enemiesSlain += mobCasFloor;
+				if (upgrades.throne) { throneCount += mobCasFloor; }
+				corpses.total += (casFloor + mobCasFloor);
+				updatePopulation();
+				if (upgrades.book) {
+					piety.total += (casFloor + mobCasFloor) * 10;
+					updateResourceTotals();
 				}
-				//Handles siege engines
-				if (population.siege > 0 && population.eforts > 0){ //need to be siege weapons and something to fire at
-					firing = Math.ceil(Math.min(population.siege/2,population.eforts*2));
-					if (firing > population.siege) { firing = population.siege; } //should never happen
-					for (i = 0; i < firing; i++){
-						if (population.eforts > 0){ //still needs to be something to fire at
-							hit = Math.random();
-							if (hit < 0.1){ //each siege engine has 10% to hit
-								population.eforts -= 1;
-							} else if (hit > 0.95){ //each siege engine has 5% to misfire and destroy itself
-								population.siege -= 1;
-							}
-						}
-					}
-				}
-				
-				/* END FIGHT! */
-				
-				//checks victory conditions (needed here because of the order of tests)
-				if (population.esoldiers <= 0){
-					population.esoldiers = 0; //ensure esoldiers is 0
-					population.esoldiersCas = 0; //ensure esoldiers is 0
-					population.eforts = 0; //ensure eforts is 0
-					gameLog('Raid victorious!'); //notify player
-					raiding.victory = true; //set victory for future handling
-					//conquest achievements
-					if (!achievements.raider){
-						achievements.raider = 1;
-						updateAchievements();
-					}
-
-					// If we beat the largest opponent, grant bonus achievement.
-					if (raiding.last == civSizes[civSizes.length-1].id) 
-					{
-						if (!achievements.domination){
-							achievements.domination = 1;
-							updateAchievements();
-						}
-					}
-					else if (raiding.last == targetMax)
-					{
-						// We fought our largest eligible foe.  Raise the limit.
-						targetMax = civSizes[civSizes[targetMax] + 1].id;
-					}
-
-					// Improve mood based on size of defeated foe.
-					mood((civSizes[raiding.last] + 1)/100);
-
-					//lamentation
-					if (upgrades.lament){
-						attackCounter -= Math.ceil(raiding.iterations/100);
-					}
-
-					updateTargets(); //update the new target
-				}
-				updateParty(); //display new totals for army soldiers and enemy soldiers
-			} else if (raiding.victory){
-				//handles the victory outcome
-				document.getElementById('victoryGroup').style.display = 'block';
-			} else {
-				//victory outcome has been handled, end raid
-				raiding.raiding = false;
-				raiding.iterations = 0;
+				//Resets the actual numbers based on effective strength
+				population.esoldiers = Math.ceil(population.esoldiersCas);
+				population.cavalryParty = Math.ceil(population.cavalryPartyCas);
 			}
+			//Handles infantry
+			if (population.soldiersParty > 0){
+				//Calculate each side's casualties inflicted and subtract them from an effective strength value (xCas)
+				population.esoldiersCas -= (population.soldiersParty * efficiency.soldiersParty) * Math.max(1 - (population.eforts * efficiency.eforts),0);
+				population.soldiersPartyCas -= (population.esoldiers * efficiency.esoldiers);
+				//If this reduces effective strengths below 0, reset it to 0.
+				if (population.esoldiersCas < 0){
+					population.esoldiersCas = 0;
+				}
+				if (population.soldiersPartyCas < 0){
+					population.soldiersPartyCas = 0;
+				}
+				//Calculates the casualties dealt based on difference between actual numbers and new effective strength
+				mobCasualties = population.esoldiers - population.esoldiersCas;
+				mobCasFloor = Math.floor(mobCasualties);
+				casualties = population.soldiersParty - population.soldiersPartyCas;
+				casFloor = Math.floor(casualties);
+				if (!(mobCasFloor > 0)) { mobCasFloor = 0; } //weirdness with floating point numbers. not sure why this is necessary
+				if (!(casFloor > 0)) { casFloor = 0; }
+				//Increments enemies slain, corpses, and piety
+				population.enemiesSlain += mobCasFloor;
+				if (upgrades.throne) { throneCount += mobCasFloor; }
+				corpses.total += (casFloor + mobCasFloor);
+				updatePopulation();
+				if (upgrades.book) {
+					piety.total += (casFloor + mobCasFloor) * 10;
+					updateResourceTotals();
+				}
+				//Resets the actual numbers based on effective strength
+				population.esoldiers = Math.ceil(population.esoldiersCas);
+				population.soldiersParty = Math.ceil(population.soldiersPartyCas);
+			}
+			//Handles siege engines
+			if (population.siege > 0 && population.eforts > 0){ //need to be siege weapons and something to fire at
+				firing = Math.ceil(Math.min(population.siege/2,population.eforts*2));
+				if (firing > population.siege) { firing = population.siege; } //should never happen
+				for (i = 0; i < firing; i++){
+					if (population.eforts > 0){ //still needs to be something to fire at
+						hit = Math.random();
+						if (hit < efficiency.siege){ //each siege engine has 10% to hit
+							population.eforts -= 1;
+						} else if (hit > 0.95){ //each siege engine has 5% to misfire and destroy itself
+							population.siege -= 1;
+						}
+					}
+				}
+			}
+			
+			/* END FIGHT! */
+			
+			//checks victory conditions (needed here because of the order of tests)
+			if (population.esoldiers <= 0){
+				population.esoldiers = 0; //ensure esoldiers is 0
+				population.esoldiersCas = 0; //ensure esoldiers is 0
+				population.eforts = 0; //ensure eforts is 0
+				raidWin();
+				updateTargets(); //update the new target
+			}
+			updateParty(); //display new totals for army soldiers and enemy soldiers
+		} else if (raiding.victory){
+			//handles the victory outcome
+			document.getElementById('victoryGroup').style.display = 'block';
 		} else {
-			gameLog('Raid defeated');
-			population.esoldiers = 0;
-			population.esoldiersCas = 0;
-			population.eforts = 0;
-			population.siege = 0;
-			updateParty();
+			//victory outcome has been handled, end raid
 			raiding.raiding = false;
 			raiding.iterations = 0;
 		}
 	} else {
-		document.getElementById('raidGroup').style.display = 'block';
+		gameLog('Raid defeated');
+		population.esoldiers = 0;
+		population.esoldiersCas = 0;
+		population.eforts = 0;
+		population.siege = 0;
+		updateParty();
+		raiding.raiding = false;
+		raiding.iterations = 0;
 	}
 }
 
