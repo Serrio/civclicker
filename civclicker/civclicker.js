@@ -4710,8 +4710,6 @@ window.setInterval(function(){
 		}
 	}
 	
-	updateResourceTotals(); //This is the point where the page is updated with new resource totals
-	
 	//Population-related
 	doMobs();
 	doRaid();
@@ -4752,6 +4750,8 @@ window.setInterval(function(){
 			trader.timer -= 1;
 		}
 	}
+	
+	updateResourceTotals(); //This is the point where the page is updated with new resource totals
 	
 	updateUpgrades();
 	updateBuildingButtons();
