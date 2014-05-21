@@ -1,21 +1,21 @@
 "use strict";
 /**
-    CivClicker
-    Copyright (C) 2014; see the AUTHORS file for authorship.
+	CivClicker
+	Copyright (C) 2014; see the AUTHORS file for authorship.
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+	This program is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program in the LICENSE file.
-    If it is not there, see <http://www.gnu.org/licenses/>.
+	You should have received a copy of the GNU General Public License
+	along with this program in the LICENSE file.
+	If it is not there, see <http://www.gnu.org/licenses/>.
 **/
 
 
@@ -24,10 +24,10 @@ var versionData = {
 	major:  1,
 	minor:  1,
 	sub:   27,
-	mod:   'alpha'
+	mod:   "alpha"
 };
-var saveTag1 = 'civ';
-var saveTag2 = 'civ2';
+var saveTag1 = "civ";
+var saveTag2 = "civ2";
 var logRepeat = 1;
 
 // Civ size category minimums
@@ -66,69 +66,69 @@ civSizes.getMaxPop = function(civType) {
 
 // Initialize Data
 var civName = "Woodstock",
-rulerName = 'Orteil',
+rulerName = "Orteil",
 food = {
-	id:'food',
-	name:'food',
+	id:"food",
+	name:"food",
 	total:0,
 	net:0,
 	increment:1,
 	specialchance:0.1
 },
 wood = {
-	id:'wood',
-	name:'wood',
+	id:"wood",
+	name:"wood",
 	total:0,
 	net:0,
 	increment:1,
 	specialchance:0.1
 },
 stone = {
-	id:'stone',
-	name:'stone',
+	id:"stone",
+	name:"stone",
 	total:0,
 	net:0,
 	increment:1,
 	specialchance:0.1
 },
 skins = {
-	id:'skins',
-	name:'skins',
+	id:"skins",
+	name:"skins",
 	total:0
 },
 herbs = {
-	id:'herbs',
-	name:'herbs',
+	id:"herbs",
+	name:"herbs",
 	total:0
 },
 ore = {
-	id:'ore',
-	name:'ore',
+	id:"ore",
+	name:"ore",
 	total:0
 },
 leather = {
-	id:'leather',
-	name:'leather',
+	id:"leather",
+	name:"leather",
 	total:0
 },
 metal = {
-	id:'metal',
-	name:'metal',
+	id:"metal",
+	name:"metal",
 	total:0
 },
 piety = {
-	id:'piety',
-	name:'piety',
+	id:"piety",
+	name:"piety",
 	total:0
 },
 gold = {
-	id:'gold',
-	name:'gold',
+	id:"gold",
+	name:"gold",
 	total:0
 },
 corpses = {
-	id:'corpses',
-	name:'corpses',
+	id:"corpses",
+	name:"corpses",
 	total:0
 },
 land = 1000,
@@ -579,7 +579,7 @@ wonder = {
 	metal:0,
 	piety:0,
 	array:[],
-	name:'',
+	name:"",
 	building:false,
 	completed:false,
 	progress:0
@@ -762,8 +762,8 @@ trader = {
 	requested:0,
 	timer:0
 },
-civType = 'Thorp',
-targetMax = 'thorp',
+civType = "Thorp",
+targetMax = "thorp",
 raiding = {
 	raiding:false,
 	victory:false,
@@ -787,7 +787,7 @@ customIncrements = false,
 usingWords = false,
 worksafe = false,
 size = 1,
-body = document.getElementsByTagName('body')[0];
+body = document.getElementsByTagName("body")[0];
 
 
 // Get an object's requirements in text form.
@@ -855,17 +855,17 @@ function canHire(job,num)
 	num = Math.max(num, -population[job]);  // Cap firing by # in that job.
 	
 	// See if this job has limits from buildings or resource costs.
-	if (job == 'tanners')     { buildingLimit =    tannery.total; }
-	if (job == 'blacksmiths') { buildingLimit =    smithy.total; }
-	if (job == 'healers')     { buildingLimit =    apothecary.total; }
-	if (job == 'clerics')     { buildingLimit =    temple.total; }
-	if (job == 'soldiers')    { buildingLimit = 10*barracks.total; }
-	if (job == 'cavalry')     { buildingLimit = 10*stable.total; }
+	if (job == "tanners")     { buildingLimit =    tannery.total; }
+	if (job == "blacksmiths") { buildingLimit =    smithy.total; }
+	if (job == "healers")     { buildingLimit =    apothecary.total; }
+	if (job == "clerics")     { buildingLimit =    temple.total; }
+	if (job == "soldiers")    { buildingLimit = 10*barracks.total; }
+	if (job == "cavalry")     { buildingLimit = 10*stable.total; }
 
 	// Check the building limit against the current numbers (including sick and
 	// partied units, if applicable).
-	num = Math.min(num, buildingLimit - population[job] - population[job+'Ill'] 
-	    - (isValid(population[job+'Party']) ? population[job+'Party'] : 0) );
+	num = Math.min(num, buildingLimit - population[job] - population[job+"Ill"] 
+	    - (isValid(population[job+"Party"]) ? population[job+"Party"] : 0) );
 
 	// See if we can afford them; returns fewer if we can't afford them all
 	return Math.min(num,canAfford(units[job].require));
@@ -875,13 +875,13 @@ function canHire(job,num)
 
 // Much of this interface consists of tables of buttons, columns of which get
 // revealed or hidden based on toggles and population.  Currently, we do this
-// by setting the 'display' property on every affected <td>.  This is very
+// by setting the "display" property on every affected <td>.  This is very
 // inefficient, because it forces a table re-layout after every cell change.
 //
 // A better approach tried but ultimately abandoned was to use <col> elements
 // to try to manipulate the columns wholesale.  Unfortunately, <col> is
 // minimally useful, because only a few CSS properties are supported on <col>.
-// Even though one of those, 'visibility', purports to have the 'collapse' 
+// Even though one of those, "visibility", purports to have the "collapse" 
 // value for just this purpose, it doesn't work; brower support for this
 // property is very inconsistent, particularly in the handling of cell borders.
 //
@@ -955,10 +955,10 @@ function updateBuildingRow(buildingObj){
 		try { // try-catch required because fortifications, mills, and altars do not have more than one child button. 
 		      // This should probably be cleaned up in the future.
 		      // Fortunately the index numbers of the children map directly onto the powers of 10 used by the buttons
-				document.getElementById(buildingObj.id + 'Row').children[i].children[0].disabled = (numBuildable < Math.pow(10,i));
+				document.getElementById(buildingObj.id + "Row").children[i].children[0].disabled = (numBuildable < Math.pow(10,i));
 		} catch(ignore){}
 	}		
-	try { document.getElementById(buildingObj.id + 'Row').children[4].children[0].disabled = (numBuildable < 1); } catch(ignore){} //Custom button
+	try { document.getElementById(buildingObj.id + "Row").children[4].children[0].disabled = (numBuildable < 1); } catch(ignore){} //Custom button
 }
 function updateBuildingButtons(){
 	//enables/disabled building buttons - calls each type of building in turn
@@ -1069,7 +1069,7 @@ function addJobRows()
 function updateJobButtons(job){
 	var numHire = canHire(job);
 	var numFire = -canHire(job,-Infinity);
-	var elem = document.getElementById(job + 'Row');
+	var elem = document.getElementById(job + "Row");
 
 	elem.children[ 0].children[0].disabled = (numFire <   1); // -   All
 	elem.children[ 1].children[0].disabled = (numFire <   1); // -Custom
@@ -1084,16 +1084,16 @@ function updateJobButtons(job){
 }
 function updateJobs(){
 	//Update the page with the latest worker distribution and stats
-	updateJobButtons('farmers');
-	updateJobButtons('woodcutters');
-	updateJobButtons('miners');
-	updateJobButtons('tanners',tannery);
-	updateJobButtons('blacksmiths',smithy);
-	updateJobButtons('healers',apothecary);
-	updateJobButtons('clerics',temple);
-	updateJobButtons('labourers');
-	updateJobButtons('soldiers',barracks,10);
-	updateJobButtons('cavalry',stable,10);
+	updateJobButtons("farmers");
+	updateJobButtons("woodcutters");
+	updateJobButtons("miners");
+	updateJobButtons("tanners",tannery);
+	updateJobButtons("blacksmiths",smithy);
+	updateJobButtons("healers",apothecary);
+	updateJobButtons("clerics",temple);
+	updateJobButtons("labourers");
+	updateJobButtons("soldiers",barracks,10);
+	updateJobButtons("cavalry",stable,10);
 }
 
 
@@ -1112,7 +1112,7 @@ function updatePartyButtons(){
 	var soldiersPartyRow, cavalryPartyRow, siegePartyRow;
 	var pacifist = !upgrades.standard;
 
-	soldiersPartyRow = document.getElementById('soldiersPartyRow');
+	soldiersPartyRow = document.getElementById("soldiersPartyRow");
 	soldiersPartyRow.children[ 0].children[0].disabled = pacifist || (population.soldiersParty <   1); //    None
 	soldiersPartyRow.children[ 1].children[0].disabled = pacifist || (population.soldiersParty <   1); // -Custom
 	soldiersPartyRow.children[ 2].children[0].disabled = pacifist || (population.soldiersParty < 100); // -   100
@@ -1124,7 +1124,7 @@ function updatePartyButtons(){
 	soldiersPartyRow.children[10].children[0].disabled = pacifist || (population.soldiers      <   1); //  Custom
 	soldiersPartyRow.children[11].children[0].disabled = pacifist || (population.soldiers      <   1); //     Max
 
-	cavalryPartyRow = document.getElementById('cavalryPartyRow');
+	cavalryPartyRow = document.getElementById("cavalryPartyRow");
 	cavalryPartyRow.children[ 0].children[0].disabled = pacifist || (population.cavalryParty <   1); //    None
 	cavalryPartyRow.children[ 1].children[0].disabled = pacifist || (population.cavalryParty <   1); // -Custom
 	cavalryPartyRow.children[ 2].children[0].disabled = pacifist || (population.cavalryParty < 100); // -   100
@@ -1136,7 +1136,7 @@ function updatePartyButtons(){
 	cavalryPartyRow.children[10].children[0].disabled = pacifist || (population.cavalry      <   1); //  Custom
 	cavalryPartyRow.children[11].children[0].disabled = pacifist || (population.cavalry      <   1); //     Max
 
-	siegePartyRow = document.getElementById('siegeRow');
+	siegePartyRow = document.getElementById("siegeRow");
 	var numHire = canAfford(units.siege.require);
 	
 	siegePartyRow.children[ 7].children[0].disabled = pacifist || (numHire <   1); //       1
@@ -1148,8 +1148,8 @@ function updatePartyButtons(){
 }
 function updateParty(){
 	//updates the party (and enemies)
-	setElemDisplay(document.getElementById('esoldiersRow'),(population.esoldiers > 0));
-	setElemDisplay(document.getElementById('efortsRow'),(population.eforts > 0));
+	setElemDisplay(document.getElementById("esoldiersRow"),(population.esoldiers > 0));
+	setElemDisplay(document.getElementById("efortsRow"),(population.eforts > 0));
 }
 
 
@@ -1160,72 +1160,72 @@ function updateParty(){
 function updateResourceTotals(){
 	var i,displayElems,elem,val;
 
-	// Scan the HTML document for elements with a 'data-action' element of
-	// 'display'.  The 'data-target' of such elements is presumed to contain
+	// Scan the HTML document for elements with a "data-action" element of
+	// "display".  The "data-target" of such elements is presumed to contain
 	// the global variable name to be displayed as the element's content.
 	//xxx This should probably require data-target too.
 	displayElems=document.querySelectorAll("[data-action='display']");
 	for (i=0;i<displayElems.length;++i)
 	{
 		elem = displayElems[i];
-		elem.innerHTML = prettify(Math.floor(window[dataset(elem,'target')].total));
+		elem.innerHTML = prettify(Math.floor(window[dataset(elem,"target")].total));
 	}
 
 	// Update net production values for primary resources.  Same as the above,
-	// but look for 'data-action' == 'displayNet'.
+	// but look for "data-action" == "displayNet".
 	displayElems=document.querySelectorAll("[data-action='displayNet']");
 	for (i=0;i<displayElems.length;++i)
 	{
 		elem = displayElems[i];
-		val = window[dataset(elem,'target')].net.toFixed(1);
+		val = window[dataset(elem,"target")].net.toFixed(1);
 		elem.innerHTML = prettify(val);
 		// Colourise net production values.
-		if      (val < 0) { elem.style.color='#f00'; }
-		else if (val > 0) { elem.style.color='#0b0'; }
-		else              { elem.style.color='#000'; }
+		if      (val < 0) { elem.style.color="#f00"; }
+		else if (val > 0) { elem.style.color="#0b0"; }
+		else              { elem.style.color="#000"; }
 	}
 
 	if (gold.total >= 1){
-		setElemDisplay(document.getElementById('goldRow'),true);
-		if (!upgrades.trade) { document.getElementById('tradeUpgrade').disabled = false; }
+		setElemDisplay(document.getElementById("goldRow"),true);
+		if (!upgrades.trade) { document.getElementById("tradeUpgrade").disabled = false; }
 	}
 
 	//Update page with building numbers, also stockpile limits.
-	document.getElementById('maxfood').innerHTML = prettify(200 + (200 * (barn.total + (barn.total * upgrades.granaries))));
-	document.getElementById('maxwood').innerHTML = prettify(200 + (200 * woodstock.total));
-	document.getElementById('maxstone').innerHTML = prettify(200 + (200 * stonestock.total));
+	document.getElementById("maxfood").innerHTML = prettify(200 + (200 * (barn.total + (barn.total * upgrades.granaries))));
+	document.getElementById("maxwood").innerHTML = prettify(200 + (200 * woodstock.total));
+	document.getElementById("maxstone").innerHTML = prettify(200 + (200 * stonestock.total));
 
 	//Update land values
 	totalBuildings = tent.total + whut.total + cottage.total + house.total + mansion.total + barn.total + woodstock.total + stonestock.total + tannery.total + smithy.total + apothecary.total + temple.total + barracks.total + stable.total + mill.total + graveyard.total + fortification.total + battleAltar.total + fieldsAltar.total + underworldAltar.total + catAltar.total;
-	document.getElementById('freeLand').innerHTML = prettify(land - Math.round(totalBuildings));
-	document.getElementById('totalLand').innerHTML = prettify(land);
-	document.getElementById('totalBuildings').innerHTML = prettify(Math.round(totalBuildings));
+	document.getElementById("freeLand").innerHTML = prettify(land - Math.round(totalBuildings));
+	document.getElementById("totalLand").innerHTML = prettify(land);
+	document.getElementById("totalBuildings").innerHTML = prettify(Math.round(totalBuildings));
 
 	//Unlock jobs predicated on having certain buildings
-	if (smithy.total > 0) { setElemDisplay(document.getElementById('blacksmithsRow'),true); }
-	if (tannery.total > 0) { setElemDisplay(document.getElementById('tannersRow'),true); }
-	if (apothecary.total > 0) { setElemDisplay(document.getElementById('healersRow'),true); }
-	if (temple.total > 0) { setElemDisplay(document.getElementById('clericsRow'),true); }
-	if (barracks.total > 0) { setElemDisplay(document.getElementById('soldiersRow'),true); }
-	if (stable.total > 0) { setElemDisplay(document.getElementById('cavalryRow'),true); }
+	if (smithy.total > 0) { setElemDisplay(document.getElementById("blacksmithsRow"),true); }
+	if (tannery.total > 0) { setElemDisplay(document.getElementById("tannersRow"),true); }
+	if (apothecary.total > 0) { setElemDisplay(document.getElementById("healersRow"),true); }
+	if (temple.total > 0) { setElemDisplay(document.getElementById("clericsRow"),true); }
+	if (barracks.total > 0) { setElemDisplay(document.getElementById("soldiersRow"),true); }
+	if (stable.total > 0) { setElemDisplay(document.getElementById("cavalryRow"),true); }
 
 	//Unlock upgrades predicated on having certain buildings
 
 	//At least one Temple is required to unlock Worship (It never disables again once enabled)
-	if (temple.total > 0) { setElemDisplay(document.getElementById('deitySelect'),true); }
-	document.getElementById('deity').disabled = upgrades.deity ||
+	if (temple.total > 0) { setElemDisplay(document.getElementById("deitySelect"),true); }
+	document.getElementById("deity").disabled = upgrades.deity ||
 		(temple.total < 1) || (piety.total < 1000);
 
 	//At least one Barracks is required to unlock Standard (It never disables again once enabled)
-	if (barracks.total > 0) { setElemDisplay(document.getElementById('conquestSelect'),true); }
-	document.getElementById('standard').disabled = upgrades.standard ||
+	if (barracks.total > 0) { setElemDisplay(document.getElementById("conquestSelect"),true); }
+	document.getElementById("standard").disabled = upgrades.standard ||
 		(barracks.total < 1) || (leather.total < 1000) || (metal.total < 1000);
 
 	// Enable trade tab once we've got gold (It never disables again once enabled)
-	if (gold.total > 0) { setElemDisplay(document.getElementById('tradeSelect'),true); }
+	if (gold.total > 0) { setElemDisplay(document.getElementById("tradeSelect"),true); }
 
 	// Need to have enough resources to trade
-	document.getElementById('trade').disabled = (trader.time == 0) ||
+	document.getElementById("trade").disabled = (trader.time == 0) ||
 		(trader.material.total < trader.requested);
 
 	updatePopulation(); //updatePopulation() handles the population caps, which are determined by buildings.
@@ -1239,7 +1239,7 @@ function updatePopulation(){
 	population.totalSick = population.farmersIll + population.woodcuttersIll + population.minersIll + population.tannersIll + population.blacksmithsIll + population.healersIll + population.clericsIll + population.labourersIll + population.soldiersIll + population.cavalryIll + population.unemployedIll;
 	//Display or hide the sick row
 	if (population.totalSick > 0){
-		setElemDisplay(document.getElementById('totalSickRow'),true);
+		setElemDisplay(document.getElementById("totalSickRow"),true);
 	}
 	//Calculate healthy workers
 	population.healthy = population.unemployed + population.farmers + population.woodcutters + population.miners + population.tanners + population.blacksmiths + population.healers + population.clerics + population.soldiers + population.cavalry + population.labourers - population.zombies;
@@ -1253,30 +1253,30 @@ function updatePopulation(){
 			population.current = 0;
 		} else {
 			//something else is wrong
-			console.log('Something has gone wrong. Population levels are: ' + population.unemployed + ', ' + population.farmers + ', ' + population.woodcutters + ', ' + population.miners + ', ' + population.blacksmiths + ', ' + population.healers + ', ' + population.clerics + ', ' + population.soldiers + ', ' + population.soldiersParty + ', ' + population.cavalry + ', ' + population.cavalryParty + ', ' + population.labourers);
+			console.log("Something has gone wrong. Population levels are: " + population.unemployed + ", " + population.farmers + ", " + population.woodcutters + ", " + population.miners + ", " + population.blacksmiths + ", " + population.healers + ", " + population.clerics + ", " + population.soldiers + ", " + population.soldiersParty + ", " + population.cavalry + ", " + population.cavalryParty + ", " + population.labourers);
 		}
 	}
 
 	//Update page with numbers
 
-	// Scan the HTML document for elements with a 'data-action' element of
-	// 'display_pop'.  The 'data-target' of such elements is presumed to contain
+	// Scan the HTML document for elements with a "data-action" element of
+	// "display_pop".  The "data-target" of such elements is presumed to contain
 	// the population subproperty to be displayed as the element's content.
 	//xxx This selector should probably require data-target too.
 	displayElems=document.querySelectorAll("[data-action='display_pop']");
 	for (i=0;i<displayElems.length;++i)
 	{
 		elem = displayElems[i];
-		elem.innerHTML = prettify(Math.floor(population[dataset(elem,'target')]));
+		elem.innerHTML = prettify(Math.floor(population[dataset(elem,"target")]));
 	}
 
-	setElemDisplay(document.getElementById('gravesTotal'),(population.graves > 0));
+	setElemDisplay(document.getElementById("gravesTotal"),(population.graves > 0));
 
 	//As population increases, various things change
 	if (population.current == 0 && population.cap >= 1000){
-		civType = 'Ghost Town';
+		civType = "Ghost Town";
 		if (!achievements.ghostTown){
-			gameLog('Achievement Unlocked: Ghost Town');
+			gameLog("Achievement Unlocked: Ghost Town");
 			achievements.ghostTown = 1;
 		}
 	}
@@ -1286,19 +1286,19 @@ function updatePopulation(){
 	civType = civTypeInfo.name;
 	if (achievements.hasOwnProperty(civTypeInfo.id) && !achievements[civTypeInfo.id]) {
 		achievements[civTypeInfo.id] = 1;
-		gameLog('Achievement Unlocked: ' + civTypeInfo.name);
+		gameLog("Achievement Unlocked: " + civTypeInfo.name);
 	}
 
 	if (population.zombies >= 1000 && population.zombies >= 2 * population.current){ //easter egg
-		civType = 'Necropolis';
+		civType = "Necropolis";
 	}
-	document.getElementById('civType').innerHTML = civType;
+	document.getElementById("civType").innerHTML = civType;
 
 	//Unlocking interface elements as population increases to reduce unnecessary clicking
 	if (population.current + population.zombies >= 10) {
 		if (!customIncrements){	
-			setElemDisplay(document.getElementById('spawn10'),true);
-			elems = document.getElementsByClassName('job10');
+			setElemDisplay(document.getElementById("spawn10"),true);
+			elems = document.getElementsByClassName("job10");
 			for(i = 0; i < elems.length; i++) {
 				setElemDisplay(elems[i],true);
 			}
@@ -1306,12 +1306,12 @@ function updatePopulation(){
 	}
 	if (population.current + population.zombies >= 100) {
 		if (!customIncrements){
-			setElemDisplay(document.getElementById('spawn100'),true);
-			elems = document.getElementsByClassName('building10');
+			setElemDisplay(document.getElementById("spawn100"),true);
+			elems = document.getElementsByClassName("building10");
 			for(i = 0; i < elems.length; i++) {
 				setElemDisplay(elems[i],true);
 			}
-			elems = document.getElementsByClassName('job100');
+			elems = document.getElementsByClassName("job100");
 			for(i = 0; i < elems.length; i++) {
 				setElemDisplay(elems[i],true);
 			}
@@ -1319,26 +1319,26 @@ function updatePopulation(){
 	}
 	if (population.current + population.zombies >= 1000) {
 		if (!customIncrements){
-			setElemDisplay(document.getElementById('spawn1000'),true);
-			setElemDisplay(document.getElementById('spawnMax'),true);
-			elems = document.getElementsByClassName('building100');
+			setElemDisplay(document.getElementById("spawn1000"),true);
+			setElemDisplay(document.getElementById("spawnMax"),true);
+			elems = document.getElementsByClassName("building100");
 			for(i = 0; i < elems.length; i++) {
 				setElemDisplay(elems[i],true);
 			}
 		}
 
-		elems = document.getElementsByClassName('jobAll');
+		elems = document.getElementsByClassName("jobAll");
 		for(i = 0; i < elems.length; i++) {
 			setElemDisplay(elems[i],true);
 		}
-		elems = document.getElementsByClassName('jobNone');
+		elems = document.getElementsByClassName("jobNone");
 		for(i = 0; i < elems.length; i++) {
 			setElemDisplay(elems[i],true);
 		}
 	}
 	if (population.current + population.zombies >= 10000) {
 		if (!customIncrements){
-			elems = document.getElementsByClassName('building1000');
+			elems = document.getElementsByClassName("building1000");
 			for(i = 0; i < elems.length; i++) {
 				setElemDisplay(elems[i],true);
 			}
@@ -1346,14 +1346,14 @@ function updatePopulation(){
 	}
 	updateSpawnButtons();
 	//Calculates and displays the cost of buying workers at the current population.
-	document.getElementById('zombieCost').innerHTML = prettify(Math.round(calcZombieCost(1)));
-	document.getElementById('workerCost').innerHTML = prettify(Math.round(calcWorkerCost(1)));
-	document.getElementById('workerCost10').innerHTML = prettify(Math.round(calcWorkerCost(10)));
-	document.getElementById('workerCost100').innerHTML = prettify(Math.round(calcWorkerCost(100)));
-	document.getElementById('workerCost1000').innerHTML = prettify(Math.round(calcWorkerCost(1000)));
+	document.getElementById("zombieCost").innerHTML = prettify(Math.round(calcZombieCost(1)));
+	document.getElementById("workerCost").innerHTML = prettify(Math.round(calcWorkerCost(1)));
+	document.getElementById("workerCost10").innerHTML = prettify(Math.round(calcWorkerCost(10)));
+	document.getElementById("workerCost100").innerHTML = prettify(Math.round(calcWorkerCost(100)));
+	document.getElementById("workerCost1000").innerHTML = prettify(Math.round(calcWorkerCost(1000)));
 	var maxSpawn = Math.min((population.cap - population.current),logSearchFn(calcWorkerCost,food.total));
-	document.getElementById('workerNumMax').innerHTML = prettify(Math.round(maxSpawn));
-	document.getElementById('workerCostMax').innerHTML = prettify(Math.round(calcWorkerCost(maxSpawn)));
+	document.getElementById("workerNumMax").innerHTML = prettify(Math.round(maxSpawn));
+	document.getElementById("workerCostMax").innerHTML = prettify(Math.round(calcWorkerCost(maxSpawn)));
 	updateJobs(); //handles the display of individual worker types
 	updateMobs(); //handles the display of enemies
 	updateParty();
@@ -1363,45 +1363,45 @@ function updatePopulation(){
 function updateSpawnButtons(){
 	//Turning on/off buttons based on free space.
 	if ((population.current + 1) <= population.cap && food.total >= calcWorkerCost(1)){
-		document.getElementById('spawn1').disabled = false;
-		document.getElementById('spawnCustomButton').disabled = false;
+		document.getElementById("spawn1").disabled = false;
+		document.getElementById("spawnCustomButton").disabled = false;
 	} else {
-		document.getElementById('spawn1').disabled = true;
-		document.getElementById('spawnCustomButton').disabled = true;
+		document.getElementById("spawn1").disabled = true;
+		document.getElementById("spawnCustomButton").disabled = true;
 	}
 	if ((population.current + 10) <= population.cap && food.total >= calcWorkerCost(10)){
-		document.getElementById('spawn10button').disabled = false;
+		document.getElementById("spawn10button").disabled = false;
 	} else {
-		document.getElementById('spawn10button').disabled = true;
+		document.getElementById("spawn10button").disabled = true;
 	}
 	if ((population.current + 100) <= population.cap && food.total >= calcWorkerCost(100)){
-		document.getElementById('spawn100button').disabled = false;
+		document.getElementById("spawn100button").disabled = false;
 	} else {
-		document.getElementById('spawn100button').disabled = true;
+		document.getElementById("spawn100button").disabled = true;
 	}
 	if ((population.current + 1000) <= population.cap && food.total >= calcWorkerCost(1000)){
-		document.getElementById('spawn1000button').disabled = false;
+		document.getElementById("spawn1000button").disabled = false;
 	} else {
-		document.getElementById('spawn1000button').disabled = true;
+		document.getElementById("spawn1000button").disabled = true;
 	}
 	if ((population.current + 1) <= population.cap && food.total >= calcWorkerCost(1)){
-		document.getElementById('spawnMaxbutton').disabled = false;
+		document.getElementById("spawnMaxbutton").disabled = false;
 	} else {
-		document.getElementById('spawnMaxbutton').disabled = true;
+		document.getElementById("spawnMaxbutton").disabled = true;
 	}
 
-	var canRaise = (deity.type == 'the Underworld' && deity.devotion >= 20);
+	var canRaise = (deity.type == "the Underworld" && deity.devotion >= 20);
 	if (canRaise && (corpses.total >= 1) && piety.total >= calcZombieCost(1)){
-		document.getElementById('raiseDead').disabled = false;
-		document.getElementById('raiseDeadMax').disabled = false;
+		document.getElementById("raiseDead").disabled = false;
+		document.getElementById("raiseDeadMax").disabled = false;
 	} else {
-		document.getElementById('raiseDead').disabled = true;
-		document.getElementById('raiseDeadMax').disabled = true;
+		document.getElementById("raiseDead").disabled = true;
+		document.getElementById("raiseDeadMax").disabled = true;
 	}
 	if (canRaise && (corpses.total >= 100) && piety.total >= calcZombieCost(100)){
-		document.getElementById('raiseDead100').disabled = false;
+		document.getElementById("raiseDead100").disabled = false;
 	} else {
-		document.getElementById('raiseDead100').disabled = true;
+		document.getElementById("raiseDead100").disabled = true;
 	}
 }
 
@@ -1417,192 +1417,192 @@ function updateUpgrades(){
 // havePrereqs - Does the player have the prereqs? [optional; if omitted, assume no prereqs]
 function updateUpgrade(upgradeId, havePrice, havePrereqs) {
 	if (havePrereqs === undefined) { havePrereqs = true; } // No prereqs
-	setElemDisplay(document.getElementById(upgradeId+'Line'),(havePrereqs && (upgrades[upgradeId] != 1)));
-	setElemDisplay(document.getElementById('P'+upgradeId),(upgrades[upgradeId] == 1));
+	setElemDisplay(document.getElementById(upgradeId+"Line"),(havePrereqs && (upgrades[upgradeId] != 1)));
+	setElemDisplay(document.getElementById("P"+upgradeId),(upgrades[upgradeId] == 1));
 	// If we can get it but haven't yet, it's visible; update its enabled status.
 	if (havePrereqs && upgrades[upgradeId] != 1){ document.getElementById(upgradeId).disabled = (!havePrice); }
 }
 
-	updateUpgrade('domestication'    , (leather.total >= 20));
-	updateUpgrade('ploughshares'     , (metal.total >= 20));
-	updateUpgrade('irrigation'       , (wood.total >= 500 && stone.total >= 200));
-	updateUpgrade('skinning'         , (skins.total >= 10));
-	updateUpgrade('harvesting'       , (herbs.total >= 10));
-	updateUpgrade('prospecting'      , (ore.total >= 10));
-	updateUpgrade('butchering'       , (leather.total >= 40), upgrades.skinning);
-	updateUpgrade('gardening'        , (herbs.total >= 40), upgrades.harvesting);
-	updateUpgrade('extraction'       , (metal.total >= 40), upgrades.prospecting);
-	updateUpgrade('croprotation'     , (herbs.total >= 5000 && piety.total >= 1000));
-	updateUpgrade('selectivebreeding', (skins.total >= 5000 && piety.total >= 1000));
-	updateUpgrade('fertilisers'      , (ore.total >= 5000 && piety.total >= 1000));
-	updateUpgrade('flensing'         , (metal.total >= 1000));
-	updateUpgrade('macerating'       , (leather.total >= 500 && stone.total >= 500));
+	updateUpgrade("domestication"    , (leather.total >= 20));
+	updateUpgrade("ploughshares"     , (metal.total >= 20));
+	updateUpgrade("irrigation"       , (wood.total >= 500 && stone.total >= 200));
+	updateUpgrade("skinning"         , (skins.total >= 10));
+	updateUpgrade("harvesting"       , (herbs.total >= 10));
+	updateUpgrade("prospecting"      , (ore.total >= 10));
+	updateUpgrade("butchering"       , (leather.total >= 40), upgrades.skinning);
+	updateUpgrade("gardening"        , (herbs.total >= 40), upgrades.harvesting);
+	updateUpgrade("extraction"       , (metal.total >= 40), upgrades.prospecting);
+	updateUpgrade("croprotation"     , (herbs.total >= 5000 && piety.total >= 1000));
+	updateUpgrade("selectivebreeding", (skins.total >= 5000 && piety.total >= 1000));
+	updateUpgrade("fertilisers"      , (ore.total >= 5000 && piety.total >= 1000));
+	updateUpgrade("flensing"         , (metal.total >= 1000));
+	updateUpgrade("macerating"       , (leather.total >= 500 && stone.total >= 500));
 
 	//BUILDING TECHS
 	//masonry
-	updateUpgrade('masonry'          , (wood.total >= 100 && stone.total >= 100));
+	updateUpgrade("masonry"          , (wood.total >= 100 && stone.total >= 100));
 	if (upgrades.masonry == 1){
 		//unlock masonry buildings
-		setElemDisplay(document.getElementById('cottageRow'),true);
-		setElemDisplay(document.getElementById('tanneryRow'),true);
-		setElemDisplay(document.getElementById('smithyRow'),true);
-		setElemDisplay(document.getElementById('apothecaryRow'),true);
-		setElemDisplay(document.getElementById('templeRow'),true);
-		setElemDisplay(document.getElementById('barracksRow'),true);
+		setElemDisplay(document.getElementById("cottageRow"),true);
+		setElemDisplay(document.getElementById("tanneryRow"),true);
+		setElemDisplay(document.getElementById("smithyRow"),true);
+		setElemDisplay(document.getElementById("apothecaryRow"),true);
+		setElemDisplay(document.getElementById("templeRow"),true);
+		setElemDisplay(document.getElementById("barracksRow"),true);
 		//unlock masonry upgrades
-		setElemDisplay(document.getElementById('constructionLine'),true);
-		setElemDisplay(document.getElementById('basicFarming'),true);
-		setElemDisplay(document.getElementById('granariesLine'),true);
-		setElemDisplay(document.getElementById('masonryTech'),true);
+		setElemDisplay(document.getElementById("constructionLine"),true);
+		setElemDisplay(document.getElementById("basicFarming"),true);
+		setElemDisplay(document.getElementById("granariesLine"),true);
+		setElemDisplay(document.getElementById("masonryTech"),true);
 	}
 	//construction
-	updateUpgrade('construction'     , (wood.total >= 1000 && stone.total >= 1000), upgrades.masonry);
+	updateUpgrade("construction"     , (wood.total >= 1000 && stone.total >= 1000), upgrades.masonry);
 	if (upgrades.construction == 1){
 		//unlock construction buildings
-		setElemDisplay(document.getElementById('houseRow'),true);
+		setElemDisplay(document.getElementById("houseRow"),true);
 		//unlock construction upgrades
-		setElemDisplay(document.getElementById('architectureLine'),true);
-		setElemDisplay(document.getElementById('specialFarming'),true);
-		setElemDisplay(document.getElementById('tenementsLine'),true);
-		setElemDisplay(document.getElementById('palisadeLine'),true);
+		setElemDisplay(document.getElementById("architectureLine"),true);
+		setElemDisplay(document.getElementById("specialFarming"),true);
+		setElemDisplay(document.getElementById("tenementsLine"),true);
+		setElemDisplay(document.getElementById("palisadeLine"),true);
 	}
 	//architecture
-	updateUpgrade('architecture'     , (wood.total >= 10000 && stone.total >= 10000), upgrades.construction);
+	updateUpgrade("architecture"     , (wood.total >= 10000 && stone.total >= 10000), upgrades.construction);
 	if (upgrades.architecture == 1){
 		//unlock architecture buildings
-		setElemDisplay(document.getElementById('mansionRow'),true);
-		setElemDisplay(document.getElementById('fortificationRow'),true);
+		setElemDisplay(document.getElementById("mansionRow"),true);
+		setElemDisplay(document.getElementById("fortificationRow"),true);
 		//unlock architecture upgrades
-		setElemDisplay(document.getElementById('improvedFarming'),true);
-		setElemDisplay(document.getElementById('specFreq'),true);
-		setElemDisplay(document.getElementById('slumsLine'),true);
-		setElemDisplay(document.getElementById('civilserviceLine'),true);
-		setElemDisplay(document.getElementById('wonderLine'),true);
+		setElemDisplay(document.getElementById("improvedFarming"),true);
+		setElemDisplay(document.getElementById("specFreq"),true);
+		setElemDisplay(document.getElementById("slumsLine"),true);
+		setElemDisplay(document.getElementById("civilserviceLine"),true);
+		setElemDisplay(document.getElementById("wonderLine"),true);
 	} 
 	//wheel
-	updateUpgrade('wheel'            , (wood.total >= 500 && stone.total >= 500));
+	updateUpgrade("wheel"            , (wood.total >= 500 && stone.total >= 500));
 	if (upgrades.wheel == 1){
-		setElemDisplay(document.getElementById('millRow'),true);
+		setElemDisplay(document.getElementById("millRow"),true);
 	}
 	//horseback
-	updateUpgrade('horseback'        , (food.total >= 500 && wood.total >= 500));
+	updateUpgrade("horseback"        , (food.total >= 500 && wood.total >= 500));
 	if (upgrades.horseback == 1){
-		setElemDisplay(document.getElementById('stableRow'),true);
-		setElemDisplay(document.getElementById('cavalryPartyRow'),true);
+		setElemDisplay(document.getElementById("stableRow"),true);
+		setElemDisplay(document.getElementById("cavalryPartyRow"),true);
 	}
 
-	updateUpgrade('tenements'        , (food.total >= 200 && wood.total >= 500 && stone.total >= 500), upgrades.construction);
-	updateUpgrade('slums'            , (food.total >= 500 && wood.total >= 1000 && stone.total >= 1000), upgrades.architecture);
-	updateUpgrade('granaries'        , (wood.total >= 1000 && stone.total >= 1000), upgrades.masonry);
-	updateUpgrade('palisade'         , (wood.total >= 2000 && stone.total >= 1000), upgrades.construction);
-	updateUpgrade('weaponry'         , (wood.total >= 500 && metal.total >= 500), upgrades.masonry);
-	updateUpgrade('shields'          , (wood.total >= 500 && leather.total >= 500), upgrades.masonry);
-	updateUpgrade('writing'          , (skins.total >= 500), upgrades.masonry);
-	setElemDisplay(document.getElementById('writingTech'), (upgrades.writing == 1));
-	updateUpgrade('administration'   , (stone.total >= 1000 && skins.total >= 1000));
-	updateUpgrade('codeoflaws'       , (stone.total >= 1000 && skins.total >= 1000));
-	updateUpgrade('mathematics'      , (herbs.total >= 1000 && piety.total >= 1000));
-	setElemDisplay(document.getElementById('siegeRow'), (upgrades.mathematics == 1));
-	updateUpgrade('aesthetics'       , (piety.total >= 5000));
-	updateUpgrade('civilservice'     , (piety.total >= 5000), upgrades.architecture);
-	setElemDisplay(document.getElementById('civilTech'), (upgrades.civilservice == 1));
-	updateUpgrade('feudalism'        , (piety.total >= 10000));
-	updateUpgrade('guilds'           , (piety.total >= 10000));
-	updateUpgrade('serfs'            , (piety.total >= 20000));
-	updateUpgrade('nationalism'      , (piety.total >= 50000));
+	updateUpgrade("tenements"        , (food.total >= 200 && wood.total >= 500 && stone.total >= 500), upgrades.construction);
+	updateUpgrade("slums"            , (food.total >= 500 && wood.total >= 1000 && stone.total >= 1000), upgrades.architecture);
+	updateUpgrade("granaries"        , (wood.total >= 1000 && stone.total >= 1000), upgrades.masonry);
+	updateUpgrade("palisade"         , (wood.total >= 2000 && stone.total >= 1000), upgrades.construction);
+	updateUpgrade("weaponry"         , (wood.total >= 500 && metal.total >= 500), upgrades.masonry);
+	updateUpgrade("shields"          , (wood.total >= 500 && leather.total >= 500), upgrades.masonry);
+	updateUpgrade("writing"          , (skins.total >= 500), upgrades.masonry);
+	setElemDisplay(document.getElementById("writingTech"), (upgrades.writing == 1));
+	updateUpgrade("administration"   , (stone.total >= 1000 && skins.total >= 1000));
+	updateUpgrade("codeoflaws"       , (stone.total >= 1000 && skins.total >= 1000));
+	updateUpgrade("mathematics"      , (herbs.total >= 1000 && piety.total >= 1000));
+	setElemDisplay(document.getElementById("siegeRow"), (upgrades.mathematics == 1));
+	updateUpgrade("aesthetics"       , (piety.total >= 5000));
+	updateUpgrade("civilservice"     , (piety.total >= 5000), upgrades.architecture);
+	setElemDisplay(document.getElementById("civilTech"), (upgrades.civilservice == 1));
+	updateUpgrade("feudalism"        , (piety.total >= 10000));
+	updateUpgrade("guilds"           , (piety.total >= 10000));
+	updateUpgrade("serfs"            , (piety.total >= 20000));
+	updateUpgrade("nationalism"      , (piety.total >= 50000));
 
 	//deity techs
-	setElemDisplay(document.getElementById('deityLine'),(upgrades.deity != 1));
-	setElemDisplay(document.getElementById('Pworship'),(upgrades.deity == 1));
-	document.getElementById('renameDeity').disabled = (upgrades.deity != 1);
+	setElemDisplay(document.getElementById("deityLine"),(upgrades.deity != 1));
+	setElemDisplay(document.getElementById("Pworship"),(upgrades.deity == 1));
+	document.getElementById("renameDeity").disabled = (upgrades.deity != 1);
 	if (upgrades.deity == 1){
-		setElemDisplay(document.getElementById('deitySpecialisation'),(deity.type == ""));
-		setElemDisplay(document.getElementById('battleUpgrades'),(deity.type == "Battle"));
-		setElemDisplay(document.getElementById('fieldsUpgrades'),(deity.type == "the Fields"));
-		setElemDisplay(document.getElementById('underworldUpgrades'),(deity.type == "the Underworld"));
-		setElemDisplay(document.getElementById('zombieWorkers'), (population.zombies > 0));
-		setElemDisplay(document.getElementById('catsUpgrades'),(deity.type == "Cats"));
+		setElemDisplay(document.getElementById("deitySpecialisation"),(deity.type == ""));
+		setElemDisplay(document.getElementById("battleUpgrades"),(deity.type == "Battle"));
+		setElemDisplay(document.getElementById("fieldsUpgrades"),(deity.type == "the Fields"));
+		setElemDisplay(document.getElementById("underworldUpgrades"),(deity.type == "the Underworld"));
+		setElemDisplay(document.getElementById("zombieWorkers"), (population.zombies > 0));
+		setElemDisplay(document.getElementById("catsUpgrades"),(deity.type == "Cats"));
 	}
 	//standard
-	setElemDisplay(document.getElementById('standardLine'),(upgrades.standard != 1));
-	setElemDisplay(document.getElementById('Pstandard'),(upgrades.standard == 1));
-	setElemDisplay(document.getElementById('conquest'),(upgrades.standard == 1));
+	setElemDisplay(document.getElementById("standardLine"),(upgrades.standard != 1));
+	setElemDisplay(document.getElementById("Pstandard"),(upgrades.standard == 1));
+	setElemDisplay(document.getElementById("conquest"),(upgrades.standard == 1));
 	if (upgrades.standard == 1) { updateTargets(); }
 
 	// Another internal convenience function (a subset of updateUpgrade())
 	function enableIfOwned(upgradeId) {
 		if (upgrades[upgradeId] == 1){
 			document.getElementById(upgradeId).disabled = true;
-			setElemDisplay(document.getElementById('P'+upgradeId),true); } 
+			setElemDisplay(document.getElementById("P"+upgradeId),true); } 
 	}
 
 	//cats
-	enableIfOwned('lure');
-	enableIfOwned('companion');
-	enableIfOwned('comfort');
+	enableIfOwned("lure");
+	enableIfOwned("companion");
+	enableIfOwned("comfort");
 	//fields
-	enableIfOwned('blessing');
-	enableIfOwned('waste');
-	enableIfOwned('stay');
+	enableIfOwned("blessing");
+	enableIfOwned("waste");
+	enableIfOwned("stay");
 	//battle
-	enableIfOwned('riddle');
-	enableIfOwned('throne');
-	enableIfOwned('lament');
+	enableIfOwned("riddle");
+	enableIfOwned("throne");
+	enableIfOwned("lament");
 	//underworld
-	enableIfOwned('book');
-	enableIfOwned('feast');
-	enableIfOwned('secrets');
+	enableIfOwned("book");
+	enableIfOwned("feast");
+	enableIfOwned("secrets");
 
 	//trade
-	setElemDisplay(document.getElementById('tradeLine'),(upgrades.trade != 1));
-	setElemDisplay(document.getElementById('Ptrade'),(upgrades.trade == 1));
-	setElemDisplay(document.getElementById('tradeUpgradeContainer'),(upgrades.trade == 1));
-	updateUpgrade('currency'         , (gold.total >= 10 && ore.total >= 1000));
-	updateUpgrade('commerce'         , (gold.total >= 100 && ore.total >= 10000));
+	setElemDisplay(document.getElementById("tradeLine"),(upgrades.trade != 1));
+	setElemDisplay(document.getElementById("Ptrade"),(upgrades.trade == 1));
+	setElemDisplay(document.getElementById("tradeUpgradeContainer"),(upgrades.trade == 1));
+	updateUpgrade("currency"         , (gold.total >= 10 && ore.total >= 1000));
+	updateUpgrade("commerce"         , (gold.total >= 100 && ore.total >= 10000));
 }
 
 function updateDeity(){
 	if (upgrades.deity == 1){
 		//Update page with deity details
-		document.getElementById('deity' + deity.seniority + 'Name').innerHTML = deity.name;
-		document.getElementById('deity' + deity.seniority + 'Type').innerHTML = (deity.type) ? ", deity of "+deity.type : "";
-		document.getElementById('devotion' + deity.seniority).innerHTML = deity.devotion;
+		document.getElementById("deity" + deity.seniority + "Name").innerHTML = deity.name;
+		document.getElementById("deity" + deity.seniority + "Type").innerHTML = (deity.type) ? ", deity of "+deity.type : "";
+		document.getElementById("devotion" + deity.seniority).innerHTML = deity.devotion;
 		//Toggles deity types on for later playthroughs.
-		if (deity.type == 'Battle'){
+		if (deity.type == "Battle"){
 			deity.battle = 1;
 			if (!achievements.battle){
-				gameLog('Achievement Unlocked: Battle');
+				gameLog("Achievement Unlocked: Battle");
 				achievements.battle = 1;
 				updateAchievements();
 			}
 		}
-		if (deity.type == 'the Fields'){
+		if (deity.type == "the Fields"){
 			deity.fields = 1;
 			if (!achievements.fields){
-				gameLog('Achievement Unlocked: Fields');
+				gameLog("Achievement Unlocked: Fields");
 				achievements.fields = 1;
 				updateAchievements();
 			}
 		}
-		if (deity.type == 'the Underworld'){
+		if (deity.type == "the Underworld"){
 			deity.underworld = 1;
 			if (!achievements.underworld){
-				gameLog('Achievement Unlocked: Underworld');
+				gameLog("Achievement Unlocked: Underworld");
 				achievements.underworld = 1;
 				updateAchievements();
 			}
 		}
-		if (deity.type == 'Cats'){
+		if (deity.type == "Cats"){
 			deity.cats = 1;
 			if (!achievements.cats){
-				gameLog('Achievement Unlocked: Cats');
+				gameLog("Achievement Unlocked: Cats");
 				achievements.cats = 1;
 				updateAchievements();
 			}
 		}
 		if (deity.battle && deity.fields && deity.underworld && deity.cats && !achievements.fullHouse){
 			achievements.fullHouse = 1;
-			gameLog('Achievement Unlocked: Full House');
+			gameLog("Achievement Unlocked: Full House");
 			updateAchievements();
 		}
 	}
@@ -1611,98 +1611,98 @@ function updateDeity(){
 function updateOldDeities(){
 	var i,j;
 	if (deityArray.length > 0){
-		setElemDisplay(document.getElementById('oldDeities'),true);
-		setElemDisplay(document.getElementById('iconoclasmGroup'),true);
+		setElemDisplay(document.getElementById("oldDeities"),true);
+		setElemDisplay(document.getElementById("iconoclasmGroup"),true);
 	}
 	if (oldDeities){
-		document.getElementById('oldDeities').innerHTML = oldDeities;
+		document.getElementById("oldDeities").innerHTML = oldDeities;
 	} else {
-		var append = '<tr><td><b>Name</b></td><td><b>Domain</b></td><td><b>Devotion</b></td></tr>';
+		var append = "<tr><td><b>Name</b></td><td><b>Domain</b></td><td><b>Devotion</b></td></tr>";
 		for (i=(deityArray.length - 1);i>=0;i--){
-			append += '<tr>';
+			append += "<tr>";
 				for (j=0;j<deityArray[i].length;j++){
 					if (j > 0){
-						append += '<td>';
+						append += "<td>";
 						append += deityArray[i][j];
-						append += '</td>';
+						append += "</td>";
 					}
 				}
-			append += '</tr>';
+			append += "</tr>";
 		}
-		document.getElementById('oldDeities').innerHTML = append;
+		document.getElementById("oldDeities").innerHTML = append;
 	}
 	
 }
 
 function updateMobs(){
 	//Check through each mob type and update numbers or hide as necessary.
-	setElemDisplay(document.getElementById('wolvesRow'), (population.wolves > 0));
-	setElemDisplay(document.getElementById('banditsRow'), (population.bandits > 0));
-	setElemDisplay(document.getElementById('barbariansRow'), (population.barbarians > 0));
-	setElemDisplay(document.getElementById('esiegeRow'), (population.esiege > 0));
-	setElemDisplay(document.getElementById('shadesRow'), (population.shades > 0));
+	setElemDisplay(document.getElementById("wolvesRow"), (population.wolves > 0));
+	setElemDisplay(document.getElementById("banditsRow"), (population.bandits > 0));
+	setElemDisplay(document.getElementById("barbariansRow"), (population.barbarians > 0));
+	setElemDisplay(document.getElementById("esiegeRow"), (population.esiege > 0));
+	setElemDisplay(document.getElementById("shadesRow"), (population.shades > 0));
 }
 
 function updateDevotion(){
 	//Activates or disables availability of devotion upgrades
-	document.getElementById('devotion' + deity.seniority).innerHTML = deity.devotion;
-	if (deity.type == 'Battle' && deity.devotion >= 10 && !upgrades.riddle){
-		document.getElementById('riddle').disabled = false;
+	document.getElementById("devotion" + deity.seniority).innerHTML = deity.devotion;
+	if (deity.type == "Battle" && deity.devotion >= 10 && !upgrades.riddle){
+		document.getElementById("riddle").disabled = false;
 	}
-	if (deity.type == 'Battle' && deity.devotion >= 20){
-		document.getElementById('smiteInvaders').disabled = false;
+	if (deity.type == "Battle" && deity.devotion >= 20){
+		document.getElementById("smiteInvaders").disabled = false;
 	}
-	if (deity.type == 'Battle' && deity.devotion >= 30 && !upgrades.throne){
-		document.getElementById('throne').disabled = false;
+	if (deity.type == "Battle" && deity.devotion >= 30 && !upgrades.throne){
+		document.getElementById("throne").disabled = false;
 	}
-	if (deity.type == 'Battle' && deity.devotion >= 40){
-		document.getElementById('glory').disabled = false;
+	if (deity.type == "Battle" && deity.devotion >= 40){
+		document.getElementById("glory").disabled = false;
 	}
-	if (deity.type == 'Battle' && deity.devotion >= 50 && !upgrades.lament){
-		document.getElementById('lament').disabled = false;
+	if (deity.type == "Battle" && deity.devotion >= 50 && !upgrades.lament){
+		document.getElementById("lament").disabled = false;
 	}
-	if (deity.type == 'the Fields' && deity.devotion >= 10 && !upgrades.blessing){
-		document.getElementById('blessing').disabled = false;
+	if (deity.type == "the Fields" && deity.devotion >= 10 && !upgrades.blessing){
+		document.getElementById("blessing").disabled = false;
 	}
-	if (deity.type == 'the Fields' && deity.devotion >= 20){
-		document.getElementById('wickerman').disabled = false;
+	if (deity.type == "the Fields" && deity.devotion >= 20){
+		document.getElementById("wickerman").disabled = false;
 	}
-	if (deity.type == 'the Fields' && deity.devotion >= 30 && !upgrades.waste){
-		document.getElementById('waste').disabled = false;
+	if (deity.type == "the Fields" && deity.devotion >= 30 && !upgrades.waste){
+		document.getElementById("waste").disabled = false;
 	}
-	if (deity.type == 'the Fields' && deity.devotion >= 40){
-		document.getElementById('walk').disabled = false;
+	if (deity.type == "the Fields" && deity.devotion >= 40){
+		document.getElementById("walk").disabled = false;
 	}
-	if (deity.type == 'the Fields' && deity.devotion >= 50 && !upgrades.stay){
-		document.getElementById('stay').disabled = false;
+	if (deity.type == "the Fields" && deity.devotion >= 50 && !upgrades.stay){
+		document.getElementById("stay").disabled = false;
 	}
-	if (deity.type == 'the Underworld' && deity.devotion >= 10 && !upgrades.book){
-		document.getElementById('book').disabled = false;
+	if (deity.type == "the Underworld" && deity.devotion >= 10 && !upgrades.book){
+		document.getElementById("book").disabled = false;
 	}
 	// raiseDead buttons updated by UpdateSpawnButtons
-	if (deity.type == 'the Underworld' && deity.devotion >= 30 && !upgrades.feast){
-		document.getElementById('feast').disabled = false;
+	if (deity.type == "the Underworld" && deity.devotion >= 30 && !upgrades.feast){
+		document.getElementById("feast").disabled = false;
 	}
-	if (deity.type == 'the Underworld' && deity.devotion >= 40){
-		document.getElementById('shade').disabled = false;
+	if (deity.type == "the Underworld" && deity.devotion >= 40){
+		document.getElementById("shade").disabled = false;
 	}
-	if (deity.type == 'the Underworld' && deity.devotion >= 50 && !upgrades.secrets){
-		document.getElementById('secrets').disabled = false;
+	if (deity.type == "the Underworld" && deity.devotion >= 50 && !upgrades.secrets){
+		document.getElementById("secrets").disabled = false;
 	}
-	if (deity.type == 'Cats' && deity.devotion >= 10 && !upgrades.lure ){
-		document.getElementById('lure').disabled = false;
+	if (deity.type == "Cats" && deity.devotion >= 10 && !upgrades.lure ){
+		document.getElementById("lure").disabled = false;
 	}
-	if (deity.type == 'Cats' && deity.devotion >= 20){
-		document.getElementById('pestControl').disabled = false;
+	if (deity.type == "Cats" && deity.devotion >= 20){
+		document.getElementById("pestControl").disabled = false;
 	}
-	if (deity.type == 'Cats' && deity.devotion >= 30 && !upgrades.companion ){
-		document.getElementById('companion').disabled = false;
+	if (deity.type == "Cats" && deity.devotion >= 30 && !upgrades.companion ){
+		document.getElementById("companion").disabled = false;
 	}
-	if (deity.type == 'Cats' && deity.devotion >= 40){
-		document.getElementById('grace').disabled = false;
+	if (deity.type == "Cats" && deity.devotion >= 40){
+		document.getElementById("grace").disabled = false;
 	}
-	if (deity.type == 'Cats' && deity.devotion >= 50 && !upgrades.comfort ){
-		document.getElementById('comfort').disabled = false;
+	if (deity.type == "Cats" && deity.devotion >= 50 && !upgrades.comfort ){
+		document.getElementById("comfort").disabled = false;
 	}
 }
 
@@ -1729,72 +1729,72 @@ function updateRequirements(buildingObj){
 	if (buildingObj == fortification){
 		buildingObj.require.stone = 100 * (buildingObj.total + 1) * Math.pow(1.05,buildingObj.total);
 	}
-	var displayNode = document.getElementById(buildingObj.id + 'Cost');
+	var displayNode = document.getElementById(buildingObj.id + "Cost");
 	if (displayNode && isValid(buildingObj.require)) { displayNode.innerHTML = getReqText(buildingObj.require); }
 }
 
 function updateAchievements(){
 	//Displays achievements if they are unlocked
 	//civ size
-	if (achievements.hamlet) { setElemDisplay(document.getElementById('achHamlet'),true); }
-	if (achievements.village) { setElemDisplay(document.getElementById('achVillage'),true); }
-	if (achievements.smallTown) { setElemDisplay(document.getElementById('achSmallTown'),true); }
-	if (achievements.largeTown) { setElemDisplay(document.getElementById('achLargeTown'),true); }
-	if (achievements.smallCity) { setElemDisplay(document.getElementById('achSmallCity'),true); }
-	if (achievements.largeCity) { setElemDisplay(document.getElementById('achLargeCity'),true); }
-	if (achievements.metropolis) { setElemDisplay(document.getElementById('achMetropolis'),true); }
-	if (achievements.smallNation) { setElemDisplay(document.getElementById('achSmallNation'),true); }
-	if (achievements.nation) { setElemDisplay(document.getElementById('achNation'),true); }
-	if (achievements.largeNation) { setElemDisplay(document.getElementById('achLargeNation'),true); }
-	if (achievements.empire) { setElemDisplay(document.getElementById('achEmpire'),true); }
+	if (achievements.hamlet) { setElemDisplay(document.getElementById("achHamlet"),true); }
+	if (achievements.village) { setElemDisplay(document.getElementById("achVillage"),true); }
+	if (achievements.smallTown) { setElemDisplay(document.getElementById("achSmallTown"),true); }
+	if (achievements.largeTown) { setElemDisplay(document.getElementById("achLargeTown"),true); }
+	if (achievements.smallCity) { setElemDisplay(document.getElementById("achSmallCity"),true); }
+	if (achievements.largeCity) { setElemDisplay(document.getElementById("achLargeCity"),true); }
+	if (achievements.metropolis) { setElemDisplay(document.getElementById("achMetropolis"),true); }
+	if (achievements.smallNation) { setElemDisplay(document.getElementById("achSmallNation"),true); }
+	if (achievements.nation) { setElemDisplay(document.getElementById("achNation"),true); }
+	if (achievements.largeNation) { setElemDisplay(document.getElementById("achLargeNation"),true); }
+	if (achievements.empire) { setElemDisplay(document.getElementById("achEmpire"),true); }
 	//conquest
-	if (achievements.raider) { setElemDisplay(document.getElementById('achRaider'),true); }
-	if (achievements.engineer) { setElemDisplay(document.getElementById('achEngineer'),true); }
-	if (achievements.domination) { setElemDisplay(document.getElementById('achDomination'),true); }
+	if (achievements.raider) { setElemDisplay(document.getElementById("achRaider"),true); }
+	if (achievements.engineer) { setElemDisplay(document.getElementById("achEngineer"),true); }
+	if (achievements.domination) { setElemDisplay(document.getElementById("achDomination"),true); }
 	//happiness
-	if (achievements.hated) { setElemDisplay(document.getElementById('achHated'),true); }
-	if (achievements.loved) { setElemDisplay(document.getElementById('achLoved'),true); }
+	if (achievements.hated) { setElemDisplay(document.getElementById("achHated"),true); }
+	if (achievements.loved) { setElemDisplay(document.getElementById("achLoved"),true); }
 	//other population
-	if (achievements.plague) { setElemDisplay(document.getElementById('achPlague'),true); }
-	if (achievements.ghostTown) { setElemDisplay(document.getElementById('achGhostTown'),true); }
+	if (achievements.plague) { setElemDisplay(document.getElementById("achPlague"),true); }
+	if (achievements.ghostTown) { setElemDisplay(document.getElementById("achGhostTown"),true); }
 	//cats
-	if (achievements.cat) { setElemDisplay(document.getElementById('achCat'),true); }
-	if (achievements.glaring) { setElemDisplay(document.getElementById('achGlaring'),true); }
-	if (achievements.clowder) { setElemDisplay(document.getElementById('achClowder'),true); }
+	if (achievements.cat) { setElemDisplay(document.getElementById("achCat"),true); }
+	if (achievements.glaring) { setElemDisplay(document.getElementById("achGlaring"),true); }
+	if (achievements.clowder) { setElemDisplay(document.getElementById("achClowder"),true); }
 	//deities
-	if (achievements.battle) { setElemDisplay(document.getElementById('achBattle'),true); }
-	if (achievements.cats) { setElemDisplay(document.getElementById('achCats'),true); }
-	if (achievements.fields) { setElemDisplay(document.getElementById('achFields'),true); }
-	if (achievements.underworld) { setElemDisplay(document.getElementById('achUnderworld'),true); }
-	if (achievements.fullHouse) { setElemDisplay(document.getElementById('achFullHouse'),true); }
+	if (achievements.battle) { setElemDisplay(document.getElementById("achBattle"),true); }
+	if (achievements.cats) { setElemDisplay(document.getElementById("achCats"),true); }
+	if (achievements.fields) { setElemDisplay(document.getElementById("achFields"),true); }
+	if (achievements.underworld) { setElemDisplay(document.getElementById("achUnderworld"),true); }
+	if (achievements.fullHouse) { setElemDisplay(document.getElementById("achFullHouse"),true); }
 	//wonders
-	if (achievements.wonder) { setElemDisplay(document.getElementById('achWonder'),true); }
-	if (achievements.seven) { setElemDisplay(document.getElementById('achSeven'),true); }
+	if (achievements.wonder) { setElemDisplay(document.getElementById("achWonder"),true); }
+	if (achievements.seven) { setElemDisplay(document.getElementById("achSeven"),true); }
 	//trading
-	if (achievements.merchant) { setElemDisplay(document.getElementById('achMerchant'),true); }
-	if (achievements.rushed) { setElemDisplay(document.getElementById('achRushed'),true); }
+	if (achievements.merchant) { setElemDisplay(document.getElementById("achMerchant"),true); }
+	if (achievements.rushed) { setElemDisplay(document.getElementById("achRushed"),true); }
 	//other
-	if (achievements.neverclick) { setElemDisplay(document.getElementById('achNeverclick'),true); }
+	if (achievements.neverclick) { setElemDisplay(document.getElementById("achNeverclick"),true); }
 }
 
 // Enable the raid buttons for eligible targets.
 function updateTargets(){
 	var i;
-	var raidButtons = document.getElementsByClassName('raid');
+	var raidButtons = document.getElementsByClassName("raid");
 	var haveArmy = ((population.soldiersParty + population.cavalryParty) > 0);
 	var curElem;
 	for(i=0;i<raidButtons.length;++i)
 	{
 		// Disable if we have no army, or they are too big a target.
 		curElem = raidButtons[i];
-		curElem.disabled = ((!haveArmy) || (civSizes[dataset(curElem,'civtype')] > civSizes[targetMax]));
+		curElem.disabled = ((!haveArmy) || (civSizes[dataset(curElem,"civtype")] > civSizes[targetMax]));
 	}
 }
 
 function updateHappiness(){
 	//updates the happiness stat
 	var text, color;
-	//first check there's someone to be happy or unhappy, not including zombies
+	//first check there"s someone to be happy or unhappy, not including zombies
 	if (population.current < 1) { efficiency.happiness = 1; }
 
 	if      (efficiency.happiness > 1.4) { text = "Blissful"; color = "#f0f"; }
@@ -1803,31 +1803,31 @@ function updateHappiness(){
 	else if (efficiency.happiness > 0.6) { text = "Unhappy";  color = "#880"; }
 	else                                 { text = "Angry";    color = "#f00"; }
 
-	document.getElementById('happiness').innerHTML = text;
-	document.getElementById('happiness').style.color = color;
+	document.getElementById("happiness").innerHTML = text;
+	document.getElementById("happiness").style.color = color;
 }
 
 function updateWonder(){
 	//updates the display of wonders and wonder building
 	if (wonder.building){
 		//show building area and labourers
-		document.getElementById('labourersRow').style.display = 'table-row';
-		document.getElementById('wondersContainer').style.display = 'block';
+		document.getElementById("labourersRow").style.display = "table-row";
+		document.getElementById("wondersContainer").style.display = "block";
 		if (wonder.completed){
-			document.getElementById('inProgress').style.display = 'none';
-			document.getElementById('completed').style.display = 'block';
-			document.getElementById('speedWonderGroup').style.display = 'none';
+			document.getElementById("inProgress").style.display = "none";
+			document.getElementById("completed").style.display = "block";
+			document.getElementById("speedWonderGroup").style.display = "none";
 		} else {
-			document.getElementById('inProgress').style.display = 'block';
-			document.getElementById('progressBar').style.width = wonder.progress.toFixed(2) + '%';
-			document.getElementById('progressNumber').innerHTML = wonder.progress.toFixed(2);
-			document.getElementById('completed').style.display = 'none';
-			document.getElementById('speedWonderGroup').style.display = 'block';
+			document.getElementById("inProgress").style.display = "block";
+			document.getElementById("progressBar").style.width = wonder.progress.toFixed(2) + "%";
+			document.getElementById("progressNumber").innerHTML = wonder.progress.toFixed(2);
+			document.getElementById("completed").style.display = "none";
+			document.getElementById("speedWonderGroup").style.display = "block";
 		}
 	} else {
 		//hide building area and labourers
-		document.getElementById('labourersRow').style.display = 'none';
-		document.getElementById('wondersContainer').style.display = 'none';
+		document.getElementById("labourersRow").style.display = "none";
+		document.getElementById("wondersContainer").style.display = "none";
 	}
 	updateWonderList();
 }
@@ -1836,40 +1836,40 @@ function updateWonderList(){
 	var i,j;
 	if (wonder.total > 0){
 		//update wonder list
-		var wonderhtml = '<tr><td><strong>Name</strong></td><td><strong>Type</strong></td></tr>';
+		var wonderhtml = "<tr><td><strong>Name</strong></td><td><strong>Type</strong></td></tr>";
 		for (i=(wonder.array.length - 1); i >= 0; i--){
 			try {
-				wonderhtml += '<tr>';
+				wonderhtml += "<tr>";
 				for (j=0; j < wonder.array[i].length; j++){
-					wonderhtml += '<td>';
+					wonderhtml += "<td>";
 					wonderhtml += wonder.array[i][j];
-					wonderhtml += '</td>';
+					wonderhtml += "</td>";
 				}
-				wonderhtml += '</tr>';
+				wonderhtml += "</tr>";
 			} catch(err){
-				console.log('Could not build wonder row ' + i);
+				console.log("Could not build wonder row " + i);
 			}
 		}
-		document.getElementById('pastWonders').innerHTML = wonderhtml;
+		document.getElementById("pastWonders").innerHTML = wonderhtml;
 		//handle achievements
 		if (!achievements.wonder){
 			achievements.wonder = 1;
-			gameLog('Achievement Unlocked: Wonder');
+			gameLog("Achievement Unlocked: Wonder");
 			updateAchievements();
 		}
 		if (!achievements.seven && wonder.food + wonder.wood + wonder.stone + wonder.skins + wonder.herbs + wonder.ore + wonder.leather + wonder.metal + wonder.piety >= 7){
 			achievements.seven = 1;
-			gameLog('Achievement Unlocked: Seven');
+			gameLog("Achievement Unlocked: Seven");
 			updateAchievements();
 		}
 	}
 }
 
 function updateReset(){
-	document.getElementById('resetNote'  ).style.display = (upgrades.deity || wonder.completed) ? 'inline' : 'none';
-	document.getElementById('resetDeity' ).style.display = (upgrades.deity  ) ? 'inline' : 'none';
-	document.getElementById('resetWonder').style.display = (wonder.completed) ? 'inline' : 'none';
-	document.getElementById('resetBoth'  ).style.display = (upgrades.deity && wonder.completed) ? 'inline' : 'none';
+	document.getElementById("resetNote"  ).style.display = (upgrades.deity || wonder.completed) ? "inline" : "none";
+	document.getElementById("resetDeity" ).style.display = (upgrades.deity  ) ? "inline" : "none";
+	document.getElementById("resetWonder").style.display = (wonder.completed) ? "inline" : "none";
+	document.getElementById("resetBoth"  ).style.display = (upgrades.deity && wonder.completed) ? "inline" : "none";
 }
 
 function update(){
@@ -1903,7 +1903,7 @@ function update(){
 	//Debugging - mark end of function, calculate delta in milliseconds, and print to console
 	var end = new Date().getTime();
 	var time = end - start;
-	//console.log('Update loop execution time: ' + time + 'ms'); //temporary altered to return time in order to run a debugging function
+	//console.log("Update loop execution time: " + time + "ms"); //temporary altered to return time in order to run a debugging function
 	return time;
 }
 
@@ -1919,11 +1919,11 @@ function increment(material){
 	//Handles random collection of special resources.
 	if (Math.random() < material.specialchance){
 		specialAmount = material.increment * (1 + (9 * upgrades.guilds));
-		if (material == food)  { specialMaterial = skins; activity = 'foraging'; }
-		if (material == wood)  { specialMaterial = herbs; activity = 'woodcutting'; }
-		if (material == stone) { specialMaterial = ore; activity = 'mining'; }
+		if (material == food)  { specialMaterial = skins; activity = "foraging"; }
+		if (material == wood)  { specialMaterial = herbs; activity = "woodcutting"; }
+		if (material == stone) { specialMaterial = ore; activity = "mining"; }
 		specialMaterial.total += specialAmount;
-		gameLog('Found ' + specialMaterial.name + ' while ' + activity);
+		gameLog("Found " + specialMaterial.name + " while " + activity);
 	}
 	//Checks to see that resources are not exceeding their caps
 	if (food.total > 200 + ((barn.total + (barn.total * upgrades.granaries)) * 200)){
@@ -1939,8 +1939,8 @@ function increment(material){
 }
 
 function createBuilding(building,num){
-	if (num == 'custom') { num = getCustomBuildNumber(); }
-	if (num == '-custom') { num = -getCustomBuildNumber(); }
+	if (num == "custom") { num = getCustomBuildNumber(); }
+	if (num == "-custom") { num = -getCustomBuildNumber(); }
 
 	//First check the building requirements
 	//Then deduct resources
@@ -1963,7 +1963,7 @@ function createBuilding(building,num){
 		updateResourceTotals(); //Update page with lower resource values and higher building total
 		//Then check for overcrowding
 		if (totalBuildings > land){
-			gameLog('You are suffering from overcrowding.');
+			gameLog("You are suffering from overcrowding.");
 			if (upgrades.codeoflaws){
 				mood(num * -0.0025);
 			} else {
@@ -1993,10 +1993,10 @@ function getCustomNumber(elemId){
 
 	return num;
 }
-function getCustomBuildNumber() { return getCustomNumber('buildCustom'); }
-function getCustomSpawnNumber() { return getCustomNumber('spawnCustom'); }
-function getCustomJobNumber()   { return getCustomNumber('jobCustom'  ); }
-function getCustomArmyNumber()  { return getCustomNumber('armyCustom' ); }
+function getCustomBuildNumber() { return getCustomNumber("buildCustom"); }
+function getCustomSpawnNumber() { return getCustomNumber("spawnCustom"); }
+function getCustomJobNumber()   { return getCustomNumber("jobCustom"  ); }
+function getCustomArmyNumber()  { return getCustomNumber("armyCustom" ); }
 
 //Calculates and returns the cost of adding a certain number of workers at the present population
 function calcWorkerCost(num, curPop){
@@ -2009,18 +2009,18 @@ function calcZombieCost(num){ return calcWorkerCost(num, population.zombies)/5; 
 // Create a cat
 function spawnCat()
 {
-	gameLog('Found a cat!');
+	gameLog("Found a cat!");
 	++population.cats;
 	if (population.cats >= 1 && !achievements.cat){
-		gameLog('Achievement Unlocked: Cat!');
+		gameLog("Achievement Unlocked: Cat!");
 		achievements.cat = 1;
 	}
 	if (population.cats >= 10 && !achievements.glaring){
-		gameLog('Achievement Unlocked: Glaring');
+		gameLog("Achievement Unlocked: Glaring");
 		achievements.glaring = 1;
 	}
 	if (population.cats >= 100 && !achievements.clowder){
-		gameLog('Achievement Unlocked: Clowder');
+		gameLog("Achievement Unlocked: Clowder");
 		achievements.clowder = 1;
 	}
 	updateAchievements();
@@ -2028,8 +2028,8 @@ function spawnCat()
 
 // Creates or destroys workers
 function spawn(num){
-	if (num == 'custom') { num = getCustomSpawnNumber(); }
-	if (num == '-custom') { num = -getCustomSpawnNumber(); }
+	if (num == "custom") { num = getCustomSpawnNumber(); }
+	if (num == "-custom") { num = -getCustomSpawnNumber(); }
 
 	// Find the most workers we can spawn
 	num = Math.max(num, -population.unemployed);  // Cap firing by # in that job.
@@ -2063,9 +2063,9 @@ function spawn(num){
 //   base: The base occupation of the selected target.
 function pickStarveTarget() {
 	var modNum,jobNum;
-	var modList=['Ill','']; // The sick starve first
-	var jobList=['unemployed','blacksmiths','tanners','miners','woodcutters',
-		'clerics','cavalry','soldiers','healers','labourers','farmers'];
+	var modList=["Ill",""]; // The sick starve first
+	var jobList=["unemployed","blacksmiths","tanners","miners","woodcutters",
+		"clerics","cavalry","soldiers","healers","labourers","farmers"];
 
 	for (modNum=0;modNum<modList.length;++modNum)
 	{
@@ -2076,10 +2076,10 @@ function pickStarveTarget() {
 				          base: jobList[jobNum]}; }
 		}
 	}
-	if (population.cavalryParty > 0) { return {job: 'cavalryParty', base: 'cavalry'}; }
-	if (population.soldiersParty > 0) { return {job: 'soldiersParty', base: 'soldiers'}; }
+	if (population.cavalryParty > 0) { return {job: "cavalryParty", base: "cavalry"}; }
+	if (population.soldiersParty > 0) { return {job: "soldiersParty", base: "soldiers"}; }
 
-	return {job: '', base:''};
+	return {job: "", base:""};
 }
 
 // Culls workers when they starve.
@@ -2091,14 +2091,14 @@ function starve(num) {
 	for (i=0;i<num;++i)
 	{
 		target = pickStarveTarget();
-		if (target.job == '') { return i; }
+		if (target.job == "") { return i; }
 
 		--population[target.job];
 
-		if (target.base == 'soldiers' || target.base == 'cavalry')
+		if (target.base == "soldiers" || target.base == "cavalry")
 		{
-			if (--population[target.job+'Cas'] < 0)
-				{ population[target.job+'Cas'] = 0; }
+			if (--population[target.job+"Cas"] < 0)
+				{ population[target.job+"Cas"] = 0; }
 		}
 
 		++corpses.total; //Increments corpse number
@@ -2113,11 +2113,11 @@ function starve(num) {
 // Pass a positive number to hire, a negative number to fire.
 // If it can't add/remove as many as requested, does as many as it can.
 // Pass Infinity/-Infinity as the num to get the max possible.
-// Pass 'custom' or '-custom' to use the custom increment.
+// Pass "custom" or "-custom" to use the custom increment.
 // Returns the actual number hired or fired (negative if fired).
 function hire(job,num){
-	if (num ==  'custom') { num =  getCustomJobNumber(); }
-	if (num == '-custom') { num = -getCustomJobNumber(); }
+	if (num ==  "custom") { num =  getCustomJobNumber(); }
+	if (num == "-custom") { num = -getCustomJobNumber(); }
 
 	num = canHire(job,num);  // How many can we actually get?
 
@@ -2128,11 +2128,11 @@ function hire(job,num){
 	population[job] += num;
 	population.unemployed -= num;
 
-	if (isValid(population[job+'Cas'])) // If this unit can have casualties
+	if (isValid(population[job+"Cas"])) // If this unit can have casualties
 	{
-		population[job+'Cas'] += num;
-		// It's possible that firing the last unit, if injured, could put its 'Cas' negative
-		if (population[job+'Cas'] < 0) { population[job+'Cas'] = 0; }
+		population[job+"Cas"] += num;
+		// It's possible that firing the last unit, if injured, could put its "Cas" negative
+		if (population[job+"Cas"] < 0) { population[job+"Cas"] = 0; }
 	}
 
 	updatePopulation(); // Updates the page with the num in each job.
@@ -2146,11 +2146,11 @@ function hire(job,num){
 // Only unemployed zombies can be destroyed.
 // If it can't create/destroy as many as requested, does as many as it can.
 // Pass Infinity/-Infinity as the num to get the max possible.
-// Pass 'custom' or '-custom' to use the custom increment.
+// Pass "custom" or "-custom" to use the custom increment.
 // Returns the actual number created or destroyed (negative if destroyed).
 function raiseDead(num){
-	if (num == 'custom') { num = getCustomSpawnNumber(); }
-	if (num == '-custom') { num = -getCustomSpawnNumber(); }
+	if (num == "custom") { num = getCustomSpawnNumber(); }
+	if (num == "-custom") { num = -getCustomSpawnNumber(); }
 
 	// Find the most zombies we can raise
 	num = Math.min(num, corpses.total);
@@ -2190,118 +2190,118 @@ function shade(){
 function upgrade(name){
 	//Called whenever player clicks a button to try to buy an upgrade.
 	//If the player has the resources, toggles the upgrade on and does stuff dependent on the upgrade.
-	if (name == 'domestication' && leather.total >= 20){
+	if (name == "domestication" && leather.total >= 20){
 		upgrades.domestication = 1;
 		leather.total -= 20;
 		efficiency.farmers += 0.1;
 	}
-	if (name == 'ploughshares' && metal.total >= 20){
+	if (name == "ploughshares" && metal.total >= 20){
 		upgrades.ploughshares = 1;
 		metal.total -= 20;
 		efficiency.farmers += 0.1;
 	}
-	if (name == 'irrigation' && wood.total >= 500 && stone.total >= 200){
+	if (name == "irrigation" && wood.total >= 500 && stone.total >= 200){
 		upgrades.irrigation = 1;
 		wood.total -= 500;
 		stone.total -= 200;
 		efficiency.farmers += 0.1;
 	}
-	if (name == 'skinning' && skins.total >= 10){
+	if (name == "skinning" && skins.total >= 10){
 		upgrades.skinning = 1;
 		skins.total -= 10;
-		document.getElementById('butchering').disabled = false; //Unlock Butchering
+		document.getElementById("butchering").disabled = false; //Unlock Butchering
 	}
-	if (name == 'harvesting' && herbs.total >= 10){
+	if (name == "harvesting" && herbs.total >= 10){
 		upgrades.harvesting = 1;
 		herbs.total -= 10;
-		document.getElementById('gardening').disabled = false; //Unlock Gardening
+		document.getElementById("gardening").disabled = false; //Unlock Gardening
 	}
-	if (name == 'prospecting' && ore.total >= 10){
+	if (name == "prospecting" && ore.total >= 10){
 		upgrades.prospecting = 1;
 		ore.total -= 10;
-		document.getElementById('extraction').disabled = false; //Unlock Extraction
+		document.getElementById("extraction").disabled = false; //Unlock Extraction
 	}
-	if (name == 'butchering' && leather.total >= 40 && upgrades.skinning == 1){
+	if (name == "butchering" && leather.total >= 40 && upgrades.skinning == 1){
 		upgrades.butchering = 1;
 		leather.total -= 40;
 	}
-	if (name == 'gardening' && herbs.total >= 40 && upgrades.harvesting == 1){
+	if (name == "gardening" && herbs.total >= 40 && upgrades.harvesting == 1){
 		upgrades.gardening = 1;
 		herbs.total -= 40;
 	}
-	if (name == 'extraction' && metal.total >= 40 && upgrades.prospecting == 1){
+	if (name == "extraction" && metal.total >= 40 && upgrades.prospecting == 1){
 		upgrades.extraction = 1;
 		metal.total -= 40;
 	}
-	if (name == 'croprotation' && herbs.total >= 5000 && piety.total >= 1000){
+	if (name == "croprotation" && herbs.total >= 5000 && piety.total >= 1000){
 		upgrades.croprotation = 1;
 		herbs.total -= 5000;
 		piety.total -= 1000;
 		efficiency.farmers += 0.1;
 	}
-	if (name == 'selectivebreeding' && skins.total >= 5000 && piety.total >= 1000){
+	if (name == "selectivebreeding" && skins.total >= 5000 && piety.total >= 1000){
 		upgrades.selectivebreeding = 1;
 		skins.total -= 5000;
 		piety.total -= 1000;
 		efficiency.farmers += 0.1;
 	}
-	if (name == 'fertilisers' && ore.total >= 5000 && piety.total >= 1000){
+	if (name == "fertilisers" && ore.total >= 5000 && piety.total >= 1000){
 		upgrades.fertilisers = 1;
 		ore.total -= 5000;
 		piety.total -= 1000;
 		efficiency.farmers += 0.1;
 	}
-	if (name == 'masonry' && wood.total >= 100 && stone.total >= 100){
+	if (name == "masonry" && wood.total >= 100 && stone.total >= 100){
 		upgrades.masonry = 1;
 		wood.total -= 100;
 		stone.total -= 100;
 	}
-	if (name == 'construction' && upgrades.masonry && wood.total >= 1000 && stone.total >= 1000){
+	if (name == "construction" && upgrades.masonry && wood.total >= 1000 && stone.total >= 1000){
 		upgrades.construction = 1;
 		wood.total -= 1000;
 		stone.total -= 1000;
 	}
-	if (name == 'architecture' && upgrades.construction && wood.total >= 10000 && stone.total >= 10000){
+	if (name == "architecture" && upgrades.construction && wood.total >= 10000 && stone.total >= 10000){
 		upgrades.architecture = 1;
 		wood.total -= 10000;
 		stone.total -= 10000;
 	}
-	if (name == 'wheel' && wood.total >= 500 && stone.total >= 500){
+	if (name == "wheel" && wood.total >= 500 && stone.total >= 500){
 		upgrades.wheel = 1;
 		wood.total -= 500;
 		stone.total -= 500;
 	}
-	if (name == 'horseback' && food.total >= 500 && wood.total >= 500){
+	if (name == "horseback" && food.total >= 500 && wood.total >= 500){
 		upgrades.horseback = 1;
 		food.total -= 500;
 		wood.total -= 500;
 	}
-	if (name == 'tenements' && food.total >= 200 && wood.total >= 500 && stone.total >= 500){
+	if (name == "tenements" && food.total >= 200 && wood.total >= 500 && stone.total >= 500){
 		upgrades.tenements = 1;
 		food.total -= 200;
 		wood.total -= 500;
 		stone.total -= 500;
 		updatePopulation(); //due to population limits changing
 	}
-	if (name == 'slums' && food.total >= 500 && wood.total >= 1000 && stone.total >= 1000){
+	if (name == "slums" && food.total >= 500 && wood.total >= 1000 && stone.total >= 1000){
 		upgrades.slums = 1;
 		food.total -= 500;
 		wood.total -= 1000;
 		stone.total -= 1000;
 		updatePopulation(); //due to population limits changing
 	}
-	if (name == 'granaries' && wood.total >= 1000 && stone.total >= 1000){
+	if (name == "granaries" && wood.total >= 1000 && stone.total >= 1000){
 		upgrades.granaries = 1;
 		wood.total -= 1000;
 		stone.total -= 1000;
 		updateResourceTotals(); //due to resource limits increasing
 	}
-	if (name == 'palisade' && wood.total >= 2000 && stone.total >= 1000){
+	if (name == "palisade" && wood.total >= 2000 && stone.total >= 1000){
 		upgrades.palisade = 1;
 		wood.total -= 2000;
 		stone.total -= 1000;
 	}
-	if (name == 'weaponry' && wood.total >= 500 && metal.total >= 500){
+	if (name == "weaponry" && wood.total >= 500 && metal.total >= 500){
 		upgrades.weaponry = 1;
 		wood.total -= 500;
 		metal.total -= 500;
@@ -2310,7 +2310,7 @@ function upgrade(name){
 		efficiency.soldiersParty += 0.01;
 		efficiency.cavalryParty += 0.01;
 	}
-	if (name == 'shields' && wood.total >= 500 && leather.total >= 500){
+	if (name == "shields" && wood.total >= 500 && leather.total >= 500){
 		upgrades.shields = 1;
 		wood.total -= 500;
 		leather.total -= 500;
@@ -2319,201 +2319,201 @@ function upgrade(name){
 		efficiency.soldiersParty += 0.01;
 		efficiency.cavalryParty += 0.01;
 	}
-	if (name == 'writing' && skins.total >= 500){
+	if (name == "writing" && skins.total >= 500){
 		upgrades.writing = 1;
 		skins.total -= 500;
 	}
-	if (name == 'administration' && skins.total >= 1000 && stone.total >= 1000){
+	if (name == "administration" && skins.total >= 1000 && stone.total >= 1000){
 		upgrades.administration = 1;
 		skins.total -= 1000;
 		stone.total -= 1000;
 	}
-	if (name == 'codeoflaws' && skins.total >= 1000 && stone.total >= 1000){
+	if (name == "codeoflaws" && skins.total >= 1000 && stone.total >= 1000){
 		upgrades.codeoflaws = 1;
 		skins.total -= 1000;
 		stone.total -= 1000;
 	}
-	if (name == 'mathematics' && herbs.total >= 1000 && piety.total >= 1000){
+	if (name == "mathematics" && herbs.total >= 1000 && piety.total >= 1000){
 		upgrades.mathematics = 1;
 		herbs.total -= 1000;
 		piety.total -= 1000;
 	}
-	if (name == 'aesthetics' && piety.total >= 5000){
+	if (name == "aesthetics" && piety.total >= 5000){
 		upgrades.aesthetics = 1;
 		piety.total -= 5000;
 	}
-	if (name == 'civilservice' && piety.total >= 5000){
+	if (name == "civilservice" && piety.total >= 5000){
 		upgrades.civilservice = 1;
 		piety.total -= 5000;
 	}
-	if (name == 'feudalism' && piety.total >= 10000){
+	if (name == "feudalism" && piety.total >= 10000){
 		upgrades.feudalism = 1;
 		piety.total -= 10000;
 	}
-	if (name == 'guilds' && piety.total >= 10000){
+	if (name == "guilds" && piety.total >= 10000){
 		upgrades.guilds = 1;
 		piety.total -= 10000;
 	}
-	if (name == 'serfs' && piety.total >= 20000){
+	if (name == "serfs" && piety.total >= 20000){
 		upgrades.serfs = 1;
 		piety.total -= 20000;
 	}
-	if (name == 'nationalism' && piety.total >= 50000){
+	if (name == "nationalism" && piety.total >= 50000){
 		upgrades.nationalism = 1;
 		piety.total -= 50000;
 	}
-	if (name == 'flensing' && metal.total >= 1000){
+	if (name == "flensing" && metal.total >= 1000){
 		upgrades.flensing = 1;
 		metal.total -= 1000;
 		food.specialchance += 0.1;
 	}
-	if (name == 'macerating' && leather.total >= 500 && stone.total >= 500){
+	if (name == "macerating" && leather.total >= 500 && stone.total >= 500){
 		upgrades.macerating = 1;
 		leather.total -= 500;
 		stone.total -= 500;
 		stone.specialchance += 0.1;
 	}
-	if (name == 'standard' && metal.total >= 1000 && leather.total >= 1000){
+	if (name == "standard" && metal.total >= 1000 && leather.total >= 1000){
 		upgrades.standard = 1;
 		metal.total -= 1000;
 		leather.total -= 1000;
 	}
-	if (name == 'deity' && piety.total >= 1000){
+	if (name == "deity" && piety.total >= 1000){
 		upgrades.deity = 1;
 		piety.total -= 1000;
 		//Unlocks deity specialisation, ability to rename deity
-		document.getElementById('renameDeity').disabled = false;
-		document.getElementById('deitySpecialisation').style.display = "inline";
+		document.getElementById("renameDeity").disabled = false;
+		document.getElementById("deitySpecialisation").style.display = "inline";
 		renameDeity(); //Calls the rename deity function straight away so that players get to name their deity.
 		//Need to add in some handling for when this returns NULL.
 	}
 	//Deity specialisation upgrades
-	if (name == 'deityBattle' && piety.total >= 500){
+	if (name == "deityBattle" && piety.total >= 500){
 		deity.type = "Battle";
 		deity.battle = 1;
 		piety.total -= 500;
-		document.getElementById('deitySpecialisation').style.display = "none";
-		document.getElementById('battleUpgrades').style.display = "inline";
+		document.getElementById("deitySpecialisation").style.display = "none";
+		document.getElementById("battleUpgrades").style.display = "inline";
 		updateDeity();
 	}
-	if (name == 'deityFields' && piety.total >= 500){
+	if (name == "deityFields" && piety.total >= 500){
 		deity.type = "the Fields";
 		deity.fields = 1;
 		piety.total -= 500;
-		document.getElementById('deitySpecialisation').style.display = "none";
-		document.getElementById('fieldsUpgrades').style.display = "inline";
+		document.getElementById("deitySpecialisation").style.display = "none";
+		document.getElementById("fieldsUpgrades").style.display = "inline";
 		updateDeity();
 	}
-	if (name == 'deityUnderworld' && piety.total >= 500){
+	if (name == "deityUnderworld" && piety.total >= 500){
 		deity.type = "the Underworld";
 		deity.underworld = 1;
 		piety.total -= 500;
-		document.getElementById('deitySpecialisation').style.display = "none";
-		document.getElementById('underworldUpgrades').style.display = "inline";
+		document.getElementById("deitySpecialisation").style.display = "none";
+		document.getElementById("underworldUpgrades").style.display = "inline";
 		updateDeity();
 	}
-	if (name == 'deityCats' && piety.total >= 500){
+	if (name == "deityCats" && piety.total >= 500){
 		deity.type = "Cats";
 		deity.cats = 1;
 		piety.total -= 500;
-		document.getElementById('deitySpecialisation').style.display = "none";
-		document.getElementById('catsUpgrades').style.display = "inline";
+		document.getElementById("deitySpecialisation").style.display = "none";
+		document.getElementById("catsUpgrades").style.display = "inline";
 		updateDeity();
 	}
 	//Deity specific updates.
-	if (name == 'lure' && piety.total >= 1000){
+	if (name == "lure" && piety.total >= 1000){
 		upgrades.lure = 1;
 		piety.total -= 1000;
-		document.getElementById('lure').disabled = true;
+		document.getElementById("lure").disabled = true;
 		updateDeity();
 	}
-	if (name == 'companion' && piety.total >= 1000){
+	if (name == "companion" && piety.total >= 1000){
 		upgrades.companion = 1;
 		piety.total -= 1000;
-		document.getElementById('companion').disabled = true;
+		document.getElementById("companion").disabled = true;
 		updateDeity();
 	}
-	if (name == 'comfort' && piety.total >= 5000){
+	if (name == "comfort" && piety.total >= 5000){
 		upgrades.comfort = 1;
 		piety.total -= 5000;
-		document.getElementById('comfort').disabled = true;
+		document.getElementById("comfort").disabled = true;
 		updateDeity();
 	}
-	if (name == 'blessing' && piety.total >= 1000){
+	if (name == "blessing" && piety.total >= 1000){
 		upgrades.blessing = 1;
 		piety.total -= 1000;
 		efficiency.farmers += 0.1;
-		document.getElementById('blessing').disabled = true;
+		document.getElementById("blessing").disabled = true;
 		updateDeity();
 	}
-	if (name == 'waste' && piety.total >= 1000){
+	if (name == "waste" && piety.total >= 1000){
 		upgrades.waste = 1;
 		piety.total -= 1000;
-		document.getElementById('waste').disabled = true;
+		document.getElementById("waste").disabled = true;
 		updateDeity();
 	}
-	if (name == 'stay' && piety.total >= 5000){
+	if (name == "stay" && piety.total >= 5000){
 		upgrades.stay = 1;
 		piety.total -= 5000;
-		document.getElementById('stay').disabled = true;
+		document.getElementById("stay").disabled = true;
 		updateDeity();
 	}
-	if (name == 'riddle' && piety.total >= 1000){
+	if (name == "riddle" && piety.total >= 1000){
 		upgrades.riddle = 1;
 		piety.total -= 1000;
 		efficiency.soldiers += 0.01;
 		efficiency.cavalry += 0.01;
 		efficiency.soldiersParty += 0.01;
 		efficiency.cavalryParty += 0.01;
-		document.getElementById('riddle').disabled = true;
+		document.getElementById("riddle").disabled = true;
 		updateDeity();
 	}
-	if (name == 'throne' && piety.total >= 1000){
+	if (name == "throne" && piety.total >= 1000){
 		upgrades.throne = 1;
 		piety.total -= 1000;
-		document.getElementById('throne').disabled = true;
+		document.getElementById("throne").disabled = true;
 		updateDeity();
 	}
-	if (name == 'lament' && piety.total >= 5000){
+	if (name == "lament" && piety.total >= 5000){
 		upgrades.lament = 1;
 		piety.total -= 5000;
-		document.getElementById('lament').disabled = true;
+		document.getElementById("lament").disabled = true;
 		updateDeity();
 	}
-	if (name == 'book' && piety.total >= 1000){
+	if (name == "book" && piety.total >= 1000){
 		upgrades.book = 1;
 		piety.total -= 1000;
-		document.getElementById('book').disabled = true;
+		document.getElementById("book").disabled = true;
 		updateDeity();
 	}
-	if (name == 'feast' && piety.total >= 1000){
+	if (name == "feast" && piety.total >= 1000){
 		upgrades.feast = 1;
 		piety.total -= 1000;
-		document.getElementById('feast').disabled = true;
+		document.getElementById("feast").disabled = true;
 		updateDeity();
 	}
-	if (name == 'secrets' && piety.total >= 5000){
+	if (name == "secrets" && piety.total >= 5000){
 		upgrades.secrets = 1;
 		piety.total -= 5000;
-		document.getElementById('secrets').disabled = true;
+		document.getElementById("secrets").disabled = true;
 		updateDeity();
 	}
-	if (name == 'trade' && gold.total >= 1){
+	if (name == "trade" && gold.total >= 1){
 		upgrades.trade = 1;
 		gold.total -= 1;
-		document.getElementById('tradeUpgrade').disabled = true;
+		document.getElementById("tradeUpgrade").disabled = true;
 	}
-	if (name == 'currency' && gold.total >= 10 && ore.total >= 1000){
+	if (name == "currency" && gold.total >= 10 && ore.total >= 1000){
 		upgrades.currency = 1;
 		gold.total -= 10;
 		ore.total -= 1000;
-		document.getElementById('currency').disabled = true;
+		document.getElementById("currency").disabled = true;
 	}
-	if (name == 'commerce' && gold.total >= 100 && piety.total >= 10000){
+	if (name == "commerce" && gold.total >= 100 && piety.total >= 10000){
 		upgrades.commerce = 1;
 		gold.total -= 100;
 		piety.total -= 10000;
-		document.getElementById('commerce').disabled = true;
+		document.getElementById("commerce").disabled = true;
 	}
 	updateUpgrades(); //Update which upgrades are available to the player
 	updateResourceTotals(); //Update reduced resource totals as appropriate.
@@ -2539,7 +2539,7 @@ function randomHealthyWorker(){
 		if (chance > num) { return jobs[i].id; }
 	}
 
-	return '';
+	return "";
 }
 
 function wickerman(){
@@ -2548,13 +2548,13 @@ function wickerman(){
 
 	//Select and kill random worker
 	var job = randomHealthyWorker();
-	if (job == '') { return; }
+	if (job == "") { return; }
 
 	--population[job];
-	if (job == 'soldiers' || job == 'cavalry') {
-		--population[job+'Cas'];
+	if (job == "soldiers" || job == "cavalry") {
+		--population[job+"Cas"];
 		//Killing the last soldier can send population.soldiersCas negative
-		if (population[job+'Cas'] < 0) { population[job+'Cas'] = 0; }
+		if (population[job+"Cas"] < 0) { population[job+"Cas"] = 0; }
 	}
 
 	//Remove wood
@@ -2596,24 +2596,24 @@ function wickerman(){
 function walk(increment){
 	if(increment){
 		walkTotal += increment;
-		document.getElementById('walkStat').innerHTML = prettify(walkTotal);
+		document.getElementById("walkStat").innerHTML = prettify(walkTotal);
 	} else {
 		walkTotal = 0;
 	}
-	document.getElementById('ceaseWalk').disabled = (walkTotal == 0);
-	setElemDisplay(document.getElementById('walkGroup'),(walkTotal > 0));
+	document.getElementById("ceaseWalk").disabled = (walkTotal == 0);
+	setElemDisplay(document.getElementById("walkGroup"),(walkTotal > 0));
 }
 
 function doWalk() {
 	var i;
-	var target = '';
+	var target = "";
 	if (walkTotal <= 0) { return; }
 
 	for (i=0;i<walkTotal;i++){
 		target = randomHealthyWorker();
-		if (target == ''){
+		if (target == ""){
 			walkTotal = 0;
-			document.getElementById('ceaseWalk').disabled = true;
+			document.getElementById("ceaseWalk").disabled = true;
 			break;
 		} 
 		--population.current;
@@ -2651,8 +2651,8 @@ function iconoclasmList(){
 	if (piety.total >= 1000){
 		piety.total -= 1000;
 		updateResourceTotals();
-		document.getElementById('iconoclasm').disabled = true;
-		var append = '<br />';
+		document.getElementById("iconoclasm").disabled = true;
+		var append = "<br />";
 		for (i=(deityArray.length - 1);i>=0;i--){
 			if (deityArray[i][0]){
 				append += '<button onclick="iconoclasm(' + i + ')">';
@@ -2661,15 +2661,15 @@ function iconoclasmList(){
 			}
 		}
 		append += '<br /><button onclick=\'iconoclasm("cancel")\'>Cancel</button>';
-		document.getElementById('iconoclasmList').innerHTML = append;
+		document.getElementById("iconoclasmList").innerHTML = append;
 	}
 }
 
 function iconoclasm(index){
 	//will splice a deity from the deityArray unless the user has cancelled
-	document.getElementById('iconoclasmList').innerHTML = '';
-	document.getElementById('iconoclasm').disabled = false;
-	if (index == 'cancel'){
+	document.getElementById("iconoclasmList").innerHTML = "";
+	document.getElementById("iconoclasm").disabled = false;
+	if (index == "cancel"){
 		//return the piety
 		piety.total += 1000;
 	} else {
@@ -2678,7 +2678,7 @@ function iconoclasm(index){
 		//remove the deity
 		deityArray.splice(index,1);
 		if (deityArray.length == 0){
-			document.getElementById('iconoclasmGroup').style.display = 'none';
+			document.getElementById("iconoclasmGroup").style.display = "none";
 		}
 		updateOldDeities();
 	}
@@ -2695,17 +2695,17 @@ function summonMob(mobtype){
 }
 
 function spawnMob(mobtype){
-	var max_mob = 0, num_mob = 0, pct_sge = 0, num_sge = 0, msg='';
+	var max_mob = 0, num_mob = 0, pct_sge = 0, num_sge = 0, msg="";
 	//Creates enemies based on current population
-	if (mobtype == 'wolves'){
+	if (mobtype == "wolves"){
 		max_mob = (population.current / 50);
 		pct_sge = 0; // Wolves don't use siege engines.
 	}
-	if(mobtype == 'bandits'){
+	if(mobtype == "bandits"){
 		max_mob = ((population.current + population.zombies) / 50);
 		pct_sge = Math.random();
 	}
-	if (mobtype == 'barbarians'){
+	if (mobtype == "barbarians"){
 		max_mob = ((population.current + population.zombies) / 50);
 		pct_sge = Math.random();
 	}
@@ -2715,16 +2715,16 @@ function spawnMob(mobtype){
 	if (num_mob == 0) { return num_mob; }  // Nobody came
 
 	population[mobtype] += num_mob;
-	population[mobtype+'Cas'] += num_mob;
+	population[mobtype+"Cas"] += num_mob;
 	population.esiege += num_sge;
 
-	msg = prettify(num_mob) + ' ' + mobtype + ' attacked';  //xxx L10N
- 	if (num_sge > 0) { 
-		msg += ', with ' + prettify(num_sge) + ' siege engines';  //xxx L10N
-		document.getElementById('esiegeRow').style.display = 'table-row';
+	msg = prettify(num_mob) + " " + mobtype + " attacked";  //xxx L10N
+	if (num_sge > 0) { 
+		msg += ", with " + prettify(num_sge) + " siege engines";  //xxx L10N
+		document.getElementById("esiegeRow").style.display = "table-row";
 	} 
 	gameLog(msg);
-	document.getElementById(mobtype+'Row').style.display = 'table-row';
+	document.getElementById(mobtype+"Row").style.display = "table-row";
 	updateMobs(); //updates page with numbers
 
 	return num_mob;
@@ -2735,19 +2735,19 @@ function smiteMob(mobtype) {
 	var num = Math.min(population[mobtype],Math.floor(piety.total/100));
 	piety.total -= num * 100;
 	population[mobtype] -= num;
-	population[mobtype+'Cas'] -= num;
+	population[mobtype+"Cas"] -= num;
 	corpses.total += num; //xxx Should dead wolves count as corpses?
 	population.enemiesSlain += num;
 	if (upgrades.throne) { throneCount += num; }
 	if (upgrades.book) { piety.total += num * 10; }
-	gameLog('Struck down ' + num + ' ' + mobtype); // L10N
+	gameLog("Struck down " + num + " " + mobtype); // L10N
 	return num;
 }
 
 function smiteMobs(){
-	smiteMob('barbariancs');
-	smiteMob('bandits');
-	smiteMob('wolves');
+	smiteMob("barbariancs");
+	smiteMob("bandits");
+	smiteMob("wolves");
 	updateResourceTotals();
 	updateMobs();
 }
@@ -2756,26 +2756,26 @@ function smiteMobs(){
 
 //Adds or removes units from army
 function party(job,num){
-	if (num == 'custom') { num = getCustomArmyNumber(); }
-	if (num == '-custom') { num = -getCustomArmyNumber(); }
+	if (num == "custom") { num = getCustomArmyNumber(); }
+	if (num == "-custom") { num = -getCustomArmyNumber(); }
 
 	//xxx HACK: This should be done more elegantly
 	// The autogeneration routines want to use the actual unit ID,
 	// but this function wants the base unit type.
-	if (job == 'soldiersParty') { job = 'soldiers'; }
-	if (job == 'cavalryParty') { job = 'cavalry'; }
+	if (job == "soldiersParty") { job = "soldiers"; }
+	if (job == "cavalryParty") { job = "cavalry"; }
 
-	if (job == 'soldiers' || job == 'cavalry'){
+	if (job == "soldiers" || job == "cavalry"){
 		// checks that there are sufficient units in pool
 		num = Math.min(num, population[job]);
 		// checks that there are sufficient units in army
-		num = Math.max(num, -population[job+'Party']);
-		population[job+'Party'] += num;
-		population[job+'Party'+'Cas'] += num;
+		num = Math.max(num, -population[job+"Party"]);
+		population[job+"Party"] += num;
+		population[job+"Party"+"Cas"] += num;
 		population[job] -= num;
-		population[job+'Cas'] -= num;
+		population[job+"Cas"] -= num;
 	}
-	if (job == 'siege'){
+	if (job == "siege"){
 		num = Math.min(num,Math.floor(wood.total/200),Math.floor(metal.total/50),Math.floor(leather.total/50));
 		population.siege += num;
 		wood.total -= 200 * num;
@@ -2817,12 +2817,12 @@ function invade(ecivtype){
 	raiding.iterations = iterations;
 	updateTargets(); //updates largest raid target
 	updatePopulation();
-	document.getElementById('raidGroup').style.display = 'none'; //Hides raid buttons until the raid is finished
+	document.getElementById("raidGroup").style.display = "none"; //Hides raid buttons until the raid is finished
 }
-function onInvade(event) { return invade(dataset(event.target,'civtype')); }
+function onInvade(event) { return invade(dataset(event.target,"civtype")); }
 
 function plunder(){
-	var plunderMsg = '';
+	var plunderMsg = "";
 	//capture land
 	var plunderLand = Math.round((1 + upgrades.administration) * raiding.iterations * 10);
 	//randomise loot
@@ -2850,15 +2850,15 @@ function plunder(){
 
 	raiding.raiding = false; //ends the raid state
 	raiding.victory = false; //ends the victory state
-	document.getElementById('victoryGroup').style.display = 'none';
+	document.getElementById("victoryGroup").style.display = "none";
 }
 
 function glory(time){
 	if (piety.total >= 1000){ //check it can be bought
 		gloryTimer = time; //set timer
 		piety.total -= 1000; //decrement resources
-		document.getElementById('gloryTimer').innerHTML = gloryTimer; //update timer to player
-		document.getElementById('gloryGroup').style.display = 'block';
+		document.getElementById("gloryTimer").innerHTML = gloryTimer; //update timer to player
+		document.getElementById("gloryGroup").style.display = "block";
 	}
 }
 
@@ -2866,7 +2866,7 @@ function grace(delta){
 	if (piety.total >= graceCost){
 		piety.total -= graceCost;
 		graceCost = Math.floor(graceCost * 1.2);
-		document.getElementById('graceCost').innerHTML = prettify(graceCost);
+		document.getElementById("graceCost").innerHTML = prettify(graceCost);
 		mood(delta);
 		updateResourceTotals();
 		updateHappiness();
@@ -2882,12 +2882,12 @@ function mood(delta){
 		efficiency.happiness += delta * fraction;
 		//check for achievements
 		if (efficiency.happiness >= 1.5 && !achievements.loved){
-			gameLog('Achievement Unlocked: Loved');
+			gameLog("Achievement Unlocked: Loved");
 			achievements.loved = 1;
 			updateAchievements();
 		}
 		if (efficiency.happiness <= 0.5 && !achievements.hated){
-			gameLog('Achievement Unlocked: Hated');
+			gameLog("Achievement Unlocked: Hated");
 			achievements.hated = 1;
 			updateAchievements();
 		}
@@ -2906,26 +2906,26 @@ function mood(delta){
 function startWonder(){
 	if (!wonder.completed && !wonder.building){
 		renameWonder();
-		document.getElementById('startWonder').disabled = true;
-		document.getElementById('speedWonderGroup').style.display = 'block';
+		document.getElementById("startWonder").disabled = true;
+		document.getElementById("speedWonderGroup").style.display = "block";
 		wonder.building = true;
 		updateWonder();
 	}
 }
 
 function renameWonder(){
-	var n = prompt('Please name your Wonder:',wonder.name);
+	var n = prompt("Please name your Wonder:",wonder.name);
 	wonder.name = n;
-	document.getElementById('wonderNameP').innerHTML = wonder.name;
-	document.getElementById('wonderNameC').innerHTML = wonder.name;
+	document.getElementById("wonderNameP").innerHTML = wonder.name;
+	document.getElementById("wonderNameC").innerHTML = wonder.name;
 }
 
 function wonderBonus(material){
 	++wonder[material];
-	gameLog('You now have a permanent bonus to ' + material + ' production.');
+	gameLog("You now have a permanent bonus to " + material + " production.");
 	wonder.array.push([wonder.name,material]);
 	wonder.total = Math.max(wonder.food,wonder.wood,wonder.stone,wonder.skins,wonder.herbs,wonder.ore,wonder.leather,wonder.metal,wonder.piety);
-	wonder.name = '';
+	wonder.name = "";
 	wonder.progress = 0;
 	wonder.building = false;
 	updateWonder();
@@ -2944,7 +2944,7 @@ function updateWonderLimited(){
 	else if (metal.total   < 1) { lowItem = metal.name; }
 
 	if (lowItem != "")
-		{ document.getElementById('limited').innerHTML = " by low " + lowItem; }
+		{ document.getElementById("limited").innerHTML = " by low " + lowItem; }
 }
 
 /* Trade functions */
@@ -2984,15 +2984,15 @@ function tradeTimer(){
 		trader.material = metal;
 		trader.requested *= 250;
 	}
-	document.getElementById('tradeContainer').style.display = 'block';
-	document.getElementById('tradeType').innerHTML = trader.material.name;
-	document.getElementById('tradeRequested').innerHTML = prettify(trader.requested);
+	document.getElementById("tradeContainer").style.display = "block";
+	document.getElementById("tradeType").innerHTML = trader.material.name;
+	document.getElementById("tradeRequested").innerHTML = prettify(trader.requested);
 }
 
 function trade(){
 	//check we have enough of the right type of resources to trade
 	if (!trader.material || (trader.material.total < trader.requested)) {
-		gameLog('Not enough resources to trade.');
+		gameLog("Not enough resources to trade.");
 		return;
 	}
 
@@ -3000,9 +3000,9 @@ function trade(){
 	trader.material.total -= trader.requested;
 	++gold.total;
 	updateResourceTotals();
-	gameLog('Traded ' + trader.requested + ' ' + trader.material.name);
+	gameLog("Traded " + trader.requested + " " + trader.material.name);
 	if (!achievements.merchant){
-		gameLog('Achievement Unlocked: Merchant');
+		gameLog("Achievement Unlocked: Merchant");
 		achievements.merchant = 1;
 		updateAchievements();
 	}
@@ -3026,7 +3026,7 @@ function speedWonder(){
 	wonder.progress += 1 / (Math.pow(1.5,wonder.total));
 	updateWonder();
 	if (!achievements.rushed){
-		gameLog('Achievement Unlocked: Rushed');
+		gameLog("Achievement Unlocked: Rushed");
 		achievements.rushed = 1;
 		updateAchievements();
 	}
@@ -3040,22 +3040,22 @@ function load(loadType){
 	var loadVar = {},
 		loadVar2 = {};
 		
-	if (loadType === 'cookie'){
+	if (loadType === "cookie"){
 		//check for cookies
 		if (read_cookie(saveTag1) && read_cookie(saveTag2)){
 			//set variables to load from
 			loadVar = read_cookie(saveTag1);
 			loadVar2 = read_cookie(saveTag2);
 			//notify user
-			gameLog('Loaded saved game from cookie');
-			gameLog('Save system switching to localStorage.');
+			gameLog("Loaded saved game from cookie");
+			gameLog("Save system switching to localStorage.");
 		} else {
-			console.log('Unable to find cookie');
+			console.log("Unable to find cookie");
 			return false;
 		}
 	}
 	
-	if (loadType === 'localStorage'){
+	if (loadType === "localStorage"){
 		//check for local storage
 		var string1;
 		var string2;
@@ -3065,40 +3065,40 @@ function load(loadType){
 			string2 = localStorage.getItem(saveTag2);
 		} catch(err) {
 			if (err instanceof SecurityError)
-				{ msg = 'Browser security settings blocked access to local storage.'; }
+				{ msg = "Browser security settings blocked access to local storage."; }
 			else 
-				{ msg = 'Cannot access localStorage - browser may not support localStorage, or storage may be corrupt'; }
+				{ msg = "Cannot access localStorage - browser may not support localStorage, or storage may be corrupt"; }
 			console.log(msg);
 		}
 		if (string1 && string2){
 			loadVar = JSON.parse(string1);
 			loadVar2 = JSON.parse(string2);
 			//notify user
-			gameLog('Loaded saved game from localStorage');
+			gameLog("Loaded saved game from localStorage");
 		} else {
-			console.log('Unable to find variables in localStorage. Attempting to load cookie.');
-			load('cookie');
+			console.log("Unable to find variables in localStorage. Attempting to load cookie.");
+			load("cookie");
 			return false;
 		}
 	}
 	
-	if (loadType === 'import'){
+	if (loadType === "import"){
 		//take the import string, decompress and parse it
-		var compressed = document.getElementById('impexpField').value;
+		var compressed = document.getElementById("impexpField").value;
 		var decompressed = LZString.decompressFromBase64(compressed);
 		var revived = JSON.parse(decompressed);
 		//set variables to load from
 		loadVar = revived[0];
 		loadVar2 = revived[1];
 		//notify user
-		gameLog('Imported saved game');
+		gameLog("Imported saved game");
 		//close import/export dialog
 		//impexp();
 	}
 
 	var versionData = mergeObj(loadVar.versionData);
-	console.log('Loading save game version ' + versionData.major +
-		'.' + versionData.minor + '.' + versionData.sub + '(' + versionData.mod + ').');
+	console.log("Loading save game version " + versionData.major +
+		"." + versionData.minor + "." + versionData.sub + "(" + versionData.mod + ").");
 	
 	// BACKWARD COMPATIBILITY SECTION //////////////////
 	// population.corpses moved to corpses.total (v1.1.13)
@@ -3179,7 +3179,7 @@ function load(loadType){
 	if (isValid(loadVar.deity)) {
 		deity = mergeObj(deity, loadVar.deity);
 		if (deity.seniority > 1){
-			document.getElementById('activeDeity').innerHTML = '<tr id="deity' + deity.seniority + '"><td><strong><span id="deity' + deity.seniority + 'Name">No deity</span></strong><span id="deity' + deity.seniority + 'Type" class="deityType"></span></td><td>Devotion: <span id="devotion' + deity.seniority + '">0</span></td><td class="removeDeity"><button class="removeDeity" onclick="removeDeity(deity' + deity.seniority + ')">X</button></td></tr>';
+			document.getElementById("activeDeity").innerHTML = '<tr id="deity' + deity.seniority + '"><td><strong><span id="deity' + deity.seniority + 'Name">No deity</span></strong><span id="deity' + deity.seniority + 'Type" class="deityType"></span></td><td>Devotion: <span id="devotion' + deity.seniority + '">0</span></td><td class="removeDeity"><button class="removeDeity" onclick="removeDeity(deity' + deity.seniority + ')">X</button></td></tr>';
 		}
 	}
 	if (isValid(loadVar.achievements)){
@@ -3208,11 +3208,11 @@ function load(loadType){
 	updateHappiness();
 	updateWonder();
 	document.getElementById("clicks").innerHTML = prettify(Math.round(resourceClicks));
-	document.getElementById('civName').innerHTML = civName;
-	document.getElementById('rulerName').innerHTML = rulerName;
-	document.getElementById('wonderNameP').innerHTML = wonder.name;
-	document.getElementById('wonderNameC').innerHTML = wonder.name;
-	document.getElementById('startWonder').disabled = (wonder.completed || wonder.building);
+	document.getElementById("civName").innerHTML = civName;
+	document.getElementById("rulerName").innerHTML = rulerName;
+	document.getElementById("wonderNameP").innerHTML = wonder.name;
+	document.getElementById("wonderNameC").innerHTML = wonder.name;
+	document.getElementById("startWonder").disabled = (wonder.completed || wonder.building);
 		
 	//Upgrade-related checks
 	efficiency.farmers = 0.2 + (0.1 * upgrades.domestication) + (0.1 * upgrades.ploughshares) + (0.1 * upgrades.irrigation) + (0.1 * upgrades.croprotation) + (0.1 * upgrades.selectivebreeding) + (0.1 * upgrades.fertilisers) + (0.1 * upgrades.blessing);
@@ -3300,33 +3300,33 @@ function save(savetype){
 		localStorage.setItem(saveTag1, JSON.stringify(saveVar));
 		localStorage.setItem(saveTag2, JSON.stringify(saveVar2));
 	} catch(err) {
-		console.log('Cannot access localStorage - browser may be old or storage may be corrupt');
+		console.log("Cannot access localStorage - browser may be old or storage may be corrupt");
 	}
 	//Update console for debugging, also the player depending on the type of save (manual/auto)
-	console.log('Attempted save');
-	if (savetype == 'export'){
-		var savestring = '[' + JSON.stringify(saveVar) + ',' + JSON.stringify(saveVar2) + ']';
+	console.log("Attempted save");
+	if (savetype == "export"){
+		var savestring = "[" + JSON.stringify(saveVar) + "," + JSON.stringify(saveVar2) + "]";
 		var compressed = LZString.compressToBase64(savestring);
-		console.log('Compressing Save');
-		console.log('Compressed from ' + savestring.length + ' to ' + compressed.length + ' characters');
-		document.getElementById('impexpField').value = compressed;
-		gameLog('Saved game and exported to base64');
+		console.log("Compressing Save");
+		console.log("Compressed from " + savestring.length + " to " + compressed.length + " characters");
+		document.getElementById("impexpField").value = compressed;
+		gameLog("Saved game and exported to base64");
 	}
 	if ((read_cookie(saveTag1) && read_cookie(saveTag2)) 
 	|| (localStorage.getItem(saveTag1) && localStorage.getItem(saveTag2))){
-		console.log('Savegame exists');
-		if (savetype == 'auto'){
-			console.log('Autosave');
-			gameLog('Autosaved');
-		} else if (savetype == 'manual'){
-			alert('Game Saved');
-			console.log('Manual Save');
-			gameLog('Saved game');
+		console.log("Savegame exists");
+		if (savetype == "auto"){
+			console.log("Autosave");
+			gameLog("Autosaved");
+		} else if (savetype == "manual"){
+			alert("Game Saved");
+			console.log("Manual Save");
+			gameLog("Saved game");
 		}
 	}
 	try {
 		xmlhttp = new XMLHttpRequest();
-		xmlhttp.overrideMimeType('text/plain');
+		xmlhttp.overrideMimeType("text/plain");
 		xmlhttp.open("GET", "version.txt?r=" + Math.random(),true);
 		xmlhttp.onreadystatechange=function() {
 			if (xmlhttp.readyState==4) {
@@ -3338,7 +3338,7 @@ function save(savetype){
 		};
 		xmlhttp.send(null);
 	} catch (err) {
-		console.log('XMLHttpRequest failed');
+		console.log("XMLHttpRequest failed");
 	}
 }
 
@@ -3357,56 +3357,56 @@ function toggleAutosave(){
 
 function deleteSave(){
 	//Deletes the current savegame by setting the game's cookies to expire in the past.
-	var really = confirm('Really delete save?'); //Check the player really wanted to do that.
+	var really = confirm("Really delete save?"); //Check the player really wanted to do that.
 	if (really){
-		document.cookie = [saveTag1, '=; expires=Thu, 01-Jan-1970 00:00:01 GMT; path=/; domain=.', window.location.host.toString()].join('');
-		document.cookie = [saveTag2, '=; expires=Thu, 01-Jan-1970 00:00:01 GMT; path=/; domain=.', window.location.host.toString()].join('');
+		document.cookie = [saveTag1, "=; expires=Thu, 01-Jan-1970 00:00:01 GMT; path=/; domain=.", window.location.host.toString()].join("");
+		document.cookie = [saveTag2, "=; expires=Thu, 01-Jan-1970 00:00:01 GMT; path=/; domain=.", window.location.host.toString()].join("");
 		localStorage.removeItem(saveTag1);
 		localStorage.removeItem(saveTag2);
-		gameLog('Save Deleted');
+		gameLog("Save Deleted");
 	}
 }
 
 function renameCiv(){
 	//Prompts player, uses result as new civName
-	civName = prompt('Please name your civilisation',civName);
+	civName = prompt("Please name your civilisation",civName);
 	if (!civName) { civName = "Woodstock"; }
-	document.getElementById('civName').innerHTML = civName;
+	document.getElementById("civName").innerHTML = civName;
 }
 function renameRuler(){
 	//Prompts player, uses result as rulerName
-	rulerName = prompt('What is your name?',rulerName);
+	rulerName = prompt("What is your name?",rulerName);
 	if (!rulerName) { rulerName = "Orteil"; }
-	document.getElementById('rulerName').innerHTML = rulerName;
+	document.getElementById("rulerName").innerHTML = rulerName;
 }
 function renameDeity(){
 	//Prompts player, uses result as deity.name - called when first getting a deity
-	deity.name = prompt('Who do your people worship?',deity.name);
+	deity.name = prompt("Who do your people worship?",deity.name);
 	if (!deity.name) { deity.name = rulerName; } // Hey, despots tend to have big egos.
 	updateDeity();
 }
 
 function reset(){
 	//Resets the game, keeping some values but resetting most back to their initial values.
-	var msg = 'Really reset? You will keep past deities and wonders (and cats)'; //Check player really wanted to do that.
+	var msg = "Really reset? You will keep past deities and wonders (and cats)"; //Check player really wanted to do that.
 	if (!confirm(msg)) { return false; } // declined
 
 	if (upgrades.deity == 1){
 		if (oldDeities){
 			//Relegates current deity to the oldDeities table.
 			if (deity.type){
-				deity.type = ', deity of ' + deity.type;
+				deity.type = ", deity of " + deity.type;
 			}
 			var append = oldDeities;
 			//Sets oldDeities value
 			oldDeities = '<tr id="deity' + deity.seniority + '"><td><strong><span id="deity' + deity.seniority + 'Name">' + deity.name + '</span></strong><span id="deity' + deity.seniority + 'Type" class="deityType">' + deity.type + '</span></td><td>Devotion: <span id="devotion' + deity.seniority + '">' + deity.devotion + '</span></td><td class="removeDeity"><button class="removeDeity" onclick="removeDeity(deity' + deity.seniority + ')">X</button></td></tr>' + append;
-			//document.getElementById('activeDeity').innerHTML = '<tr id="deity' + (deity.seniority + 1) + '"><td><strong><span id="deity' + (deity.seniority + 1) + 'Name">No deity</span></strong><span id="deity' + (deity.seniority + 1) + 'Type" class="deityType"></span></td><td>Devotion: <span id="devotion' + (deity.seniority + 1) + '">0</span></td><td class="removeDeity"><button class="removeDeity" onclick="removeDeity(deity' + (deity.seniority + 1) + ')">X</button></td></tr>';
+			//document.getElementById("activeDeity").innerHTML = '<tr id="deity' + (deity.seniority + 1) + '"><td><strong><span id="deity' + (deity.seniority + 1) + 'Name">No deity</span></strong><span id="deity' + (deity.seniority + 1) + 'Type" class="deityType"></span></td><td>Devotion: <span id="devotion' + (deity.seniority + 1) + '">0</span></td><td class="removeDeity"><button class="removeDeity" onclick="removeDeity(deity' + (deity.seniority + 1) + ')">X</button></td></tr>';
 		} else {
 			deityArray.push([deity.seniority,deity.name,deity.type,deity.devotion]);
 		}
-		document.getElementById('activeDeity').innerHTML = '<tr id="deity' + (deity.seniority + 1) + '"><td><strong><span id="deity' + (deity.seniority + 1) + 'Name">No deity</span></strong><span id="deity' + (deity.seniority + 1) + 'Type" class="deityType"></span></td><td>Devotion: <span id="devotion' + (deity.seniority + 1) + '">0</span></td><td class="removeDeity"><button class="removeDeity" onclick="removeDeity(deity' + (deity.seniority + 1) + ')">X</button></td></tr>';
+		document.getElementById("activeDeity").innerHTML = '<tr id="deity' + (deity.seniority + 1) + '"><td><strong><span id="deity' + (deity.seniority + 1) + 'Name">No deity</span></strong><span id="deity' + (deity.seniority + 1) + 'Type" class="deityType"></span></td><td>Devotion: <span id="devotion' + (deity.seniority + 1) + '">0</span></td><td class="removeDeity"><button class="removeDeity" onclick="removeDeity(deity' + (deity.seniority + 1) + ')">X</button></td></tr>';
 		deity.seniority += 1;
-		document.getElementById('deitySpecialisation').style.display = 'none';
+		document.getElementById("deitySpecialisation").style.display = "none";
 	}
 		
 	food = mergeObj(food, {
@@ -3477,7 +3477,7 @@ function reset(){
 		metal:wonder.metal,
 		piety:wonder.piety,
 		array:wonder.array,
-		name:'',
+		name:"",
 		building:false,
 		completed:false,
 		progress:0
@@ -3632,9 +3632,9 @@ function reset(){
 	attackCounter = 0;
 	resourceClicks = 0;
 	graceCost = 1000;
-	document.getElementById('graceCost').innerHTML = prettify(graceCost);
+	document.getElementById("graceCost").innerHTML = prettify(graceCost);
 	walkTotal = 0;
-	targetMax = 'thorp';
+	targetMax = "thorp";
 	//Update page with all new values
 	updateResourceTotals();
 	updateUpgrades();
@@ -3646,71 +3646,71 @@ function reset(){
 	updateParty();
 	updateWonder();
 	//Reset upgrades and other interface elements that might have been unlocked
-	document.getElementById('renameDeity').disabled = 'true';
-	document.getElementById('raiseDead').disabled = 'true';
-	document.getElementById('raiseDead100').disabled = 'true';
-	document.getElementById('raiseDeadMax').disabled = 'true';
-	document.getElementById('smiteInvaders').disabled = 'true';
-	document.getElementById('wickerman').disabled = 'true';
-	document.getElementById('pestControl').disabled = 'true';
-	document.getElementById('grace').disabled = 'true';
-	document.getElementById('walk').disabled = 'true';
-	document.getElementById('ceaseWalk').disabled = 'true';
-	document.getElementById('lure').disabled = 'true';
-	document.getElementById('companion').disabled = 'true';
-	document.getElementById('comfort').disabled = 'true';
-	document.getElementById('book').disabled = 'true';
-	document.getElementById('feast').disabled = 'true';
-	document.getElementById('blessing').disabled = 'true';
-	document.getElementById('waste').disabled = 'true';
-	document.getElementById('riddle').disabled = 'true';
-	document.getElementById('throne').disabled = 'true';
-	document.getElementById('glory').disabled = 'true';
-	document.getElementById('shade').disabled = 'true';
-	document.getElementById('battleUpgrades').style.display = 'none';
-	document.getElementById('fieldsUpgrades').style.display = 'none';
-	document.getElementById('underworldUpgrades').style.display = 'none';
-	document.getElementById('catsUpgrades').style.display = 'none';
-	document.getElementById('constructionLine').style.display = 'none';
-	document.getElementById('architectureLine').style.display = 'none';
-	document.getElementById('tenementsLine').style.display = 'none';
-	document.getElementById('slumsLine').style.display = 'none';
-	document.getElementById('granariesLine').style.display = 'none';
-	document.getElementById('palisadeLine').style.display = 'none';
-	document.getElementById('writingTech').style.display = 'none';
-	document.getElementById('civilserviceLine').style.display = 'none';
-	document.getElementById('civilTech').style.display = 'none';
-	document.getElementById('specFreq').style.display = 'none';
-	document.getElementById('cottageRow').style.display = 'none';
-	document.getElementById('houseRow').style.display = 'none';
-	document.getElementById('mansionRow').style.display = 'none';
-	document.getElementById('tanneryRow').style.display = 'none';
-	document.getElementById('smithyRow').style.display = 'none';
-	document.getElementById('apothecaryRow').style.display = 'none';
-	document.getElementById('templeRow').style.display = 'none';
-	document.getElementById('barracksRow').style.display = 'none';
-	document.getElementById('stableRow').style.display = 'none';
-	document.getElementById('millRow').style.display = 'none';
-	document.getElementById('fortificationRow').style.display = 'none';
-	document.getElementById('tannersRow').style.display = 'none';
-	document.getElementById('blacksmithsRow').style.display = 'none';
-	document.getElementById('healersRow').style.display = 'none';
-	document.getElementById('clericsRow').style.display = 'none';
-	document.getElementById('soldiersRow').style.display = 'none';
-	document.getElementById('cavalryRow').style.display = 'none';
-	document.getElementById('conquest').style.display = 'none';
-	document.getElementById('basicFarming').style.display = 'none';
-	document.getElementById('specialFarming').style.display = 'none';
-	document.getElementById('improvedFarming').style.display = 'none';
-	document.getElementById('masonryTech').style.display = 'none';
+	document.getElementById("renameDeity").disabled = "true";
+	document.getElementById("raiseDead").disabled = "true";
+	document.getElementById("raiseDead100").disabled = "true";
+	document.getElementById("raiseDeadMax").disabled = "true";
+	document.getElementById("smiteInvaders").disabled = "true";
+	document.getElementById("wickerman").disabled = "true";
+	document.getElementById("pestControl").disabled = "true";
+	document.getElementById("grace").disabled = "true";
+	document.getElementById("walk").disabled = "true";
+	document.getElementById("ceaseWalk").disabled = "true";
+	document.getElementById("lure").disabled = "true";
+	document.getElementById("companion").disabled = "true";
+	document.getElementById("comfort").disabled = "true";
+	document.getElementById("book").disabled = "true";
+	document.getElementById("feast").disabled = "true";
+	document.getElementById("blessing").disabled = "true";
+	document.getElementById("waste").disabled = "true";
+	document.getElementById("riddle").disabled = "true";
+	document.getElementById("throne").disabled = "true";
+	document.getElementById("glory").disabled = "true";
+	document.getElementById("shade").disabled = "true";
+	document.getElementById("battleUpgrades").style.display = "none";
+	document.getElementById("fieldsUpgrades").style.display = "none";
+	document.getElementById("underworldUpgrades").style.display = "none";
+	document.getElementById("catsUpgrades").style.display = "none";
+	document.getElementById("constructionLine").style.display = "none";
+	document.getElementById("architectureLine").style.display = "none";
+	document.getElementById("tenementsLine").style.display = "none";
+	document.getElementById("slumsLine").style.display = "none";
+	document.getElementById("granariesLine").style.display = "none";
+	document.getElementById("palisadeLine").style.display = "none";
+	document.getElementById("writingTech").style.display = "none";
+	document.getElementById("civilserviceLine").style.display = "none";
+	document.getElementById("civilTech").style.display = "none";
+	document.getElementById("specFreq").style.display = "none";
+	document.getElementById("cottageRow").style.display = "none";
+	document.getElementById("houseRow").style.display = "none";
+	document.getElementById("mansionRow").style.display = "none";
+	document.getElementById("tanneryRow").style.display = "none";
+	document.getElementById("smithyRow").style.display = "none";
+	document.getElementById("apothecaryRow").style.display = "none";
+	document.getElementById("templeRow").style.display = "none";
+	document.getElementById("barracksRow").style.display = "none";
+	document.getElementById("stableRow").style.display = "none";
+	document.getElementById("millRow").style.display = "none";
+	document.getElementById("fortificationRow").style.display = "none";
+	document.getElementById("tannersRow").style.display = "none";
+	document.getElementById("blacksmithsRow").style.display = "none";
+	document.getElementById("healersRow").style.display = "none";
+	document.getElementById("clericsRow").style.display = "none";
+	document.getElementById("soldiersRow").style.display = "none";
+	document.getElementById("cavalryRow").style.display = "none";
+	document.getElementById("conquest").style.display = "none";
+	document.getElementById("basicFarming").style.display = "none";
+	document.getElementById("specialFarming").style.display = "none";
+	document.getElementById("improvedFarming").style.display = "none";
+	document.getElementById("masonryTech").style.display = "none";
 
-	document.getElementById('tradeContainer').style.display = 'none';
-	document.getElementById('tradeUpgradeContainer').style.display = 'none';
-	document.getElementById('startWonder').disabled = false;
-	document.getElementById('wonderLine').style.display = 'none';
-	document.getElementById('iconoclasmList').innerHTML = '';
-	document.getElementById('iconoclasm').disabled = false;
-	gameLog('Game Reset'); //Inform player.
+	document.getElementById("tradeContainer").style.display = "none";
+	document.getElementById("tradeUpgradeContainer").style.display = "none";
+	document.getElementById("startWonder").disabled = false;
+	document.getElementById("wonderLine").style.display = "none";
+	document.getElementById("iconoclasmList").innerHTML = "";
+	document.getElementById("iconoclasm").disabled = false;
+	gameLog("Game Reset"); //Inform player.
 
 	renameCiv();
 	renameRuler();
@@ -3772,15 +3772,15 @@ function doClerics() {
 // Makes them sick if the number is negative.
 function heal(job,num)
 {
-	if (!isValid(job) || job == '') { return 0; }
+	if (!isValid(job) || job == "") { return 0; }
 	if (num === undefined) { num = 1; } // default to 1
-	num = Math.min(num,population[job+'Ill']);
+	num = Math.min(num,population[job+"Ill"]);
 	num = Math.max(num,-population[job]);
-	population[job+'Ill'] -= num;
+	population[job+"Ill"] -= num;
 	population[job] += num;
-	if (job == 'soldiers' || job == 'cavalry') { 
-		population[job+'Cas'+'Ill'] -= num; 
-		population[job+'Cas'] += num; 
+	if (job == "soldiers" || job == "cavalry") { 
+		population[job+"Cas"+"Ill"] -= num; 
+		population[job+"Cas"] += num; 
 	}
 
 	return num;
@@ -3810,14 +3810,14 @@ function plague(sickNum){
 function getNextPatient()
 { 
 	var i;
-	var jobs=['healers','farmers','soldiers','cavalry','clerics','labourers',
-		'woodcutters','miners','tanners','blacksmiths','unemployed'];
+	var jobs=["healers","farmers","soldiers","cavalry","clerics","labourers",
+		"woodcutters","miners","tanners","blacksmiths","unemployed"];
 	for (i=0;i<jobs.length;++i)
 	{
-		if (population[jobs[i]+'Ill'] > 0) { return jobs[i]; }
+		if (population[jobs[i]+"Ill"] > 0) { return jobs[i]; }
 	}
 
-	return '';
+	return "";
 }
 
 function doHealers() {
@@ -3833,7 +3833,7 @@ function doHealers() {
 	// Cure people until we run out of healing capacity or herbs
 	while (cureCounter >= 1 && herbs.total >= 1) {
 		job = getNextPatient();
-		if (job == '') { break; }
+		if (job == "") { break; }
 		heal(job); 
 		--cureCounter;
 		--herbs.total;
@@ -3874,7 +3874,7 @@ function doCorpses() {
 	num = plague(num);
 	if (num > 0) {
 		updatePopulation();
-		gameLog(prettify(num) + ' workers got sick'); //notify player
+		gameLog(prettify(num) + " workers got sick"); //notify player
 	}
 }
 
@@ -3924,7 +3924,7 @@ function doSlaughter(attacker)
 {
 	var killVerb = (attacker.alignment == "animal") ? "eaten" : "killed";
 	var target = randomHealthyWorker(); //Choose random worker
-	if (target != '') { 
+	if (target != "") { 
 		if (Math.random() < attacker.killExhaustion) { // An attacker may disappear after killing
 			population[attacker.id] -= 1;
 			population[attacker.id+"Cas"] -= 1; }
@@ -3958,7 +3958,7 @@ function doLoot(attacker)
 	var target = stealable[Math.floor(Math.random() * stealable.length)];
 	var stolenQty = Math.floor((Math.random() * 1000)); //Steal up to 1000.
 	stolenQty = Math.min(stolenQty,target.total);
-	if (stolenQty > 0) { gameLog(stolenQty + ' ' + target.name + " stolen by " + attacker.name); }
+	if (stolenQty > 0) { gameLog(stolenQty + " " + target.name + " stolen by " + attacker.name); }
 	target.total -= stolenQty;
 	if (target.total <= 0) {
 		//some will leave
@@ -3983,12 +3983,12 @@ function doSack(attacker)
 	var target = burnable[Math.floor(Math.random() * burnable.length)];
 
 	// Slightly different phrasing for fortifications
-	var destroyVerb = 'burned';
-	if (target == fortification) { destroyVerb = 'damaged'; } 
+	var destroyVerb = "burned";
+	if (target == fortification) { destroyVerb = "damaged"; } 
 
 	if (target.total > 0){
 		target.total -= 1;
-		gameLog(target.name + ' ' + destroyVerb + ' by ' + attacker.name);
+		gameLog(target.name + " " + destroyVerb + " by " + attacker.name);
 	} else {
 		//some will leave
 		var leaving = Math.ceil(population[attacker.id] * Math.random() * (1/112));
@@ -4017,7 +4017,7 @@ function doShades()
 {
 	if (population.shades <= 0) { return; }
 
-    function shadeAttack(attacker,defender)
+	function shadeAttack(attacker,defender)
 	{
 		var num = math.min((population[attacker.id]/4),population[defender.id]);
 		//xxx Should we give book and throne credit here?
@@ -4048,7 +4048,7 @@ function doEsiege()
 					hit = Math.random();
 					if (hit < efficiency.esiege){
 						fortification.total -= 1;
-						gameLog('Enemy siege engine damaged our fortifications');
+						gameLog("Enemy siege engine damaged our fortifications");
 						updateRequirements(fortification);
 					} else if (hit > 0.95){ //each siege engine has 5% to misfire and destroy itself
 						population.esiege -= 1;
@@ -4060,12 +4060,12 @@ function doEsiege()
 	} else if (population.soldiers > 0 || population.cavalry > 0) {
 		//the siege engines are undefended
 		if (upgrades.mathematics){ //Can we use them?
-			gameLog('Captured ' + prettify(population.esiege) + ' enemy siege engines.');
+			gameLog("Captured " + prettify(population.esiege) + " enemy siege engines.");
 			population.siege += population.esiege; //capture them
 			updateParty(); //show them in conquest pane
 		} else {
 			//we can't use them, therefore simply destroy them
-			gameLog('Destroyed ' + prettify(population.esiege) + ' enemy siege engines.');
+			gameLog("Destroyed " + prettify(population.esiege) + " enemy siege engines.");
 		}
 		population.esiege = 0;
 	}
@@ -4119,7 +4119,7 @@ function doMobs() {
 }
 
 function raidWin() {
-	gameLog('Raid victorious!'); //notify player
+	gameLog("Raid victorious!"); //notify player
 	raiding.victory = true; //set victory for future handling
 	//conquest achievements
 	if (!achievements.raider){
@@ -4153,7 +4153,7 @@ function raidWin() {
 function doRaid() {
 	if (!raiding.raiding){ //handles the raiding subroutine
 		// We're not raiding right now.
-		document.getElementById('raidGroup').style.display = 'block';
+		document.getElementById("raidGroup").style.display = "block";
 		return;
 	}
 
@@ -4185,14 +4185,14 @@ function doRaid() {
 			updateParty(); //display new totals for army soldiers and enemy soldiers
 		} else if (raiding.victory){
 			//handles the victory outcome
-			document.getElementById('victoryGroup').style.display = 'block';
+			document.getElementById("victoryGroup").style.display = "block";
 		} else {
 			//victory outcome has been handled, end raid
 			raiding.raiding = false;
 			raiding.iterations = 0;
 		}
 	} else {
-		gameLog('Raid defeated');
+		gameLog("Raid defeated");
 		population.esoldiers = 0;
 		population.esoldiersCas = 0;
 		population.eforts = 0;
@@ -4213,13 +4213,13 @@ function doLabourers() {
 			population.labourersIll = 0;
 			updatePopulation();
 			//hide limited notice
-			document.getElementById('lowResources').style.display = 'none';
+			document.getElementById("lowResources").style.display = "none";
 			//then set wonder.completed so things will be updated appropriately
 			wonder.completed = true;
 			//check to see if neverclick was achieved
 			if (!achievements.neverclick && resourceClicks <= 22){
 				achievements.neverclick = 1;
-				gameLog('Achievement Unlocked: Neverclick!');
+				gameLog("Achievement Unlocked: Neverclick!");
 				updateAchievements();
 			}
 		} else {
@@ -4241,7 +4241,7 @@ function doLabourers() {
 					//increase progress
 					wonder.progress += population.labourers / (1000000 * Math.pow(1.5,wonder.total));
 					//hide limited notice
-					document.getElementById('lowResources').style.display = 'none';
+					document.getElementById("lowResources").style.display = "none";
 				} else if (food.total >= 1 && stone.total >= 1 && wood.total >= 1 && skins.total >= 1 && herbs.total >= 1 && ore.total >= 1 && metal.total >= 1 && leather.total >= 1 && piety.total >= 1){
 					//or at least some resources
 					var num = Math.min(food.total,wood.total,stone.total,skins.total,herbs.total,ore.total,leather.total,metal.total,piety.total);
@@ -4258,17 +4258,17 @@ function doLabourers() {
 					//increase progress
 					wonder.progress += num / (1000000 * Math.pow(1.5,wonder.total));
 					//show limited notice
-					document.getElementById('lowResources').style.display = 'block';
+					document.getElementById("lowResources").style.display = "block";
 					updateWonderLimited();
 				} else {
 					//we don't have enough resources to do any work
 					//show limited notice
-					document.getElementById('lowResources').style.display = 'block';
+					document.getElementById("lowResources").style.display = "block";
 					updateWonderLimited();
 				}
 			} else {
 				//we're not working on the wonder, so hide limited notice
-				document.getElementById('lowResources').style.display = 'none';
+				document.getElementById("lowResources").style.display = "none";
 			}
 		}
 		updateWonder();
@@ -4282,12 +4282,12 @@ function initCivclicker() {
 	addPartyRows();
 
 	//Prompt player for names
-	if (!read_cookie('civ') && !localStorage.getItem('civ')){
+	if (!read_cookie("civ") && !localStorage.getItem("civ")){
 		renameCiv();
 		renameRuler();
 	}
 
-	load('localStorage');//immediately attempts to load
+	load("localStorage");//immediately attempts to load
 
 	body.style.fontSize = size + "em";
 	if (!worksafe){
@@ -4295,10 +4295,10 @@ function initCivclicker() {
 	} else {
 		body.classList.remove("hasBackground");
 		if (!usingWords){
-			var elems = document.getElementsByClassName('icon');
+			var elems = document.getElementsByClassName("icon");
 			var i;
 			for(i = 0; i < elems.length; i++) {
-				elems[i].style.visibility = 'hidden';
+				elems[i].style.visibility = "hidden";
 			}
 		}
 	}
@@ -4306,7 +4306,7 @@ function initCivclicker() {
 initCivclicker();
 
 /* Timed functions */
-console.log('running');
+console.log("running");
 window.setInterval(function(){
 	//The whole game runs on a single setInterval clock. Basically this whole list is run every second
 	//and should probably be minimised as much as possible.
@@ -4318,7 +4318,7 @@ window.setInterval(function(){
 	if (autosave == "on") {
 		autosaveCounter += 1;
 		if (autosaveCounter >= 60){ //Currently autosave is every minute. Might change to 5 mins in future.
-			save('auto');
+			save("auto");
 			autosaveCounter = 1;
 		}
 	}
@@ -4341,8 +4341,8 @@ window.setInterval(function(){
 	if (food.total < 0) { // starve if there's not enough food.
 		//xxx This is very kind.  Only 0.1% deaths no matter how big the shortage?
 		num_starve = starve(Math.ceil(population.current/1000));
-		if (num_starve == 1) { gameLog('A worker starved to death'); }
-		if (num_starve > 1) { gameLog(prettify(num_starve) + ' workers starved to death'); }
+		if (num_starve == 1) { gameLog("A worker starved to death"); }
+		if (num_starve > 1) { gameLog(prettify(num_starve) + " workers starved to death"); }
 		updateJobs();
 		mood(-0.01);
 		food.total = 0;
@@ -4381,20 +4381,20 @@ window.setInterval(function(){
 			if (population.current + population.zombies >= 10000){
 				var choose = Math.random();
 				if (choose > 0.5){
-					spawnMob('barbarians');
+					spawnMob("barbarians");
 				} else if (choose > 0.2){
-					spawnMob('bandits');
+					spawnMob("bandits");
 				} else {
-					spawnMob('wolves');
+					spawnMob("wolves");
 				}
 			} else if (population.current + population.zombies >= 1000){
 				if (Math.random() > 0.5){
-					spawnMob('bandits');
+					spawnMob("bandits");
 				} else {
-					spawnMob('wolves');
+					spawnMob("wolves");
 				}
 			} else {
-				spawnMob('wolves');
+				spawnMob("wolves");
 			}
 		}
 	}
@@ -4407,10 +4407,10 @@ window.setInterval(function(){
 	
 	//Handles the Glory bonus
 	if (gloryTimer > 0){
-		document.getElementById('gloryTimer').innerHTML = gloryTimer;
+		document.getElementById("gloryTimer").innerHTML = gloryTimer;
 		gloryTimer -= 1;
 	} else {
-		document.getElementById('gloryGroup').style.display = 'none';
+		document.getElementById("gloryGroup").style.display = "none";
 	}
 	
 	//traders occasionally show up
@@ -4433,7 +4433,7 @@ window.setInterval(function(){
 
 	if (population.totalSick > population.healthy && !achievements.plague){ //Plagued achievement requires sick people to outnumber healthy
 		achievements.plague = 1;
-		gameLog('Achievement Unlocked: Plagued');
+		gameLog("Achievement Unlocked: Plagued");
 		updateAchievements();
 	}
 
@@ -4447,7 +4447,7 @@ window.setInterval(function(){
 	if (graceCost > 1000) {
 		graceCost -= 1;
 		graceCost = Math.floor(graceCost);
-		document.getElementById('graceCost').innerHTML = prettify(graceCost);
+		document.getElementById("graceCost").innerHTML = prettify(graceCost);
 	}
 	
 	doWalk();
@@ -4459,7 +4459,7 @@ window.setInterval(function(){
 		if (trader.timer > 1){
 			trader.timer -= 1;
 		} else {
-			document.getElementById('tradeContainer').style.display = 'none';
+			document.getElementById("tradeContainer").style.display = "none";
 			trader.timer -= 1;
 		}
 	}
@@ -4477,7 +4477,7 @@ window.setInterval(function(){
 	//Debugging - mark end of main loop and calculate delta in milliseconds
 	//var end = new Date().getTime();
 	//var time = end - start;
-	//console.log('Main loop execution time: ' + time + 'ms');
+	//console.log("Main loop execution time: " + time + "ms");
 	
 }, 1000); //updates once per second (1000 milliseconds)
 
@@ -4508,40 +4508,40 @@ function toggleCustomIncrements(){
 	var curPop = population.current + population.zombies;
 
 	customIncrements = !customIncrements;
-	document.getElementById('toggleCustomIncrements').innerHTML = 
+	document.getElementById("toggleCustomIncrements").innerHTML = 
 		customIncrements ? "Disable Custom Increments" : "Enable Custom Increments";
-	setElemDisplay(document.getElementById('customJobIncrement'),customIncrements);
-	setElemDisplay(document.getElementById('customArmyIncrement'),customIncrements);
-	setElemDisplay(document.getElementById('customBuildIncrement'),customIncrements);
-	setElemDisplay(document.getElementById('customSpawnIncrement'),customIncrements);
-	setElemDisplay(document.getElementById('spawn1group'),!customIncrements);
-	setElemDisplay(document.getElementById('spawn10'  ),!customIncrements && (curPop >=   10));
-	setElemDisplay(document.getElementById('spawn100' ),!customIncrements && (curPop >=  100));
-	setElemDisplay(document.getElementById('spawn1000'),!customIncrements && (curPop >= 1000));
-	setElemDisplay(document.getElementById('spawnMax' ),!customIncrements && (curPop >= 1000));
+	setElemDisplay(document.getElementById("customJobIncrement"),customIncrements);
+	setElemDisplay(document.getElementById("customArmyIncrement"),customIncrements);
+	setElemDisplay(document.getElementById("customBuildIncrement"),customIncrements);
+	setElemDisplay(document.getElementById("customSpawnIncrement"),customIncrements);
+	setElemDisplay(document.getElementById("spawn1group"),!customIncrements);
+	setElemDisplay(document.getElementById("spawn10"  ),!customIncrements && (curPop >=   10));
+	setElemDisplay(document.getElementById("spawn100" ),!customIncrements && (curPop >=  100));
+	setElemDisplay(document.getElementById("spawn1000"),!customIncrements && (curPop >= 1000));
+	setElemDisplay(document.getElementById("spawnMax" ),!customIncrements && (curPop >= 1000));
 
-	elems = document.getElementsByClassName('job10');
+	elems = document.getElementsByClassName("job10");
 	for (i = 0; i < elems.length; ++i) { setElemDisplay(elems[i],!customIncrements && (curPop >= 10)); }
 
-	elems = document.getElementsByClassName('job100');
+	elems = document.getElementsByClassName("job100");
 	for (i = 0; i < elems.length; ++i) { setElemDisplay(elems[i],!customIncrements && (curPop >= 100)); }
 
-	elems = document.getElementsByClassName('job1000');
+	elems = document.getElementsByClassName("job1000");
 	for (i = 0; i < elems.length; ++i) { setElemDisplay(elems[i],!customIncrements && (curPop >= 1000)); }
 
-	elems = document.getElementsByClassName('building10');
+	elems = document.getElementsByClassName("building10");
 	for (i = 0; i < elems.length; ++i) { setElemDisplay(elems[i],!customIncrements && (curPop >= 100)); }
 
-	elems = document.getElementsByClassName('building100');
+	elems = document.getElementsByClassName("building100");
 	for (i = 0; i < elems.length; ++i) { setElemDisplay(elems[i],!customIncrements && (curPop >= 1000)); }
 
-	elems = document.getElementsByClassName('building1000');
+	elems = document.getElementsByClassName("building1000");
 	for (i = 0; i < elems.length; ++i) { setElemDisplay(elems[i],!customIncrements && (curPop >= 10000)); }
 
-	elems = document.getElementsByClassName('jobCustom');
+	elems = document.getElementsByClassName("jobCustom");
 	for (i = 0; i < elems.length; ++i) { setElemDisplay(elems[i],customIncrements); }
 
-	elems = document.getElementsByClassName('buildingCustom');
+	elems = document.getElementsByClassName("buildingCustom");
 	for (i = 0; i < elems.length; ++i) { setElemDisplay(elems[i],customIncrements); }
 }
 
@@ -4549,44 +4549,44 @@ function toggleCustomIncrements(){
 //xxx It seems like it would be better to make a setting variable for this.
 function toggleNotes(){
 	var i;
-	var elems = document.getElementsByClassName('note');
+	var elems = document.getElementsByClassName("note");
 	for(i = 0; i < elems.length; i++) {
-		if (elems[i].style.display == 'none'){
-			elems[i].style.display = 'inline';
+		if (elems[i].style.display == "none"){
+			elems[i].style.display = "inline";
 		} else {
-			elems[i].style.display = 'none';
+			elems[i].style.display = "none";
 		}
 	}
 	//then toggles the button itself
-	if (document.getElementById('toggleNotes').innerHTML == 'Disable Notes'){
-		document.getElementById('toggleNotes').innerHTML = 'Enable Notes';
+	if (document.getElementById("toggleNotes").innerHTML == "Disable Notes"){
+		document.getElementById("toggleNotes").innerHTML = "Enable Notes";
 	} else {
-		document.getElementById('toggleNotes').innerHTML = 'Disable Notes';
+		document.getElementById("toggleNotes").innerHTML = "Disable Notes";
 	}
 }
 
 function impExp(){
-	if (document.getElementById('impexp').style.display == 'block'){
-		document.getElementById('impexp').style.display = 'none';
-		document.getElementById('impexpField').value = '';
+	if (document.getElementById("impexp").style.display == "block"){
+		document.getElementById("impexp").style.display = "none";
+		document.getElementById("impexpField").value = "";
 	} else {
-		document.getElementById('impexp').style.display = 'block';
+		document.getElementById("impexp").style.display = "block";
 	}
 }
 
 function versionAlert(){
-	console.log('New Version Available');
-	document.getElementById('versionAlert').style.display = 'inline';
+	console.log("New Version Available");
+	document.getElementById("versionAlert").style.display = "inline";
 }
 
 function text(scale){
 	if (scale > 0){
 		size += 0.1 * scale;
-		document.getElementById('smallerText').disabled = false;
+		document.getElementById("smallerText").disabled = false;
 	} else {
 		if (size > 0.7){
 			size += 0.1 * scale;
-			if (size <= 0.7) { document.getElementById('smallerText').disabled = true; }
+			if (size <= 0.7) { document.getElementById("smallerText").disabled = true; }
 		}
 	}
 	body.style.fontSize = size + "em";
@@ -4595,10 +4595,10 @@ function text(scale){
 function textShadow(){
 	if (body.style.textShadow != "none"){
 		body.style.textShadow = "none";
-		document.getElementById('textShadow').innerHTML = 'Enable Text Shadow';
+		document.getElementById("textShadow").innerHTML = "Enable Text Shadow";
 	} else {
 		body.style.textShadow = "3px 0 0 #fff, -3px 0 0 #fff, 0 3px 0 #fff, 0 -3px 0 #fff, 2px 2px 0 #fff, -2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff";
-		document.getElementById('textShadow').innerHTML = 'Disable Text Shadow';
+		document.getElementById("textShadow").innerHTML = "Disable Text Shadow";
 	}
 }
 
@@ -4606,10 +4606,10 @@ function iconToggle(){
 	//does nothing yet, will probably toggle display for "icon" and "word" classes as that's probably the simplest way to do this
 	if (usingWords){
 		usingWords = false;
-		document.getElementById('iconToggle').innerHTML = 'Use Words';
+		document.getElementById("iconToggle").innerHTML = "Use Words";
 	} else {
 		usingWords = true;
-		document.getElementById('iconToggle').innerHTML = 'Use Icons';
+		document.getElementById("iconToggle").innerHTML = "Use Icons";
 	}
 }
 
@@ -4623,8 +4623,8 @@ function prettify(input){
 
 function toggleDelimiters(){
 	delimiters = !delimiters;
-	var action = delimiters ? 'Disable' : 'Enable';
-	document.getElementById('toggleDelimiters').innerHTML = action + ' Delimiters';
+	var action = delimiters ? "Disable" : "Enable";
+	document.getElementById("toggleDelimiters").innerHTML = action + " Delimiters";
 
 	updateResourceTotals();
 }
@@ -4637,9 +4637,9 @@ function toggleWorksafe(){
 	body.classList.toggle("hasBackground");
 	if (!usingWords)
 	{
-		elems = document.getElementsByClassName('icon');
+		elems = document.getElementsByClassName("icon");
 		for(i = 0; i < elems.length; i++) {
-			elems[i].style.visibility = worksafe ? 'hidden' : 'visible';
+			elems[i].style.visibility = worksafe ? "hidden" : "visible";
 		}
 	}
 }
@@ -4649,35 +4649,35 @@ function toggleWorksafe(){
 
 function gameLog(message){
 	//Not strictly a debug function so much as it is letting the user know when something happens without needing to watch the console.
-	var time = '0.00';
+	var time = "0.00";
 	//get the current date, extract the current time in HH.MM format
-   	var d = new Date();
+	var d = new Date();
 	if (d.getMinutes() < 10){
 		time = d.getHours() + ".0" + d.getMinutes();
 	} else {
 		time = d.getHours() + "." + d.getMinutes();
 	}
 	//Check to see if the last message was the same as this one, if so just increment the (xNumber) value
-	if (document.getElementById('logL').innerHTML === message){
+	if (document.getElementById("logL").innerHTML === message){
 		logRepeat += 1;
-		document.getElementById('log0').innerHTML = '<td id="logT">' + time + '</td><td id="logL">' + message + '</td><td id="logR">(x' + logRepeat + ')</td>';
+		document.getElementById("log0").innerHTML = '<td id="logT">' + time + '</td><td id="logL">' + message + '</td><td id="logR">(x' + logRepeat + ')</td>';
 	} else {
 		//Reset the (xNumber) value
 		logRepeat = 1;
 		//Go through all the logs in order, moving them down one and successively overwriting them.
 		//Bottom five elements temporarily removed, may be readded later.
-		/*document.getElementById('log9').innerHTML = document.getElementById('log8').innerHTML;
-		document.getElementById('log8').innerHTML = document.getElementById('log7').innerHTML;
-		document.getElementById('log7').innerHTML = document.getElementById('log6').innerHTML;
-		document.getElementById('log6').innerHTML = document.getElementById('log5').innerHTML;
-		document.getElementById('log5').innerHTML = document.getElementById('log4').innerHTML;*/
-		document.getElementById('log4').innerHTML = document.getElementById('log3').innerHTML;
-		document.getElementById('log3').innerHTML = document.getElementById('log2').innerHTML;
-		document.getElementById('log2').innerHTML = document.getElementById('log1').innerHTML;
+		/*document.getElementById("log9").innerHTML = document.getElementById("log8").innerHTML;
+		document.getElementById("log8").innerHTML = document.getElementById("log7").innerHTML;
+		document.getElementById("log7").innerHTML = document.getElementById("log6").innerHTML;
+		document.getElementById("log6").innerHTML = document.getElementById("log5").innerHTML;
+		document.getElementById("log5").innerHTML = document.getElementById("log4").innerHTML;*/
+		document.getElementById("log4").innerHTML = document.getElementById("log3").innerHTML;
+		document.getElementById("log3").innerHTML = document.getElementById("log2").innerHTML;
+		document.getElementById("log2").innerHTML = document.getElementById("log1").innerHTML;
 		//Since ids need to be unique, log1 strips the ids from the log0 elements when copying the contents.
-		document.getElementById('log1').innerHTML = '<td>' + document.getElementById('logT').innerHTML + '</td><td>' + document.getElementById('logL').innerHTML + '</td><td>' + document.getElementById('logR').innerHTML + '</td>';
+		document.getElementById("log1").innerHTML = "<td>" + document.getElementById("logT").innerHTML + "</td><td>" + document.getElementById("logL").innerHTML + "</td><td>" + document.getElementById("logR").innerHTML + "</td>";
 		//creates new contents with new time, message, and x1
-		document.getElementById('log0').innerHTML = '<td id="logT">' + time + '</td><td id="logL">' + message + '</td><td id="logR">(x' + logRepeat + ')</td>';
+		document.getElementById("log0").innerHTML = '<td id="logT">' + time + '</td><td id="logL">' + message + '</td><td id="logR">(x' + logRepeat + ')</td>';
 	}
 }
 

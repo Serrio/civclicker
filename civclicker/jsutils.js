@@ -1,42 +1,42 @@
 "use strict";
 /**
-    CivClicker
-    Copyright (C) 2014; see the AUTHORS file for authorship.
+	CivClicker
+	Copyright (C) 2014; see the AUTHORS file for authorship.
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+	This program is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program in the LICENSE file.
-    If it is not there, see <http://www.gnu.org/licenses/>.
+	You should have received a copy of the GNU General Public License
+	along with this program in the LICENSE file.
+	If it is not there, see <http://www.gnu.org/licenses/>.
 **/
 
 function isValid(variable) {
-    return ((variable !== null) &&
-            (variable !== undefined) &&
-            (variable === variable)); // This is a way to test for NaN that
+	return ((variable !== null) &&
+			(variable !== undefined) &&
+			(variable === variable)); // This is a way to test for NaN that
 			// isn't subject to the unexpected behavior of isNaN().
 }
 
 
 function bake_cookie(name, value) {
-    var exdate=new Date();
-    exdate.setDate(exdate.getDate() + 30);
-    var cookie = [name, '=', JSON.stringify(value),'; expires=.', exdate.toUTCString(), '; domain=.', window.location.host.toString(), '; path=/;'].join('');
-    document.cookie = cookie;
+	var exdate=new Date();
+	exdate.setDate(exdate.getDate() + 30);
+	var cookie = [name, "=", JSON.stringify(value),"; expires=.", exdate.toUTCString(), "; domain=.", window.location.host.toString(), "; path=/;"].join("");
+	document.cookie = cookie;
 }
 function read_cookie(name) {
-    var result = document.cookie.match(new RegExp(name + '=([^;]+)'));
-    if (result) { result = JSON.parse(result[1]); }
+	var result = document.cookie.match(new RegExp(name + "=([^;]+)"));
+	if (result) { result = JSON.parse(result[1]); }
 
-    return result;
+	return result;
 }
 
 
@@ -46,40 +46,40 @@ function read_cookie(name) {
  * @returns {string} The number, with digit groups separated.
  */
 function num2fmtString(input){
-    var output = '';
-    var i;
-    output = input.toString();
-    var characteristic = '', //the bit that comes before the decimal point
-        mantissa = '', //the bit that comes afterwards
-        digitCount = 0,
-        delimiter = "&#8239;"; //thin space is the ISO standard thousands delimiter. we need a non-breaking version
+	var output = "";
+	var i;
+	output = input.toString();
+	var characteristic = "", //the bit that comes before the decimal point
+		mantissa = "", //the bit that comes afterwards
+		digitCount = 0,
+		delimiter = "&#8239;"; //thin space is the ISO standard thousands delimiter. we need a non-breaking version
 
-    //first split the string on the decimal point, and assign to the characteristic and mantissa
-    var parts = output.split('.');
-    if (typeof parts[1] === 'string') { mantissa = '.' + parts[1]; } //check it's defined first, and tack a decimal point to the start of it
+	//first split the string on the decimal point, and assign to the characteristic and mantissa
+	var parts = output.split(".");
+	if (typeof parts[1] === "string") { mantissa = "." + parts[1]; } //check it's defined first, and tack a decimal point to the start of it
 
-    //then insert the commas in the characteristic
-    var charArray = parts[0].split(""); //breaks it into an array
-    for (i=charArray.length; i>0; i--){ //counting backwards through the array
-        characteristic = charArray[i-1] + characteristic; //add the array item at the front of the string
-        digitCount++;
-        if (digitCount == 3 && i!=1){ //once every three digits (but not at the head of the number)
-            characteristic = delimiter + characteristic; //add the delimiter at the front of the string
-            digitCount = 0;
-        }
-    }
-    output = characteristic + mantissa; //reassemble the number
+	//then insert the commas in the characteristic
+	var charArray = parts[0].split(""); //breaks it into an array
+	for (i=charArray.length; i>0; i--){ //counting backwards through the array
+		characteristic = charArray[i-1] + characteristic; //add the array item at the front of the string
+		digitCount++;
+		if (digitCount == 3 && i!=1){ //once every three digits (but not at the head of the number)
+			characteristic = delimiter + characteristic; //add the delimiter at the front of the string
+			digitCount = 0;
+		}
+	}
+	output = characteristic + mantissa; //reassemble the number
  
-    return output;
+	return output;
 }
 
 // Calculates the summation of elements (n...m] of the arithmetic sequence
-// with increment 'incr'.
+// with increment "incr".
 function calcArithSum(incr,n,m)
 {
-    // Default to just element n+1, if m isn't given.
-    if (m === undefined) { m = n + 1; }
-    return (m-n)*((n*incr)+((m-1)*incr))/2;
+	// Default to just element n+1, if m isn't given.
+	if (m === undefined) { m = n + 1; }
+	return (m-n)*((n*incr)+((m-1)*incr))/2;
 }
 
 
@@ -88,36 +88,36 @@ function calcArithSum(incr,n,m)
 //xxx This would probably be more elegant written recursively.
 function logSearchFn(func, limitY)
 {
-    var minX = 0;
-    var maxX = 0;
-    var curX = 0;
-    var curY;
+	var minX = 0;
+	var maxX = 0;
+	var curX = 0;
+	var curY;
 
-    // First, find an upper bound.
-    while ((curY = func(maxX)) <= limitY)
-    {
-        minX = maxX;  // Previous was too low
-        maxX = maxX ? maxX * 2 : (maxX + 1);
-    }
-    // Invariant:  minX <= desired X < maxX
+	// First, find an upper bound.
+	while ((curY = func(maxX)) <= limitY)
+	{
+		minX = maxX;  // Previous was too low
+		maxX = maxX ? maxX * 2 : (maxX + 1);
+	}
+	// Invariant:  minX <= desired X < maxX
 
-    // Now binary search the range.
-    while (maxX - minX > 1)
-    {
-        curX = Math.floor((maxX + minX)/2); // Find midpoint
-        curY = func(curX);
+	// Now binary search the range.
+	while (maxX - minX > 1)
+	{
+		curX = Math.floor((maxX + minX)/2); // Find midpoint
+		curY = func(curX);
 
-        if (curY <= limitY)
-        {
-            minX = curX; // Under limit; becomes new lower bound.
-        }
-        else
-        {
-            maxX = curX; // Over limit; becomes new upper bound.
-        }
-    }
+		if (curY <= limitY)
+		{
+			minX = curX; // Under limit; becomes new lower bound.
+		}
+		else
+		{
+			maxX = curX; // Over limit; becomes new upper bound.
+		}
+	}
 
-    return minX;
+	return minX;
 }
 
 // Recursively merge the properties of one object into another.
@@ -129,8 +129,8 @@ function mergeObj(o1, o2)
 	if (o2 === undefined) { return o1; }
 
 	// If either one is a non-object, just clobber o1.
-	if ((typeof(o2) != 'object') || (o1 === null) ||
-		(typeof(o1) != 'object') || (o2 === null))
+	if ((typeof(o2) != "object") || (o1 === null) ||
+		(typeof(o1) != "object") || (o2 === null))
 	{
 		o1 = o2;
 		return o1;
@@ -148,7 +148,7 @@ function mergeObj(o1, o2)
 
 // Wrapper to set an HTML element's visibility.
 // Pass true as the 2nd param to be visible, false to be hidden.
-// Compensates for IE's lack of support for the 'initial' property value.
+// Compensates for IE's lack of support for the "initial" property value.
 // May not support all HTML elements.
 function setElemDisplay(htmlElem,visible)
 {
@@ -156,43 +156,43 @@ function setElemDisplay(htmlElem,visible)
 
 /* xxx This is disabled because browser support for visibility: collapse is too inconsistent.
 	// If it's a <col> element, use visibility: collapse instead.
-	if (tagName == 'COL') {
-		htmlElem.style.visibility = visible ? 'inherit' : 'collapse'; 
+	if (tagName == "COL") {
+		htmlElem.style.visibility = visible ? "inherit" : "collapse"; 
 		return;
 	}
 */
 
-	var displayVal = (!visible) ? 'none' : 'initial';
-    if (visible)
-    {
-        // Note that HTML comes in upper case, XML in lower.
-        switch(tagName)
-        {
-            case 'SPAN': displayVal = 'inline'; break;
-            case 'DIV': displayVal = 'block'; break;
-            case 'P': displayVal = 'block'; break;
-            case 'TABLE': displayVal = 'table'; break;
-            case 'CAPTION': displayVal = 'table-caption'; break;
-            case 'THEAD': displayVal = 'table-header-group'; break;
-            case 'TBODY': displayVal = 'table-row-group'; break;
-            case 'TFOOT': displayVal = 'table-footer-group'; break;
-            case 'TR': displayVal = 'table-row'; break;
-            case 'COL': displayVal = 'table-column'; break;
-            case 'TD': displayVal = 'table-cell'; break;
-            case 'LI': displayVal = 'list-item'; break;
-            default: console.log("Unsupported tag <"+tagName+"> passed to setElemDisplay()"); break;
-        }
-    }
-    htmlElem.style.display = displayVal;
+	var displayVal = (!visible) ? "none" : "initial";
+	if (visible)
+	{
+		// Note that HTML comes in upper case, XML in lower.
+		switch(tagName)
+		{
+			case "SPAN": displayVal = "inline"; break;
+			case "DIV": displayVal = "block"; break;
+			case "P": displayVal = "block"; break;
+			case "TABLE": displayVal = "table"; break;
+			case "CAPTION": displayVal = "table-caption"; break;
+			case "THEAD": displayVal = "table-header-group"; break;
+			case "TBODY": displayVal = "table-row-group"; break;
+			case "TFOOT": displayVal = "table-footer-group"; break;
+			case "TR": displayVal = "table-row"; break;
+			case "COL": displayVal = "table-column"; break;
+			case "TD": displayVal = "table-cell"; break;
+			case "LI": displayVal = "list-item"; break;
+			default: console.log("Unsupported tag <"+tagName+"> passed to setElemDisplay()"); break;
+		}
+	}
+	htmlElem.style.display = displayVal;
 }
 
 
 // Workaround for IE's lack of support for the dataset property.
 function dataset(elem,attr,value)
 {
-	if (value === undefined) { return elem.getAttribute('data-'+attr); }
+	if (value === undefined) { return elem.getAttribute("data-"+attr); }
 
-	return elem.setAttribute('data-'+attr,value);
+	return elem.setAttribute("data-"+attr,value);
 }
 
 
