@@ -23,7 +23,7 @@ var version = 19;
 var versionData = {
 	major:  1,
 	minor:  1,
-	sub:   26,
+	sub:   27,
 	mod:   'alpha'
 };
 var saveTag1 = 'civ';
@@ -331,6 +331,7 @@ unemployed: {
 	id:"unemployed",
 	name:"unemployed",
 	singular:"unemployed",
+	alignment:"player",
 	effectText:"Unassigned Workers"
 },
 sick: {
@@ -343,54 +344,63 @@ farmers: {
 	id:"farmers",
 	name:"farmers",
 	singular:"farmer",
+	alignment:"player",
 	effectText:"Automatically gather food"
 },
 woodcutters: {
 	id:"woodcutters",
 	name:"woodcutters",
 	singular:"woodcutter",
+	alignment:"player",
 	effectText:"Automatically gather wood"
 },
 miners: {
 	id:"miners",
 	name:"miners",
 	singular:"miner",
+	alignment:"player",
 	effectText:"Automatically gather stone"
 },
 tanners: {
 	id:"tanners",
 	name:"tanners",
 	singular:"tanner",
+	alignment:"player",
 	effectText:"Convert skins to leather"
 },
 blacksmiths: {
 	id:"blacksmiths",
 	name:"blacksmiths",
 	singular:"blacksmith",
+	alignment:"player",
 	effectText:"Convert ore to metal"
 },
 healers: {
 	id:"healers",
 	name:"healers",
 	singular:"healer",
+	alignment:"player",
 	effectText:"Cure sick workers"
 },
 clerics: {
 	id:"clerics",
 	name:"clerics",
 	singular:"cleric",
+	alignment:"player",
 	effectText:"Generate piety, bury corpses"
 },
 labourers: {
 	id:"labourers",
 	name:"labourers",
 	singular:"labourer",
+	alignment:"player",
 	effectText:"Use resources to build wonder"
 },
 soldiers: {
 	id:"soldiers",
 	name:"soldiers",
 	singular:"soldier",
+	alignment:"player",
 	require:{
 		leather:10,
 		metal:10
@@ -401,6 +411,7 @@ cavalry: {
 	id:"cavalry",
 	name:"cavalry",
 	singular:"cavalry",
+	alignment:"player",
 	require:{
 		food:20,
 		leather:20
@@ -411,42 +422,59 @@ shades: {
 	id:"shades",
 	name:"shades",
 	singular:"shade",
+	alignment:"player",
 	effectText:"Insubstantial spirits"
 },
 wolves: {
 	id:"wolves",
 	name:"wolves",
-	singular:"wolf"
+	singular:"wolf",
+	alignment:"animal",
+	onWin: function() { doSlaughter(this); },
+	killFatigue:(1.0), // Max fraction that leave after killing the last person
+	killExhaustion:(1/2) // Chance of an attacker leaving after killing a person
 },
 bandits: {
 	id:"bandits",
 	name:"bandits",
-	singular:"bandit"
+	singular:"bandit",
+	alignment:"mob",
+	onWin: function() { doLoot(this); },
+	lootFatigue:(1/8) // Max fraction that leave after cleaning out a resource
 },
 barbarians: {
 	id:"barbarians",
 	name:"barbarians",
-	singular:"barbarian"
+	singular:"barbarian",
+	alignment:"mob",
+	onWin: function() { doHavoc(this); },
+	lootFatigue:(1/24), // Max fraction that leave after cleaning out a resource
+	killFatigue:(1/3), // Max fraction that leave after killing the last person
+	killExhaustion:(1.0) // Chance of an attacker leaving after killing a person
 },
 esiege: {
 	id:"esiege",
 	name:"siege engines",
-	singular:"Siege Engine"
+	singular:"Siege Engine",
+	alignment:"mob"
 },
 soldiersParty: {
 	id:"soldiersParty",
 	name:"soldiers",
-	singular:"soldier"
+	singular:"soldier",
+	alignment:"player"
 },
 cavalryParty: {
 	id:"cavalryParty",
 	name:"cavalry",
-	singular:"cavalry"
+	singular:"cavalry",
+	alignment:"player"
 },
 siege: {
 	id:"siege",
 	name:"siege engines",
 	singular:"Siege Engine",
+	alignment:"player",
 	require:{
 		wood:200,
 		leather:50,
@@ -456,17 +484,20 @@ siege: {
 esoldiers: {
 	id:"esoldiers",
 	name:"soldiers",
-	singular:"soldier"
+	singular:"soldier",
+	alignment:"mob"
 },
 ecavalry: { // Not currently used.
 	id:"ecavalry",
 	name:"cavalry",
-	singular:"cavalry"
+	singular:"cavalry",
+	alignment:"mob"
 },
 eforts: {
 	id:"eforts",
 	name:"fortifications",
-	singular:"fortification"
+	singular:"fortification",
+	alignment:"mob"
 }
 };
 
@@ -625,7 +656,8 @@ efficiency = {
 	esoldiers:0.05,
 	esiege:0.1, //each siege engine has 10% to hit
 	eforts:0.01, // -1% damage
-	fortification:0.01
+	fortification:0.01,
+	palisade:0.01 // Subtracted from attacker efficiency.
 },
 upgrades = {
 	domestication:0,
@@ -2497,14 +2529,14 @@ function digGraves(num){
 //xxx Doesn't currently pick from the army
 function randomHealthyWorker(){
 	var num = Math.random() * population.healthy;
-	var jobs=['unemployed','farmers','woodcutters','miners','tanners','blacksmiths',
-			  'healers','clerics','labourers','cavalry','soldiers'];
+	var jobs=[units.unemployed,units.farmers,units.woodcutters,units.miners,units.tanners,units.blacksmiths,
+			  units.healers,units.clerics,units.labourers,units.cavalry,units.soldiers];
 	var chance = 0;
 	var i;
 	for (i=0;i<jobs.length;++i)
 	{
-		chance += population[jobs[i]];
-		if (chance > num) { return jobs[i]; }
+		chance += population[jobs[i].id];
+		if (chance > num) { return jobs[i].id; }
 	}
 
 	return '';
@@ -3846,270 +3878,58 @@ function doCorpses() {
 	}
 }
 
-function wolvesVcavalry()
+function doFight(attacker,defender)
 {
+	// Defenses vary depending on whether the player is attacking or defending.
+	var fortMod = (defender.alignment == "player" ? (fortification.total * efficiency.fortification)
+												  : (population.eforts * efficiency.eforts));
+	var palisadeMod = ((defender.alignment == "player")&&(upgrades.palisade)) ?  efficiency.palisade : 0;
+
 	//Calculate each side's casualties inflicted and subtract them from an effective strength value (xCas)
-	population.wolvesCas -= (getCasualtyMod("cavalry","wolves") * population.cavalry * efficiency.cavalry);
-	population.cavalryCas -= (getCasualtyMod("wolves","cavalry") * population.wolves * (efficiency.wolves - (0.01 * upgrades.palisade)) * Math.max(1 - (fortification.total * efficiency.fortification),0));
+	population[attacker.id+"Cas"] -= (getCasualtyMod(defender.id,attacker.id) * population[defender.id] * efficiency[defender.id]);
+	population[defender.id+"Cas"] -= (getCasualtyMod(attacker.id,defender.id) * population[attacker.id] * (efficiency[attacker.id] - palisadeMod) * Math.max(1 - fortMod, 0));
 	//If this reduces effective strengths below 0, reset it to 0.
-	if (population.wolvesCas < 0){
-		population.wolvesCas = 0;
+	if (population[attacker.id+"Cas"] < 0){
+		population[attacker.id+"Cas"] = 0;
 	}
-	if (population.cavalryCas < 0){
-		population.cavalryCas = 0;
+	if (population[defender.id+"Cas"] < 0){
+		population[defender.id+"Cas"] = 0;
 	}
 	//Calculates the casualties dealt based on difference between actual numbers and new effective strength
-	var mobCasualties = population.wolves - population.wolvesCas;
-	var mobCasFloor = Math.floor(mobCasualties);
-	var casualties = population.cavalry - population.cavalryCas;
-	var casFloor = Math.floor(casualties);
-	if (!(mobCasFloor > 0)) { mobCasFloor = 0; } //weirdness with floating point numbers. not sure why this is necessary
-	if (!(casFloor > 0)) { casFloor = 0; }
+	var attackerCas = population[attacker.id] - population[attacker.id+"Cas"];
+	var attackerCasFloor = Math.floor(attackerCas);
+	var defenderCas = population[defender.id] - population[defender.id+"Cas"];
+	var defenderCasFloor= Math.floor(defenderCas);
+	if (!(attackerCasFloor > 0)) { attackerCasFloor = 0; } //weirdness with floating point numbers. not sure why this is necessary
+	if (!(defenderCasFloor > 0)) { defenderCasFloor = 0; }
+
+	// Give player credit for kills.
+	var playerCredit = ((attacker.alignment == "player") ? defenderCasFloor :
+	                    (defender.alignment == "player") ? attackerCasFloor : 0);
+
 	//Increments enemies slain, corpses, and piety
-	population.enemiesSlain += mobCasFloor;
-	if (upgrades.throne) { throneCount += mobCasFloor; }
-	corpses.total += (casFloor + mobCasFloor);
+	population.enemiesSlain += playerCredit;
+	if (upgrades.throne) { throneCount += playerCredit; }
+	corpses.total += (attackerCasFloor + defenderCasFloor);
 	if (upgrades.book) {
-		piety.total += (casFloor + mobCasFloor) * 10;
+		piety.total += (attackerCasFloor + defenderCasFloor) * 10;
 	}
 	//Resets the actual numbers based on effective strength
-	population.wolves = Math.ceil(population.wolvesCas);
-	population.cavalry = Math.ceil(population.cavalryCas);
+	population[attacker.id] = Math.ceil(population[attacker.id+"Cas"]);
+	population[defender.id] = Math.ceil(population[defender.id+"Cas"]);
 }
 
-function wolvesVsoldiers()
-{
-	//Calculate each side's casualties inflicted and subtract them from an effective strength value (xCas)
-	population.wolvesCas -= (getCasualtyMod("soldiers","wolves") * population.soldiers * efficiency.soldiers);
-	population.soldiersCas -= (getCasualtyMod("wolves","soldiers") * population.wolves * (efficiency.wolves - (0.01 * upgrades.palisade)) * Math.max(1 - (fortification.total * efficiency.fortification),0));
-	//If this reduces effective strengths below 0, reset it to 0.
-	if (population.wolvesCas < 0){
-		population.wolvesCas = 0;
-	}
-	if (population.soldiersCas < 0){
-		population.soldiersCas = 0;
-	}
-	//Calculates the casualties dealt based on difference between actual numbers and new effective strength
-	var mobCasualties = population.wolves - population.wolvesCas;
-	var mobCasFloor = Math.floor(mobCasualties);
-	var casualties = population.soldiers - population.soldiersCas;
-	var casFloor = Math.floor(casualties);
-	if (!(mobCasFloor > 0)) { mobCasFloor = 0; } //weirdness with floating point numbers. not sure why this is necessary
-	if (!(casFloor > 0)) { casFloor = 0; }
-	//Increments enemies slain, corpses, and piety
-	population.enemiesSlain += mobCasFloor;
-	if (upgrades.throne) { throneCount += mobCasFloor; }
-	corpses.total += (casFloor + mobCasFloor);
-	if (upgrades.book) {
-		piety.total += (casFloor + mobCasFloor) * 10;
-	}
-	//Resets the actual numbers based on effective strength
-	population.wolves = Math.ceil(population.wolvesCas);
-	population.soldiers = Math.ceil(population.soldiersCas);
-}
 
-function banditsVcavalry()
+function doSlaughter(attacker)
 {
-	//Calculate each side's casualties inflicted and subtract them from an effective strength value
-	population.banditsCas -= (getCasualtyMod("cavalry","bandits") * population.cavalry * efficiency.cavalry);
-	population.cavalryCas -= (getCasualtyMod("bandits","cavalry") * population.bandits * (efficiency.bandits - (0.01 * upgrades.palisade)) * Math.max(1 - (fortification.total * efficiency.fortification),0));
-	//If this reduces effective strengths below 0, reset it to 0.
-	if (population.banditsCas < 0){
-		population.banditsCas = 0;
-	}
-	if (population.cavalryCas < 0){
-		population.cavalryCas = 0;
-	}
-	//Calculates the casualties dealt based on difference between actual numbers and new effective strength
-	var mobCasualties = population.bandits - population.banditsCas;
-	var mobCasFloor = Math.floor(mobCasualties);
-	var casualties = population.cavalry - population.cavalryCas;
-	var casFloor = Math.floor(casualties);
-	if (!(mobCasFloor > 0)) { mobCasFloor = 0; }
-	if (!(casFloor > 0)) { casFloor = 0; }
-	//Increments enemies slain, corpses, and piety
-	population.enemiesSlain += mobCasFloor;
-	if (upgrades.throne) { throneCount += mobCasFloor; }
-	corpses.total += (casFloor + mobCasFloor);
-	if (upgrades.book) {
-		piety.total += (casFloor + mobCasFloor) * 10;
-	}
-	//Resets the actual numbers based on effective strength
-	population.bandits = Math.ceil(population.banditsCas);
-	population.cavalry = Math.ceil(population.cavalryCas);
-}
-
-function banditsVsoldiers()
-{
-	//Calculate each side's casualties inflicted and subtract them from an effective strength value
-	population.banditsCas -= (getCasualtyMod("soldiers","bandits") * population.soldiers * efficiency.soldiers);
-	population.soldiersCas -= (getCasualtyMod("bandits","soldiers") * population.bandits * (efficiency.bandits - (0.01 * upgrades.palisade)) * Math.max(1 - (fortification.total * efficiency.fortification),0));
-	//If this reduces effective strengths below 0, reset it to 0.
-	if (population.banditsCas < 0){
-		population.banditsCas = 0;
-	}
-	if (population.soldiersCas < 0){
-		population.soldiersCas = 0;
-	}
-	//Calculates the casualties dealt based on difference between actual numbers and new effective strength
-	var mobCasualties = population.bandits - population.banditsCas;
-	var mobCasFloor = Math.floor(mobCasualties);
-	var casualties = population.soldiers - population.soldiersCas;
-	var casFloor = Math.floor(casualties);
-	if (!(mobCasFloor > 0)) { mobCasFloor = 0; }
-	if (!(casFloor > 0)) { casFloor = 0; }
-	//Increments enemies slain, corpses, and piety
-	population.enemiesSlain += mobCasFloor;
-	if (upgrades.throne) { throneCount += mobCasFloor; }
-	corpses.total += (casFloor + mobCasFloor);
-	if (upgrades.book) {
-		piety.total += (casFloor + mobCasFloor) * 10;
-	}
-	//Resets the actual numbers based on effective strength
-	population.bandits = Math.ceil(population.banditsCas);
-	population.soldiers = Math.ceil(population.soldiersCas);
-}
-
-function barbariansVcavalry()
-{
-	//Calculate each side's casualties inflicted and subtract them from an effective strength value
-	population.barbariansCas -= (getCasualtyMod("cavalry","barbarians") * population.cavalry * efficiency.cavalry);
-	population.cavalryCas -= (getCasualtyMod("barbarians","cavalry") * population.barbarians * (efficiency.barbarians - (0.01 * upgrades.palisade)) * Math.max(1 - (fortification.total * efficiency.fortification),0));
-	//If this reduces effective strengths below 0, reset it to 0.
-	if (population.barbariansCas < 0){
-		population.barbariansCas = 0;
-	}
-	if (population.cavalryCas < 0){
-		population.cavalryCas = 0;
-	}
-	//Calculates the casualties dealt based on difference between actual numbers and new effective strength
-	var mobCasualties = population.barbarians - population.barbariansCas;
-	var mobCasFloor = Math.floor(mobCasualties);
-	var casualties = population.cavalry - population.cavalryCas;
-	var casFloor = Math.floor(casualties);
-	if (!(mobCasFloor > 0)) { mobCasFloor = 0; }
-	if (!(casFloor > 0)) { casFloor = 0; }
-	//Increments enemies slain, corpses, and piety
-	population.enemiesSlain += mobCasFloor;
-	if (upgrades.throne) { throneCount += mobCasFloor; }
-	corpses.total += (casFloor + mobCasFloor);
-	if (upgrades.book) {
-		piety.total += (casFloor + mobCasFloor) * 10;
-	}
-	//Resets the actual numbers based on effective strength
-	population.barbarians = Math.ceil(population.barbariansCas);
-	population.cavalry = Math.ceil(population.cavalryCas);
-}
-
-function barbariansVsoldiers()
-{
-	//Calculate each side's casualties inflicted and subtract them from an effective strength value
-	population.barbariansCas -= (getCasualtyMod("soldiers","barbarians") * population.soldiers * efficiency.soldiers);
-	population.soldiersCas -= (getCasualtyMod("barbarians","soldiers") * population.barbarians * (efficiency.barbarians - (0.01 * upgrades.palisade)) * Math.max(1 - (fortification.total * efficiency.fortification),0));
-	//If this reduces effective strengths below 0, reset it to 0.
-	if (population.barbariansCas < 0){
-		population.barbariansCas = 0;
-	}
-	if (population.soldiersCas < 0){
-		population.soldiersCas = 0;
-	}
-	//Calculates the casualties dealt based on difference between actual numbers and new effective strength
-	var mobCasualties = population.barbarians - population.barbariansCas;
-	var mobCasFloor = Math.floor(mobCasualties);
-	var casualties = population.soldiers - population.soldiersCas;
-	var casFloor = Math.floor(casualties);
-	if (!(mobCasFloor > 0)) { mobCasFloor = 0; }
-	if (!(casFloor > 0)) { casFloor = 0; }
-	//Increments enemies slain, corpses, and piety
-	population.enemiesSlain += mobCasFloor;
-	if (upgrades.throne) { throneCount += mobCasFloor; }
-	corpses.total += (casFloor + mobCasFloor);
-	if (upgrades.book) {
-		piety.total += (casFloor + mobCasFloor) * 10;
-	}
-	//Resets the actual numbers based on effective strength
-	population.barbarians = Math.ceil(population.barbariansCas);
-	population.soldiers = Math.ceil(population.soldiersCas);
-}
-
-function cavalryPartyVesoldiers()
-{
-	//Calculate each side's casualties inflicted and subtract them from an effective strength value (xCas)
-	population.esoldiersCas -= (getCasualtyMod("cavalry","esoldiers") * population.cavalryParty * efficiency.cavalryParty) * Math.max(1 - (population.eforts * efficiency.eforts),0);
-	population.cavalryPartyCas -= (getCasualtyMod("esoldiers","cavalry") * population.esoldiers * efficiency.esoldiers);
-	//If this reduces effective strengths below 0, reset it to 0.
-	if (population.esoldiersCas < 0){
-		population.esoldiersCas = 0;
-	}
-	if (population.cavalryPartyCas < 0){
-		population.cavalryPartyCas = 0;
-	}
-	//Calculates the casualties dealt based on difference between actual numbers and new effective strength
-	var mobCasualties = population.esoldiers - population.esoldiersCas;
-	var mobCasFloor = Math.floor(mobCasualties);
-	var casualties = population.cavalryParty - population.cavalryPartyCas;
-	var casFloor = Math.floor(casualties);
-	if (!(mobCasFloor > 0)) { mobCasFloor = 0; } //weirdness with floating point numbers. not sure why this is necessary
-	if (!(casFloor > 0)) { casFloor = 0; }
-	//Increments enemies slain, corpses, and piety
-	population.enemiesSlain += mobCasFloor;
-	if (upgrades.throne) { throneCount += mobCasFloor; }
-	corpses.total += (casFloor + mobCasFloor);
-	updatePopulation();
-	if (upgrades.book) {
-		piety.total += (casFloor + mobCasFloor) * 10;
-		updateResourceTotals();
-	}
-	//Resets the actual numbers based on effective strength
-	population.esoldiers = Math.ceil(population.esoldiersCas);
-	population.cavalryParty = Math.ceil(population.cavalryPartyCas);
-}
-
-function soldiersPartyVesoldiers()
-{
-	//Calculate each side's casualties inflicted and subtract them from an effective strength value (xCas)
-	population.esoldiersCas -= (getCasualtyMod("soldiers","esoldiers") * population.soldiersParty * efficiency.soldiersParty) * Math.max(1 - (population.eforts * efficiency.eforts),0);
-	population.soldiersPartyCas -= (getCasualtyMod("esoldiers","soldiers") * population.esoldiers * efficiency.esoldiers);
-	//If this reduces effective strengths below 0, reset it to 0.
-	if (population.esoldiersCas < 0){
-		population.esoldiersCas = 0;
-	}
-	if (population.soldiersPartyCas < 0){
-		population.soldiersPartyCas = 0;
-	}
-	//Calculates the casualties dealt based on difference between actual numbers and new effective strength
-	var mobCasualties = population.esoldiers - population.esoldiersCas;
-	var mobCasFloor = Math.floor(mobCasualties);
-	var casualties = population.soldiersParty - population.soldiersPartyCas;
-	var casFloor = Math.floor(casualties);
-	if (!(mobCasFloor > 0)) { mobCasFloor = 0; } //weirdness with floating point numbers. not sure why this is necessary
-	if (!(casFloor > 0)) { casFloor = 0; }
-	//Increments enemies slain, corpses, and piety
-	population.enemiesSlain += mobCasFloor;
-	if (upgrades.throne) { throneCount += mobCasFloor; }
-	corpses.total += (casFloor + mobCasFloor);
-	updatePopulation();
-	if (upgrades.book) {
-		piety.total += (casFloor + mobCasFloor) * 10;
-		updateResourceTotals();
-	}
-	//Resets the actual numbers based on effective strength
-	population.esoldiers = Math.ceil(population.esoldiersCas);
-	population.soldiersParty = Math.ceil(population.soldiersPartyCas);
-}
-
-function wolvesWin()
-{
+	var killVerb = (attacker.alignment == "animal") ? "eaten" : "killed";
 	var target = randomHealthyWorker(); //Choose random worker
-	//Check to see if there are workers that the wolves can eat
 	if (target != '') { 
-		if (Math.random() > 0.5){ //Wolves will sometimes not disappear after eating someone
-			population.wolves -= 1;
-			population.wolvesCas -= 1;
-		}
-		if (population.wolvesCas < 0) { population.wolvesCas = 0; }
-		console.log('Wolves ate a ' + getJobSingular(target));
-		gameLog('Wolves ate a ' + getJobSingular(target));
+		if (Math.random() < attacker.killExhaustion) { // An attacker may disappear after killing
+			population[attacker.id] -= 1;
+			population[attacker.id+"Cas"] -= 1; }
+		if (population[attacker.id+"Cas"] < 0) { population[attacker.id+"Cas"] = 0; }
+
 		--population.current;
 		--population[target];
 		if (target == "soldiers" || target == "cavalry"){
@@ -4119,183 +3939,106 @@ function wolvesWin()
 				population[target+"Cas"] = 0;
 			}
 		}
+		if (attacker.alignment != "animal") { ++corpses.total; } // Animals will eat the corpse
+		gameLog(getJobSingular(target) + " " + killVerb + " by " + attacker.name);
 		updatePopulation();
-	} else {
-		//wolves will leave
-		var leaving = Math.ceil(population.wolves * Math.random());
-		population.wolves -= leaving;
-		population.wolvesCas -= leaving;
+	} else { // Attackers slowly leave once everyone is dead
+		var leaving = Math.ceil(population[attacker.id] * Math.random() * attacker.killFatigue);
+		population[attacker.id] -= leaving;
+		population[attacker.id+"Cas"] -= leaving;
 		updateMobs();
 	}
 }
 
-function banditsWin()
+function doLoot(attacker)
 {
 	var stealable=[food,wood,stone,skins,herbs,ore,leather,metal];
 
-	//Bandits will steal resources. Select random resource, steal random amount of it.
+	// Select random resource, steal random amount of it.
 	var target = stealable[Math.floor(Math.random() * stealable.length)];
 	var stolenQty = Math.floor((Math.random() * 1000)); //Steal up to 1000.
 	stolenQty = Math.min(stolenQty,target.total);
-	if (stolenQty > 0) { gameLog('Bandits stole ' + stolenQty + ' ' + target.name); }
+	if (stolenQty > 0) { gameLog(stolenQty + ' ' + target.name + " stolen by " + attacker.name); }
 	target.total -= stolenQty;
 	if (target.total <= 0) {
 		//some will leave
-		var leaving = Math.ceil(population.bandits * Math.random() * (1/8));
-		population.bandits -= leaving;
-		population.banditsCas -= leaving;
+		var leaving = Math.ceil(population[attacker.id] * Math.random() * attacker.lootFatigue);
+		population[attacker.id] -= leaving;
+		population[attacker.id+"Cas"] -= leaving;
 		updateMobs();
 	}
-	population.bandits -= 1; //Bandits leave after stealing something.
-	population.banditsCas -= 1;
-	if (population.banditsCas < 0) { population.banditsCas = 0; }
+	population[attacker.id] -= 1; // Attackers leave after stealing something.
+	population[attacker.id+"Cas"] -= 1;
+	if (population[attacker.id+"Cas"] < 0) { population[attacker.id+"Cas"] = 0; }
 	updateResourceTotals();
 	updatePopulation();
 }
 
-function barbariansKill()
+function doSack(attacker)
 {
-	//Kill people, see wolves
-	if (population.healthy > 0){
-		//No honor in killing the sick who will starve anyway
-		var target = randomHealthyWorker(); //Choose random worker
-		population.barbarians -= 1; //Barbarians always disappear after killing
-		population.barbariansCas -= 1;
-		if (population.barbariansCas < 0) { population.barbariansCas = 0; }
-		console.log('Barbarians killed a ' + getJobSingular(target));
-		gameLog('Barbarians killed a ' + getJobSingular(target));
+	var burnable=[tent,whut,cottage,house,mansion,barn,woodstock,stonestock,
+		          tannery,smithy,apothecary,temple,fortification,stable,mill];
 
-		--population.current;
-		--population[target];
-		if (target == "soldiers" || target == "cavalry"){
-			--population[target+"Cas"];
-			if (population[target+"Cas"] < 0){
-				population[target] = 0;
-				population[target+"Cas"] = 0;
-			}
-		}
-		++corpses.total; //Unlike wolves, Barbarians leave corpses behind
-		updatePopulation();
-	} else {
-		var leaving = Math.ceil(population.barbarians * Math.random() * (1/3));
-		population.barbarians -= leaving;
-		population.barbariansCas -= leaving;
-		updateMobs();
-	}
-}
-
-function barbariansLoot()
-{
-	var stealable=[food,wood,stone,skins,herbs,ore,leather,metal];
-	//Steal shit, see bandits
-	var target = stealable[Math.floor(Math.random() * stealable.length)];
-	var stolenQty = Math.floor((Math.random() * 1000)); //Steal up to 1000.
-	stolenQty = Math.min(stolenQty, target.total);
-	if (stolenQty > 0) { gameLog('Barbarians stole ' + stolenQty + ' ' + target.name); }
-	target.total -= stolenQty;
-	if (target.total <= 0){
-		//some will leave
-		var leaving = Math.ceil(population.barbarians * Math.random() * (1/24));
-		population.barbarians -= leaving;
-		population.barbariansCas -= leaving;
-		updateMobs();
-	}
-	population.barbarians -= 1; //Barbarians leave after stealing something.
-	population.barbariansCas -= 1;
-	if (population.barbariansCas < 0) { population.barbariansCas = 0; }
-	updateResourceTotals();
-	updatePopulation();
-}
-
-function barbariansSack()
-{
 	//Destroy buildings
-	var num = Math.random(); //Barbarians attempt to destroy random buildings (and leave if they do)
-	var target;
-	var destroyPhrase = 'destroyed a';
-	if      (num <  1/16) { target = tent; } 
-	else if (num <  2/16) { target = whut; } 
-	else if (num <  3/16) { target = cottage; } 
-	else if (num <  4/16) { target = house; } 
-	else if (num <  5/16) { target = mansion; } 
-	else if (num <  6/16) { target = barn; } 
-	else if (num <  7/16) { target = woodstock; } 
-	else if (num <  8/16) { target = stonestock; } 
-	else if (num <  9/16) { target = tannery; } 
-	else if (num < 10/16) { target = smithy; } 
-	else if (num < 11/16) { target = apothecary; destroyPhrase = 'destroyed an'; } 
-	else if (num < 12/16) { target = temple; } 
-	else if (num < 13/16) { target = fortification; destroyPhrase = 'damaged'; } 
-	else if (num < 14/16) { target = stable; } 
-	else if (num < 15/16) { target = mill; } 
-	else                  { target = barracks; }
+	var target = burnable[Math.floor(Math.random() * burnable.length)];
+
+	// Slightly different phrasing for fortifications
+	var destroyVerb = 'burned';
+	if (target == fortification) { destroyVerb = 'damaged'; } 
 
 	if (target.total > 0){
 		target.total -= 1;
-		gameLog('Barbarians ' + destroyPhrase + ' ' + target.name);
+		gameLog(target.name + ' ' + destroyVerb + ' by ' + attacker.name);
 	} else {
 		//some will leave
-		var leaving = Math.ceil(population.barbarians * Math.random() * (1/112));
-		population.barbarians -= leaving;
-		population.barbariansCas -= leaving;
+		var leaving = Math.ceil(population[attacker.id] * Math.random() * (1/112));
+		population[attacker.id] -= leaving;
+		population[attacker.id+"Cas"] -= leaving;
 		updateMobs();
 	}
 
-	population.barbarians -= 1;
-	population.barbariansCas -= 1;
-	if (population.barbarians < 0) { population.barbarians = 0; }
-	if (population.barbariansCas < 0) { population.barbariansCas = 0; }
+	population[attacker.id] -= 1;
+	population[attacker.id+"Cas"] -= 1;
+	if (population[attacker.id] < 0) { population[attacker.id] = 0; }
+	if (population[attacker.id+"Cas"] < 0) { population[attacker.id+"Cas"] = 0; }
 	updateResourceTotals();
 	updatePopulation();
 }
 
-function barbariansWin()
+function doHavoc()
 {
 	var havoc = Math.random(); //barbarians do different things
-	if      (havoc < 0.3) { barbariansKill(); } 
-	else if (havoc < 0.6) { barbariansLoot(); } 
-	else                  { barbariansSack(); }
+	if      (havoc < 0.3) { doSlaughter(units.barbarians); } 
+	else if (havoc < 0.6) { doLoot(units.barbarians); } 
+	else                  { doSack(units.barbarians); }
 }
 
 function doShades()
 {
-	if (population.wolves >= population.shades/4){
-		population.wolves -= Math.floor(population.shades/4);
-		population.wolvesCas -= population.shades/4;
-		population.shades -= Math.floor(population.shades/4);
-	} else if (population.wolves > 0){
-		population.shades -= Math.floor(population.wolves);
-		population.wolves = 0;
-		population.wolvesCas = 0;
+	if (population.shades <= 0) { return; }
+
+    function shadeAttack(attacker,defender)
+	{
+		var num = math.min((population[attacker.id]/4),population[defender.id]);
+		//xxx Should we give book and throne credit here?
+		population[defender.id] -= Math.floor(num);
+		population[defender.id+"Cas"] -= num;
+		population[attacker.id] -= Math.floor(num);
 	}
-	if (population.bandits >= population.shades/4){
-		population.bandits -= Math.floor(population.shades/4);
-		population.banditsCas -= population.shades/4;
-		population.shades -= Math.floor(population.shades/4);
-	} else if (population.bandits > 0){
-		population.shades -= Math.floor(population.bandits);
-		population.bandits = 0;
-		population.banditsCas = 0;
-	}
-	if (population.barbarians >= population.shades/4){
-		population.barbarians -= Math.floor(population.shades/4);
-		population.barbariansCas -= population.shades/4;
-		population.shades -= Math.floor(population.shades/4);
-	} else if (population.bandits > 0){
-		population.shades -= Math.floor(population.barbarians);
-		population.barbarians = 0;
-		population.barbariansCas = 0;
-	}
+
+	shadeAttack(units.wolves);
+	shadeAttack(units.bandits);
+	shadeAttack(units.barbarians);
+
 	population.shades = Math.floor(population.shades * 0.95);
 	if (population.shades < 0) { population.shades = 0; }
-	updatePopulation();
 }
 
 function doEsiege()
 {
-	var i;
-	var hit;
-	var firing;
+	if (population.esiege <= 0) { return; }
+
+	var i, hit, firing;
 	//First check there are enemies there defending them
 	if (population.bandits > 0 || population.barbarians > 0){
 		if (fortification.total > 0){ //needs to be something to fire at
@@ -4346,64 +4089,33 @@ function doSiege()
 	}
 }
 
+function doSkirmish(attacker)
+{
+	if (population[attacker.id] <= 0) { return; }
+
+	if (population.soldiers > 0 || population.cavalry > 0){ //FIGHT!
+		//handles cavalry
+		if (population.cavalry > 0){
+			doFight(attacker,units.cavalry);
+		}
+		//handles soldiers
+		if (population.soldiers > 0){
+			doFight(attacker,units.soldiers);
+		}
+		//Updates population figures (including total population)
+		updatePopulation();
+	} else {
+		attacker.onWin();
+	}
+}
+
+//Handling mob attacks
 function doMobs() {
-	//Handling wolf attacks (this is complicated)
-	if (population.wolves > 0){
-		if (population.soldiers > 0 || population.cavalry > 0){ //FIGHT!
-			//handles cavalry
-			if (population.cavalry > 0){
-				wolvesVcavalry();
-			}
-			//handles soldiers
-			if (population.soldiers > 0){
-				wolvesVsoldiers();
-			}
-			//Updates population figures (including total population)
-			updatePopulation();
-		} else {
-			wolvesWin();
-		}
-	}
-	if (population.bandits > 0){
-		if (population.soldiers > 0 || population.cavalry > 0){//FIGHT!
-			//Handles cavalry
-			if (population.cavalry > 0){
-				banditsVcavalry();
-			}
-			//Handles infantry
-			if (population.soldiers > 0){
-				banditsVsoldiers();
-			}
-			//Updates population figures (including total population)
-			updatePopulation();
-		} else {
-			banditsWin();
-		}
-	}
-	if (population.barbarians){
-		if (population.soldiers > 0 || population.cavalry > 0){//FIGHT!
-			//Handles cavalry
-			if (population.cavalry > 0){
-				barbariansVcavalry();
-			}
-			//Handles infantry
-			if (population.soldiers > 0){
-				barbariansVsoldiers();
-			}
-			//Updates population figures (including total population)
-			updatePopulation();
-		} else {
-			barbariansWin();
-		}	
-	}
-
-	if (population.shades > 0){
-		doShades();
-	}
-
-	if (population.esiege > 0){
-		doEsiege();
-	}
+	doSkirmish(units.wolves);
+	doSkirmish(units.bandits);
+	doSkirmish(units.barbarians);
+	doShades();
+	doEsiege();
 }
 
 function raidWin() {
@@ -4450,11 +4162,11 @@ function doRaid() {
 			/* FIGHT! */
 			//Handles cavalry
 			if (population.cavalryParty > 0){
-				cavalryPartyVesoldiers();
+				doFight(units.cavalryParty,units.esoldiers);
 			}
 			//Handles infantry
 			if (population.soldiersParty > 0){
-				soldiersPartyVesoldiers();
+				doFight(units.soldiersParty,units.esoldiers);
 			}
 			//Handles siege engines
 			if (population.siege > 0 && population.eforts > 0){ //need to be siege weapons and something to fire at
@@ -4658,6 +4370,7 @@ window.setInterval(function(){
 	//Timers - routines that do not occur every second
 	
 	//Checks when mobs will attack
+	//xxx Perhaps this should go after the doMobs() call, so we give 1 turn's warning?
 	var check;
 	if (population.current + population.zombies > 0) { attackCounter += 1; }
 	if (population.current + population.zombies > 0 && attackCounter > (60 * 5)){ //Minimum 5 minutes
