@@ -64,6 +64,265 @@ civSizes.getMaxPop = function(civType) {
 	return -1;
 };
 
+var upgradeData = {
+skinning: {
+	id:"skinning",
+	name:"Skinning",
+	require: { skins: 10 },
+	effectText:"Farmers can collect skins" 
+},
+harvesting: {
+	id:"harvesting",
+	name:"Harvesting",
+	require: { herbs: 10 },
+	effectText:"Woodcutters can collect herbs" 
+},
+prospecting: {
+	id:"prospecting",
+	name:"Prospecting",
+	require: { ore: 10 },
+	effectText:"Miners can collect ore" 
+},
+domestication: {
+	id:"domestication",
+	name:"Domestication",
+	require: { leather: 20 },
+	effectText:"Increase farmer food output" 
+},
+ploughshares: {
+	id:"ploughshares",
+	name:"Ploughshares",
+	require: { metal:20 },
+	effectText:"Increase farmer food output" 
+},
+irrigation: {
+	id:"irrigation",
+	name:"Irrigation",
+	require: {
+		wood: 500,
+		stone: 200 },
+	effectText:"Increase farmer food output" 
+},
+butchering: {
+	id:"butchering",
+	name:"Butchering",
+	require: {
+		// Skinning,
+		leather: 40 },
+	effectText:"More farmers collect more skins" 
+},
+gardening: {
+	id:"gardening",
+	name:"Gardening",
+	require: {
+		// Harvesting,
+		herbs: 40 },
+	effectText:"More woodcutters collect more herbs" 
+},
+extraction: {
+	id:"extraction",
+	name:"Extraction",
+	require: {
+		// Prospecting,
+		metal: 40 },
+	effectText:"More miners collect more ore" 
+},
+flensing: {
+	id:"flensing",
+	name:"Flensing",
+	require: { metal: 1000 },
+	effectText:"Collect skins more frequently" 
+},
+macerating: {
+	id:"macerating",
+	name:"Macerating",
+	require: {
+		leather: 500,
+		stone: 500 },
+	effectText:"Collect ore more frequently" 
+},
+croprotation: {
+	id:"croprotation",
+	name:"Crop Rotation",
+	require: {
+		herbs: 5000,
+		piety: 1000 },
+	effectText:"Increase farmer food output" 
+},
+selectivebreeding: {
+	id:"selectivebreeding",
+	name:"Selective Breeding",
+	require: {
+		skins: 5000,
+		piety: 1000 },
+	effectText:"Increase farmer food output" 
+},
+fertilisers: {
+	id:"fertilisers",
+	name:"Fertilisers",
+	require: {
+		ore: 5000,
+		piety: 1000 },
+	effectText:"Increase farmer food output" 
+},
+masonry: {
+	id:"masonry",
+	name:"Masonry",
+	require: {
+		wood: 100,
+		stone: 100 },
+	effectText:"Unlock more buildings and upgrades" 
+},
+construction: {
+	id:"construction",
+	name:"Construction",
+	require: {
+		wood: 1000,
+		stone: 1000 },
+	effectText:"Unlock more buildings and upgrades" 
+},
+architecture: {
+	id:"architecture",
+	name:"Architecture",
+	require: {
+		wood: 10000,
+		stone: 10000 },
+	effectText:"Unlock more buildings and upgrades" 
+},
+tenements: {
+	id:"tenements",
+	name:"Tenements",
+	require: {
+		food: 200,
+		wood: 500,
+		stone: 500 },
+	effectText:"Houses support +2 workers" 
+},
+slums: {
+	id:"slums",
+	name:"Slums",
+	require: {
+		food: 500,
+		wood: 1000,
+		stone: 1000 },
+	effectText:"Houses support +2 workers" 
+},
+graneries: {
+	id:"granaries",
+	name:"Granaries",
+	require: {
+		wood: 1000,
+		stone: 1000 },
+	effectText:"Barns store double the amount of food" 
+},
+palisade: {
+	id:"palisade",
+	name:"Palisade",
+	require: {
+		wood: 2000,
+		stone: 1000 },
+	effectText:"Enemies do less damage" 
+},
+weaponry: {
+	id:"weaponry",
+	name:"Basic Weaponry",
+	require: {
+		wood: 500,
+		metal: 500 },
+	effectText:"Improve soldiers" 
+},
+shields: {
+	id:"shields",
+	name:"Basic Shields",
+	require: {
+		wood: 500,
+		leather: 500 },
+	effectText:"Improve soldiers" 
+},
+horseback: {
+	id:"horseback",
+	name:"Horseback Riding",
+	require: {
+		food: 500,
+		wood: 500 },
+	effectText:"Build stables" 
+},
+wheel: {
+	id:"wheel",
+	name:"The Wheel",
+	require: {
+		wood: 500,
+		stone: 500 },
+	effectText:"Build mills" 
+},
+writing: {
+	id:"writing",
+	name:"Writing",
+	require: {
+		skins: 500 },
+	effectText:"Increase cleric piety generation" 
+},
+administration: {
+	id:"administration",
+	name:"Administration",
+	require: {
+		stone: 1000,
+		skins: 1000 },
+	effectText:"Increase land gained from raiding" 
+},
+codeoflaws: {
+	id:"codeoflaws",
+	name:"Code of Laws",
+	require: {
+		stone: 1000,
+		skins: 1000 },
+	effectText:"Reduce unhappiness caused by overcrowding" 
+},
+mathematics: {
+	id:"mathematics",
+	name:"Mathematics",
+	require: {
+		herbs: 1000,
+		piety: 1000 },
+	effectText:"Create siege engines" 
+},
+aesthetics: {
+	id:"aesthetics",
+	name:"Aesthetics",
+	require: { piety: 5000 },
+	effectText:"Building temples increases happiness" 
+},
+civilservice: {
+	id:"civilservice",
+	name:"Civil Service",
+	require: { piety: 5000 },
+	effectText:"Increase basic resources from clicking" 
+},
+feudalism: {
+	id:"feudalism",
+	name:"Feudalism",
+	require: { piety: 10000 },
+	effectText:"Further increase basic resources from clicking" 
+},
+guilds: {
+	id:"guilds",
+	name:"Guilds",
+	require: { piety: 10000 },
+	effectText:"Increase special resources from clicking" 
+},
+serfs: {
+	id:"serfs",
+	name:"Serfs",
+	require: { piety: 20000 },
+	effectText:"Unemployed workers increase resources from clicking" 
+},
+nationalism: {
+	id:"nationalism",
+	name:"Nationalism",
+	require: { piety: 50000 },
+	effectText:"Soldiers increase basic resources from clicking" 
+} };
+
 // Initialize Data
 var civName = "Woodstock",
 rulerName = "Orteil",
