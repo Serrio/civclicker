@@ -23,7 +23,7 @@ var version = 19;
 var versionData = {
 	major:  1,
 	minor:  1,
-	sub:   27,
+	sub:   28,
 	mod:   "alpha"
 };
 var saveTag1 = "civ";
@@ -781,7 +781,7 @@ gloryTimer = 0,
 cureCounter = 0,
 graceCost = 1000,
 walkTotal = 0,
-autosave = "on",
+autosave = true,
 autosaveCounter = 1,
 customIncrements = false,
 usingWords = false,
@@ -2956,34 +2956,22 @@ function tradeTimer(){
 	if (upgrades.currency) { trader.timer += 5; }
 	if (upgrades.commerce) { trader.timer += 5; }
 	if (upgrades.stay) { trader.timer += 5; }
-	//then set material and requested values
-	var random = Math.random();
-	trader.requested = Math.ceil(Math.random() * 20);
-	if (random < 1/8){
-		trader.material = food;
-		trader.requested *= 5000;
-	} else if (random < 2/8){
-		trader.material = wood;
-		trader.requested *= 5000;
-	} else if (random < 3/8){
-		trader.material = stone;
-		trader.requested *= 5000;
-	} else if (random < 4/8){
-		trader.material = skins;
-		trader.requested *= 500;
-	} else if (random < 5/8){
-		trader.material = herbs;
-		trader.requested *= 500;
-	} else if (random < 6/8){
-		trader.material = ore;
-		trader.requested *= 500;
-	} else if (random < 7/8){
-		trader.material = leather;
-		trader.requested *= 250;
-	} else {
-		trader.material = metal;
-		trader.requested *= 250;
-	}
+
+	//then set material and requested amount
+	var tradeItems =   // Item and base amount
+		[{material : food, 		requested : 5000 },
+		{ material : wood, 		requested : 5000 },
+		{ material : stone, 	requested : 5000 },
+		{ material : skins, 	requested :  500 },
+		{ material : herbs, 	requested :  500 },
+		{ material : ore, 		requested :  500 },
+		{ material : leather, 	requested :  250 },
+		{ material : metal, 	requested :  250 }];
+
+	// Randomly select and merge one of the above.
+	mergeObj(trader, tradeItems[Math.floor(Math.random() * tradeItems.length)]);
+	trader.requested *= Math.ceil(Math.random() * 20); // Up to 20x amount
+
 	document.getElementById("tradeContainer").style.display = "block";
 	document.getElementById("tradeType").innerHTML = trader.material.name;
 	document.getElementById("tradeRequested").innerHTML = prettify(trader.requested);
@@ -3116,6 +3104,9 @@ function load(loadType){
 		}
 		loadVar.population.apothecaries = undefined; 
 	}
+
+	// autosave changed to a bool (v1.1.28)
+	loadVar.autosave = (loadVar.autosave !== "off");
 	////////////////////////////////////////////////////
 	//
 	//xxx Why are we saving and restoring the names of basic resources?
@@ -3213,6 +3204,7 @@ function load(loadType){
 	document.getElementById("wonderNameP").innerHTML = wonder.name;
 	document.getElementById("wonderNameC").innerHTML = wonder.name;
 	document.getElementById("startWonder").disabled = (wonder.completed || wonder.building);
+	document.getElementById("toggleAutosave").innerHTML = autosave ? "Disable Autosave" : "Enable Autosave";
 		
 	//Upgrade-related checks
 	efficiency.farmers = 0.2 + (0.1 * upgrades.domestication) + (0.1 * upgrades.ploughshares) + (0.1 * upgrades.irrigation) + (0.1 * upgrades.croprotation) + (0.1 * upgrades.selectivebreeding) + (0.1 * upgrades.fertilisers) + (0.1 * upgrades.blessing);
@@ -3224,9 +3216,10 @@ function load(loadType){
 
 function save(savetype){
 	var xmlhttp;
-	//Create objects and populate them with the variables, these will be stored in cookies
-	//Each individual cookie stores only ~4000 characters, therefore split currently across two cookies
-	//Save files now also stored in localStorage, cookies relegated to backup
+	//Create objects and populate them with the variables, these will be 
+	//stored in HTML5 localStorage.  Split into two vars for historical
+	//reasons (cookies didn't allow more than 4k).  Cookie support is now
+	//deprecated.
 
 	var saveVar = {
 		food:food,
@@ -3292,9 +3285,10 @@ function save(savetype){
 	saveVar.population.corpses = saveVar.corpses.total; // v1.1.13 change
 	////////////////////////////////////////////////////
 
-	//Create the cookies
-	bake_cookie(saveTag1,saveVar);
-	bake_cookie(saveTag2,saveVar2);
+	// Delete the old cookie-based save to avoid mismatched saves
+	document.cookie = [saveTag1, "=; expires=Thu, 01-Jan-1970 00:00:01 GMT; path=/; domain=.", window.location.host.toString()].join("");
+	document.cookie = [saveTag2, "=; expires=Thu, 01-Jan-1970 00:00:01 GMT; path=/; domain=.", window.location.host.toString()].join("");
+
 	//set localstorage
 	try {
 		localStorage.setItem(saveTag1, JSON.stringify(saveVar));
@@ -3312,8 +3306,7 @@ function save(savetype){
 		document.getElementById("impexpField").value = compressed;
 		gameLog("Saved game and exported to base64");
 	}
-	if ((read_cookie(saveTag1) && read_cookie(saveTag2)) 
-	|| (localStorage.getItem(saveTag1) && localStorage.getItem(saveTag2))){
+	if (localStorage.getItem(saveTag1) && localStorage.getItem(saveTag2)) {
 		console.log("Savegame exists");
 		if (savetype == "auto"){
 			console.log("Autosave");
@@ -3344,15 +3337,9 @@ function save(savetype){
 
 function toggleAutosave(){
 	//Turns autosave on or off. Default on.
-	if (autosave == "on"){
-		console.log("Autosave toggled to off");
-		autosave = "off";
-		document.getElementById("toggleAutosave").innerHTML = "Enable Autosave";
-	} else {
-		console.log("Autosave toggled to on");
-		autosave = "on";
-		document.getElementById("toggleAutosave").innerHTML = "Disable Autosave";
-	}
+	autosave = !autosave;
+	console.log("Autosave toggled to " + (autosave ? "on" : "off"));
+	document.getElementById("toggleAutosave").innerHTML = autosave ? "Disable Autosave" : "Enable Autosave";
 }
 
 function deleteSave(){
@@ -4204,75 +4191,50 @@ function doRaid() {
 }
 
 function doLabourers() {
-	if (wonder.building){
-		if (wonder.progress >= 100){
-			//Wonder is finished! First, send workers home
-			population.unemployed += population.labourers;
-			population.unemployedIll += population.labourersIll;
-			population.labourers = 0;
-			population.labourersIll = 0;
-			updatePopulation();
-			//hide limited notice
-			document.getElementById("lowResources").style.display = "none";
-			//then set wonder.completed so things will be updated appropriately
-			wonder.completed = true;
-			//check to see if neverclick was achieved
-			if (!achievements.neverclick && resourceClicks <= 22){
-				achievements.neverclick = 1;
-				gameLog("Achievement Unlocked: Neverclick!");
-				updateAchievements();
-			}
-		} else {
-			//we're still building
-			//first, check for labourers
-			if (population.labourers > 0){
-				//then check we have enough resources
-				if (food.total >= population.labourers && stone.total >= population.labourers && wood.total >= population.labourers && skins.total >= population.labourers && herbs.total >= population.labourers && ore.total >= population.labourers && metal.total >= population.labourers && leather.total >= population.labourers && piety.total >= population.labourers){
-					//remove resources
-					food.total -= population.labourers;
-					wood.total -= population.labourers;
-					stone.total -= population.labourers;
-					skins.total -= population.labourers;
-					herbs.total -= population.labourers;
-					ore.total -= population.labourers;
-					leather.total -= population.labourers;
-					metal.total -= population.labourers;
-					piety.total -= population.labourers;
-					//increase progress
-					wonder.progress += population.labourers / (1000000 * Math.pow(1.5,wonder.total));
-					//hide limited notice
-					document.getElementById("lowResources").style.display = "none";
-				} else if (food.total >= 1 && stone.total >= 1 && wood.total >= 1 && skins.total >= 1 && herbs.total >= 1 && ore.total >= 1 && metal.total >= 1 && leather.total >= 1 && piety.total >= 1){
-					//or at least some resources
-					var num = Math.min(food.total,wood.total,stone.total,skins.total,herbs.total,ore.total,leather.total,metal.total,piety.total);
-					//remove resources
-					food.total -= num;
-					wood.total -= num;
-					stone.total -= num;
-					skins.total -= num;
-					herbs.total -= num;
-					ore.total -= num;
-					leather.total -= num;
-					metal.total -= num;
-					piety.total -= num;
-					//increase progress
-					wonder.progress += num / (1000000 * Math.pow(1.5,wonder.total));
-					//show limited notice
-					document.getElementById("lowResources").style.display = "block";
-					updateWonderLimited();
-				} else {
-					//we don't have enough resources to do any work
-					//show limited notice
-					document.getElementById("lowResources").style.display = "block";
-					updateWonderLimited();
-				}
-			} else {
-				//we're not working on the wonder, so hide limited notice
-				document.getElementById("lowResources").style.display = "none";
-			}
+	if (!wonder.building) { return; }
+
+	if (wonder.progress >= 100){
+		//Wonder is finished! First, send workers home
+		population.unemployed += population.labourers;
+		population.unemployedIll += population.labourersIll;
+		population.labourers = 0;
+		population.labourersIll = 0;
+		updatePopulation();
+		//hide limited notice
+		document.getElementById("lowResources").style.display = "none";
+		//then set wonder.completed so things will be updated appropriately
+		wonder.completed = true;
+		//check to see if neverclick was achieved
+		if (!achievements.neverclick && resourceClicks <= 22){
+			achievements.neverclick = 1;
+			gameLog("Achievement Unlocked: Neverclick!");
+			updateAchievements();
 		}
-		updateWonder();
+	} else {
+		//we're still building
+		
+		// First, check our labourers and other resources to see if we're limited.
+		var num = Math.min(population.labourers,food.total,wood.total,stone.total,skins.total,herbs.total,ore.total,leather.total,metal.total,piety.total);
+
+		//remove resources
+		food.total -= num;
+		wood.total -= num;
+		stone.total -= num;
+		skins.total -= num;
+		herbs.total -= num;
+		ore.total -= num;
+		leather.total -= num;
+		metal.total -= num;
+		piety.total -= num;
+
+		//increase progress
+		wonder.progress += num / (1000000 * Math.pow(1.5,wonder.total));
+		
+		//show/hide limited notice
+		setElemDisplay(document.getElementById("lowResources"),(num < population.labourers));
+		updateWonderLimited();
 	}
+	updateWonder();
 }	
 
 // Start of init program code
@@ -4282,7 +4244,7 @@ function initCivclicker() {
 	addPartyRows();
 
 	//Prompt player for names
-	if (!read_cookie("civ") && !localStorage.getItem("civ")){
+	if (!localStorage.getItem("civ") && !read_cookie("civ")) {
 		renameCiv();
 		renameRuler();
 	}
@@ -4315,7 +4277,7 @@ window.setInterval(function(){
 	//var start = new Date().getTime();
 	
 	//Autosave
-	if (autosave == "on") {
+	if (autosave) {
 		autosaveCounter += 1;
 		if (autosaveCounter >= 60){ //Currently autosave is every minute. Might change to 5 mins in future.
 			save("auto");

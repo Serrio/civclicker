@@ -22,8 +22,20 @@
 </head>
 <body class="hasBackground">
 <h1>CivClicker Updates</h1>
-	<h2>2014-05-??: v1.1.28(alpha)</h2>
+	<h2>2014-05-21: v1.1.28(alpha)</h2>
 	<p>
+		Discontinue cookie-based saves; they were deprecated four months ago,
+		and the risk of losing data by running into the 4k limit makes it risky
+		to add more fields to the savegame structures.  HTML5 localStorage is 
+		supported by all major browsers back to IE8, and we're already using
+		other constructs that require at least IE9.  The game will still try to
+		load from cookies as a last-ditch attempt if the localStorage load fails,
+		but it will delete the cookie saves on save to cle
+	</p><p>
+		Refactor the labourer and trader code.
+	</p><p>
+		Ensure that the autosave button is properly captioned on load (Original Bug).
+	</p><p>
 		Consistently use double quotes for JS strings (except for HTML), and
 		tabs for indentation.
 	</p>
