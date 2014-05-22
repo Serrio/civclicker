@@ -1417,10 +1417,10 @@ function updateUpgrades(){
 // havePrereqs - Does the player have the prereqs? [optional; if omitted, assume no prereqs]
 function updateUpgrade(upgradeId, havePrice, havePrereqs) {
 	if (havePrereqs === undefined) { havePrereqs = true; } // No prereqs
-	setElemDisplay(document.getElementById(upgradeId+"Line"),(havePrereqs && (upgrades[upgradeId] != 1)));
-	setElemDisplay(document.getElementById("P"+upgradeId),(upgrades[upgradeId] == 1));
+	setElemDisplay(document.getElementById(upgradeId+"Line"),(havePrereqs && !upgrades[upgradeId]));
+	setElemDisplay(document.getElementById("P"+upgradeId),upgrades[upgradeId]);
 	// If we can get it but haven't yet, it's visible; update its enabled status.
-	if (havePrereqs && upgrades[upgradeId] != 1){ document.getElementById(upgradeId).disabled = (!havePrice); }
+	if (havePrereqs && !upgrades[upgradeId]){ document.getElementById(upgradeId).disabled = (!havePrice); }
 }
 
 	updateUpgrade("domestication"    , (leather.total >= 20));
@@ -1441,7 +1441,7 @@ function updateUpgrade(upgradeId, havePrice, havePrereqs) {
 	//BUILDING TECHS
 	//masonry
 	updateUpgrade("masonry"          , (wood.total >= 100 && stone.total >= 100));
-	if (upgrades.masonry == 1){
+	if (upgrades.masonry){
 		//unlock masonry buildings
 		setElemDisplay(document.getElementById("cottageRow"),true);
 		setElemDisplay(document.getElementById("tanneryRow"),true);
@@ -1457,7 +1457,7 @@ function updateUpgrade(upgradeId, havePrice, havePrereqs) {
 	}
 	//construction
 	updateUpgrade("construction"     , (wood.total >= 1000 && stone.total >= 1000), upgrades.masonry);
-	if (upgrades.construction == 1){
+	if (upgrades.construction){
 		//unlock construction buildings
 		setElemDisplay(document.getElementById("houseRow"),true);
 		//unlock construction upgrades
@@ -1468,7 +1468,7 @@ function updateUpgrade(upgradeId, havePrice, havePrereqs) {
 	}
 	//architecture
 	updateUpgrade("architecture"     , (wood.total >= 10000 && stone.total >= 10000), upgrades.construction);
-	if (upgrades.architecture == 1){
+	if (upgrades.architecture){
 		//unlock architecture buildings
 		setElemDisplay(document.getElementById("mansionRow"),true);
 		setElemDisplay(document.getElementById("fortificationRow"),true);
@@ -1481,12 +1481,12 @@ function updateUpgrade(upgradeId, havePrice, havePrereqs) {
 	} 
 	//wheel
 	updateUpgrade("wheel"            , (wood.total >= 500 && stone.total >= 500));
-	if (upgrades.wheel == 1){
+	if (upgrades.wheel){
 		setElemDisplay(document.getElementById("millRow"),true);
 	}
 	//horseback
 	updateUpgrade("horseback"        , (food.total >= 500 && wood.total >= 500));
-	if (upgrades.horseback == 1){
+	if (upgrades.horseback){
 		setElemDisplay(document.getElementById("stableRow"),true);
 		setElemDisplay(document.getElementById("cavalryPartyRow"),true);
 	}
@@ -1498,24 +1498,24 @@ function updateUpgrade(upgradeId, havePrice, havePrereqs) {
 	updateUpgrade("weaponry"         , (wood.total >= 500 && metal.total >= 500), upgrades.masonry);
 	updateUpgrade("shields"          , (wood.total >= 500 && leather.total >= 500), upgrades.masonry);
 	updateUpgrade("writing"          , (skins.total >= 500), upgrades.masonry);
-	setElemDisplay(document.getElementById("writingTech"), (upgrades.writing == 1));
+	setElemDisplay(document.getElementById("writingTech"), (upgrades.writing));
 	updateUpgrade("administration"   , (stone.total >= 1000 && skins.total >= 1000));
 	updateUpgrade("codeoflaws"       , (stone.total >= 1000 && skins.total >= 1000));
 	updateUpgrade("mathematics"      , (herbs.total >= 1000 && piety.total >= 1000));
-	setElemDisplay(document.getElementById("siegeRow"), (upgrades.mathematics == 1));
+	setElemDisplay(document.getElementById("siegeRow"), (upgrades.mathematics));
 	updateUpgrade("aesthetics"       , (piety.total >= 5000));
 	updateUpgrade("civilservice"     , (piety.total >= 5000), upgrades.architecture);
-	setElemDisplay(document.getElementById("civilTech"), (upgrades.civilservice == 1));
+	setElemDisplay(document.getElementById("civilTech"), (upgrades.civilservice));
 	updateUpgrade("feudalism"        , (piety.total >= 10000));
 	updateUpgrade("guilds"           , (piety.total >= 10000));
 	updateUpgrade("serfs"            , (piety.total >= 20000));
 	updateUpgrade("nationalism"      , (piety.total >= 50000));
 
 	//deity techs
-	setElemDisplay(document.getElementById("deityLine"),(upgrades.deity != 1));
-	setElemDisplay(document.getElementById("Pworship"),(upgrades.deity == 1));
-	document.getElementById("renameDeity").disabled = (upgrades.deity != 1);
-	if (upgrades.deity == 1){
+	setElemDisplay(document.getElementById("deityLine"),(!upgrades.deity));
+	setElemDisplay(document.getElementById("Pworship"),(upgrades.deity));
+	document.getElementById("renameDeity").disabled = (!upgrades.deity);
+	if (upgrades.deity){
 		setElemDisplay(document.getElementById("deitySpecialisation"),(deity.type == ""));
 		setElemDisplay(document.getElementById("battleUpgrades"),(deity.type == "Battle"));
 		setElemDisplay(document.getElementById("fieldsUpgrades"),(deity.type == "the Fields"));
@@ -1524,14 +1524,14 @@ function updateUpgrade(upgradeId, havePrice, havePrereqs) {
 		setElemDisplay(document.getElementById("catsUpgrades"),(deity.type == "Cats"));
 	}
 	//standard
-	setElemDisplay(document.getElementById("standardLine"),(upgrades.standard != 1));
-	setElemDisplay(document.getElementById("Pstandard"),(upgrades.standard == 1));
-	setElemDisplay(document.getElementById("conquest"),(upgrades.standard == 1));
-	if (upgrades.standard == 1) { updateTargets(); }
+	setElemDisplay(document.getElementById("standardLine"),!upgrades.standard);
+	setElemDisplay(document.getElementById("Pstandard"),upgrades.standard);
+	setElemDisplay(document.getElementById("conquest"),upgrades.standard);
+	if (upgrades.standard) { updateTargets(); }
 
 	// Another internal convenience function (a subset of updateUpgrade())
 	function enableIfOwned(upgradeId) {
-		if (upgrades[upgradeId] == 1){
+		if (upgrades[upgradeId]){
 			document.getElementById(upgradeId).disabled = true;
 			setElemDisplay(document.getElementById("P"+upgradeId),true); } 
 	}
@@ -1554,15 +1554,15 @@ function updateUpgrade(upgradeId, havePrice, havePrereqs) {
 	enableIfOwned("secrets");
 
 	//trade
-	setElemDisplay(document.getElementById("tradeLine"),(upgrades.trade != 1));
-	setElemDisplay(document.getElementById("Ptrade"),(upgrades.trade == 1));
-	setElemDisplay(document.getElementById("tradeUpgradeContainer"),(upgrades.trade == 1));
+	setElemDisplay(document.getElementById("tradeLine"),!upgrades.trade);
+	setElemDisplay(document.getElementById("Ptrade"),upgrades.trade);
+	setElemDisplay(document.getElementById("tradeUpgradeContainer"),upgrades.trade);
 	updateUpgrade("currency"         , (gold.total >= 10 && ore.total >= 1000));
 	updateUpgrade("commerce"         , (gold.total >= 100 && ore.total >= 10000));
 }
 
 function updateDeity(){
-	if (upgrades.deity == 1){
+	if (upgrades.deity){
 		//Update page with deity details
 		document.getElementById("deity" + deity.seniority + "Name").innerHTML = deity.name;
 		document.getElementById("deity" + deity.seniority + "Type").innerHTML = (deity.type) ? ", deity of "+deity.type : "";
@@ -1953,7 +1953,7 @@ function createBuilding(building,num){
 		//If building was graveyard, create graves
 		if (building == graveyard) { digGraves(num); }
 		//if building was temple and aesthetics has been activated, increase happiness
-		if (building == temple && upgrades.aesthetics == 1){
+		if (building == temple && upgrades.aesthetics){
 			var templeProp = num * 25 / population.current; //if population is large, temples have less effect
 			mood(templeProp);
 		}
@@ -2221,15 +2221,15 @@ function upgrade(name){
 		ore.total -= 10;
 		document.getElementById("extraction").disabled = false; //Unlock Extraction
 	}
-	if (name == "butchering" && leather.total >= 40 && upgrades.skinning == 1){
+	if (name == "butchering" && leather.total >= 40 && upgrades.skinning){
 		upgrades.butchering = 1;
 		leather.total -= 40;
 	}
-	if (name == "gardening" && herbs.total >= 40 && upgrades.harvesting == 1){
+	if (name == "gardening" && herbs.total >= 40 && upgrades.harvesting){
 		upgrades.gardening = 1;
 		herbs.total -= 40;
 	}
-	if (name == "extraction" && metal.total >= 40 && upgrades.prospecting == 1){
+	if (name == "extraction" && metal.total >= 40 && upgrades.prospecting){
 		upgrades.extraction = 1;
 		metal.total -= 40;
 	}
@@ -3378,7 +3378,7 @@ function reset(){
 	var msg = "Really reset? You will keep past deities and wonders (and cats)"; //Check player really wanted to do that.
 	if (!confirm(msg)) { return false; } // declined
 
-	if (upgrades.deity == 1){
+	if (upgrades.deity){
 		if (oldDeities){
 			//Relegates current deity to the oldDeities table.
 			if (deity.type){
@@ -3709,7 +3709,7 @@ function doFarmers() {
 	food.net = population.farmers * (1 + (efficiency.farmers * efficiency.happiness)) * (1 + efficiency.pestBonus) * (1 + (wonder.food/10)) * (1 + walkTotal/120) * (1 + mill.total * millMod / 200); //Farmers farm food
 	food.net -= population.current; //The living population eats food.
 	food.total += food.net;
-	if (upgrades.skinning == 1 && population.farmers > 0){ //and sometimes get skins
+	if (upgrades.skinning && population.farmers > 0){ //and sometimes get skins
 		var num_skins = food.specialchance * (food.increment + (upgrades.butchering * population.farmers / 15.0)) * (1 + (wonder.skins/10));
 		skins.total += rndRound(num_skins);
 	}
@@ -3717,7 +3717,7 @@ function doFarmers() {
 function doWoodcutters() {
 	wood.net = population.woodcutters * (efficiency.woodcutters * efficiency.happiness) * (1 + (wonder.wood/10)); //Woodcutters cut wood
 	wood.total += wood.net;
-	if (upgrades.harvesting == 1 && population.woodcutters > 0){ //and sometimes get herbs
+	if (upgrades.harvesting && population.woodcutters > 0){ //and sometimes get herbs
 		var num_herbs = wood.specialchance * (wood.increment + (upgrades.gardening * population.woodcutters / 5.0)) * (1 + (wonder.wood/10));
 		herbs.total += rndRound(num_herbs);
 	}
@@ -3726,7 +3726,7 @@ function doWoodcutters() {
 function doMiners() {
 	stone.net = population.miners * (efficiency.miners * efficiency.happiness) * (1 + (wonder.stone/10)); //Miners mine stone
 	stone.total += stone.net;
-	if (upgrades.prospecting == 1 && population.miners > 0){ //and sometimes get ore
+	if (upgrades.prospecting && population.miners > 0){ //and sometimes get ore
 		var num_ore = stone.specialchance * (stone.increment + (upgrades.extraction * population.miners / 5.0)) * (1 + (wonder.ore/10));
 		ore.total += rndRound(num_ore);
 	}
