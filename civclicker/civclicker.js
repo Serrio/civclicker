@@ -23,7 +23,7 @@ var version = 19;
 var versionData = {
 	major:  1,
 	minor:  1,
-	sub:   29,
+	sub:   30,
 	mod:   "alpha"
 };
 var saveTag1 = "civ";
@@ -946,6 +946,7 @@ efficiency = {
 	cavalry:0.08,
 	soldiersParty:0.05,
 	cavalryParty:0.08,
+	siege:0.1, //each siege engine has 10% to hit
 	wolves:0.05,
 	bandits:0.07,
 	barbarians:0.09,
@@ -1449,11 +1450,88 @@ function updateParty(){
 }
 
 
+function getUpgradeRowText(upgradeObj)
+{
+	if (upgradeObj===null || upgradeObj===undefined) { return ""; }
+
+	var s = "<span id='"+upgradeObj.id+"Line'>";
+	s += "<button id='"+upgradeObj.id+"' onmousedown=\"upgrade('"+upgradeObj.id+"')\">";
+	s += upgradeObj.name+"<br />("+getReqText(upgradeObj.require)+")</button>";
+	s += "<span class='note'>"+upgradeObj.effectText+"</span><br /></span>";
+ 
+	return s;
+}
+// Dynamically create the purchased upgrades list.
+function addUpgradeRows()
+{
+	document.getElementById("upgradesPane").innerHTML += 
+		  getUpgradeRowText(upgradeData.skinning)
+		+ getUpgradeRowText(upgradeData.harvesting)
+		+ getUpgradeRowText(upgradeData.prospecting)
+		+ "<div id='basicFarming'>"
+		+ getUpgradeRowText(upgradeData.domestication)
+		+ getUpgradeRowText(upgradeData.ploughshares)
+		+ getUpgradeRowText(upgradeData.irrigation)
+		+ "</div>"
+		+ "<div id='specialFarming'>"
+		+ getUpgradeRowText(upgradeData.butchering)
+		+ getUpgradeRowText(upgradeData.gardening)
+		+ getUpgradeRowText(upgradeData.extraction)
+		+ "</div>"
+		+ "<div id='specFreq'>"
+		+ getUpgradeRowText(upgradeData.flensing)
+		+ getUpgradeRowText(upgradeData.macerating)
+		+ "</div>"
+		+ "<div id='improvedFarming'>"
+		+ getUpgradeRowText(upgradeData.croprotation)
+		+ getUpgradeRowText(upgradeData.selectivebreeding)
+		+ getUpgradeRowText(upgradeData.fertilisers)
+		+ "</div>"
+		+ getUpgradeRowText(upgradeData.masonry)
+		+ getUpgradeRowText(upgradeData.construction)
+		+ getUpgradeRowText(upgradeData.architecture)
+		+ getUpgradeRowText(upgradeData.tenements)
+		+ getUpgradeRowText(upgradeData.slums)
+		+ getUpgradeRowText(upgradeData.granaries)
+		+ getUpgradeRowText(upgradeData.palisade)
+		+ "<div id='masonryTech'>"
+		+ getUpgradeRowText(upgradeData.weaponry)
+		+ getUpgradeRowText(upgradeData.shields)
+		+ getUpgradeRowText(upgradeData.horseback)
+		+ getUpgradeRowText(upgradeData.wheel)
+		+ getUpgradeRowText(upgradeData.writing)
+		+ "<div id='writingTech'>"
+		+ getUpgradeRowText(upgradeData.administration)
+		+ getUpgradeRowText(upgradeData.codeoflaws)
+		+ getUpgradeRowText(upgradeData.mathematics)
+		+ getUpgradeRowText(upgradeData.aesthetics)
+		+ "</div>"
+		+ getUpgradeRowText(upgradeData.civilservice)
+		+ "<div id='civilTech'>"
+		+ getUpgradeRowText(upgradeData.feudalism)
+		+ getUpgradeRowText(upgradeData.guilds)
+		+ getUpgradeRowText(upgradeData.serfs)
+		+ getUpgradeRowText(upgradeData.nationalism)
+		+ "<span id='wonderLine'><br /><button id='startWonder' onmousedown='startWonder()'>"
+		+ "Start Building Wonder</button><br /></span>"
+		+ "</div>"
+		+ "</div>"
+		+ "<h3>Purchased Upgrades</h3>"
+		+ "<div id='purchased'></div>";
+
+/*xxx Maybe convert these later
+		+ getUpgradeRowText(upgradeData.worship)
+		+ getUpgradeRowText(upgradeData.standard)
+		+ getUpgradeRowText(upgradeData.trade)
+		+ getUpgradeRowText(upgradeData.currency)
+*/
+}
+
 function getPUpgradeRowText(upgradeObj)
 {
 	if (upgradeObj===null || upgradeObj===undefined) { return ""; }
 
-    var s = "<span id='P"+upgradeObj.id +"'>"
+	var s = "<span id='P"+upgradeObj.id +"'>"
 		+"<strong>"+upgradeObj.name+"</strong>"
 		+" - "+upgradeObj.effectText+"<br/></span>";
  
@@ -1506,7 +1584,6 @@ function addPUpgradeRows()
 }
 
 
-
 // Update functions. Called by other routines in order to update the interface.
 
 //xxx Maybe add a function here to look in various locations for vars, so it
@@ -1545,7 +1622,7 @@ function updateResourceTotals(){
 	}
 
 	//Update page with building numbers, also stockpile limits.
-	document.getElementById("maxfood").innerHTML = prettify(200 + (200 * (barn.total + (barn.total * upgrades.granaries))));
+	document.getElementById("maxfood").innerHTML = prettify(200 + (200 * (barn.total + (barn.total * (upgrades.granaries?1:0)))));
 	document.getElementById("maxwood").innerHTML = prettify(200 + (200 * woodstock.total));
 	document.getElementById("maxstone").innerHTML = prettify(200 + (200 * stonestock.total));
 
@@ -1588,7 +1665,7 @@ function updateResourceTotals(){
 function updatePopulation(){
 	var i, elem, elems, displayElems;
 	//Update population cap by multiplying out housing numbers
-	population.cap = tent.total + (whut.total * 3) + (cottage.total * 6) + (house.total * (10 + (upgrades.tenements * 2) + (upgrades.slums * 2))) + (mansion.total * 50);
+	population.cap = tent.total + (whut.total * 3) + (cottage.total * 6) + (house.total * (10 + ((upgrades.tenements?1:0) * 2) + ((upgrades.slums?1:0) * 2))) + (mansion.total * 50);
 	//Update sick workers
 	population.totalSick = population.farmersIll + population.woodcuttersIll + population.minersIll + population.tannersIll + population.blacksmithsIll + population.healersIll + population.clericsIll + population.labourersIll + population.soldiersIll + population.cavalryIll + population.unemployedIll;
 	//Display or hide the sick row
@@ -1767,9 +1844,9 @@ function updateUpgrades(){
 // Internal convenience function
 // Pass the name of the upgrade and a boolean indicating if it should be enabled.
 // upgradeId - The ID of the upgrade.
-// havePrice - Can the player afford to buy it?
 // havePrereqs - Does the player have the prereqs? [optional; if omitted, assume no prereqs]
-function updateUpgrade(upgradeId, havePrice, havePrereqs) {
+function updateUpgrade(upgradeId, havePrereqs) {
+	var havePrice = (canAfford(upgradeData[upgradeId].require) > 0);
 	if (havePrereqs === undefined) { havePrereqs = true; } // No prereqs
 	setElemDisplay(document.getElementById(upgradeId+"Line"),(havePrereqs && !upgrades[upgradeId]));
 	setElemDisplay(document.getElementById("P"+upgradeId),upgrades[upgradeId]);
@@ -1777,24 +1854,24 @@ function updateUpgrade(upgradeId, havePrice, havePrereqs) {
 	if (havePrereqs && !upgrades[upgradeId]){ document.getElementById(upgradeId).disabled = (!havePrice); }
 }
 
-	updateUpgrade("domestication"    , (leather.total >= 20));
-	updateUpgrade("ploughshares"     , (metal.total >= 20));
-	updateUpgrade("irrigation"       , (wood.total >= 500 && stone.total >= 200));
-	updateUpgrade("skinning"         , (skins.total >= 10));
-	updateUpgrade("harvesting"       , (herbs.total >= 10));
-	updateUpgrade("prospecting"      , (ore.total >= 10));
-	updateUpgrade("butchering"       , (leather.total >= 40), upgrades.skinning);
-	updateUpgrade("gardening"        , (herbs.total >= 40), upgrades.harvesting);
-	updateUpgrade("extraction"       , (metal.total >= 40), upgrades.prospecting);
-	updateUpgrade("croprotation"     , (herbs.total >= 5000 && piety.total >= 1000));
-	updateUpgrade("selectivebreeding", (skins.total >= 5000 && piety.total >= 1000));
-	updateUpgrade("fertilisers"      , (ore.total >= 5000 && piety.total >= 1000));
-	updateUpgrade("flensing"         , (metal.total >= 1000));
-	updateUpgrade("macerating"       , (leather.total >= 500 && stone.total >= 500));
+	updateUpgrade("skinning");
+	updateUpgrade("harvesting");
+	updateUpgrade("prospecting");
+	updateUpgrade("domestication");
+	updateUpgrade("ploughshares");
+	updateUpgrade("irrigation");
+	updateUpgrade("butchering", upgrades.skinning);
+	updateUpgrade("gardening", upgrades.harvesting);
+	updateUpgrade("extraction", upgrades.prospecting);
+	updateUpgrade("croprotation");
+	updateUpgrade("selectivebreeding");
+	updateUpgrade("fertilisers");
+	updateUpgrade("flensing");
+	updateUpgrade("macerating");
 
 	//BUILDING TECHS
 	//masonry
-	updateUpgrade("masonry"          , (wood.total >= 100 && stone.total >= 100));
+	updateUpgrade("masonry");
 	if (upgrades.masonry){
 		//unlock masonry buildings
 		setElemDisplay(document.getElementById("cottageRow"),true);
@@ -1810,7 +1887,7 @@ function updateUpgrade(upgradeId, havePrice, havePrereqs) {
 		setElemDisplay(document.getElementById("masonryTech"),true);
 	}
 	//construction
-	updateUpgrade("construction"     , (wood.total >= 1000 && stone.total >= 1000), upgrades.masonry);
+	updateUpgrade("construction", upgrades.masonry);
 	if (upgrades.construction){
 		//unlock construction buildings
 		setElemDisplay(document.getElementById("houseRow"),true);
@@ -1821,7 +1898,7 @@ function updateUpgrade(upgradeId, havePrice, havePrereqs) {
 		setElemDisplay(document.getElementById("palisadeLine"),true);
 	}
 	//architecture
-	updateUpgrade("architecture"     , (wood.total >= 10000 && stone.total >= 10000), upgrades.construction);
+	updateUpgrade("architecture", upgrades.construction);
 	if (upgrades.architecture){
 		//unlock architecture buildings
 		setElemDisplay(document.getElementById("mansionRow"),true);
@@ -1834,36 +1911,36 @@ function updateUpgrade(upgradeId, havePrice, havePrereqs) {
 		setElemDisplay(document.getElementById("wonderLine"),true);
 	} 
 	//wheel
-	updateUpgrade("wheel"            , (wood.total >= 500 && stone.total >= 500));
+	updateUpgrade("wheel");
 	if (upgrades.wheel){
 		setElemDisplay(document.getElementById("millRow"),true);
 	}
 	//horseback
-	updateUpgrade("horseback"        , (food.total >= 500 && wood.total >= 500));
+	updateUpgrade("horseback");
 	if (upgrades.horseback){
 		setElemDisplay(document.getElementById("stableRow"),true);
 		setElemDisplay(document.getElementById("cavalryPartyRow"),true);
 	}
 
-	updateUpgrade("tenements"        , (food.total >= 200 && wood.total >= 500 && stone.total >= 500), upgrades.construction);
-	updateUpgrade("slums"            , (food.total >= 500 && wood.total >= 1000 && stone.total >= 1000), upgrades.architecture);
-	updateUpgrade("granaries"        , (wood.total >= 1000 && stone.total >= 1000), upgrades.masonry);
-	updateUpgrade("palisade"         , (wood.total >= 2000 && stone.total >= 1000), upgrades.construction);
-	updateUpgrade("weaponry"         , (wood.total >= 500 && metal.total >= 500), upgrades.masonry);
-	updateUpgrade("shields"          , (wood.total >= 500 && leather.total >= 500), upgrades.masonry);
-	updateUpgrade("writing"          , (skins.total >= 500), upgrades.masonry);
+	updateUpgrade("tenements", upgrades.construction);
+	updateUpgrade("slums", upgrades.architecture);
+	updateUpgrade("granaries", upgrades.masonry);
+	updateUpgrade("palisade", upgrades.construction);
+	updateUpgrade("weaponry", upgrades.masonry);
+	updateUpgrade("shields", upgrades.masonry);
+	updateUpgrade("writing", upgrades.masonry);
 	setElemDisplay(document.getElementById("writingTech"), (upgrades.writing));
-	updateUpgrade("administration"   , (stone.total >= 1000 && skins.total >= 1000));
-	updateUpgrade("codeoflaws"       , (stone.total >= 1000 && skins.total >= 1000));
-	updateUpgrade("mathematics"      , (herbs.total >= 1000 && piety.total >= 1000));
+	updateUpgrade("administration");
+	updateUpgrade("codeoflaws");
+	updateUpgrade("mathematics");
 	setElemDisplay(document.getElementById("siegeRow"), (upgrades.mathematics));
-	updateUpgrade("aesthetics"       , (piety.total >= 5000));
-	updateUpgrade("civilservice"     , (piety.total >= 5000), upgrades.architecture);
+	updateUpgrade("aesthetics");
+	updateUpgrade("civilservice", upgrades.architecture);
 	setElemDisplay(document.getElementById("civilTech"), (upgrades.civilservice));
-	updateUpgrade("feudalism"        , (piety.total >= 10000));
-	updateUpgrade("guilds"           , (piety.total >= 10000));
-	updateUpgrade("serfs"            , (piety.total >= 20000));
-	updateUpgrade("nationalism"      , (piety.total >= 50000));
+	updateUpgrade("feudalism");
+	updateUpgrade("guilds");
+	updateUpgrade("serfs");
+	updateUpgrade("nationalism");
 
 	//deity techs
 	setElemDisplay(document.getElementById("worshipLine"),(!upgrades.worship));
@@ -1911,8 +1988,8 @@ function updateUpgrade(upgradeId, havePrice, havePrereqs) {
 	setElemDisplay(document.getElementById("tradeLine"),!upgrades.trade);
 	setElemDisplay(document.getElementById("Ptrade"),upgrades.trade);
 	setElemDisplay(document.getElementById("tradeUpgradeContainer"),upgrades.trade);
-	updateUpgrade("currency"         , (gold.total >= 10 && ore.total >= 1000));
-	updateUpgrade("commerce"         , (gold.total >= 100 && ore.total >= 10000));
+	updateUpgrade("currency");
+	updateUpgrade("commerce");
 }
 
 function updateDeity(){
@@ -2269,10 +2346,10 @@ function increment(material){
 	//This function is called every time a player clicks on a primary resource button
 	resourceClicks += 1;
 	document.getElementById("clicks").innerHTML = prettify(Math.round(resourceClicks));
-	material.total = material.total + material.increment + (material.increment * 9 * upgrades.civilservice) + (material.increment * 40 * upgrades.feudalism) + (upgrades.serfs * Math.floor(Math.log(population.unemployed * 10 + 1))) + (upgrades.nationalism * Math.floor(Math.log((population.soldiers + population.cavalry) * 10 + 1)));
+	material.total = material.total + material.increment + (material.increment * 9 * (upgrades.civilservice?1:0)) + (material.increment * 40 * (upgrades.feudalism?1:0)) + ((upgrades.serfs?1:0) * Math.floor(Math.log(population.unemployed * 10 + 1))) + ((upgrades.nationalism?1:0) * Math.floor(Math.log((population.soldiers + population.cavalry) * 10 + 1)));
 	//Handles random collection of special resources.
 	if (Math.random() < material.specialchance){
-		specialAmount = material.increment * (1 + (9 * upgrades.guilds));
+		specialAmount = material.increment * (1 + (9 * (upgrades.guilds?1:0)));
 		if (material == food)  { specialMaterial = skins; activity = "foraging"; }
 		if (material == wood)  { specialMaterial = herbs; activity = "woodcutting"; }
 		if (material == stone) { specialMaterial = ore; activity = "mining"; }
@@ -2280,8 +2357,8 @@ function increment(material){
 		gameLog("Found " + specialMaterial.name + " while " + activity);
 	}
 	//Checks to see that resources are not exceeding their caps
-	if (food.total > 200 + ((barn.total + (barn.total * upgrades.granaries)) * 200)){
-		food.total = 200 + ((barn.total + (barn.total * upgrades.granaries)) * 200);
+	if (food.total > 200 + ((barn.total + (barn.total * (upgrades.granaries?1:0))) * 200)){
+		food.total = 200 + ((barn.total + (barn.total * (upgrades.granaries?1:0))) * 200);
 	}
 	if (wood.total > 200 + (woodstock.total * 200)){
 		wood.total = 200 + (woodstock.total * 200);
@@ -2402,7 +2479,7 @@ function spawn(num){
 	population.current += num;
 
 	//This is intentionally independent of the number of workers spawned
-	if (Math.random() * 100 < 1 + upgrades.lure) { spawnCat(); }
+	if (Math.random() * 100 < 1 + (upgrades.lure?1:0)) { spawnCat(); }
 
 	updateResourceTotals(); //update with new resource number
 	updatePopulation(); //Run through the population->job update cycle
@@ -3178,7 +3255,7 @@ function onInvade(event) { return invade(dataset(event.target,"civtype")); }
 function plunder(){
 	var plunderMsg = "";
 	//capture land
-	var plunderLand = Math.round((1 + upgrades.administration) * raiding.iterations * 10);
+	var plunderLand = Math.round((1 + (upgrades.administration?1:0)) * raiding.iterations * 10);
 	//randomise loot
 	var plunderLoot = {
 		food    : Math.round(Math.random() * raiding.iterations * 10),
@@ -3323,7 +3400,9 @@ function tradeTimer(){
 		{ material : metal, 	requested :  250 }];
 
 	// Randomly select and merge one of the above.
-	mergeObj(trader, tradeItems[Math.floor(Math.random() * tradeItems.length)]);
+	var selected = tradeItems[Math.floor(Math.random() * tradeItems.length)];
+	trader.material = selected.material;
+	trader.requested = selected.requested;
 	trader.requested *= Math.ceil(Math.random() * 20); // Up to 20x amount
 
 	document.getElementById("tradeContainer").style.display = "block";
@@ -3482,6 +3561,7 @@ function load(loadType){
 	ore = mergeObj(ore, loadVar.ore);
 	leather = mergeObj(leather, loadVar.leather);
 	metal = mergeObj(metal, loadVar.metal);
+	repairResources(); //xxx TEMPORARY fix for v1.1.29 resource corruption bug.
 	piety = mergeObj(piety, loadVar.piety);
 	gold = mergeObj(gold, loadVar.gold);
 	corpses = mergeObj(corpses, loadVar.corpses);
@@ -3569,11 +3649,15 @@ function load(loadType){
 	document.getElementById("toggleAutosave").innerHTML = autosave ? "Disable Autosave" : "Enable Autosave";
 		
 	//Upgrade-related checks
-	efficiency.farmers = 0.2 + (0.1 * upgrades.domestication) + (0.1 * upgrades.ploughshares) + (0.1 * upgrades.irrigation) + (0.1 * upgrades.croprotation) + (0.1 * upgrades.selectivebreeding) + (0.1 * upgrades.fertilisers) + (0.1 * upgrades.blessing);
-	efficiency.soldiers = 0.05 + (0.01 * upgrades.riddle) + (0.01 * upgrades.weaponry) + (0.01 * upgrades.shields);
-	efficiency.cavalry = 0.08 + (0.01 * upgrades.riddle) + (0.01 * upgrades.weaponry) + (0.01 * upgrades.shields);
-	efficiency.soldiersParty = 0.05 + (0.01 * upgrades.riddle) + (0.01 * upgrades.weaponry) + (0.01 * upgrades.shields);
-	efficiency.cavalryParty = 0.08 + (0.01 * upgrades.riddle) + (0.01 * upgrades.weaponry) + (0.01 * upgrades.shields);
+	efficiency.farmers = 0.2 + (0.1 * (
+	+ (upgrades.domestication?1:0) + (upgrades.ploughshares?1:0) + (upgrades.irrigation?1:0) 
+	+ (upgrades.croprotation?1:0) + (upgrades.selectivebreeding?1:0) + (upgrades.fertilisers?1:0) + (upgrades.blessing?1:0)));
+
+	var combatBonus = 0.01 * ((upgrades.riddle?1:0) + (upgrades.weaponry?1:0) + (upgrades.shields?1:0));
+	efficiency.soldiers = 0.05 + combatBonus;
+	efficiency.cavalry = 0.08 + combatBonus;
+	efficiency.soldiersParty = 0.05 + combatBonus;
+	efficiency.cavalryParty = 0.08 + combatBonus;
 }
 
 function save(savetype){
@@ -3888,7 +3972,7 @@ function reset(){
 
 	efficiency = {
 		happiness:1,
-		farmers:0.2 + (0.1 * upgrades.blessing),
+		farmers:0.2 + (0.1 * (upgrades.blessing?1:0)),
 		pestBonus:0,
 		woodcutters:0.5,
 		miners:0.2,
@@ -4072,7 +4156,7 @@ function doFarmers() {
 	food.net -= population.current; //The living population eats food.
 	food.total += food.net;
 	if (upgrades.skinning && population.farmers > 0){ //and sometimes get skins
-		var num_skins = food.specialchance * (food.increment + (upgrades.butchering * population.farmers / 15.0)) * (1 + (wonder.skins/10));
+		var num_skins = food.specialchance * (food.increment + ((upgrades.butchering?1:0) * population.farmers / 15.0)) * (1 + (wonder.skins/10));
 		skins.total += rndRound(num_skins);
 	}
 }
@@ -4080,7 +4164,7 @@ function doWoodcutters() {
 	wood.net = population.woodcutters * (efficiency.woodcutters * efficiency.happiness) * (1 + (wonder.wood/10)); //Woodcutters cut wood
 	wood.total += wood.net;
 	if (upgrades.harvesting && population.woodcutters > 0){ //and sometimes get herbs
-		var num_herbs = wood.specialchance * (wood.increment + (upgrades.gardening * population.woodcutters / 5.0)) * (1 + (wonder.wood/10));
+		var num_herbs = wood.specialchance * (wood.increment + ((upgrades.gardening?1:0) * population.woodcutters / 5.0)) * (1 + (wonder.wood/10));
 		herbs.total += rndRound(num_herbs);
 	}
 }
@@ -4089,7 +4173,7 @@ function doMiners() {
 	stone.net = population.miners * (efficiency.miners * efficiency.happiness) * (1 + (wonder.stone/10)); //Miners mine stone
 	stone.total += stone.net;
 	if (upgrades.prospecting && population.miners > 0){ //and sometimes get ore
-		var num_ore = stone.specialchance * (stone.increment + (upgrades.extraction * population.miners / 5.0)) * (1 + (wonder.ore/10));
+		var num_ore = stone.specialchance * (stone.increment + ((upgrades.extraction?1:0) * population.miners / 5.0)) * (1 + (wonder.ore/10));
 		ore.total += rndRound(num_ore);
 	}
 }
@@ -4115,7 +4199,7 @@ function doTanners() {
 }
 
 function doClerics() {
-	piety.total += population.clerics * (efficiency.clerics + (efficiency.clerics * upgrades.writing)) * (1 + (upgrades.secrets * (1 - 100/(graveyard.total + 100)))) * efficiency.happiness * (1 + (wonder.piety/10));
+	piety.total += population.clerics * (efficiency.clerics + (efficiency.clerics * (upgrades.writing?1:0))) * (1 + ((upgrades.secrets?1:0) * (1 - 100/(graveyard.total + 100)))) * efficiency.happiness * (1 + (wonder.piety/10));
 }
 // Try to heal the specified number of people in the specified job
 // Makes them sick if the number is negative.
@@ -4171,7 +4255,7 @@ function getNextPatient()
 
 function doHealers() {
 	var job, numHealed = 0;
-	var numHealers = population.healers + (population.cats * upgrades.companion);
+	var numHealers = population.healers + (population.cats * (upgrades.companion?1:0));
 
 	// How much healing can we do?
 	cureCounter += (numHealers * efficiency.healers * efficiency.happiness);
@@ -4213,7 +4297,7 @@ function doCorpses() {
 
 	// Corpses lying around will occasionally make people sick.
 	// 1-in-50 chance (1-in-100 with feast)
-	var sickChance = Math.random() * (50 + (upgrades.feast * 50));
+	var sickChance = Math.random() * (upgrades.feast ? 100 : 50);
 	if (sickChance >= 1) { return; }
 
 	// Infect up to 1% of the population.
@@ -4604,6 +4688,7 @@ function initCivclicker() {
 	addBuildingRows();
 	addJobRows();
 	addPartyRows();
+	addUpgradeRows();
 	addPUpgradeRows();
 
 	//Prompt player for names
@@ -4679,8 +4764,8 @@ window.setInterval(function(){
 
 	//Resources occasionally go above their caps.
 	//Cull the excess /after/ the blacksmiths and tanners take their inputs.
-	if (food.total > 200 + ((barn.total + (barn.total * upgrades.granaries)) * 200)){
-		food.total = 200 + ((barn.total + (barn.total * upgrades.granaries)) * 200);
+	if (food.total > 200 + (barn.total * (upgrades.granaries?2:1) * 200)){
+		food.total = 200 + (barn.total * (upgrades.granaries?2:1) * 200);
 	}
 	if (wood.total > 200 + (woodstock.total * 200)){
 		wood.total = 200 + (woodstock.total * 200);
@@ -4740,9 +4825,10 @@ window.setInterval(function(){
 	
 	//traders occasionally show up
 	if (population.current + population.zombies > 0) { tradeCounter += 1; }
-	if (population.current + population.zombies > 0 && tradeCounter > (60 * (3 - upgrades.currency - upgrades.commerce))){
-		check = Math.random() * (60 * (3 - upgrades.currency - upgrades.commerce));
-		if (check < (1 + (0.2 * upgrades.comfort))){
+	var delayMult = 60 * (3 - ((upgrades.currency?1:0)+(upgrades.commerce?1:0)));
+	if (population.current + population.zombies > 0 && tradeCounter > delayMult){
+		check = Math.random() * delayMult;
+		if (check < (1 + (0.2 * (upgrades.comfort?1:0)))){
 			tradeCounter = 0;
 			tradeTimer();
 		}
@@ -5038,6 +5124,19 @@ function ruinFun(){
 	updatePopulation();
 	updateUpgrades();
 	updateResourceTotals();
+}
+
+//xxx This is a temporary function, designed to repair damage to a saved 
+// game's resource definitions caused by a bug in v1.1.29alpha.
+function repairResources() {
+	food = mergeObj(food, { id:"food", name:"food" });
+	wood = mergeObj(wood, { id:"wood", name:"wood" });
+	stone = mergeObj(stone, { id:"stone", name:"stone" });
+	skins = mergeObj(skins, { id:"skins", name:"skins" });
+	herbs = mergeObj(herbs, { id:"herbs", name:"herbs" });
+	ore = mergeObj(ore, { id:"ore", name:"ore" });
+	leather = mergeObj(leather, { id:"leather", name:"leather" });
+	metal = mergeObj(metal, { id:"metal", name:"metal" });
 }
 
 /*
