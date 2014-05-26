@@ -475,38 +475,11 @@ button.build{
 	display:none;
 }
 
-#constructionLine{
-	display:none;
-}
-#architectureLine{
+#upgradesPane .upgradeLine {
 	display:none;
 }
 
-#masonryTech{
-	display:none;
-}
-#tenementsLine{
-	display:none;
-}
-#slumsLine{
-	display:none;
-}
-#granariesLine{
-	display:none;
-}
-#palisadeLine{
-	display:none;
-}
 #wonderLine{
-	display:none;
-}
-#writingTech{
-	display:none;
-}
-#civilserviceLine{
-	display:none;
-}
-#civilTech{
 	display:none;
 }
 
@@ -524,9 +497,6 @@ button.build{
 	display:none;
 }
 
-#specFreq{
-	display:none;
-}
 #gloryGroup{
 	display:none;
 }
@@ -626,15 +596,6 @@ button.build{
 	display:none;
 }
 
-#basicFarming{
-	display:none;
-}
-#specialFarming{
-	display:none;
-}
-#improvedFarming{
-	display:none;
-}
 
 #purchased{
 	margin-left:1em;
