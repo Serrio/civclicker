@@ -870,6 +870,7 @@ labourers: {
 	singular:"labourer",
 	alignment:"player",
 	source:"unemployed",
+	prereqs:{ wonder: "building" }, //xxx This is a hack
 	effectText:"Use resources to build wonder"
 },
 soldiers: {
@@ -1310,6 +1311,8 @@ function meetsPrereqs(prereqObj)
 		// system is unified.
 		if (i === "deity") { // Deity
 			if (deity.type != prereqObj[i]) { return false; }
+		} else if (i === "wonder") { //xxx Hack currently used for wonder.building
+			if (!wonder.building) { return false; }
 		} else if (isValid(window[i]) && isValid(window[i].total)) { // Resource/Building
 			if (window[i].total < prereqObj[i]) { return false; }
 		} else if (isValid(upgrades[i])) { // Upgrade
