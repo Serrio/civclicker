@@ -23,7 +23,7 @@ var version = 19;
 var versionData = {
 	major:  1,
 	minor:  1,
-	sub:   31,
+	sub:   32,
 	mod:   "alpha"
 };
 var saveTag1 = "civ";
@@ -1090,16 +1090,11 @@ population = {
 	clerics:0,
 	labourers:0,
 	soldiers:0,
-	soldiersCas:0,
 	cavalry:0,
-	cavalryCas:0,
 	soldiersParty:0,
-	soldiersPartyCas:0,
 	cavalryParty:0,
-	cavalryPartyCas:0,
 	siege:0,
 	esoldiers:0,
-	esoldiersCas:0,
 	eforts:0,
 	healthy:0,
 	totalSick:0,
@@ -1113,15 +1108,10 @@ population = {
 	clericsIll:0,
 	labourersIll:0,
 	soldiersIll:0,
-	soldiersCasIll:0,
 	cavalryIll:0,
-	cavalryCasIll:0,
 	wolves:0,
-	wolvesCas:0,
 	bandits:0,
-	banditsCas:0,
 	barbarians:0,
-	barbariansCas:0,
 	esiege:0,
 	enemiesSlain:0,
 	shades:0
@@ -1360,7 +1350,7 @@ function payFor(costObj, num)
 }
 
 // job - The job ID to update
-// num - Maximum limit to hire/fire (use -Infinity find the max fireable)
+// num - Maximum limit to hire/fire (use -Infinity for the max fireable)
 // Returns the number that could be hired or fired (negative if fired).
 function canHire(job,num)
 {
@@ -2661,12 +2651,6 @@ function starve(num) {
 
 		--population[target.job];
 
-		if (target.base == "soldiers" || target.base == "cavalry")
-		{
-			if (--population[target.job+"Cas"] < 0)
-				{ population[target.job+"Cas"] = 0; }
-		}
-
 		++corpses.total; //Increments corpse number
 		//Workers dying may trigger Book of the Dead
 		if (upgrades.book) { piety.total += 10; }
@@ -2693,13 +2677,6 @@ function hire(job,num){
 	// Do the actual hiring
 	population[job] += num;
 	population.unemployed -= num;
-
-	if (isValid(population[job+"Cas"])) // If this unit can have casualties
-	{
-		population[job+"Cas"] += num;
-		// It's possible that firing the last unit, if injured, could put its "Cas" negative
-		if (population[job+"Cas"] < 0) { population[job+"Cas"] = 0; }
-	}
 
 	updatePopulation(); // Updates the page with the num in each job.
 
@@ -2814,11 +2791,6 @@ function wickerman(){
 	if (job == "") { return; }
 
 	--population[job];
-	if (job == "soldiers" || job == "cavalry") {
-		--population[job+"Cas"];
-		//Killing the last soldier can send population.soldiersCas negative
-		if (population[job+"Cas"] < 0) { population[job+"Cas"] = 0; }
-	}
 
 	//Remove wood
 	wood.total -= 500;
@@ -2881,14 +2853,6 @@ function doWalk() {
 		} 
 		--population.current;
 		--population[target];
-
-		if (target == "soldiers" || target == "cavalry"){
-			--population[target+"Cas"];
-			if (population[target+"Cas"] < 0){
-				population[target] = 0;
-				population[target+"Cas"] = 0;
-			}
-		}
 	}
 	updatePopulation();
 }
@@ -2978,7 +2942,6 @@ function spawnMob(mobtype){
 	if (num_mob == 0) { return num_mob; }  // Nobody came
 
 	population[mobtype] += num_mob;
-	population[mobtype+"Cas"] += num_mob;
 	population.esiege += num_sge;
 
 	msg = prettify(num_mob) + " " + mobtype + " attacked";  //xxx L10N
@@ -2998,7 +2961,6 @@ function smiteMob(mobtype) {
 	var num = Math.min(population[mobtype],Math.floor(piety.total/100));
 	piety.total -= num * 100;
 	population[mobtype] -= num;
-	population[mobtype+"Cas"] -= num;
 	corpses.total += num; //xxx Should dead wolves count as corpses?
 	population.enemiesSlain += num;
 	if (upgrades.throne) { throneCount += num; }
@@ -3034,9 +2996,7 @@ function party(job,num){
 		// checks that there are sufficient units in army
 		num = Math.max(num, -population[job+"Party"]);
 		population[job+"Party"] += num;
-		population[job+"Party"+"Cas"] += num;
 		population[job] -= num;
-		population[job+"Cas"] -= num;
 	}
 	if (job == "siege"){
 		num = Math.min(num,Math.floor(wood.total/200),Math.floor(metal.total/50),Math.floor(leather.total/50));
@@ -3074,7 +3034,6 @@ function invade(ecivtype){
 	var esoldierRes = iterations + Math.floor(Math.random() * iterations * 4);
 	var efortsRes = Math.floor(Math.random() * iterations / 250);
 	population.esoldiers += esoldierRes;
-	population.esoldiersCas += esoldierRes;
 	population.eforts += efortsRes;
 	if (gloryTimer > 0) { iterations = (iterations * 2); } //quadruples rewards (doubled here because doubled already above)
 	raiding.iterations = iterations;
@@ -3778,16 +3737,11 @@ function reset(){
 		clerics:0,
 		labourers:0,
 		soldiers:0,
-		soldiersCas:0,
 		cavalry:0,
-		cavalryCas:0,
 		soldiersParty:0,
-		soldiersPartyCas:0,
 		cavalryParty:0,
-		cavalryPartyCas:0,
 		siege:0,
 		esoldiers:0,
-		esoldiersCas:0,
 		eforts:0,
 		healthy:0,
 		totalSick:0,
@@ -3801,15 +3755,10 @@ function reset(){
 		clericsIll:0,
 		labourersIll:0,
 		soldiersIll:0,
-		soldiersCasIll:0,
 		cavalryIll:0,
-		cavalryCasIll:0,
 		wolves:0,
-		wolvesCas:0,
 		bandits:0,
-		banditsCas:0,
 		barbarians:0,
-		barbariansCas:0,
 		esiege:0,
 		enemiesSlain:0,
 		shades:0
@@ -4057,10 +4006,6 @@ function heal(job,num)
 	num = Math.max(num,-population[job]);
 	population[job+"Ill"] -= num;
 	population[job] += num;
-	if (job == "soldiers" || job == "cavalry") { 
-		population[job+"Cas"+"Ill"] -= num; 
-		population[job+"Cas"] += num; 
-	}
 
 	return num;
 }
@@ -4164,38 +4109,23 @@ function doFight(attacker,defender)
 												  : (population.eforts * efficiency.eforts));
 	var palisadeMod = ((defender.alignment == "player")&&(upgrades.palisade)) ?  efficiency.palisade : 0;
 
-	//Calculate each side's casualties inflicted and subtract them from an effective strength value (xCas)
-	population[attacker.id+"Cas"] -= (getCasualtyMod(defender.id,attacker.id) * population[defender.id] * efficiency[defender.id]);
-	population[defender.id+"Cas"] -= (getCasualtyMod(attacker.id,defender.id) * population[attacker.id] * (efficiency[attacker.id] - palisadeMod) * Math.max(1 - fortMod, 0));
-	//If this reduces effective strengths below 0, reset it to 0.
-	if (population[attacker.id+"Cas"] < 0){
-		population[attacker.id+"Cas"] = 0;
-	}
-	if (population[defender.id+"Cas"] < 0){
-		population[defender.id+"Cas"] = 0;
-	}
-	//Calculates the casualties dealt based on difference between actual numbers and new effective strength
-	var attackerCas = population[attacker.id] - population[attacker.id+"Cas"];
-	var attackerCasFloor = Math.floor(attackerCas);
-	var defenderCas = population[defender.id] - population[defender.id+"Cas"];
-	var defenderCasFloor= Math.floor(defenderCas);
-	if (!(attackerCasFloor > 0)) { attackerCasFloor = 0; } //weirdness with floating point numbers. not sure why this is necessary
-	if (!(defenderCasFloor > 0)) { defenderCasFloor = 0; }
+	// Determine casualties on each side.  Round fractional casualties
+	// probabilistically, and don't inflict more than 100% casualties.
+	var attackerCas = Math.min(population[attacker.id],rndRound(getCasualtyMod(defender.id,attacker.id) * population[defender.id] * efficiency[defender.id]));
+	var defenderCas = Math.min(population[defender.id],rndRound(getCasualtyMod(attacker.id,defender.id) * population[attacker.id] * (efficiency[attacker.id] - palisadeMod) * Math.max(1 - fortMod, 0)));
+
+	population[attacker.id] -= attackerCas;
+	population[defender.id] -= defenderCas;
 
 	// Give player credit for kills.
-	var playerCredit = ((attacker.alignment == "player") ? defenderCasFloor :
-	                    (defender.alignment == "player") ? attackerCasFloor : 0);
+	var playerCredit = ((attacker.alignment == "player") ? defenderCas :
+	                    (defender.alignment == "player") ? attackerCas : 0);
 
 	//Increments enemies slain, corpses, and piety
 	population.enemiesSlain += playerCredit;
 	if (upgrades.throne) { throneCount += playerCredit; }
-	corpses.total += (attackerCasFloor + defenderCasFloor);
-	if (upgrades.book) {
-		piety.total += (attackerCasFloor + defenderCasFloor) * 10;
-	}
-	//Resets the actual numbers based on effective strength
-	population[attacker.id] = Math.ceil(population[attacker.id+"Cas"]);
-	population[defender.id] = Math.ceil(population[defender.id+"Cas"]);
+	corpses.total += (attackerCas + defenderCas);
+	if (upgrades.book) { piety.total += (attackerCas + defenderCas) * 10; }
 }
 
 
@@ -4205,26 +4135,17 @@ function doSlaughter(attacker)
 	var target = randomHealthyWorker(); //Choose random worker
 	if (target != "") { 
 		if (Math.random() < attacker.killExhaustion) { // An attacker may disappear after killing
-			population[attacker.id] -= 1;
-			population[attacker.id+"Cas"] -= 1; }
-		if (population[attacker.id+"Cas"] < 0) { population[attacker.id+"Cas"] = 0; }
+			--population[attacker.id]; }
 
 		--population.current;
 		--population[target];
-		if (target == "soldiers" || target == "cavalry"){
-			--population[target+"Cas"];
-			if (population[target+"Cas"] < 0){
-				population[target] = 0;
-				population[target+"Cas"] = 0;
-			}
-		}
+
 		if (attacker.alignment != "animal") { ++corpses.total; } // Animals will eat the corpse
 		gameLog(getJobSingular(target) + " " + killVerb + " by " + attacker.name);
 		updatePopulation();
 	} else { // Attackers slowly leave once everyone is dead
 		var leaving = Math.ceil(population[attacker.id] * Math.random() * attacker.killFatigue);
 		population[attacker.id] -= leaving;
-		population[attacker.id+"Cas"] -= leaving;
 		updateMobs();
 	}
 }
@@ -4243,12 +4164,9 @@ function doLoot(attacker)
 		//some will leave
 		var leaving = Math.ceil(population[attacker.id] * Math.random() * attacker.lootFatigue);
 		population[attacker.id] -= leaving;
-		population[attacker.id+"Cas"] -= leaving;
 		updateMobs();
 	}
 	population[attacker.id] -= 1; // Attackers leave after stealing something.
-	population[attacker.id+"Cas"] -= 1;
-	if (population[attacker.id+"Cas"] < 0) { population[attacker.id+"Cas"] = 0; }
 	updateResourceTotals();
 	updatePopulation();
 }
@@ -4272,14 +4190,11 @@ function doSack(attacker)
 		//some will leave
 		var leaving = Math.ceil(population[attacker.id] * Math.random() * (1/112));
 		population[attacker.id] -= leaving;
-		population[attacker.id+"Cas"] -= leaving;
 		updateMobs();
 	}
 
 	population[attacker.id] -= 1;
-	population[attacker.id+"Cas"] -= 1;
 	if (population[attacker.id] < 0) { population[attacker.id] = 0; }
-	if (population[attacker.id+"Cas"] < 0) { population[attacker.id+"Cas"] = 0; }
 	updateResourceTotals();
 	updatePopulation();
 }
@@ -4301,7 +4216,6 @@ function doShades()
 		var num = Math.min((population[attacker.id]/4),population[defender.id]);
 		//xxx Should we give book and throne credit here?
 		population[defender.id] -= Math.floor(num);
-		population[defender.id+"Cas"] -= num;
 		population[attacker.id] -= Math.floor(num);
 	}
 
@@ -4328,12 +4242,12 @@ function doEsiege()
 					if (hit < efficiency.esiege){
 						fortification.total -= 1;
 						gameLog("Enemy siege engine damaged our fortifications");
-						updateRequirements(fortification);
 					} else if (hit > 0.95){ //each siege engine has 5% to misfire and destroy itself
 						population.esiege -= 1;
 					}
 				}
 			}
+			updateRequirements(fortification);
 			updateResourceTotals();
 		}
 	} else if (population.soldiers > 0 || population.cavalry > 0) {
@@ -4456,7 +4370,6 @@ function doRaid() {
 			//checks victory conditions (needed here because of the order of tests)
 			if (population.esoldiers <= 0){
 				population.esoldiers = 0; //ensure esoldiers is 0
-				population.esoldiersCas = 0; //ensure esoldiers is 0
 				population.eforts = 0; //ensure eforts is 0
 				raidWin();
 				updateTargets(); //update the new target
@@ -4473,7 +4386,6 @@ function doRaid() {
 	} else {
 		gameLog("Raid defeated");
 		population.esoldiers = 0;
-		population.esoldiersCas = 0;
 		population.eforts = 0;
 		population.siege = 0;
 		updateParty();
