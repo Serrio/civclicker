@@ -188,6 +188,7 @@ function setElemDisplay(htmlElem,visible)
 
 
 // Workaround for IE's lack of support for the dataset property.
+//xxx Maybe make this search up the DOM tree on lookups, to mimic inheritance
 function dataset(elem,attr,value)
 {
 	if (value === undefined) { return elem.getAttribute("data-"+attr); }

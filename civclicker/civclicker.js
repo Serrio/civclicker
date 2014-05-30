@@ -23,7 +23,7 @@ var version = 19;
 var versionData = {
 	major:  1,
 	minor:  1,
-	sub:   32,
+	sub:   33,
 	mod:   "alpha"
 };
 var saveTag1 = "civ";
@@ -32,6 +32,8 @@ var logRepeat = 1;
 
 // Civ size category minimums
 var civSizes = [];
+//xxx Maybe rework this so that (e.g.) civSizes.thorp is actually an alias for
+//the thorp entry, rather than its index?
 civSizes.thorp       = civSizes.length; civSizes[civSizes.thorp      ] = { min_pop :      0, name : "Thorp"       , id : "thorp"      };
 civSizes.hamlet      = civSizes.length; civSizes[civSizes.hamlet     ] = { min_pop :     20, name : "Hamlet"      , id : "hamlet"     };
 civSizes.village     = civSizes.length; civSizes[civSizes.village    ] = { min_pop :     60, name : "Village"     , id : "village"    };
@@ -39,7 +41,7 @@ civSizes.smallTown   = civSizes.length; civSizes[civSizes.smallTown  ] = { min_p
 civSizes.largeTown   = civSizes.length; civSizes[civSizes.largeTown  ] = { min_pop :   2000, name : "Large Town"  , id : "largeTown"  };
 civSizes.smallCity   = civSizes.length; civSizes[civSizes.smallCity  ] = { min_pop :   5000, name : "Small City"  , id : "smallCity"  };
 civSizes.largeCity   = civSizes.length; civSizes[civSizes.largeCity  ] = { min_pop :  10000, name : "Large City"  , id : "largeCity"  };
-civSizes.metropolis  = civSizes.length; civSizes[civSizes.metropolis ] = { min_pop :  20000, name : "Metropolis"  , id : "metropolis" };
+civSizes.metropolis  = civSizes.length; civSizes[civSizes.metropolis ] = { min_pop :  20000, name:"Metro&shy;polis",id : "metropolis" };
 civSizes.smallNation = civSizes.length; civSizes[civSizes.smallNation] = { min_pop :  50000, name : "Small Nation", id : "smallNation"};
 civSizes.nation      = civSizes.length; civSizes[civSizes.nation     ] = { min_pop : 100000, name : "Nation"      , id : "nation"     };
 civSizes.largeNation = civSizes.length; civSizes[civSizes.largeNation] = { min_pop : 200000, name : "Large Nation", id : "largeNation"};
@@ -458,7 +460,6 @@ lament: {
 book: {
 	id:"book",
 	name:"The Book of the Dead",
-	// underworld
 	prereqs:{ deity: "the Underworld", devotion: 10 },
 	require: { piety: 1000 },
 	effectText:"gain piety with deaths"
@@ -466,7 +467,6 @@ book: {
 feast: {
 	id:"feast",
 	name:"A Feast for Crows",
-	// underworld
 	prereqs:{ deity: "the Underworld", devotion: 30 },
 	require: { piety: 1000 },
 	effectText:"corpses are less likely to cause illness"
@@ -474,7 +474,6 @@ feast: {
 secrets: {
 	id:"secrets",
 	name:"Secrets of the Tombs",
-	// underworld
 	prereqs:{ deity: "the Underworld", devotion: 50 },
 	require: { piety: 5000 },
 	effectText:"graveyards increase cleric piety generation"
@@ -483,7 +482,8 @@ secrets: {
 standard: { 
 	id:"standard", 
 	name:"Battle Standard", 
-	require: { // Barracks
+	prereqs:{ barracks: 1 },
+	require: {
 		leather: 1000, 
 		metal: 1000 },
 	effectText:"Lets you build an army"
@@ -491,6 +491,7 @@ standard: {
 trade: { 
 	id:"trade", 
 	name:"Trade", 
+	prereqs: { gold: 1 }, 
 	require: { gold: 1 }, 
 	effectText:"Open the trading post"
 },
@@ -1072,6 +1073,7 @@ wonder = {
 	name:"",
 	building:false,
 	completed:false,
+	rushed:false,
 	progress:0
 };
 population = {
@@ -1205,37 +1207,37 @@ var deity = {
 	cats:0
 },
 achievements = {
-	hamlet:0,
-	village:0,
-	smallTown:0,
-	largeTown:0,
-	smallCity:0,
-	largeCity:0,
-	metropolis:0,
-	smallNation:0,
-	nation:0,
-	largeNation:0,
-	empire:0,
-	raider:0,
-	engineer:0,
-	domination:0,
-	hated:0,
-	loved:0,
-	cat:0,
-	glaring:0,
-	clowder:0,
-	battle:0,
-	cats:0,
-	fields:0,
-	underworld:0,
-	fullHouse:0,
-	plague:0,
-	ghostTown:0,
-	wonder:0,
-	seven:0,
-	merchant:0,
-	rushed:0,
-	neverclick:0
+	hamlet:false,
+	village:false,
+	smallTown:false,
+	largeTown:false,
+	smallCity:false,
+	largeCity:false,
+	metropolis:false,
+	smallNation:false,
+	nation:false,
+	largeNation:false,
+	empire:false,
+	raider:false,
+	engineer:false,
+	domination:false,
+	hated:false,
+	loved:false,
+	cat:false,
+	glaring:false,
+	clowder:false,
+	battle:false,
+	cats:false,
+	fields:false,
+	underworld:false,
+	fullHouse:false,
+	plague:false,
+	ghostTown:false,
+	wonder:false,
+	seven:false,
+	merchant:false,
+	rushed:false,
+	neverclick:false
 },
 trader = {
 	material:false,
@@ -1675,7 +1677,7 @@ function getUpgradeRowText(upgradeObj)
 	s += "<button id='"+upgradeObj.id+"' onmousedown=\"upgrade('"+upgradeObj.id+"')\">";
 	s += upgradeObj.name+"<br />("+getReqText(upgradeObj.require)+")</button>";
 	s += "<span class='note'>"+upgradeObj.effectText+"</span><br /></span>";
- 
+
 	return s;
 }
 // Dynamically create the purchased upgrades list.
@@ -1719,8 +1721,6 @@ function addUpgradeRows()
 		+ getUpgradeRowText(upgradeData.nationalism)
 		+ "<span id='wonderLine'><br /><button id='startWonder' onmousedown='startWonder()'>"
 		+ "Start Building Wonder</button><br /></span>"
-		+ "</div>"
-		+ "</div>"
 		+ "<h3>Purchased Upgrades</h3>"
 		+ "<div id='purchased'></div>";
 
@@ -1739,7 +1739,7 @@ function getPUpgradeRowText(upgradeObj)
 	var s = "<span id='P"+upgradeObj.id +"'>"
 		+"<strong>"+upgradeObj.name+"</strong>"
 		+" - "+upgradeObj.effectText+"<br/></span>";
- 
+
 	return s;
 }
 // Dynamically create the purchased upgrades list.
@@ -1838,27 +1838,10 @@ function updateResourceTotals(){
 	document.getElementById("totalLand").innerHTML = prettify(land);
 	document.getElementById("totalBuildings").innerHTML = prettify(Math.round(totalBuildings));
 
-	//Unlock jobs predicated on having certain buildings
-	if (smithy.total > 0) { setElemDisplay(document.getElementById("blacksmithsRow"),true); }
-	if (tannery.total > 0) { setElemDisplay(document.getElementById("tannersRow"),true); }
-	if (apothecary.total > 0) { setElemDisplay(document.getElementById("healersRow"),true); }
-	if (temple.total > 0) { setElemDisplay(document.getElementById("clericsRow"),true); }
-	if (barracks.total > 0) { setElemDisplay(document.getElementById("soldiersRow"),true); }
-	if (stable.total > 0) { setElemDisplay(document.getElementById("cavalryRow"),true); }
-
-	//Unlock upgrades predicated on having certain buildings
-
-	//At least one Temple is required to unlock Worship (It never disables again once enabled)
+	// Unlock advanced control tabs as they become enabled (they never disable)
+	// Temples unlock Deity, barracks unlock Conquest, having gold unlocks Trade.
 	if (temple.total > 0) { setElemDisplay(document.getElementById("deitySelect"),true); }
-	document.getElementById("worship").disabled = upgrades.worship ||
-		(temple.total < 1) || (piety.total < 1000);
-
-	//At least one Barracks is required to unlock Standard (It never disables again once enabled)
 	if (barracks.total > 0) { setElemDisplay(document.getElementById("conquestSelect"),true); }
-	document.getElementById("standard").disabled = upgrades.standard ||
-		(barracks.total < 1) || (leather.total < 1000) || (metal.total < 1000);
-
-	// Enable trade tab once we've got gold (It never disables again once enabled)
 	if (gold.total > 0) { setElemDisplay(document.getElementById("tradeSelect"),true); }
 
 	// Need to have enough resources to trade
@@ -1912,19 +1895,10 @@ function updatePopulation(){
 	//As population increases, various things change
 	if (population.current == 0 && population.cap >= 1000){
 		civType = "Ghost Town";
-		if (!achievements.ghostTown){
-			gameLog("Achievement Unlocked: Ghost Town");
-			achievements.ghostTown = 1;
-		}
 	}
-
-	// Update our civ type name and score achievement if warranted.
+	// Update our civ type name
 	var civTypeInfo = civSizes.getCivSize(population.current);
 	civType = civTypeInfo.name;
-	if (achievements.hasOwnProperty(civTypeInfo.id) && !achievements[civTypeInfo.id]) {
-		achievements[civTypeInfo.id] = 1;
-		gameLog("Achievement Unlocked: " + civTypeInfo.name);
-	}
 
 	if (population.zombies >= 1000 && population.zombies >= 2 * population.current){ //easter egg
 		civType = "Necropolis";
@@ -1988,7 +1962,7 @@ function updatePopulation(){
 	document.getElementById("workerCost10").innerHTML = prettify(Math.round(calcWorkerCost(10)));
 	document.getElementById("workerCost100").innerHTML = prettify(Math.round(calcWorkerCost(100)));
 	document.getElementById("workerCost1000").innerHTML = prettify(Math.round(calcWorkerCost(1000)));
-	var maxSpawn = Math.min((population.cap - population.current),logSearchFn(calcWorkerCost,food.total));
+	var maxSpawn = Math.max(0,Math.min((population.cap - population.current),logSearchFn(calcWorkerCost,food.total)));
 	document.getElementById("workerNumMax").innerHTML = prettify(Math.round(maxSpawn));
 	document.getElementById("workerCostMax").innerHTML = prettify(Math.round(calcWorkerCost(maxSpawn)));
 	updateJobs(); //handles the display of individual worker types
@@ -2083,8 +2057,8 @@ function updateUpgrade(upgradeId) {
 	updateUpgrade("masonry");
 	updateUpgrade("construction");
 	updateUpgrade("architecture");
-	if (upgrades.architecture){ //unlock wonders
-		setElemDisplay(document.getElementById("wonderLine"),true); //xxx PRESERVE
+	if (upgrades.architecture && upgrades.civilservice){ //unlock wonders
+		setElemDisplay(document.getElementById("wonderLine"),true);
 	} 
 	updateUpgrade("wheel");
 	updateUpgrade("horseback");
@@ -2158,44 +2132,12 @@ function updateDeity(){
 	document.getElementById("deity" + deity.seniority + "Name").innerHTML = deity.name;
 	document.getElementById("deity" + deity.seniority + "Type").innerHTML = (deity.type) ? ", deity of "+deity.type : "";
 	document.getElementById("devotion" + deity.seniority).innerHTML = devotion.total;
+
 	//Toggles deity types on for later playthroughs.
-	if (deity.type == "Battle"){
-		deity.battle = 1;
-		if (!achievements.battle){
-			gameLog("Achievement Unlocked: Battle");
-			achievements.battle = 1;
-			updateAchievements();
-		}
-	}
-	if (deity.type == "the Fields"){
-		deity.fields = 1;
-		if (!achievements.fields){
-			gameLog("Achievement Unlocked: Fields");
-			achievements.fields = 1;
-			updateAchievements();
-		}
-	}
-	if (deity.type == "the Underworld"){
-		deity.underworld = 1;
-		if (!achievements.underworld){
-			gameLog("Achievement Unlocked: Underworld");
-			achievements.underworld = 1;
-			updateAchievements();
-		}
-	}
-	if (deity.type == "Cats"){
-		deity.cats = 1;
-		if (!achievements.cats){
-			gameLog("Achievement Unlocked: Cats");
-			achievements.cats = 1;
-			updateAchievements();
-		}
-	}
-	if (deity.battle && deity.fields && deity.underworld && deity.cats && !achievements.fullHouse){
-		achievements.fullHouse = 1;
-		gameLog("Achievement Unlocked: Full House");
-		updateAchievements();
-	}
+	if (deity.type == "Battle")         { deity.battle = 1; }
+	if (deity.type == "the Fields")     { deity.fields = 1; }
+	if (deity.type == "the Underworld") { deity.underworld = 1; }
+	if (deity.type == "Cats")           { deity.cats = 1; }
 }
 
 function updateOldDeities(){
@@ -2293,48 +2235,187 @@ function updateRequirements(buildingObj){
 	if (displayNode && isValid(buildingObj.require)) { displayNode.innerHTML = getReqText(buildingObj.require); }
 }
 
-function updateAchievements(){
-	//Displays achievements if they are unlocked
-	//civ size
-	if (achievements.hamlet) { setElemDisplay(document.getElementById("achHamlet"),true); }
-	if (achievements.village) { setElemDisplay(document.getElementById("achVillage"),true); }
-	if (achievements.smallTown) { setElemDisplay(document.getElementById("achSmallTown"),true); }
-	if (achievements.largeTown) { setElemDisplay(document.getElementById("achLargeTown"),true); }
-	if (achievements.smallCity) { setElemDisplay(document.getElementById("achSmallCity"),true); }
-	if (achievements.largeCity) { setElemDisplay(document.getElementById("achLargeCity"),true); }
-	if (achievements.metropolis) { setElemDisplay(document.getElementById("achMetropolis"),true); }
-	if (achievements.smallNation) { setElemDisplay(document.getElementById("achSmallNation"),true); }
-	if (achievements.nation) { setElemDisplay(document.getElementById("achNation"),true); }
-	if (achievements.largeNation) { setElemDisplay(document.getElementById("achLargeNation"),true); }
-	if (achievements.empire) { setElemDisplay(document.getElementById("achEmpire"),true); }
+var achData = {
 	//conquest
-	if (achievements.raider) { setElemDisplay(document.getElementById("achRaider"),true); }
-	if (achievements.engineer) { setElemDisplay(document.getElementById("achEngineer"),true); }
-	if (achievements.domination) { setElemDisplay(document.getElementById("achDomination"),true); }
+	raider: {
+		id: "raider",
+		name: "Raider",
+		test: function() { return raiding.victory; }
+	},
+	engineer: {
+		id: "engineer",
+		name: "Engi&shy;neer",
+		//xxx Technically this also gives credit for capturing a siege engine.
+		test: function() { return population.siege > 0; }
+	},
+	domination: {
+		id: "domination",
+		name: "Domi&shy;nation",
+		// If we beat the largest opponent, grant bonus achievement.
+		test: function() { return raiding.victory && (raiding.last == civSizes[civSizes.length-1].id); }
+	},
 	//happiness
-	if (achievements.hated) { setElemDisplay(document.getElementById("achHated"),true); }
-	if (achievements.loved) { setElemDisplay(document.getElementById("achLoved"),true); }
-	//other population
-	if (achievements.plague) { setElemDisplay(document.getElementById("achPlague"),true); }
-	if (achievements.ghostTown) { setElemDisplay(document.getElementById("achGhostTown"),true); }
+	hated: {
+		id: "hated",
+		name: "Hated",
+		test: function() { return efficiency.happiness <= 0.5; }
+	},
+	loved: {
+		id: "loved",
+		name: "Loved",
+		test: function() { return efficiency.happiness >= 1.5; }
+	},
 	//cats
-	if (achievements.cat) { setElemDisplay(document.getElementById("achCat"),true); }
-	if (achievements.glaring) { setElemDisplay(document.getElementById("achGlaring"),true); }
-	if (achievements.clowder) { setElemDisplay(document.getElementById("achClowder"),true); }
+	cat: {
+		id: "cat",
+		name: "Cat!",
+		test: function() { return population.cats >= 1; }
+	},
+	glaring: {
+		id: "glaring",
+		name: "Glaring",
+		test: function() { return population.cats >= 10; }
+	},
+	clowder: {
+		id: "clowder",
+		name: "Clowder",
+		test: function() { return population.cats >= 100; }
+	},
+	//other population
+	plague: {
+		id: "plague",
+		name: "Plagued",
+		//Plagued achievement requires sick people to outnumber healthy
+		test: function() { return population.totalSick > population.healthy; }
+	},
+	ghostTown: {
+		id: "ghostTown",
+		name: "Ghost Town",
+		test: function() { return (population.current == 0) && (population.cap >= 1000); }
+	},
 	//deities
-	if (achievements.battle) { setElemDisplay(document.getElementById("achBattle"),true); }
-	if (achievements.cats) { setElemDisplay(document.getElementById("achCats"),true); }
-	if (achievements.fields) { setElemDisplay(document.getElementById("achFields"),true); }
-	if (achievements.underworld) { setElemDisplay(document.getElementById("achUnderworld"),true); }
-	if (achievements.fullHouse) { setElemDisplay(document.getElementById("achFullHouse"),true); }
+	battle: {
+		id: "battle",
+		name: "Battle",
+		test: function() { return deity.type == "Battle"; }
+	},
+	fields: {
+		id: "fields",
+		name: "Fields",
+		test: function() { return deity.type == "the Fields"; }
+	},
+	underworld: {
+		id: "underworld",
+		name: "Under&shy;world",
+		test: function() { return deity.type == "the Underworld"; }
+	},
+	cats: {
+		id: "cats",
+		name: "Cats",
+		test: function() { return deity.type == "Cats"; }
+	},
+	fullHouse: {
+		id: "fullHouse",
+		name: "Full House",
+		test: function() { return deity.battle && deity.fields && deity.underworld && deity.cats; }
+	},
 	//wonders
-	if (achievements.wonder) { setElemDisplay(document.getElementById("achWonder"),true); }
-	if (achievements.seven) { setElemDisplay(document.getElementById("achSeven"),true); }
+	wonder: {
+		id: "wonder",
+		name: "Wonder",
+		test: function() { return wonder.completed; }
+	},
+	seven: {
+		id: "seven",
+		name: "Seven!",
+		test: function() { return wonder.food + wonder.wood + wonder.stone + wonder.skins + 
+							wonder.herbs + wonder.ore + wonder.leather + wonder.metal + wonder.piety >= 7; }
+	},
 	//trading
-	if (achievements.merchant) { setElemDisplay(document.getElementById("achMerchant"),true); }
-	if (achievements.rushed) { setElemDisplay(document.getElementById("achRushed"),true); }
+	merchant: {
+		id: "merchant",
+		name: "Merch&shy;ant",
+		test: function() { return gold.total > 0; }
+	},
+	rushed: {
+		id: "rushed",
+		name: "Rushed",
+		test: function() { return wonder.rushed; }
+	},
 	//other
-	if (achievements.neverclick) { setElemDisplay(document.getElementById("achNeverclick"),true); }
+	neverclick: {
+		id: "neverclick",
+		name: "Never&shy;click",
+		test: function() { return wonder.completed && resourceClicks <= 22; }
+	}
+};
+
+// achId can be:
+//   true:  Generate a line break
+//   false: Generate a gap
+//   An achievement ID (or civ size ID) string: Generate the display of that achievement
+function getAchRowText(achId, name)
+{
+	if (achId===true)  { return "<div style='clear:both;'><br /></div>"; }
+	if (achId===false) { return "<div class='break'>&nbsp;</div>"; }
+	return "<div class='achievement' title='"+name+"'>"+
+			"<div class='unlockedAch' id='"+achId+"Ach'>"+name+"</div></div>";
+}
+
+// Dynamically create the achievement display
+function addAchievementRows()
+{
+	var i, s="";
+	// Start from 1 because there's no achievement for 'thorp'.
+	for (i=1;i<civSizes.length;++i) {
+		s += getAchRowText(civSizes[i].id, (isValid(civSizes[i].name) ? civSizes[i].name : undefined));
+	}
+
+	var achItems = [true, "raider", "engineer", "domination", false, "hated", "loved", false, 
+					"cat", "glaring", "clowder", false, "plague", false, "ghostTown", true,
+					"battle", "fields", "underworld", "cats", "fullHouse", false, "wonder", "seven", false,
+					"merchant", "rushed", false, "neverclick"];
+	for (i=0;i<achItems.length;++i) { 
+		s += getAchRowText(achItems[i], ((typeof achItems[i] != "boolean") ? achData[achItems[i]].name : undefined));
+	}
+
+	document.getElementById("achievements").innerHTML += s;
+}
+
+function testAchievement(achObj)
+{
+	if (achievements[achObj.id]) { return true; }
+	if (!achObj.test()) { return false; }
+	achievements[achObj.id] = true;
+	gameLog("Achievement Unlocked: "+achObj.name);
+}
+
+function testAchievements(){
+	var i;
+	// Test civ size achievement based on current size.
+	var civTypeInfo = civSizes.getCivSize(population.current);
+	if (achievements.hasOwnProperty(civTypeInfo.id) && !achievements[civTypeInfo.id]) {
+		achievements[civTypeInfo.id] = 1;
+		gameLog("Achievement Unlocked: " + civTypeInfo.name);
+	}
+
+	for (i in achData) { testAchievement(achData[i]); } // Now test other achievements
+	updateAchievements();
+}
+
+function updateAchievement(achId)
+{
+	return setElemDisplay(document.getElementById(achId+"Ach"),achievements[achId]);
+}
+
+//Displays achievements if they are unlocked
+function updateAchievements(){
+	// Update Civ Size based achievements.
+	var i;
+	for (i=1;i<civSizes.length;++i) { updateAchievement(civSizes[i].id); }
+
+	// Then update the rest.
+	for (i in achData) { updateAchievement(achData[i].id); }
 }
 
 // Enable the raid buttons for eligible targets.
@@ -2411,17 +2492,6 @@ function updateWonderList(){
 			}
 		}
 		document.getElementById("pastWonders").innerHTML = wonderhtml;
-		//handle achievements
-		if (!achievements.wonder){
-			achievements.wonder = 1;
-			gameLog("Achievement Unlocked: Wonder");
-			updateAchievements();
-		}
-		if (!achievements.seven && wonder.food + wonder.wood + wonder.stone + wonder.skins + wonder.herbs + wonder.ore + wonder.leather + wonder.metal + wonder.piety >= 7){
-			achievements.seven = 1;
-			gameLog("Achievement Unlocked: Seven");
-			updateAchievements();
-		}
 	}
 }
 
@@ -2565,21 +2635,8 @@ function calcZombieCost(num){ return calcWorkerCost(num, population.zombies)/5; 
 // Create a cat
 function spawnCat()
 {
-	gameLog("Found a cat!");
 	++population.cats;
-	if (population.cats >= 1 && !achievements.cat){
-		gameLog("Achievement Unlocked: Cat!");
-		achievements.cat = 1;
-	}
-	if (population.cats >= 10 && !achievements.glaring){
-		gameLog("Achievement Unlocked: Glaring");
-		achievements.glaring = 1;
-	}
-	if (population.cats >= 100 && !achievements.clowder){
-		gameLog("Achievement Unlocked: Clowder");
-		achievements.clowder = 1;
-	}
-	updateAchievements();
+	gameLog("Found a cat!");
 }
 
 // Creates or destroys workers
@@ -2632,6 +2689,7 @@ function pickStarveTarget() {
 				          base: jobList[jobNum]}; }
 		}
 	}
+	// These don't have Ill variants at the moment.
 	if (population.cavalryParty > 0) { return {job: "cavalryParty", base: "cavalry"}; }
 	if (population.soldiersParty > 0) { return {job: "soldiersParty", base: "soldiers"}; }
 
@@ -3004,10 +3062,6 @@ function party(job,num){
 		wood.total -= 200 * num;
 		metal.total -= 50 * num;
 		leather.total -= 50 * num;
-		if ((num > 0) && !achievements.engineer){
-			achievements.engineer = 1;
-			updateAchievements();
-		}
 	}
 	updateResourceTotals(); //updates the food/second
 	updatePopulation(); //updates the army display
@@ -3102,17 +3156,6 @@ function mood(delta){
 		var fraction = population.current / (population.current + population.zombies);
 		//alters happiness
 		efficiency.happiness += delta * fraction;
-		//check for achievements
-		if (efficiency.happiness >= 1.5 && !achievements.loved){
-			gameLog("Achievement Unlocked: Loved");
-			achievements.loved = 1;
-			updateAchievements();
-		}
-		if (efficiency.happiness <= 0.5 && !achievements.hated){
-			gameLog("Achievement Unlocked: Hated");
-			achievements.hated = 1;
-			updateAchievements();
-		}
 		//Then check limits (50 is median, limits are max 0 or 100, but moderated by fraction of zombies)
 		if (efficiency.happiness > 1 + (0.5 * fraction)){
 			efficiency.happiness = 1 + (0.5 * fraction);
@@ -3213,11 +3256,6 @@ function trade(){
 	++gold.total;
 	updateResourceTotals();
 	gameLog("Traded " + trader.requested + " " + trader.material.name);
-	if (!achievements.merchant){
-		gameLog("Achievement Unlocked: Merchant");
-		achievements.merchant = 1;
-		updateAchievements();
-	}
 }
 
 function buy(material){
@@ -3236,12 +3274,8 @@ function speedWonder(){
 	gold.total -= 100;
 
 	wonder.progress += 1 / (Math.pow(1.5,wonder.total));
+	wonder.rushed = true;
 	updateWonder();
-	if (!achievements.rushed){
-		gameLog("Achievement Unlocked: Rushed");
-		achievements.rushed = 1;
-		updateAchievements();
-	}
 }
 
 // Game infrastructure functions
@@ -3339,7 +3373,7 @@ function load(loadType){
 		}
 		delete loadVar.upgrades.deity;
 	}
-	// v1.1.30: Upgrades converted from int to bool (should be transparent)
+	// v1.1.30: Upgrade flags converted from int to bool (should be transparent)
 	// v1.1.31: deity.devotion moved to devotion.total.
 	if (!isValid(loadVar.devotion)) { loadVar.devotion = {}; }
 	if (isValid(loadVar.deity.devotion)) { 
@@ -3348,6 +3382,7 @@ function load(loadType){
 		}
 		delete loadVar.deity.devotion; 
 	}
+	// v1.1.33: Achievement flags converted from int to bool (should be transparent)
 	
 	////////////////////////////////////////////////////
 	//
@@ -3717,6 +3752,7 @@ function reset(){
 		name:"",
 		building:false,
 		completed:false,
+		rushed:false,
 		progress:0
 	};
 
@@ -4314,23 +4350,10 @@ function doMobs() {
 function raidWin() {
 	gameLog("Raid victorious!"); //notify player
 	raiding.victory = true; //set victory for future handling
-	//conquest achievements
-	if (!achievements.raider){
-		achievements.raider = 1;
-		updateAchievements();
-	}
 
-	// If we beat the largest opponent, grant bonus achievement.
-	if (raiding.last == civSizes[civSizes.length-1].id) 
+	if ((targetMax < civSizes[civSizes.length-1].id) && raiding.last == targetMax)
 	{
-		if (!achievements.domination){
-			achievements.domination = 1;
-			updateAchievements();
-		}
-	}
-	else if (raiding.last == targetMax)
-	{
-		// We fought our largest eligible foe.  Raise the limit.
+		// We fought our largest eligible foe, but not the largest possible.  Raise the limit.
 		targetMax = civSizes[civSizes[targetMax] + 1].id;
 	}
 		// Improve mood based on size of defeated foe.
@@ -4408,12 +4431,6 @@ function doLabourers() {
 		document.getElementById("lowResources").style.display = "none";
 		//then set wonder.completed so things will be updated appropriately
 		wonder.completed = true;
-		//check to see if neverclick was achieved
-		if (!achievements.neverclick && resourceClicks <= 22){
-			achievements.neverclick = 1;
-			gameLog("Achievement Unlocked: Neverclick!");
-			updateAchievements();
-		}
 	} else {
 		//we're still building
 		
@@ -4448,6 +4465,7 @@ function initCivclicker() {
 	addPartyRows();
 	addUpgradeRows();
 	addPUpgradeRows();
+	addAchievementRows();
 
 	//Prompt player for names
 	if (!localStorage.getItem("civ") && !read_cookie("civ")) {
@@ -4600,12 +4618,6 @@ window.setInterval(function(){
 	doHealers();
 	doCorpses();
 
-	if (population.totalSick > population.healthy && !achievements.plague){ //Plagued achievement requires sick people to outnumber healthy
-		achievements.plague = 1;
-		gameLog("Achievement Unlocked: Plagued");
-		updateAchievements();
-	}
-
 	if (throneCount >= 100){
 		//If sufficient enemies have been slain, build new temples for free
 		temple.total += Math.floor(throneCount/100);
@@ -4634,6 +4646,7 @@ window.setInterval(function(){
 	}
 	
 	updateResourceTotals(); //This is the point where the page is updated with new resource totals
+	testAchievements();
 	
 	updateUpgrades();
 	updateBuildingButtons();

@@ -429,7 +429,7 @@ button.build{
 	float:left;
 	width:20px;
 }
-.achUnlocked{
+.unlockedAch{
 	box-sizing:border-box;
 	-moz-box-sizing:border-box; /* Firefox needs a nonstandard name */
 	width:100%;
@@ -439,40 +439,7 @@ button.build{
 	text-shadow:none;
 	font-weight:normal;
 	background-color:#fff;
-}
-
-#achHamlet,
-#achVillage,
-#achSmallTown,
-#achLargeTown,
-#achSmallCity,
-#achLargeCity,
-#achMetropolis,
-#achSmallNation,
-#achNation,
-#achLargeNation,
-#achEmpire,
-#achRaider,
-#achEngineer,
-#achDomination,
-#achHated,
-#achLoved,
-#achCat,
-#achGlaring,
-#achClowder,
-#achBattle,
-#achCats,
-#achFields,
-#achUnderworld,
-#achFullHouse,
-#achPlague,
-#achGhostTown,
-#achWonder,
-#achSeven,
-#achMerchant,
-#achRushed,
-#achNeverclick{
-	display:none;
+	display:none; /* Initially */
 }
 
 #upgradesPane .upgradeLine {
