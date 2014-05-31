@@ -366,18 +366,7 @@ button.build{
 	display:none;
 }
 
-#Plure,
-#Pcompanion,
-#Pcomfort,
-#Pblessing,
-#Priddle,
-#Pthrone,
-#Pbook,
-#Pfeast,
-#Psecrets,
-#Plament,
-#Pstay,
-#Pwaste{
+.Pupgrade {
 	display:none;
 }
 
@@ -569,44 +558,6 @@ button.build{
 }
 #purchased *{
 	line-height:1.5em;
-}
-
-#Pskinning,
-#Pharvesting,
-#Pprospecting,
-#Pdomestication,
-#Pploughshares,
-#Pirrigation,
-#Pbutchering,
-#Pgardening,
-#Pextraction,
-#Pflensing,
-#Pmacerating,
-#Pcroprotation,
-#Pselectivebreeding,
-#Pfertilisers,
-#Pmasonry,
-#Pconstruction,
-#Parchitecture,
-#Ptenements,
-#Pslums,
-#Pgranaries,
-#Ppalisade,
-#Pweaponry,
-#Pshields,
-#Phorseback,
-#Pwheel,
-#Pwriting,
-#Padministration,
-#Pcodeoflaws,
-#Pmathematics,
-#Paesthetics,
-#Pcivilservice,
-#Pfeudalism,
-#Pserfs,
-#Pguilds,
-#Pnationalism{
-	display:none;
 }
 
 #resetNote{

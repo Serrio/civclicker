@@ -74,6 +74,7 @@ var upgradeData = {
 skinning: {
 	id:"skinning",
 	name:"Skinning",
+	upgradeType: "standard",
 	require: { skins: 10 },
 	effectText:"Farmers can collect skins",
 	onGain: function() { efficiency.farmers += 0.1; }
@@ -81,18 +82,21 @@ skinning: {
 harvesting: {
 	id:"harvesting",
 	name:"Harvesting",
+	upgradeType: "standard",
 	require: { herbs: 10 },
 	effectText:"Woodcutters can collect herbs" 
 },
 prospecting: {
 	id:"prospecting",
 	name:"Prospecting",
+	upgradeType: "standard",
 	require: { ore: 10 },
 	effectText:"Miners can collect ore" 
 },
 domestication: {
 	id:"domestication",
 	name:"Domestication",
+	upgradeType: "standard",
 	prereqs:{ masonry: true },
 	require: { leather: 20 },
 	effectText:"Increase farmer food output" 
@@ -100,6 +104,7 @@ domestication: {
 ploughshares: {
 	id:"ploughshares",
 	name:"Ploughshares",
+	upgradeType: "standard",
 	prereqs:{ masonry: true },
 	require: { metal:20 },
 	effectText:"Increase farmer food output",
@@ -108,6 +113,7 @@ ploughshares: {
 irrigation: {
 	id:"irrigation",
 	name:"Irrigation",
+	upgradeType: "standard",
 	prereqs:{ masonry: true },
 	require: {
 		wood: 500,
@@ -118,6 +124,7 @@ irrigation: {
 butchering: {
 	id:"butchering",
 	name:"Butchering",
+	upgradeType: "standard",
 	prereqs:{ construction: true, skinning: true },
 	require: { leather: 40 },
 	effectText:"More farmers collect more skins" 
@@ -125,6 +132,7 @@ butchering: {
 gardening: {
 	id:"gardening",
 	name:"Gardening",
+	upgradeType: "standard",
 	prereqs:{ construction: true, harvesting: true },
 	require: { herbs: 40 },
 	effectText:"More woodcutters collect more herbs" 
@@ -132,6 +140,7 @@ gardening: {
 extraction: {
 	id:"extraction",
 	name:"Extraction",
+	upgradeType: "standard",
 	prereqs:{ construction: true, prospecting: true },
 	require: { metal: 40 },
 	effectText:"More miners collect more ore" 
@@ -139,6 +148,7 @@ extraction: {
 flensing: {
 	id:"flensing",
 	name:"Flensing",
+	upgradeType: "standard",
 	prereqs:{ architecture: true },
 	require: { metal: 1000 },
 	effectText:"Collect skins more frequently",
@@ -147,6 +157,7 @@ flensing: {
 macerating: {
 	id:"macerating",
 	name:"Macerating",
+	upgradeType: "standard",
 	prereqs:{ architecture: true },
 	require: {
 		leather: 500,
@@ -157,6 +168,7 @@ macerating: {
 croprotation: {
 	id:"croprotation",
 	name:"Crop Rotation",
+	upgradeType: "standard",
 	prereqs:{ architecture: true },
 	require: {
 		herbs: 5000,
@@ -167,6 +179,7 @@ croprotation: {
 selectivebreeding: {
 	id:"selectivebreeding",
 	name:"Selective Breeding",
+	upgradeType: "standard",
 	prereqs:{ architecture: true },
 	require: {
 		skins: 5000,
@@ -177,6 +190,7 @@ selectivebreeding: {
 fertilisers: {
 	id:"fertilisers",
 	name:"Fertilisers",
+	upgradeType: "standard",
 	prereqs:{ architecture: true },
 	require: {
 		ore: 5000,
@@ -187,6 +201,7 @@ fertilisers: {
 masonry: {
 	id:"masonry",
 	name:"Masonry",
+	upgradeType: "standard",
 	require: {
 		wood: 100,
 		stone: 100 },
@@ -195,6 +210,7 @@ masonry: {
 construction: {
 	id:"construction",
 	name:"Construction",
+	upgradeType: "standard",
 	prereqs:{ masonry: true },
 	require: {
 		wood: 1000,
@@ -204,6 +220,7 @@ construction: {
 architecture: {
 	id:"architecture",
 	name:"Architecture",
+	upgradeType: "standard",
 	prereqs:{ construction: true },
 	require: {
 		wood: 10000,
@@ -213,6 +230,7 @@ architecture: {
 tenements: {
 	id:"tenements",
 	name:"Tenements",
+	upgradeType: "standard",
 	prereqs:{ construction: true },
 	require: {
 		food: 200,
@@ -224,6 +242,7 @@ tenements: {
 slums: {
 	id:"slums",
 	name:"Slums",
+	upgradeType: "standard",
 	prereqs:{ architecture: true },
 	require: {
 		food: 500,
@@ -235,6 +254,7 @@ slums: {
 granaries: {
 	id:"granaries",
 	name:"Granaries",
+	upgradeType: "standard",
 	prereqs:{ masonry: true },
 	require: {
 		wood: 1000,
@@ -245,6 +265,7 @@ granaries: {
 palisade: {
 	id:"palisade",
 	name:"Palisade",
+	upgradeType: "standard",
 	prereqs:{ construction: true },
 	require: {
 		wood: 2000,
@@ -254,6 +275,7 @@ palisade: {
 weaponry: {
 	id:"weaponry",
 	name:"Basic Weaponry",
+	upgradeType: "standard",
 	prereqs:{ masonry: true },
 	require: {
 		wood: 500,
@@ -269,6 +291,7 @@ weaponry: {
 shields: {
 	id:"shields",
 	name:"Basic Shields",
+	upgradeType: "standard",
 	prereqs:{ masonry: true },
 	require: {
 		wood: 500,
@@ -284,6 +307,7 @@ shields: {
 horseback: {
 	id:"horseback",
 	name:"Horseback Riding",
+	upgradeType: "standard",
 	prereqs:{ masonry: true },
 	require: {
 		food: 500,
@@ -293,6 +317,7 @@ horseback: {
 wheel: {
 	id:"wheel",
 	name:"The Wheel",
+	upgradeType: "standard",
 	prereqs:{ masonry: true },
 	require: {
 		wood: 500,
@@ -302,6 +327,7 @@ wheel: {
 writing: {
 	id:"writing",
 	name:"Writing",
+	upgradeType: "standard",
 	prereqs:{ masonry: true },
 	require: {
 		skins: 500 },
@@ -310,6 +336,7 @@ writing: {
 administration: {
 	id:"administration",
 	name:"Administration",
+	upgradeType: "standard",
 	prereqs:{ writing: true },
 	require: {
 		stone: 1000,
@@ -319,6 +346,7 @@ administration: {
 codeoflaws: {
 	id:"codeoflaws",
 	name:"Code of Laws",
+	upgradeType: "standard",
 	prereqs:{ writing: true },
 	require: {
 		stone: 1000,
@@ -328,6 +356,7 @@ codeoflaws: {
 mathematics: {
 	id:"mathematics",
 	name:"Mathematics",
+	upgradeType: "standard",
 	prereqs:{ writing: true },
 	require: {
 		herbs: 1000,
@@ -337,6 +366,7 @@ mathematics: {
 aesthetics: {
 	id:"aesthetics",
 	name:"Aesthetics",
+	upgradeType: "standard",
 	prereqs:{ writing: true },
 	require: { piety: 5000 },
 	effectText:"Building temples increases happiness" 
@@ -344,6 +374,7 @@ aesthetics: {
 civilservice: {
 	id:"civilservice",
 	name:"Civil Service",
+	upgradeType: "standard",
 	prereqs:{ architecture: true },
 	require: { piety: 5000 },
 	effectText:"Increase basic resources from clicking" 
@@ -351,6 +382,7 @@ civilservice: {
 feudalism: {
 	id:"feudalism",
 	name:"Feudalism",
+	upgradeType: "standard",
 	prereqs:{ civilservice: true },
 	require: { piety: 10000 },
 	effectText:"Further increase basic resources from clicking" 
@@ -358,6 +390,7 @@ feudalism: {
 guilds: {
 	id:"guilds",
 	name:"Guilds",
+	upgradeType: "standard",
 	prereqs:{ civilservice: true },
 	require: { piety: 10000 },
 	effectText:"Increase special resources from clicking" 
@@ -365,6 +398,7 @@ guilds: {
 serfs: {
 	id:"serfs",
 	name:"Serfs",
+	upgradeType: "standard",
 	prereqs:{ civilservice: true },
 	require: { piety: 20000 },
 	effectText:"Unemployed workers increase resources from clicking" 
@@ -372,6 +406,7 @@ serfs: {
 nationalism: {
 	id:"nationalism",
 	name:"Nationalism",
+	upgradeType: "standard",
 	prereqs:{ civilservice: true },
 	require: { piety: 50000 },
 	effectText:"Soldiers increase basic resources from clicking" 
@@ -379,6 +414,7 @@ nationalism: {
 worship: { 
 	id:"worship", 
 	name:"Worship", 
+	upgradeType: "deity",
 	prereqs:{ temple: 1 },
 	require: { piety: 1000 },
 	effectText:"Begin worshipping a deity",
@@ -390,6 +426,7 @@ worship: {
 lure: {
 	id:"lure",
 	name:"Lure of Civilisation",
+	upgradeType: "pantheon",
 	prereqs:{ deity: "Cats", devotion: 10 },
 	require: { piety: 1000 },
 	effectText:"increase chance to get cats"
@@ -397,6 +434,7 @@ lure: {
 companion: {
 	id:"companion",
 	name:"Warmth of the Companion",
+	upgradeType: "pantheon",
 	prereqs:{ deity: "Cats", devotion: 30 },
 	require: { piety: 1000 },
 	effectText:"cats help heal the sick"
@@ -404,6 +442,7 @@ companion: {
 comfort: {
 	id:"comfort",
 	name:"Comfort of the Hearthfires",
+	upgradeType: "pantheon",
 	prereqs:{ deity: "Cats", devotion: 50 },
 	require: { piety: 5000 },
 	effectText:"traders marginally more frequent"
@@ -411,6 +450,7 @@ comfort: {
 blessing: {
 	id:"blessing",
 	name:"Blessing of Abundance",
+	upgradeType: "pantheon",
 	prereqs:{ deity: "the Fields", devotion: 10 },
 	require: { piety: 1000 },
 	effectText:"increase farmer food output",
@@ -419,6 +459,7 @@ blessing: {
 waste: {
 	id:"waste",
 	name:"Abide No Waste",
+	upgradeType: "pantheon",
 	prereqs:{ deity: "the Fields", devotion: 30 },
 	require: { piety: 1000 },
 	effectText:"workers will eat corpses if there is no food left"
@@ -426,6 +467,7 @@ waste: {
 stay: {
 	id:"stay",
 	name:"Stay With Us",
+	upgradeType: "pantheon",
 	prereqs:{ deity: "the Fields", devotion: 50 },
 	require: { piety: 5000 },
 	effectText:"traders stay longer"
@@ -433,6 +475,7 @@ stay: {
 riddle: {
 	id:"riddle",
 	name:"Riddle of Steel",
+	upgradeType: "pantheon",
 	prereqs:{ deity: "Battle", devotion: 10 },
 	require: { piety: 1000 },
 	effectText:"improve soldiers",
@@ -446,6 +489,7 @@ riddle: {
 throne: {
 	id:"throne",
 	name:"Throne of Skulls",
+	upgradeType: "pantheon",
 	prereqs:{ deity: "Battle", devotion: 30 },
 	require: { piety: 1000 },
 	effectText:"slaying enemies creates temples"
@@ -453,6 +497,7 @@ throne: {
 lament: {
 	id:"lament",
 	name:"Lament of the Defeated",
+	upgradeType: "pantheon",
 	prereqs:{ deity: "Battle", devotion: 50 },
 	require: { piety: 5000 },
 	effectText:"Successful raids delay future invasions"
@@ -460,6 +505,7 @@ lament: {
 book: {
 	id:"book",
 	name:"The Book of the Dead",
+	upgradeType: "pantheon",
 	prereqs:{ deity: "the Underworld", devotion: 10 },
 	require: { piety: 1000 },
 	effectText:"gain piety with deaths"
@@ -467,6 +513,7 @@ book: {
 feast: {
 	id:"feast",
 	name:"A Feast for Crows",
+	upgradeType: "pantheon",
 	prereqs:{ deity: "the Underworld", devotion: 30 },
 	require: { piety: 1000 },
 	effectText:"corpses are less likely to cause illness"
@@ -474,6 +521,7 @@ feast: {
 secrets: {
 	id:"secrets",
 	name:"Secrets of the Tombs",
+	upgradeType: "pantheon",
 	prereqs:{ deity: "the Underworld", devotion: 50 },
 	require: { piety: 5000 },
 	effectText:"graveyards increase cleric piety generation"
@@ -482,6 +530,7 @@ secrets: {
 standard: { 
 	id:"standard", 
 	name:"Battle Standard", 
+	upgradeType: "conquest",
 	prereqs:{ barracks: 1 },
 	require: {
 		leather: 1000, 
@@ -491,6 +540,7 @@ standard: {
 trade: { 
 	id:"trade", 
 	name:"Trade", 
+	upgradeType: "trade",
 	prereqs: { gold: 1 }, 
 	require: { gold: 1 }, 
 	effectText:"Open the trading post"
@@ -498,6 +548,7 @@ trade: {
 currency: { 
 	id:"currency", 
 	name:"Currency", 
+	upgradeType: "trade",
 	require: { 
 		ore: 1000, 
 		gold: 10 }, 
@@ -506,6 +557,7 @@ currency: {
 commerce: { 
 	id:"commerce", 
 	name:"Commerce", 
+	upgradeType: "trade",
 	require: { 
 		piety: 10000, 
 		gold: 100 }, 
@@ -1143,29 +1195,31 @@ efficiency = {
 	palisade:0.01 // Subtracted from attacker efficiency.
 };
 upgrades = {
-	domestication:false,
-	ploughshares:false,
-	irrigation:false,
 	skinning:false,
 	harvesting:false,
 	prospecting:false,
+	domestication:false,
+	ploughshares:false,
+	irrigation:false,
 	butchering:false,
 	gardening:false,
 	extraction:false,
+	flensing:false,
+	macerating:false,
 	croprotation:false,
 	selectivebreeding:false,
 	fertilisers:false,
 	masonry:false,
 	construction:false,
 	architecture:false,
-	wheel:false,
-	horseback:false,
 	tenements:false,
 	slums:false,
 	granaries:false,
 	palisade:false,
 	weaponry:false,
 	shields:false,
+	horseback:false,
+	wheel:false,
 	writing:false,
 	administration:false,
 	codeoflaws:false,
@@ -1176,11 +1230,7 @@ upgrades = {
 	guilds:false,
 	serfs:false,
 	nationalism:false,
-	flensing:false,
-	macerating:false,
-	standard:false,
 	worship:false,
-	deityType:0,
 	lure:false,
 	companion:false,
 	comfort:false,
@@ -1193,6 +1243,7 @@ upgrades = {
 	book:false,
 	feast:false,
 	secrets:false,
+	standard:false,
 	trade:false,
 	currency:false,
 	commerce:false
@@ -1730,63 +1781,43 @@ function addUpgradeRows()
 		+ getUpgradeRowText(upgradeData.trade)
 		+ getUpgradeRowText(upgradeData.currency)
 */
+//xxx What about the deity upgrades?
 }
 
 function getPUpgradeRowText(upgradeObj)
 {
 	if (upgradeObj===null || upgradeObj===undefined) { return ""; }
 
-	var s = "<span id='P"+upgradeObj.id +"'>"
+	var s = "<span id='P"+upgradeObj.id +"' class='Pupgrade'>"
 		+"<strong>"+upgradeObj.name+"</strong>"
 		+" - "+upgradeObj.effectText+"<br/></span>";
 
 	return s;
 }
-// Dynamically create the purchased upgrades list.
+function getPPantheonUpgradeRowText(upgradeObj)
+{
+	if (upgradeObj===null || upgradeObj===undefined) { return ""; }
+
+	var s = "<tr id='P"+upgradeObj.id +"' class='Pupgrade'>"
+		+"<td><strong>"+upgradeObj.name+"</strong>: </td>"
+		+"<td>"+upgradeObj.effectText+"</td></tr>";
+
+	return s;
+}
+// Dynamically create the purchased upgrades lists.
+// Pantheon upgrades go in a separate list.
 function addPUpgradeRows()
 {
-	document.getElementById("purchased").innerHTML += 
-		  getPUpgradeRowText(upgradeData.skinning)
-		+ getPUpgradeRowText(upgradeData.harvesting)
-		+ getPUpgradeRowText(upgradeData.prospecting)
-		+ getPUpgradeRowText(upgradeData.domestication)
-		+ getPUpgradeRowText(upgradeData.ploughshares)
-		+ getPUpgradeRowText(upgradeData.irrigation)
-		+ getPUpgradeRowText(upgradeData.butchering)
-		+ getPUpgradeRowText(upgradeData.gardening)
-		+ getPUpgradeRowText(upgradeData.extraction)
-		+ getPUpgradeRowText(upgradeData.flensing)
-		+ getPUpgradeRowText(upgradeData.macerating)
-		+ getPUpgradeRowText(upgradeData.croprotation)
-		+ getPUpgradeRowText(upgradeData.selectivebreeding)
-		+ getPUpgradeRowText(upgradeData.fertilisers)
-		+ getPUpgradeRowText(upgradeData.masonry)
-		+ getPUpgradeRowText(upgradeData.construction)
-		+ getPUpgradeRowText(upgradeData.architecture)
-		+ getPUpgradeRowText(upgradeData.tenements)
-		+ getPUpgradeRowText(upgradeData.slums)
-		+ getPUpgradeRowText(upgradeData.granaries)
-		+ getPUpgradeRowText(upgradeData.palisade)
-		+ getPUpgradeRowText(upgradeData.weaponry)
-		+ getPUpgradeRowText(upgradeData.shields)
-		+ getPUpgradeRowText(upgradeData.horseback)
-		+ getPUpgradeRowText(upgradeData.wheel)
-		+ getPUpgradeRowText(upgradeData.writing)
-		+ getPUpgradeRowText(upgradeData.administration)
-		+ getPUpgradeRowText(upgradeData.codeoflaws)
-		+ getPUpgradeRowText(upgradeData.mathematics)
-		+ getPUpgradeRowText(upgradeData.aesthetics)
-		+ getPUpgradeRowText(upgradeData.civilservice)
-		+ getPUpgradeRowText(upgradeData.feudalism)
-		+ getPUpgradeRowText(upgradeData.guilds)
-		+ getPUpgradeRowText(upgradeData.serfs)
-		+ getPUpgradeRowText(upgradeData.nationalism)
+	var i=0,upgradeId, standardUpgStr="", pantheonUpgStr="";
 
-		+ getPUpgradeRowText(upgradeData.worship)
-		+ getPUpgradeRowText(upgradeData.standard)
-		+ getPUpgradeRowText(upgradeData.trade)
-		+ getPUpgradeRowText(upgradeData.currency)
-		+ getPUpgradeRowText(upgradeData.commerce);
+	for (upgradeId in upgradeData) { if (upgradeData.hasOwnProperty(upgradeId)) {
+		i=upgradeData[upgradeId];
+		if (i.upgradeType == "pantheon") { pantheonUpgStr += getPPantheonUpgradeRowText(i); }
+		else { standardUpgStr += getPUpgradeRowText(i); }
+	}}
+
+	document.getElementById("purchased").innerHTML += standardUpgStr;
+	document.getElementById("purchasedPantheon").innerHTML = pantheonUpgStr;
 }
 
 
@@ -1906,6 +1937,7 @@ function updatePopulation(){
 	document.getElementById("civType").innerHTML = civType;
 
 	//Unlocking interface elements as population increases to reduce unnecessary clicking
+	//xxx These should be reset in reset()
 	if (population.current + population.zombies >= 10) {
 		if (!customIncrements){	
 			setElemDisplay(document.getElementById("spawn10"),true);
@@ -2021,66 +2053,29 @@ function updateSpawnButtons(){
 // Check to see if the player has an upgrade and hide as necessary
 // Check also to see if the player can afford an upgrade and enable/disable as necessary
 function updateUpgrades(){
-
-// Internal convenience function
-// upgradeId - The ID of the upgrade.
-function updateUpgrade(upgradeId) {
-	var havePrice = (canAfford(upgradeData[upgradeId].require) > 0);
-	var havePrereqs = meetsPrereqs(upgradeData[upgradeId].prereqs);
-	var haveUpgrade = upgrades[upgradeId];
-
-	// Only show the purchase button if we have the prereqs, but haven't bought it yet.
-	setElemDisplay(document.getElementById(upgradeId+"Line"),(havePrereqs && !haveUpgrade));
-	// Show the already-purchased line if we've already bought it.
-	setElemDisplay(document.getElementById("P"+upgradeId),haveUpgrade);
-	// Only enable the button if we are able to buy, but haven't.
-	document.getElementById(upgradeId).disabled = (!havePrereqs || !havePrice || haveUpgrade);
-}
 	var deitySpecEnable;
+	var upgradeId, havePrice, havePrereqs, haveUpgrade;
 
-	updateUpgrade("skinning");
-	updateUpgrade("harvesting");
-	updateUpgrade("prospecting");
-	updateUpgrade("domestication");
-	updateUpgrade("ploughshares");
-	updateUpgrade("irrigation");
-	updateUpgrade("butchering");
-	updateUpgrade("gardening");
-	updateUpgrade("extraction");
-	updateUpgrade("croprotation");
-	updateUpgrade("selectivebreeding");
-	updateUpgrade("fertilisers");
-	updateUpgrade("flensing");
-	updateUpgrade("macerating");
+	// Update all of the upgrades
+	for (upgradeId in upgrades) { if (upgrades.hasOwnProperty(upgradeId)) {
+		havePrice = (canAfford(upgradeData[upgradeId].require) > 0);
+		havePrereqs = meetsPrereqs(upgradeData[upgradeId].prereqs);
+		haveUpgrade = upgrades[upgradeId];
 
-	//BUILDING TECHS
-	updateUpgrade("masonry");
-	updateUpgrade("construction");
-	updateUpgrade("architecture");
+		// Only show the purchase button if we have the prereqs, but haven't bought it yet.
+		setElemDisplay(document.getElementById(upgradeId+"Line"),(havePrereqs && !haveUpgrade));
+		// Show the already-purchased line if we've already bought it.
+		setElemDisplay(document.getElementById("P"+upgradeId),haveUpgrade);
+		// Only enable the button if we are able to buy, but haven't.
+		document.getElementById(upgradeId).disabled = (!havePrereqs || !havePrice || haveUpgrade);
+	}}
+
+	// Unlock other UI elements controlled by upgrades
+
 	if (upgrades.architecture && upgrades.civilservice){ //unlock wonders
 		setElemDisplay(document.getElementById("wonderLine"),true);
 	} 
-	updateUpgrade("wheel");
-	updateUpgrade("horseback");
-	updateUpgrade("tenements");
-	updateUpgrade("slums");
-	updateUpgrade("granaries");
-	updateUpgrade("palisade");
-	updateUpgrade("weaponry");
-	updateUpgrade("shields");
-	updateUpgrade("writing");
-	updateUpgrade("administration");
-	updateUpgrade("codeoflaws");
-	updateUpgrade("mathematics");
-	updateUpgrade("aesthetics");
-	updateUpgrade("civilservice");
-	updateUpgrade("feudalism");
-	updateUpgrade("guilds");
-	updateUpgrade("serfs");
-	updateUpgrade("nationalism");
-
 	//deity techs
-	updateUpgrade("worship");
 	document.getElementById("renameDeity").disabled = (!upgrades.worship);
 	setElemDisplay(document.getElementById("deitySpecialisation"),((upgrades.worship) && (deity.type == "")));
 	if (upgrades.worship){
@@ -2097,32 +2092,11 @@ function updateUpgrade(upgradeId) {
 		document.getElementById("deityCats").disabled = !deitySpecEnable;
 	}
 	//standard
-	updateUpgrade("standard");
 	setElemDisplay(document.getElementById("conquest"),upgrades.standard);
 	if (upgrades.standard) { updateTargets(); }
 
-	//cats
-	updateUpgrade("lure");
-	updateUpgrade("companion");
-	updateUpgrade("comfort");
-	//fields
-	updateUpgrade("blessing");
-	updateUpgrade("waste");
-	updateUpgrade("stay");
-	//battle
-	updateUpgrade("riddle");
-	updateUpgrade("throne");
-	updateUpgrade("lament");
-	//underworld
-	updateUpgrade("book");
-	updateUpgrade("feast");
-	updateUpgrade("secrets");
-
-	//trade
-	updateUpgrade("trade");
+	// trade
 	setElemDisplay(document.getElementById("tradeUpgradeContainer"),upgrades.trade); //xxx Eliminate this?
-	updateUpgrade("currency");
-	updateUpgrade("commerce");
 }
 
 function updateDeity(){
@@ -2235,119 +2209,43 @@ function updateRequirements(buildingObj){
 	if (displayNode && isValid(buildingObj.require)) { displayNode.innerHTML = getReqText(buildingObj.require); }
 }
 
+function Achievement(id, name, test) 
+{	if (!(this instanceof Achievement)) { return new Achievement(id, name, test); } // Prevent accidental namespace pollution
+	Object.call(this);			 this.id=id; 	this.name=name; 	this.test=test; }
+
 var achData = {
 	//conquest
-	raider: {
-		id: "raider",
-		name: "Raider",
-		test: function() { return raiding.victory; }
-	},
-	engineer: {
-		id: "engineer",
-		name: "Engi&shy;neer",
-		//xxx Technically this also gives credit for capturing a siege engine.
-		test: function() { return population.siege > 0; }
-	},
-	domination: {
-		id: "domination",
-		name: "Domi&shy;nation",
-		// If we beat the largest opponent, grant bonus achievement.
-		test: function() { return raiding.victory && (raiding.last == civSizes[civSizes.length-1].id); }
-	},
+	raider:		 new Achievement("raider"		, "Raider"			, function() { return raiding.victory; }),
+	//xxx Technically this also gives credit for capturing a siege engine.
+	engineer:	 new Achievement("engineer"		, "Engi&shy;neer"	, function() { return population.siege > 0; }),
+	// If we beat the largest opponent, grant bonus achievement.
+	domination:	 new Achievement("domination"	, "Domi&shy;nation"	, function() { return raiding.victory && (raiding.last == civSizes[civSizes.length-1].id); }),
 	//happiness
-	hated: {
-		id: "hated",
-		name: "Hated",
-		test: function() { return efficiency.happiness <= 0.5; }
-	},
-	loved: {
-		id: "loved",
-		name: "Loved",
-		test: function() { return efficiency.happiness >= 1.5; }
-	},
+	hated:		 new Achievement("hated"		, "Hated"			, function() { return efficiency.happiness <= 0.5; }),
+	loved:		 new Achievement("loved"		, "Loved"			, function() { return efficiency.happiness >= 1.5; }),
 	//cats
-	cat: {
-		id: "cat",
-		name: "Cat!",
-		test: function() { return population.cats >= 1; }
-	},
-	glaring: {
-		id: "glaring",
-		name: "Glaring",
-		test: function() { return population.cats >= 10; }
-	},
-	clowder: {
-		id: "clowder",
-		name: "Clowder",
-		test: function() { return population.cats >= 100; }
-	},
+	cat:		 new Achievement("cat"			, "Cat!"			, function() { return population.cats >= 1; }),
+	glaring:	 new Achievement("glaring"		, "Glaring"			, function() { return population.cats >= 10; }),
+	clowder:	 new Achievement("clowder"		, "Clowder"			, function() { return population.cats >= 100; }),
 	//other population
-	plague: {
-		id: "plague",
-		name: "Plagued",
-		//Plagued achievement requires sick people to outnumber healthy
-		test: function() { return population.totalSick > population.healthy; }
-	},
-	ghostTown: {
-		id: "ghostTown",
-		name: "Ghost Town",
-		test: function() { return (population.current == 0) && (population.cap >= 1000); }
-	},
+	//Plagued achievement requires sick people to outnumber healthy
+	plague:		 new Achievement("plague"		, "Plagued"			, function() { return population.totalSick > population.healthy; }),
+	ghostTown:	 new Achievement("ghostTown"	, "Ghost Town"		, function() { return (population.current == 0) && (population.cap >= 1000); }),
 	//deities
-	battle: {
-		id: "battle",
-		name: "Battle",
-		test: function() { return deity.type == "Battle"; }
-	},
-	fields: {
-		id: "fields",
-		name: "Fields",
-		test: function() { return deity.type == "the Fields"; }
-	},
-	underworld: {
-		id: "underworld",
-		name: "Under&shy;world",
-		test: function() { return deity.type == "the Underworld"; }
-	},
-	cats: {
-		id: "cats",
-		name: "Cats",
-		test: function() { return deity.type == "Cats"; }
-	},
-	fullHouse: {
-		id: "fullHouse",
-		name: "Full House",
-		test: function() { return deity.battle && deity.fields && deity.underworld && deity.cats; }
-	},
+	battle:		 new Achievement("battle"		, "Battle"			, function() { return deity.type == "Battle"; }),
+	fields:		 new Achievement("fields"		, "Fields"			, function() { return deity.type == "the Fields"; }),
+	underworld:	 new Achievement("underworld"	, "Under&shy;world"	, function() { return deity.type == "the Underworld"; }),
+	cats:		 new Achievement("cats"			, "Cats"			, function() { return deity.type == "Cats"; }),
+	fullHouse:	 new Achievement("fullHouse"	, "Full House"		, function() { return deity.battle && deity.fields && deity.underworld && deity.cats; }),
 	//wonders
-	wonder: {
-		id: "wonder",
-		name: "Wonder",
-		test: function() { return wonder.completed; }
-	},
-	seven: {
-		id: "seven",
-		name: "Seven!",
-		test: function() { return wonder.food + wonder.wood + wonder.stone + wonder.skins + 
-							wonder.herbs + wonder.ore + wonder.leather + wonder.metal + wonder.piety >= 7; }
-	},
+	wonder:		 new Achievement("wonder"		, "Wonder"			, function() { return wonder.completed; }),
+	seven:		 new Achievement("seven"		, "Seven!"			, function() { return wonder.food + wonder.wood + wonder.stone + wonder.skins + wonder.herbs + 
+																							wonder.ore + wonder.leather + wonder.metal + wonder.piety >= 7; }),
 	//trading
-	merchant: {
-		id: "merchant",
-		name: "Merch&shy;ant",
-		test: function() { return gold.total > 0; }
-	},
-	rushed: {
-		id: "rushed",
-		name: "Rushed",
-		test: function() { return wonder.rushed; }
-	},
+	merchant:	 new Achievement("merchant"		, "Merch&shy;ant"	, function() { return gold.total > 0; }),
+	rushed:		 new Achievement("rushed"		, "Rushed"			, function() { return wonder.rushed; }),
 	//other
-	neverclick: {
-		id: "neverclick",
-		name: "Never&shy;click",
-		test: function() { return wonder.completed && resourceClicks <= 22; }
-	}
+	neverclick:	 new Achievement("neverclick"	, "Never&shy;click"	, function() { return wonder.completed && resourceClicks <= 22; })
 };
 
 // achId can be:
@@ -2371,13 +2269,11 @@ function addAchievementRows()
 		s += getAchRowText(civSizes[i].id, (isValid(civSizes[i].name) ? civSizes[i].name : undefined));
 	}
 
-	var achItems = [true, "raider", "engineer", "domination", false, "hated", "loved", false, 
-					"cat", "glaring", "clowder", false, "plague", false, "ghostTown", true,
-					"battle", "fields", "underworld", "cats", "fullHouse", false, "wonder", "seven", false,
-					"merchant", "rushed", false, "neverclick"];
-	for (i=0;i<achItems.length;++i) { 
-		s += getAchRowText(achItems[i], ((typeof achItems[i] != "boolean") ? achData[achItems[i]].name : undefined));
-	}
+	// The specification for the achievements grid.  true->newline, false->gap
+	[true, "raider", "engineer", "domination", false, "hated", "loved", false, "cat", "glaring", "clowder", false, 
+	"plague", false, "ghostTown", true, "battle", "fields", "underworld", "cats", "fullHouse", false, 
+	"wonder", "seven", false, "merchant", "rushed", false, "neverclick"]
+	.forEach(function(element) { s += getAchRowText(element, ((typeof element != "boolean") ? achData[element].name : undefined)); });
 
 	document.getElementById("achievements").innerHTML += s;
 }
@@ -2385,21 +2281,22 @@ function addAchievementRows()
 function testAchievement(achObj)
 {
 	if (achievements[achObj.id]) { return true; }
-	if (!achObj.test()) { return false; }
+	if (isValid(achObj.test) && !achObj.test()) { return false; }
 	achievements[achObj.id] = true;
 	gameLog("Achievement Unlocked: "+achObj.name);
 }
 
 function testAchievements(){
-	var i;
+	var achId;
 	// Test civ size achievement based on current size.
 	var civTypeInfo = civSizes.getCivSize(population.current);
-	if (achievements.hasOwnProperty(civTypeInfo.id) && !achievements[civTypeInfo.id]) {
-		achievements[civTypeInfo.id] = 1;
-		gameLog("Achievement Unlocked: " + civTypeInfo.name);
+	if (achievements.hasOwnProperty(civTypeInfo.id)) {
+		testAchievement(civTypeInfo);
 	}
 
-	for (i in achData) { testAchievement(achData[i]); } // Now test other achievements
+	// Now test other achievements
+	for (achId in achData) { testAchievement(achData[achId]); }
+
 	updateAchievements();
 }
 
@@ -2415,7 +2312,21 @@ function updateAchievements(){
 	for (i=1;i<civSizes.length;++i) { updateAchievement(civSizes[i].id); }
 
 	// Then update the rest.
-	for (i in achData) { updateAchievement(achData[i].id); }
+	for (i in achData) { if (achData.hasOwnProperty(i)) { updateAchievement(achData[i].id); } }
+}
+
+
+// Dynamically add the raid buttons for the various civ sizes.
+function addRaidRows()
+{
+	var i, s="";
+
+	for (i=0;i<civSizes.length;++i) {
+		s += "<button class='raid' data-civtype='"+civSizes[i].id+"' onmousedown='onInvade(event)' disabled='disabled'>"+
+		"Raid "+civSizes[i].name+"</button><br />"; //xxxL10N
+	}
+
+	document.getElementById("raidGroup").innerHTML += s;
 }
 
 // Enable the raid buttons for eligible targets.
@@ -3383,6 +3294,8 @@ function load(loadType){
 		delete loadVar.deity.devotion; 
 	}
 	// v1.1.33: Achievement flags converted from int to bool (should be transparent)
+	// v1.1.33: upgrades.deityType no longer used
+	delete loadVar.upgrades.deityType;
 	
 	////////////////////////////////////////////////////
 	//
@@ -3864,7 +3777,6 @@ function reset(){
 		currency:false,
 		commerce:false,
 		worship:false,
-		deityType:0,
 		//Pantheon upgrades are permanent across resets
 		lure:upgrades.lure,
 		companion:upgrades.companion,
@@ -4351,7 +4263,7 @@ function raidWin() {
 	gameLog("Raid victorious!"); //notify player
 	raiding.victory = true; //set victory for future handling
 
-	if ((targetMax < civSizes[civSizes.length-1].id) && raiding.last == targetMax)
+	if ((targetMax != civSizes[civSizes.length-1].id) && raiding.last == targetMax)
 	{
 		// We fought our largest eligible foe, but not the largest possible.  Raise the limit.
 		targetMax = civSizes[civSizes[targetMax] + 1].id;
@@ -4466,6 +4378,7 @@ function initCivclicker() {
 	addUpgradeRows();
 	addPUpgradeRows();
 	addAchievementRows();
+	addRaidRows();
 
 	//Prompt player for names
 	if (!localStorage.getItem("civ") && !read_cookie("civ")) {

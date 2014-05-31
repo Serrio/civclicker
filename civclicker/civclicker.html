@@ -309,18 +309,6 @@
 					<p id="gloryGroup">
 						Glory: <span id="gloryTimer">0</span> seconds remain
 					</p>
-					<button class="raid" data-civtype="thorp" onmousedown="onInvade(event)">Raid Thorp</button><br />
-					<button class="raid" data-civtype="hamlet" onmousedown="onInvade(event)" disabled>Raid Hamlet</button><br />
-					<button class="raid" data-civtype="village" onmousedown="onInvade(event)" disabled>Raid Village</button><br />
-					<button class="raid" data-civtype="smallTown" onmousedown="onInvade(event)" disabled>Raid Small Town</button><br />
-					<button class="raid" data-civtype="largeTown" onmousedown="onInvade(event)" disabled>Raid Large Town</button><br />
-					<button class="raid" data-civtype="smallCity" onmousedown="onInvade(event)" disabled>Raid Small City</button><br />
-					<button class="raid" data-civtype="largeCity" onmousedown="onInvade(event)" disabled>Raid Large City</button><br />
-					<button class="raid" data-civtype="metropolis" onmousedown="onInvade(event)" disabled>Raid Metropolis</button><br />
-					<button class="raid" data-civtype="smallNation" onmousedown="onInvade(event)" disabled>Raid Small Nation</button><br />
-					<button class="raid" data-civtype="nation" onmousedown="onInvade(event)" disabled>Raid Nation</button><br />
-					<button class="raid" data-civtype="largeNation" onmousedown="onInvade(event)" disabled>Raid Large Nation</button><br />
-					<button class="raid" data-civtype="empire" onmousedown="onInvade(event)" disabled>Raid Empire</button><br />
 				</div>
 				<div id="victoryGroup">
 					<h4>Victory!</h4>
@@ -443,20 +431,7 @@
 	</div>
 	<div id="permaUpgradeContainer">
 		<h3>Pantheon Upgrades</h3>
-		<table>
-			<tr id="Priddle"><td><strong>Riddle of Steel</strong>: </td><td>Improve soldiers</td></tr>
-			<tr id="Pthrone"><td><strong>Throne of Skulls</strong>: </td><td>Slaying enemies creates temples</td></tr>
-			<tr id="Plament"><td><strong>Lament of the Defeated</strong>: </td><td>Successful raids delay future invasions</td></tr>
-			<tr id="Pbook"><td><strong>The Book of the Dead</strong>: </td><td>Gain piety with deaths</td></tr>
-			<tr id="Pfeast"><td><strong>A Feast for Crows</strong>: </td><td>Corpses are less likely to cause illness</td></tr>
-			<tr id="Psecrets"><td><strong>Secrets of the Tombs</strong>: </td><td>Graveyards increase Cleric piety generation</td></tr>
-			<tr id="Plure"><td><strong>Lure of Civilisation</strong>: </td><td>Increase chance to get cats</td></tr>
-			<tr id="Pcompanion"><td><strong>Warmth of the Companion</strong>: </td><td>Cats help heal the sick</td></tr>
-			<tr id="Pcomfort"><td><strong>Comfort of the Hearthfires</strong>: </td><td>Traders arrive more frequently</td></tr>
-			<tr id="Pblessing"><td><strong>Blessing of Abundance</strong>: </td><td>Increase farmer food output</td></tr>
-			<tr id="Pwaste"><td><strong>Abide No Waste</strong>: </td><td>Workers will eat corpses if there is no food left</td></tr>
-			<tr id="Pstay"><td><strong>Stay With Us</strong>: </td><td>Traders stay longer</td></tr>
-		</table>
+		<table id="purchasedPantheon"></table>
 	</div>
 	<div id="pastWondersContainer">
 		<h3>Wonders</h3>
