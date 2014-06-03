@@ -23,7 +23,7 @@ var version = 19;
 var versionData = {
 	major:  1,
 	minor:  1,
-	sub:   33,
+	sub:   34,
 	mod:   "alpha"
 };
 var saveTag1 = "civ";
@@ -74,7 +74,7 @@ var upgradeData = {
 skinning: {
 	id:"skinning",
 	name:"Skinning",
-	upgradeType: "standard",
+	subType: "upgrade",
 	require: { skins: 10 },
 	effectText:"Farmers can collect skins",
 	onGain: function() { efficiency.farmers += 0.1; }
@@ -82,21 +82,21 @@ skinning: {
 harvesting: {
 	id:"harvesting",
 	name:"Harvesting",
-	upgradeType: "standard",
+	subType: "upgrade",
 	require: { herbs: 10 },
 	effectText:"Woodcutters can collect herbs" 
 },
 prospecting: {
 	id:"prospecting",
 	name:"Prospecting",
-	upgradeType: "standard",
+	subType: "upgrade",
 	require: { ore: 10 },
 	effectText:"Miners can collect ore" 
 },
 domestication: {
 	id:"domestication",
 	name:"Domestication",
-	upgradeType: "standard",
+	subType: "upgrade",
 	prereqs:{ masonry: true },
 	require: { leather: 20 },
 	effectText:"Increase farmer food output" 
@@ -104,7 +104,7 @@ domestication: {
 ploughshares: {
 	id:"ploughshares",
 	name:"Ploughshares",
-	upgradeType: "standard",
+	subType: "upgrade",
 	prereqs:{ masonry: true },
 	require: { metal:20 },
 	effectText:"Increase farmer food output",
@@ -113,7 +113,7 @@ ploughshares: {
 irrigation: {
 	id:"irrigation",
 	name:"Irrigation",
-	upgradeType: "standard",
+	subType: "upgrade",
 	prereqs:{ masonry: true },
 	require: {
 		wood: 500,
@@ -124,7 +124,7 @@ irrigation: {
 butchering: {
 	id:"butchering",
 	name:"Butchering",
-	upgradeType: "standard",
+	subType: "upgrade",
 	prereqs:{ construction: true, skinning: true },
 	require: { leather: 40 },
 	effectText:"More farmers collect more skins" 
@@ -132,7 +132,7 @@ butchering: {
 gardening: {
 	id:"gardening",
 	name:"Gardening",
-	upgradeType: "standard",
+	subType: "upgrade",
 	prereqs:{ construction: true, harvesting: true },
 	require: { herbs: 40 },
 	effectText:"More woodcutters collect more herbs" 
@@ -140,7 +140,7 @@ gardening: {
 extraction: {
 	id:"extraction",
 	name:"Extraction",
-	upgradeType: "standard",
+	subType: "upgrade",
 	prereqs:{ construction: true, prospecting: true },
 	require: { metal: 40 },
 	effectText:"More miners collect more ore" 
@@ -148,7 +148,7 @@ extraction: {
 flensing: {
 	id:"flensing",
 	name:"Flensing",
-	upgradeType: "standard",
+	subType: "upgrade",
 	prereqs:{ architecture: true },
 	require: { metal: 1000 },
 	effectText:"Collect skins more frequently",
@@ -157,7 +157,7 @@ flensing: {
 macerating: {
 	id:"macerating",
 	name:"Macerating",
-	upgradeType: "standard",
+	subType: "upgrade",
 	prereqs:{ architecture: true },
 	require: {
 		leather: 500,
@@ -168,7 +168,7 @@ macerating: {
 croprotation: {
 	id:"croprotation",
 	name:"Crop Rotation",
-	upgradeType: "standard",
+	subType: "upgrade",
 	prereqs:{ architecture: true },
 	require: {
 		herbs: 5000,
@@ -179,7 +179,7 @@ croprotation: {
 selectivebreeding: {
 	id:"selectivebreeding",
 	name:"Selective Breeding",
-	upgradeType: "standard",
+	subType: "upgrade",
 	prereqs:{ architecture: true },
 	require: {
 		skins: 5000,
@@ -190,7 +190,7 @@ selectivebreeding: {
 fertilisers: {
 	id:"fertilisers",
 	name:"Fertilisers",
-	upgradeType: "standard",
+	subType: "upgrade",
 	prereqs:{ architecture: true },
 	require: {
 		ore: 5000,
@@ -201,7 +201,7 @@ fertilisers: {
 masonry: {
 	id:"masonry",
 	name:"Masonry",
-	upgradeType: "standard",
+	subType: "upgrade",
 	require: {
 		wood: 100,
 		stone: 100 },
@@ -210,7 +210,7 @@ masonry: {
 construction: {
 	id:"construction",
 	name:"Construction",
-	upgradeType: "standard",
+	subType: "upgrade",
 	prereqs:{ masonry: true },
 	require: {
 		wood: 1000,
@@ -220,7 +220,7 @@ construction: {
 architecture: {
 	id:"architecture",
 	name:"Architecture",
-	upgradeType: "standard",
+	subType: "upgrade",
 	prereqs:{ construction: true },
 	require: {
 		wood: 10000,
@@ -230,7 +230,7 @@ architecture: {
 tenements: {
 	id:"tenements",
 	name:"Tenements",
-	upgradeType: "standard",
+	subType: "upgrade",
 	prereqs:{ construction: true },
 	require: {
 		food: 200,
@@ -242,7 +242,7 @@ tenements: {
 slums: {
 	id:"slums",
 	name:"Slums",
-	upgradeType: "standard",
+	subType: "upgrade",
 	prereqs:{ architecture: true },
 	require: {
 		food: 500,
@@ -254,7 +254,7 @@ slums: {
 granaries: {
 	id:"granaries",
 	name:"Granaries",
-	upgradeType: "standard",
+	subType: "upgrade",
 	prereqs:{ masonry: true },
 	require: {
 		wood: 1000,
@@ -265,7 +265,7 @@ granaries: {
 palisade: {
 	id:"palisade",
 	name:"Palisade",
-	upgradeType: "standard",
+	subType: "upgrade",
 	prereqs:{ construction: true },
 	require: {
 		wood: 2000,
@@ -275,7 +275,7 @@ palisade: {
 weaponry: {
 	id:"weaponry",
 	name:"Basic Weaponry",
-	upgradeType: "standard",
+	subType: "upgrade",
 	prereqs:{ masonry: true },
 	require: {
 		wood: 500,
@@ -291,7 +291,7 @@ weaponry: {
 shields: {
 	id:"shields",
 	name:"Basic Shields",
-	upgradeType: "standard",
+	subType: "upgrade",
 	prereqs:{ masonry: true },
 	require: {
 		wood: 500,
@@ -307,7 +307,7 @@ shields: {
 horseback: {
 	id:"horseback",
 	name:"Horseback Riding",
-	upgradeType: "standard",
+	subType: "upgrade",
 	prereqs:{ masonry: true },
 	require: {
 		food: 500,
@@ -317,7 +317,7 @@ horseback: {
 wheel: {
 	id:"wheel",
 	name:"The Wheel",
-	upgradeType: "standard",
+	subType: "upgrade",
 	prereqs:{ masonry: true },
 	require: {
 		wood: 500,
@@ -327,7 +327,7 @@ wheel: {
 writing: {
 	id:"writing",
 	name:"Writing",
-	upgradeType: "standard",
+	subType: "upgrade",
 	prereqs:{ masonry: true },
 	require: {
 		skins: 500 },
@@ -336,7 +336,7 @@ writing: {
 administration: {
 	id:"administration",
 	name:"Administration",
-	upgradeType: "standard",
+	subType: "upgrade",
 	prereqs:{ writing: true },
 	require: {
 		stone: 1000,
@@ -346,7 +346,7 @@ administration: {
 codeoflaws: {
 	id:"codeoflaws",
 	name:"Code of Laws",
-	upgradeType: "standard",
+	subType: "upgrade",
 	prereqs:{ writing: true },
 	require: {
 		stone: 1000,
@@ -356,7 +356,7 @@ codeoflaws: {
 mathematics: {
 	id:"mathematics",
 	name:"Mathematics",
-	upgradeType: "standard",
+	subType: "upgrade",
 	prereqs:{ writing: true },
 	require: {
 		herbs: 1000,
@@ -366,7 +366,7 @@ mathematics: {
 aesthetics: {
 	id:"aesthetics",
 	name:"Aesthetics",
-	upgradeType: "standard",
+	subType: "upgrade",
 	prereqs:{ writing: true },
 	require: { piety: 5000 },
 	effectText:"Building temples increases happiness" 
@@ -374,7 +374,7 @@ aesthetics: {
 civilservice: {
 	id:"civilservice",
 	name:"Civil Service",
-	upgradeType: "standard",
+	subType: "upgrade",
 	prereqs:{ architecture: true },
 	require: { piety: 5000 },
 	effectText:"Increase basic resources from clicking" 
@@ -382,7 +382,7 @@ civilservice: {
 feudalism: {
 	id:"feudalism",
 	name:"Feudalism",
-	upgradeType: "standard",
+	subType: "upgrade",
 	prereqs:{ civilservice: true },
 	require: { piety: 10000 },
 	effectText:"Further increase basic resources from clicking" 
@@ -390,7 +390,7 @@ feudalism: {
 guilds: {
 	id:"guilds",
 	name:"Guilds",
-	upgradeType: "standard",
+	subType: "upgrade",
 	prereqs:{ civilservice: true },
 	require: { piety: 10000 },
 	effectText:"Increase special resources from clicking" 
@@ -398,7 +398,7 @@ guilds: {
 serfs: {
 	id:"serfs",
 	name:"Serfs",
-	upgradeType: "standard",
+	subType: "upgrade",
 	prereqs:{ civilservice: true },
 	require: { piety: 20000 },
 	effectText:"Unemployed workers increase resources from clicking" 
@@ -406,7 +406,7 @@ serfs: {
 nationalism: {
 	id:"nationalism",
 	name:"Nationalism",
-	upgradeType: "standard",
+	subType: "upgrade",
 	prereqs:{ civilservice: true },
 	require: { piety: 50000 },
 	effectText:"Soldiers increase basic resources from clicking" 
@@ -414,10 +414,10 @@ nationalism: {
 worship: { 
 	id:"worship", 
 	name:"Worship", 
-	upgradeType: "deity",
+	subType: "deity",
 	prereqs:{ temple: 1 },
 	require: { piety: 1000 },
-	effectText:"Begin worshipping a deity",
+	effectText:"Begin worshipping a deity (requires temple)",
 	onGain: function() {
 		updateUpgrades();
 		renameDeity(); //Need to add in some handling for when this returns NULL.
@@ -426,7 +426,7 @@ worship: {
 lure: {
 	id:"lure",
 	name:"Lure of Civilisation",
-	upgradeType: "pantheon",
+	subType: "pantheon",
 	prereqs:{ deity: "Cats", devotion: 10 },
 	require: { piety: 1000 },
 	effectText:"increase chance to get cats"
@@ -434,7 +434,7 @@ lure: {
 companion: {
 	id:"companion",
 	name:"Warmth of the Companion",
-	upgradeType: "pantheon",
+	subType: "pantheon",
 	prereqs:{ deity: "Cats", devotion: 30 },
 	require: { piety: 1000 },
 	effectText:"cats help heal the sick"
@@ -442,7 +442,7 @@ companion: {
 comfort: {
 	id:"comfort",
 	name:"Comfort of the Hearthfires",
-	upgradeType: "pantheon",
+	subType: "pantheon",
 	prereqs:{ deity: "Cats", devotion: 50 },
 	require: { piety: 5000 },
 	effectText:"traders marginally more frequent"
@@ -450,7 +450,7 @@ comfort: {
 blessing: {
 	id:"blessing",
 	name:"Blessing of Abundance",
-	upgradeType: "pantheon",
+	subType: "pantheon",
 	prereqs:{ deity: "the Fields", devotion: 10 },
 	require: { piety: 1000 },
 	effectText:"increase farmer food output",
@@ -459,7 +459,7 @@ blessing: {
 waste: {
 	id:"waste",
 	name:"Abide No Waste",
-	upgradeType: "pantheon",
+	subType: "pantheon",
 	prereqs:{ deity: "the Fields", devotion: 30 },
 	require: { piety: 1000 },
 	effectText:"workers will eat corpses if there is no food left"
@@ -467,7 +467,7 @@ waste: {
 stay: {
 	id:"stay",
 	name:"Stay With Us",
-	upgradeType: "pantheon",
+	subType: "pantheon",
 	prereqs:{ deity: "the Fields", devotion: 50 },
 	require: { piety: 5000 },
 	effectText:"traders stay longer"
@@ -475,7 +475,7 @@ stay: {
 riddle: {
 	id:"riddle",
 	name:"Riddle of Steel",
-	upgradeType: "pantheon",
+	subType: "pantheon",
 	prereqs:{ deity: "Battle", devotion: 10 },
 	require: { piety: 1000 },
 	effectText:"improve soldiers",
@@ -489,7 +489,7 @@ riddle: {
 throne: {
 	id:"throne",
 	name:"Throne of Skulls",
-	upgradeType: "pantheon",
+	subType: "pantheon",
 	prereqs:{ deity: "Battle", devotion: 30 },
 	require: { piety: 1000 },
 	effectText:"slaying enemies creates temples"
@@ -497,7 +497,7 @@ throne: {
 lament: {
 	id:"lament",
 	name:"Lament of the Defeated",
-	upgradeType: "pantheon",
+	subType: "pantheon",
 	prereqs:{ deity: "Battle", devotion: 50 },
 	require: { piety: 5000 },
 	effectText:"Successful raids delay future invasions"
@@ -505,7 +505,7 @@ lament: {
 book: {
 	id:"book",
 	name:"The Book of the Dead",
-	upgradeType: "pantheon",
+	subType: "pantheon",
 	prereqs:{ deity: "the Underworld", devotion: 10 },
 	require: { piety: 1000 },
 	effectText:"gain piety with deaths"
@@ -513,7 +513,7 @@ book: {
 feast: {
 	id:"feast",
 	name:"A Feast for Crows",
-	upgradeType: "pantheon",
+	subType: "pantheon",
 	prereqs:{ deity: "the Underworld", devotion: 30 },
 	require: { piety: 1000 },
 	effectText:"corpses are less likely to cause illness"
@@ -521,26 +521,25 @@ feast: {
 secrets: {
 	id:"secrets",
 	name:"Secrets of the Tombs",
-	upgradeType: "pantheon",
+	subType: "pantheon",
 	prereqs:{ deity: "the Underworld", devotion: 50 },
 	require: { piety: 5000 },
 	effectText:"graveyards increase cleric piety generation"
 },
-
 standard: { 
 	id:"standard", 
 	name:"Battle Standard", 
-	upgradeType: "conquest",
+	subType: "conquest",
 	prereqs:{ barracks: 1 },
 	require: {
 		leather: 1000, 
 		metal: 1000 },
-	effectText:"Lets you build an army"
+	effectText:"Lets you build an army (requires barracks)"
 },
 trade: { 
 	id:"trade", 
 	name:"Trade", 
-	upgradeType: "trade",
+	subType: "trade",
 	prereqs: { gold: 1 }, 
 	require: { gold: 1 }, 
 	effectText:"Open the trading post"
@@ -548,7 +547,7 @@ trade: {
 currency: { 
 	id:"currency", 
 	name:"Currency", 
-	upgradeType: "trade",
+	subType: "trade",
 	require: { 
 		ore: 1000, 
 		gold: 10 }, 
@@ -557,13 +556,80 @@ currency: {
 commerce: { 
 	id:"commerce", 
 	name:"Commerce", 
-	upgradeType: "trade",
+	subType: "trade",
 	require: { 
 		piety: 10000, 
 		gold: 100 }, 
 	effectText:"Traders arrive more frequently, stay longer"
 } };
 
+var powerData = {
+smite: { 
+	id:"smite", 
+	name:"Smite Invaders", 
+	subType: "prayer",
+	prereqs:{ deity: "Battle", devotion: 20 },
+	require: { piety: 100 },
+	effectText:"(per invader killed)"
+},
+glory: { 
+	id:"glory", 
+	name:"For Glory!", 
+	subType: "prayer",
+	prereqs:{ deity: "Battle", devotion: 40 },
+	require: { piety: 1000 }, 
+	effectText:"Temporarily makes raids more difficult, increases rewards"
+},
+wickerman: { 
+	id:"wickerman", 
+	name:"Burn Wicker Man", 
+	subType: "prayer",
+	prereqs:{ deity: "the Fields", devotion: 20 },
+	require: { wood: 500 },  //xxx +1 Worker
+	effectText:"Sacrifice 1 worker to gain a random bonus to a resource",
+},
+walk: { 
+	id:"walk", 
+	name:"Walk Behind the Rows", 
+	subType: "prayer",
+	prereqs:{ deity: "the Fields", devotion: 40 },
+	require: { }, //xxx 1 Worker/sec
+	effectText:"boost food production by sacrificing 1 worker/sec.",
+	extraText: "<br /><button id='ceaseWalk' onmousedown='walk(false)' disabled='disabled'>Cease Walking</button>"
+},
+raiseDead: { 
+	id:"raiseDead", 
+	name:"Raise Dead", 
+	subType: "prayer",
+	prereqs:{ deity: "the Underworld", devotion: 20 },
+	require: { corpses: 1, piety: 4 }, //xxx Nonlinear cost
+	effectText:"Piety to raise the next zombie",
+	extraText:"<button onmousedown='raiseDead(100)' id='raiseDead100' class='x100' disabled='disabled'>x100</button><button onmousedown='raiseDead(Infinity)' id='raiseDeadMax' class='x100' disabled='disabled'>Max</button>"
+},
+shade: { 
+	id:"shade", 
+	name:"Summon Shades", 
+	subType: "prayer",
+	prereqs:{ deity: "the Underworld", devotion: 40 },
+	require: { piety: 100 }, 
+	effectText:"Souls of the defeated rise to fight for you"
+},
+pestControl: { 
+	id:"pestControl", 
+	name:"Pest Control", 
+	subType: "prayer",
+	prereqs:{ deity: "Cats", devotion: 20 },
+	require: { piety: 100 }, 
+	effectText:"Give temporary boost to food production"
+},
+grace: { 
+	id:"grace", 
+	name:"Grace", 
+	subType: "prayer",
+	prereqs:{ deity: "Cats", devotion: 40 },
+	require: { piety: 100 }, 
+	effectText:"Increase Happiness"
+} };
 
 // Initialize Data
 var civName = "Woodstock",
@@ -1056,11 +1122,13 @@ function getCasualtyMod(attacker,defender)
 	return 1.0; // Otherwise no modifier
 }
 
-
+// The 'name' on the altars is really the label on the button to make them.
+//xxx This should probably change.
 var battleAltar = {
 	id:"battleAltar",
-	name:"battle altar",
+	name:"Build Altar",
 	plural:"battle altars",
+	subType: "altar",
 	total:0,
 	devotion:1,
 	prereqs:{ deity: "Battle" },
@@ -1068,12 +1136,14 @@ var battleAltar = {
 		stone:200,
 		metal:50,
 		piety:200
-	}
+	},
+	effectText:"+1 Devotion"
 },
 fieldsAltar = {
 	id:"fieldsAltar",
-	name:"fields altar",
+	name:"Build Altar",
 	plural:"fields altars",
+	subType: "altar",
 	total:0,
 	devotion:1,
 	prereqs:{ deity: "the Fields" },
@@ -1082,12 +1152,14 @@ fieldsAltar = {
 		wood:500,
 		stone:200,
 		piety:200
-	}
+	},
+	effectText:"+1 Devotion"
 },
 underworldAltar = {
 	id:"underworldAltar",
-	name:"underworld altar",
+	name:"Build Altar",
 	plural:"underworld altars",
+	subType: "altar",
 	total:0,
 	devotion:1,
 	prereqs:{ deity: "the Underworld" },
@@ -1095,12 +1167,14 @@ underworldAltar = {
 		stone:200,
 		piety:200,
 		corpses:1
-	}
+	},
+	effectText:"+1 Devotion"
 },
 catAltar = {
 	id:"catAltar",
-	name:"cat altar",
+	name:"Build Altar",
 	plural:"cat altars",
+	subType: "altar",
 	total:0,
 	devotion:1,
 	prereqs:{ deity: "Cats" },
@@ -1108,7 +1182,8 @@ catAltar = {
 		stone:200,
 		herbs:100,
 		piety:200
-	}
+	},
+	effectText:"+1 Devotion"
 },
 wonder = {
 	total:0,
@@ -1528,9 +1603,10 @@ function updateBuildingRow(buildingObj){
 function updateBuildingButtons(){
 	var i;
 	//enables/disabled building buttons - calls each type of building in turn
+	//Can't do altars; they're not in the proper format.
 	var buildingList = [tent,whut,cottage,house,mansion,barn,woodstock,stonestock,
 						tannery,smithy,apothecary,temple,barracks,stable,graveyard,mill,
-						fortification,battleAltar,fieldsAltar,catAltar];
+						fortification];
 
 	for (i=0;i<buildingList.length;++i) { updateBuildingRow(buildingList[i]); }
 }
@@ -1720,100 +1796,90 @@ function updateParty(){
 }
 
 
-function getUpgradeRowText(upgradeObj)
+function setUpgradeRowText(upgradeObj)
 {
 	if (upgradeObj===null || upgradeObj===undefined) { return ""; }
+	var elem = document.getElementById(upgradeObj.id+"Line");
+	if (elem===null) { return elem; }
 
-	var s = "<span id='"+upgradeObj.id+"Line' class='upgradeLine'>";
-	s += "<button id='"+upgradeObj.id+"' onmousedown=\"upgrade('"+upgradeObj.id+"')\">";
-	s += upgradeObj.name+"<br />("+getReqText(upgradeObj.require)+")</button>";
-	s += "<span class='note'>"+upgradeObj.effectText+"</span><br /></span>";
-
-	return s;
+	elem.outerHTML = "<span id='"+upgradeObj.id+"Line' class='upgradeLine'>"
+	+	"<button id='"+upgradeObj.id+"' onmousedown=\"upgrade('"+upgradeObj.id+"')\">"
+	+	upgradeObj.name+"<br />("+getReqText(upgradeObj.require)+")</button>"
+	+	"<span class='note'>"+upgradeObj.effectText+"</span><br /></span>";
 }
-// Dynamically create the purchased upgrades list.
+function setPantheonUpgradeRowText(upgradeObj)
+{
+	if (upgradeObj===null || upgradeObj===undefined) { return ""; }
+	var elem = document.getElementById(upgradeObj.id+"Line");
+	if (elem===null) { return elem; }
+
+	elem.outerHTML = "<tr id='"+upgradeObj.id+"Line'>"
+	// Don't include devotion if it isn't valid.
+	//xxx Should write a chained dereference eval
+		+"<td class='devcost'>"
+		+	((isValid(upgradeObj.prereqs) && isValid(upgradeObj.prereqs.devotion)) 
+				? (upgradeObj.prereqs.devotion +"d&nbsp;") : "") +"</td>"
+		//xxx The 'fooRow' id is added to make altars work, but should be redesigned.
+		+"<td id='"+upgradeObj.id+"Row'><button id='"+upgradeObj.id+"' onmousedown=\""
+		// The event handler can take three forms, depending on whether this is
+		// an altar, a prayer, or a pantheon upgrade.
+	 	+   ((upgradeObj.subType == "altar" ) ? ("createBuilding("+upgradeObj.id+")")
+	 		:(upgradeObj.subType == "prayer") ? (upgradeObj.id+"()")
+											  : ("upgrade('"+upgradeObj.id + "')"))
+		+"\" disabled='disabled'>" + upgradeObj.name + "</button>"
+		+(isValid(upgradeObj.extraText) ? upgradeObj.extraText : "")+"</td>"
+		+"<td><span id='"+upgradeObj.id+"Cost' class='cost'>"+getReqText(upgradeObj.require)+"</span>"
+		+"<span class='note'>: "+upgradeObj.effectText+"</span></td></tr>";
+}
+// Dynamically create the upgrade purchase buttons.
 function addUpgradeRows()
 {
-	document.getElementById("upgradesPane").innerHTML += 
-		  getUpgradeRowText(upgradeData.skinning)
-		+ getUpgradeRowText(upgradeData.harvesting)
-		+ getUpgradeRowText(upgradeData.prospecting)
-		+ getUpgradeRowText(upgradeData.domestication)
-		+ getUpgradeRowText(upgradeData.ploughshares)
-		+ getUpgradeRowText(upgradeData.irrigation)
-		+ getUpgradeRowText(upgradeData.butchering)
-		+ getUpgradeRowText(upgradeData.gardening)
-		+ getUpgradeRowText(upgradeData.extraction)
-		+ getUpgradeRowText(upgradeData.flensing)
-		+ getUpgradeRowText(upgradeData.macerating)
-		+ getUpgradeRowText(upgradeData.croprotation)
-		+ getUpgradeRowText(upgradeData.selectivebreeding)
-		+ getUpgradeRowText(upgradeData.fertilisers)
-		+ getUpgradeRowText(upgradeData.masonry)
-		+ getUpgradeRowText(upgradeData.construction)
-		+ getUpgradeRowText(upgradeData.architecture)
-		+ getUpgradeRowText(upgradeData.tenements)
-		+ getUpgradeRowText(upgradeData.slums)
-		+ getUpgradeRowText(upgradeData.granaries)
-		+ getUpgradeRowText(upgradeData.palisade)
-		+ getUpgradeRowText(upgradeData.weaponry)
-		+ getUpgradeRowText(upgradeData.shields)
-		+ getUpgradeRowText(upgradeData.horseback)
-		+ getUpgradeRowText(upgradeData.wheel)
-		+ getUpgradeRowText(upgradeData.writing)
-		+ getUpgradeRowText(upgradeData.administration)
-		+ getUpgradeRowText(upgradeData.codeoflaws)
-		+ getUpgradeRowText(upgradeData.mathematics)
-		+ getUpgradeRowText(upgradeData.aesthetics)
-		+ getUpgradeRowText(upgradeData.civilservice)
-		+ getUpgradeRowText(upgradeData.feudalism)
-		+ getUpgradeRowText(upgradeData.guilds)
-		+ getUpgradeRowText(upgradeData.serfs)
-		+ getUpgradeRowText(upgradeData.nationalism)
-		+ "<span id='wonderLine'><br /><button id='startWonder' onmousedown='startWonder()'>"
+	var i,s="";
+
+	// Place the stubs for most upgrades under the upgrades tab.
+	for (i in upgradeData) { if (upgradeData.hasOwnProperty(i)) {
+		if (upgradeData[i].subType=="upgrade") { s += "<span id='"+i+"Line' class='upgradeLine'></span>"; }
+	}}
+
+	s += "<span id='wonderLine'><br /><button id='startWonder' onmousedown='startWonder()'>"
 		+ "Start Building Wonder</button><br /></span>"
 		+ "<h3>Purchased Upgrades</h3>"
 		+ "<div id='purchased'></div>";
 
-/*xxx Maybe convert these later
-		+ getUpgradeRowText(upgradeData.worship)
-		+ getUpgradeRowText(upgradeData.standard)
-		+ getUpgradeRowText(upgradeData.trade)
-		+ getUpgradeRowText(upgradeData.currency)
-*/
-//xxx What about the deity upgrades?
+	document.getElementById("upgradesPane").innerHTML += s;
+
+	// Fill in the stubs we just added, as well as any pre-existing stubs.
+	for (i in upgradeData) { if (upgradeData.hasOwnProperty(i)) {
+		setUpgradeRowText(upgradeData[i]); 
+	}}
+
+	// Deity Pantheon Upgrades
+	["riddle","throne","lament","blessing","waste","stay"
+	,"book","feast","secrets","lure","companion","comfort"]
+	.forEach(function(i){ setPantheonUpgradeRowText(upgradeData[i]); });
+
+	// Deity granted powers
+	["battleAltar","fieldsAltar","underworldAltar","catAltar"]
+	.forEach(function(i){ setPantheonUpgradeRowText(window[i]); });
+
+	// Deity granted powers
+	["smite","glory","wickerman","walk","raiseDead","shade","pestControl","grace"]
+	.forEach(function(i){ setPantheonUpgradeRowText(powerData[i]); });
 }
 
-function getPUpgradeRowText(upgradeObj)
-{
-	if (upgradeObj===null || upgradeObj===undefined) { return ""; }
-
-	var s = "<span id='P"+upgradeObj.id +"' class='Pupgrade'>"
-		+"<strong>"+upgradeObj.name+"</strong>"
-		+" - "+upgradeObj.effectText+"<br/></span>";
-
-	return s;
-}
-function getPPantheonUpgradeRowText(upgradeObj)
-{
-	if (upgradeObj===null || upgradeObj===undefined) { return ""; }
-
-	var s = "<tr id='P"+upgradeObj.id +"' class='Pupgrade'>"
-		+"<td><strong>"+upgradeObj.name+"</strong>: </td>"
-		+"<td>"+upgradeObj.effectText+"</td></tr>";
-
-	return s;
-}
-// Dynamically create the purchased upgrades lists.
+// Dynamically create the lists of purchased upgrades.
 // Pantheon upgrades go in a separate list.
 function addPUpgradeRows()
 {
-	var i=0,upgradeId, standardUpgStr="", pantheonUpgStr="";
+	var upgradeObj,text="",upgradeId, standardUpgStr="", pantheonUpgStr="";
 
 	for (upgradeId in upgradeData) { if (upgradeData.hasOwnProperty(upgradeId)) {
-		i=upgradeData[upgradeId];
-		if (i.upgradeType == "pantheon") { pantheonUpgStr += getPPantheonUpgradeRowText(i); }
-		else { standardUpgStr += getPUpgradeRowText(i); }
+		upgradeObj=upgradeData[upgradeId];
+		text = "<span id='P"+upgradeObj.id +"' class='Pupgrade'>"
+			+"<strong>"+upgradeObj.name+"</strong>"
+			+" - "+upgradeObj.effectText+"<br/></span>";
+		if (upgradeObj.subType == "pantheon") { pantheonUpgStr += text; }
+		else { standardUpgStr += text; }
 	}}
 
 	document.getElementById("purchased").innerHTML += standardUpgStr;
@@ -1989,7 +2055,7 @@ function updatePopulation(){
 	}
 	updateSpawnButtons();
 	//Calculates and displays the cost of buying workers at the current population.
-	document.getElementById("zombieCost").innerHTML = prettify(Math.round(calcZombieCost(1)));
+	document.getElementById("raiseDeadCost").innerHTML = prettify(Math.round(calcZombieCost(1)));
 	document.getElementById("workerCost").innerHTML = prettify(Math.round(calcWorkerCost(1)));
 	document.getElementById("workerCost10").innerHTML = prettify(Math.round(calcWorkerCost(10)));
 	document.getElementById("workerCost100").innerHTML = prettify(Math.round(calcWorkerCost(100)));
@@ -2152,34 +2218,33 @@ function updateMobs(){
 
 // Enables or disables availability of activated religious powers.
 // Passive religious benefits are handled by the upgrade system.
-//xxx TODO: Make this more data-driven.
 function updateDevotion(){
+	var obj;
 	document.getElementById("devotion" + deity.seniority).innerHTML = devotion.total;
 
-	setElemDisplay(document.getElementById("smite"+"Line"),        (deity.type == "Battle" && devotion.total >= 20));
-	document.getElementById("smite").disabled =                  (!(deity.type == "Battle" && devotion.total >= 20));
-	//xxx Smite should be disabled if there are no foes.
+	// Process altars
+	[battleAltar,fieldsAltar,underworldAltar,catAltar].forEach(function(i){ 
+		setElemDisplay(document.getElementById(i.id+"Line"), meetsPrereqs(i.prereqs));
+		document.getElementById(i.id).disabled = (!(meetsPrereqs(i.prereqs) && canAfford(i.require)));
+	});
 
-	setElemDisplay(document.getElementById("glory"+"Line"),        (deity.type == "Battle" && devotion.total >= 40));
-	document.getElementById("glory").disabled =                  (!(deity.type == "Battle" && devotion.total >= 40));
+	// Process activated powers
+	["smite","glory","wickerman","walk","shade","pestControl","grace"].forEach(function(i){ 
+		obj = powerData[i];
+		setElemDisplay(document.getElementById(i+"Line"), meetsPrereqs(obj.prereqs));
+		document.getElementById(i).disabled = !(meetsPrereqs(obj.prereqs) && canAfford(obj.require));
+	});
+	//xxx Smite should also be disabled if there are no foes.
 
-	setElemDisplay(document.getElementById("wickerman"+"Line"),    (deity.type == "the Fields" && devotion.total >= 20));
-	document.getElementById("wickerman").disabled =              (!(deity.type == "the Fields" && devotion.total >= 20 && population.healthy > 0));
+	//xxx These costs are not yet handled by canAfford().
+	if (population.healthy < 1) { 
+		document.getElementById("wickerman").disabled = true; 
+		document.getElementById("walk").disabled = true; 
+	}
 
-	setElemDisplay(document.getElementById("walk"+"Line"),         (deity.type == "the Fields" && devotion.total >= 40));
-	document.getElementById("walk").disabled =                   (!(deity.type == "the Fields" && devotion.total >= 40 && population.healthy > 0));
-	document.getElementById("ceaseWalk").disabled =                (walkTotal == 0);
+	document.getElementById("ceaseWalk").disabled = (walkTotal == 0);
 
 	// raiseDead buttons updated by UpdateSpawnButtons
-
-	setElemDisplay(document.getElementById("shade"+"Line"),        (deity.type == "the Underworld" && devotion.total >= 40));
-	document.getElementById("shade").disabled =                  (!(deity.type == "the Underworld" && devotion.total >= 40));
-
-	setElemDisplay(document.getElementById("pestControl"+"Line"),  (deity.type == "Cats" && devotion.total >= 20));
-	document.getElementById("pestControl").disabled =            (!(deity.type == "Cats" && devotion.total >= 20));
-
-	setElemDisplay(document.getElementById("grace"+"Line"),        (deity.type == "Cats" && devotion.total >= 40));
-	document.getElementById("grace").disabled =                  (!(deity.type == "Cats" && devotion.total >= 40));
 }
 
 //xxx This should probably become a member method of the building classes
@@ -2480,6 +2545,7 @@ function increment(material){
 }
 
 function createBuilding(building,num){
+	if (num == "undefined") { num = 1; }
 	if (num == "custom") { num = getCustomBuildNumber(); }
 	if (num == "-custom") { num = -getCustomBuildNumber(); }
 
@@ -2661,6 +2727,7 @@ function hire(job,num){
 // Pass "custom" or "-custom" to use the custom increment.
 // Returns the actual number created or destroyed (negative if destroyed).
 function raiseDead(num){
+	if (num === undefined) { num = 1; }
 	if (num == "custom") { num = getCustomSpawnNumber(); }
 	if (num == "-custom") { num = -getCustomSpawnNumber(); }
 
@@ -2702,6 +2769,7 @@ function shade(){
 //Called whenever player clicks a button to try to buy an upgrade.
 function upgrade(name){
 	//If the player has the resources, toggles the upgrade on and does stuff dependent on the upgrade.
+	if (!isValid(upgradeData[name])) { console.log("Unknown upgrade: "+name); return; }
 	if (!meetsPrereqs(upgradeData[name].prereqs)) { return; } // Check prereqs
 	if (payFor(upgradeData[name].require) < 1) { return; } // Try to pay
 	upgrades[name] = true; // Mark upgrade
@@ -2798,12 +2866,11 @@ function wickerman(){
 }
 
 function walk(increment){
-	if(increment){
-		walkTotal += increment;
-		document.getElementById("walkStat").innerHTML = prettify(walkTotal);
-	} else {
-		walkTotal = 0;
-	}
+	if (increment === undefined) { increment = 1; }
+	if (increment === false) { increment = 0; walkTotal = 0; }
+
+	walkTotal += increment;
+	document.getElementById("walkStat").innerHTML = prettify(walkTotal);
 	document.getElementById("ceaseWalk").disabled = (walkTotal == 0);
 	setElemDisplay(document.getElementById("walkGroup"),(walkTotal > 0));
 }
@@ -2827,6 +2894,7 @@ function doWalk() {
 }
 
 function pestControl(length){
+	if (length === undefined) { length = 10; }
 	//First check player has sufficient piety
 	if (piety.total < 100) { return; }
 	//Deduct piety
@@ -2938,7 +3006,7 @@ function smiteMob(mobtype) {
 	return num;
 }
 
-function smiteMobs(){
+function smite(){
 	smiteMob("barbarians");
 	smiteMob("bandits");
 	smiteMob("wolves");
@@ -3041,6 +3109,7 @@ function plunder(){
 }
 
 function glory(time){
+	if (time === undefined) { time = 180; }
 	if (piety.total >= 1000){ //check it can be bought
 		gloryTimer = time; //set timer
 		piety.total -= 1000; //decrement resources
@@ -3050,6 +3119,7 @@ function glory(time){
 }
 
 function grace(delta){
+	if (delta === undefined) { delta = 0.1; }
 	if (piety.total >= graceCost){
 		piety.total -= graceCost;
 		graceCost = Math.floor(graceCost * 1.2);
@@ -4715,7 +4785,9 @@ function prettify(input){
 	if (!delimiters){
 		return input.toString();
 	} 
-	return num2fmtString(input);
+	return Number(input).toLocaleString();
+	//xxx Old way.  Might switch back if browser support is too lacking.
+	//return num2fmtString(input);
 }
 
 function toggleDelimiters(){
@@ -4748,6 +4820,7 @@ function gameLog(message){
 	//Not strictly a debug function so much as it is letting the user know when something happens without needing to watch the console.
 	var time = "0.00";
 	//get the current date, extract the current time in HH.MM format
+	//xxx It would be nice to use Date.getLocaleTimeString(locale,options) here, but most browsers don't allow the options yet.
 	var d = new Date();
 	if (d.getMinutes() < 10){
 		time = d.getHours() + ".0" + d.getMinutes();

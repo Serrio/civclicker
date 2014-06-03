@@ -553,10 +553,10 @@ button.build{
 }
 
 
-#purchased{
+#purchased, #purchasedPantheon{
 	margin-left:1em;
 }
-#purchased *{
+#purchased *, #purchasedPantheon * {
 	line-height:1.5em;
 }
 

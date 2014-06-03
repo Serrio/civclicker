@@ -19,7 +19,7 @@
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
-	<title>CivClicker (v1.1.33alpha)</title>
+	<title>CivClicker (v1.1.34alpha)</title>
 	<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 	<link rel="stylesheet" type="text/css" href="civclicker.css" />
 	<link rel="canonical" href="http://civclicker.sourceforge.net/civclicker/civclicker.html" />
@@ -141,8 +141,7 @@
 		<div id="upgradesPane"></div>
 		
 		<div id="deityPane">
-			<span id="worshipLine" class="upgradeLine"><button id="worship" onmousedown="upgrade('worship')" disabled>Worship<br />(1000 piety)</button><span class="note">Begin worshipping a deity (requires temple)</span><br />
-			<br /></span>
+			<span id="worshipLine"></span>
 			<div id="deitySpecialisation">
 				<button id="deityBattle" onmousedown="selectDeity('battle')">Battle<br />(500 piety)</button><span class="note">Note: you can only pick one of these</span><br />
 				<button id="deityFields" onmousedown="selectDeity('fields')">The Fields<br />(500 piety)</button><span class="note">Note: you can only pick one of these</span><br />
@@ -152,141 +151,45 @@
 			<div id="battleUpgrades">
 				<h3>The Strength of Battle</h3>
 				<table>
-					<tr>
-						<td class="devcost"></td>
-						<td id="battleAltarRow"><span><button onmousedown="createBuilding(battleAltar,1)">Build Altar</button></span></td>
-						<td><span id="battleAltarCost" class="cost">200 stone, 200 piety, 50 metal</span><span class="note">: +1 devotion</span></td>
-					</tr>
-					<tr id="riddleLine">
-						<td class="devcost">10d&nbsp;</td>
-						<td><button id="riddle" onmousedown="upgrade('riddle')" disabled>Riddle of Steel</button></td>
-						<td><span class="cost">1000 piety</span><span class="note">: improve soldiers</span></td>
-					</tr>
-					<tr id="smiteLine">
-						<td class="devcost">20d&nbsp;</td>
-						<td><button onmousedown="smiteMobs()" id="smite" disabled>Smite Invaders</button></td>
-						<td><span class="cost">100 piety per invader</span></td>
-					</tr>
-					<tr id="throneLine">
-						<td class="devcost">30d&nbsp;</td>
-						<td><button id="throne" onmousedown="upgrade('throne')" disabled>Throne of Skulls</button></td>
-						<td><span class="cost">1000 piety</span><span class="note">: slaying enemies creates temples</span></td>
-					</tr>
-					<tr id="gloryLine">
-						<td class="devcost">40d&nbsp;</td>
-						<td><button onmousedown="glory(180)" id="glory" disabled>For Glory!</button></td>
-						<td><span class="cost">1000 piety</span><span class="note">: Temporarily makes raids more difficult, increases rewards</span></td>
-					</tr>
-					<tr id="lamentLine">
-						<td class="devcost">50d&nbsp;</td>
-						<td><button id="lament" onmousedown="upgrade('lament')" disabled>Lament of the Defeated</button></td>
-						<td><span class="cost">5000 piety</span><span class="note">: Successful raids delay future invasions</span></td>
-					</tr>
+					<tr id="battleAltarLine"></tr>
+					<tr id="riddleLine"></tr>
+					<tr id="smiteLine"></tr>
+					<tr id="throneLine"></tr>
+					<tr id="gloryLine"></tr>
+					<tr id="lamentLine"></tr>
 				</table>
 			</div>
 			<div id="fieldsUpgrades">
 				<h3>The Bounty of the Fields</h3>
 				<table>
-					<tr>
-						<td class="devcost"></td>
-						<td id="fieldsAltarRow"><span><button onmousedown="createBuilding(fieldsAltar,1)">Build Altar</button></span></td>
-						<td><span id="fieldsAltarCost" class="cost">500 food, 500 wood, 200 stone, 200 piety</span><span class="note">: +1 devotion</span></td>
-					</tr>
-					<tr id="blessingLine">
-						<td class="devcost">10d&nbsp;</td>
-						<td><button id="blessing" onmousedown="upgrade('blessing')" disabled>Blessing of Abundance</button></td>
-						<td><span class="cost">1000 piety</span><span class="note">: increase farmer food output</span></td>
-					</tr>
-					<tr id="wickermanLine">
-						<td class="devcost">20d&nbsp;</td>
-						<td><button id="wickerman" onmousedown="wickerman()" disabled>Burn Wicker Man</button></td>
-						<td><span class="cost">500 wood, 1 worker</span><span class="note">: random bonus to a resource</span></td>
-					</tr>
-					<tr id="wasteLine">
-						<td class="devcost">30d&nbsp;</td>
-						<td><button id="waste" onmousedown="upgrade('waste')" disabled>Abide No Waste</button></td>
-						<td><span class="cost">1000 piety</span><span class="note">: workers will eat corpses if there is no food left</span></td>
-					</tr>
-					<tr id="walkLine">
-						<td class="devcost">40d&nbsp;</td>
-						<td><button id="walk" onmousedown="walk(1)" disabled>Walk Behind The Rows</button><br /><button id="ceaseWalk" onmousedown="walk(0)" disabled>Cease Walking</button></td>
-						<td><span class="cost">1 worker per second</span><span class="note">: boost food production</span></td>
-					</tr>
-					<tr id="stayLine">
-						<td class="devcost">50d&nbsp;</td>
-						<td><button id="stay" onmousedown="upgrade('stay')" disabled>Stay With Us</button></td>
-						<td><span class="cost">5000 piety</span><span class="note">: traders stay longer</span></td>
-					</tr>
+					<tr id="fieldsAltarLine"></tr>
+					<tr id="blessingLine"></tr>
+					<tr id="wickermanLine"></tr>
+					<tr id="wasteLine"></tr>
+					<tr id="walkLine"></tr>
+					<tr id="stayLine"></tr>
 				</table>
 			</div>
 			<div id="underworldUpgrades">
 				<h3>The Dread Power of the Underworld</h3>
 				<table>
-					<tr>
-						<td class="devcost"></td>
-						<td id="underworldAltarRow"><span><button onmousedown="createBuilding(underworldAltar,1)">Build Altar</button></span></td>
-						<td><span id = "underworldAltarCost" class="cost">200 stone, 200 piety, 1 corpses</span><span class="note">: +1 devotion</span></td>
-					</tr>
-					<tr id="bookLine">
-						<td class="devcost">10d&nbsp;</td>
-						<td><button id="book" onmousedown="upgrade('book')" disabled>The Book of the Dead</button></td>
-						<td><span class="cost">1000 piety</span><span class="note">: gain piety with deaths</span></td>
-					</tr>
-					<tr id="raiseDeadLine">
-						<td class="devcost">20d&nbsp;</td>
-						<td><button onmousedown="raiseDead(1)" id="raiseDead" disabled>Raise Dead</button><button onmousedown="raiseDead(100)" id="raiseDead100" class="x100" disabled>x100</button><button onmousedown="raiseDead(Infinity)" id="raiseDeadMax" class="x100" disabled>Max</button></td>
-						<td><span id="zombieCost" class="cost">1</span><span class="cost"> piety, 1 corpse: to raise the next zombie</span></td>
-					</tr>
-					<tr id="feastLine">
-						<td class="devcost">30d&nbsp;</td>
-						<td><button id="feast" onmousedown="upgrade('feast')" disabled>A Feast for Crows</button></td>
-						<td><span class="cost">1000 piety</span><span class="note">: corpses are less likely to cause illness</span></td>
-					</tr>
-					<tr id="shadeLine">
-						<td class="devcost">40d&nbsp;</td>
-						<td><button onmousedown="shade()" id="shade" disabled>Summon Shades</button></td>
-						<td><span class="cost">1000 piety</span><span class="note">: Souls of the defeated rise to fight for you</span></td>
-					</tr>
-					<tr id="secretsLine">
-						<td class="devcost">50d&nbsp;</td>
-						<td><button id="secrets" onmousedown="upgrade('secrets')" disabled>Secrets of the Tombs</button></td>
-						<td><span class="cost">5000 piety</span><span class="note">: graveyards increase cleric piety generation</span></td>
-					</tr>
+					<tr id="underworldAltarLine"></tr>
+					<tr id="bookLine"></tr>
+					<tr id="raiseDeadLine"></tr>
+					<tr id="feastLine"></tr>
+					<tr id="shadeLine"></tr>
+					<tr id="secretsLine"></tr>
 				</table>
 			</div>
 			<div id="catsUpgrades">
 				<h3>The Grace of Cats</h3>
 				<table>
-					<tr>
-						<td class="devcost"></td>
-						<td id="catAltarRow"><span><button onmousedown="createBuilding(catAltar,1)">Build Altar</button></span></td>
-						<td><span id="catAltarCost" class="cost">200 stone, 200 piety, 100 herbs</span><span class="note">: +1 devotion</span></td>
-					</tr>
-					<tr id="lureLine">
-						<td class="devcost">10d&nbsp;</td>
-						<td><button id="lure" onmousedown="upgrade('lure')" disabled>Lure of Civilisation</button></td>
-						<td><span class="cost">1000 piety</span><span class="note">: increase chance to get cats</span></td>
-					</tr>
-					<tr id="pestControlLine">
-						<td class="devcost">20d&nbsp;</td>
-						<td><button onmousedown="pestControl(10)" id="pestControl" disabled>Pest Control</button></td>
-						<td><span class="cost">100 piety</span><span class="note">: Give temporary boost to food production</span></td>
-					</tr>
-					<tr id="companionLine">
-						<td class="devcost">30d&nbsp;</td>
-						<td><button id="companion" onmousedown="upgrade('companion')" disabled>Warmth of the Companion</button></td>
-						<td><span class="cost">1000 piety</span><span class="note">: cats help heal the sick</span></td>
-					</tr>
-					<tr id="graceLine">
-						<td class="devcost">40d&nbsp;</td>
-						<td><button onmousedown="grace(0.1)" id="grace" disabled>Grace</button></td>
-						<td><span class="cost"><span id="graceCost">1000</span> piety</span><span class="note">: Increase Happiness</span></td>
-					</tr>
-					<tr id="comfortLine">
-						<td class="devcost">50d&nbsp;</td>
-						<td><button id="comfort" onmousedown="upgrade('comfort')" disabled>Comfort of the Hearthfires</button></td>
-						<td><span class="cost">5000 piety</span><span class="note">: traders marginally more frequent</span></td>
-					</tr>
+					<tr id="catAltarLine"></tr>
+					<tr id="lureLine"></tr>
+					<tr id="pestControlLine"></tr>
+					<tr id="companionLine"></tr>
+					<tr id="graceLine"></tr>
+					<tr id="comfortLine"></tr>
 				</table>
 			</div>
 			<div id="iconoclasmGroup">
@@ -296,7 +199,7 @@
 			</div>
 		</div>
 		<div id="conquestPane">
-			<span id="standardLine"><button id="standard" onmousedown="upgrade('standard')" disabled>Battle Standard<br />(1000 metal &amp; leather)</button><span class="note">Lets you build an army (requires barracks)</span><br /></span>
+			<span id="standardLine"></span>
 			<div id="conquest">
 				<h4>Army</h4>
 				<p id="customArmyIncrement">
@@ -317,10 +220,10 @@
 			</div>
 		</div>
 		<div id="tradePane">
-			<span id="tradeLine" class="upgradeLine"><button id="trade" onmousedown="upgrade('trade')" disabled>Trade<br />(1 gold)</button><span class="note">Open the trading post</span><br /><br /></span>
+			<span id="tradeLine"></span>
 			<div id="tradeUpgradeContainer">
-				<span id="currencyLine" class="upgradeLine"><button id="currency" onmousedown="upgrade('currency')" disabled>Currency<br />(10 gold, 1000 ore)</button><span class="note">Traders arrive more frequently, stay longer</span><br /></span>
-				<span id="commerceLine" class="upgradeLine"><button id="commerce" onmousedown="upgrade('commerce')" disabled>Commerce<br />(100 gold, 10000 piety)</button><span class="note">Traders arrive more frequently, stay longer</span><br /></span>
+				<span id="currencyLine"></span>
+				<span id="commerceLine"></span>
 				<div id="speedWonderGroup"><br /><button id="speedWonder" onmousedown="speedWonder()">Speed Wonder<br />(100 gold)</button><span class="note">Increase wonder progress</span></div>
 				<h4>Buy Resources (1 gold)</h4>
 				<button class="tradeResource" onmousedown="buy(food)">Buy 5000 Food</button><br />
@@ -361,7 +264,7 @@
 			<br />
 		</div>
 		<div id="populationCreate">
-			<div id="spawn1group"><button id="spawn1" onmousedown="spawn(1)" disabled>Create Worker</button><span class="cost"><span id="workerCost">20</span> food</span><span class="note">: Create a new worker</span><br /></div>
+			<div id="spawn1group"><button id="spawn1" onmousedown="spawn(1)" disabled="disabled">Create Worker</button><span class="cost"><span id="workerCost">20</span> food</span><span class="note">: Create a new worker</span><br /></div>
 			<div id='spawn10'><button id="spawn10button" onmousedown="spawn(10)">Create 10 Workers</button><span class="cost"><span id="workerCost10">200</span> food</span><span class="note">: Create 10 new workers</span></div>
 			<div id='spawn100'><button id="spawn100button" onmousedown="spawn(100)">Create 100 Workers</button><span class="cost"><span id="workerCost100">2000</span> food</span><span class="note">: Create 100 new workers</span></div>
 			<div id='spawn1000'><button id="spawn1000button" onmousedown="spawn(1000)">Create 1000 Workers</button><span class="cost"><span id="workerCost1000">20000</span> food</span><span class="note">: Create 1000 new workers</span></div>
@@ -431,7 +334,7 @@
 	</div>
 	<div id="permaUpgradeContainer">
 		<h3>Pantheon Upgrades</h3>
-		<table id="purchasedPantheon"></table>
+		<div id="purchasedPantheon"></div>
 	</div>
 	<div id="pastWondersContainer">
 		<h3>Wonders</h3>
@@ -447,7 +350,7 @@
 		<br />
 		<button onmousedown="renameCiv()" title="Rename your civilisation">Rename Civilisation</button><br />
 		<button onmousedown="renameRuler()" title="Rename yourself">Rename Yourself</button><br />
-		<button id="renameDeity" onmousedown="renameDeity()" title="Rename your deity" disabled>Rename Current Deity</button><br />
+		<button id="renameDeity" onmousedown="renameDeity()" title="Rename your deity" disabled="disabled">Rename Current Deity</button><br />
 		<br />
 		<button id="toggleCustomIncrements" onmousedown="toggleCustomIncrements()" title="Custom Increment toggle">Enable Custom Increments</button><br />
 		<br />

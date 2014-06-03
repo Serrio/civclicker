@@ -25,6 +25,17 @@ function isValid(variable) {
 			// isn't subject to the unexpected behavior of isNaN().
 }
 
+// Returns the variable if it's valid, otherwise the default value (or "")
+function ifValid(variable, defVal) {
+	if (defVal === undefined) { defVal = ""; }
+	return isValid(variable) ? variable : "";
+}
+
+// Evaluates and returns variable if it's a function, otherwise just returns it.
+function valOf(variable) {
+	return (typeof variable == "function") ? variable() : variable;
+}
+
 
 function bake_cookie(name, value) {
 	var exdate=new Date();
