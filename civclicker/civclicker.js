@@ -1,4 +1,5 @@
 "use strict";
+/*jslint browser: true, devel: true, passfail: false, continue: true, eqeq: true, plusplus: true, vars: true, white: true, indent: 4, maxerr: 999 */
 /**
 	CivClicker
 	Copyright (C) 2014; see the AUTHORS file for authorship.
@@ -29,6 +30,7 @@ var versionData = {
 var saveTag1 = "civ";
 var saveTag2 = "civ2";
 var logRepeat = 1;
+
 
 // Civ size category minimums
 var civSizes = [];
@@ -76,8 +78,7 @@ skinning: {
 	name:"Skinning",
 	subType: "upgrade",
 	require: { skins: 10 },
-	effectText:"Farmers can collect skins",
-	onGain: function() { efficiency.farmers += 0.1; }
+	effectText:"Farmers can collect skins"
 },
 harvesting: {
 	id:"harvesting",
@@ -107,8 +108,7 @@ ploughshares: {
 	subType: "upgrade",
 	prereqs:{ masonry: true },
 	require: { metal:20 },
-	effectText:"Increase farmer food output",
-	onGain: function() { efficiency.farmers += 0.1; }
+	effectText:"Increase farmer food output"
 },
 irrigation: {
 	id:"irrigation",
@@ -118,8 +118,7 @@ irrigation: {
 	require: {
 		wood: 500,
 		stone: 200 },
-	effectText:"Increase farmer food output",
-	onGain: function() { efficiency.farmers += 0.1; }
+	effectText:"Increase farmer food output"
 },
 butchering: {
 	id:"butchering",
@@ -173,8 +172,7 @@ croprotation: {
 	require: {
 		herbs: 5000,
 		piety: 1000 },
-	effectText:"Increase farmer food output",
-	onGain: function() { efficiency.farmers += 0.1; }
+	effectText:"Increase farmer food output"
 },
 selectivebreeding: {
 	id:"selectivebreeding",
@@ -184,8 +182,7 @@ selectivebreeding: {
 	require: {
 		skins: 5000,
 		piety: 1000 },
-	effectText:"Increase farmer food output",
-	onGain: function() { efficiency.farmers += 0.1; }
+	effectText:"Increase farmer food output"
 },
 fertilisers: {
 	id:"fertilisers",
@@ -195,8 +192,7 @@ fertilisers: {
 	require: {
 		ore: 5000,
 		piety: 1000 },
-	effectText:"Increase farmer food output",
-	onGain: function() { efficiency.farmers += 0.1; }
+	effectText:"Increase farmer food output"
 },
 masonry: {
 	id:"masonry",
@@ -266,6 +262,7 @@ palisade: {
 	id:"palisade",
 	name:"Palisade",
 	subType: "upgrade",
+	efficiency: 0.01, // Subtracted from attacker efficiency.
 	prereqs:{ construction: true },
 	require: {
 		wood: 2000,
@@ -280,13 +277,7 @@ weaponry: {
 	require: {
 		wood: 500,
 		metal: 500 },
-	effectText:"Improve soldiers",
-	onGain: function() { 
-		efficiency.soldiers += 0.01;
-		efficiency.cavalry += 0.01;
-		efficiency.soldiersParty += 0.01;
-		efficiency.cavalryParty += 0.01;
-	}
+	effectText:"Improve soldiers"
 },
 shields: {
 	id:"shields",
@@ -296,13 +287,7 @@ shields: {
 	require: {
 		wood: 500,
 		leather: 500 },
-	effectText:"Improve soldiers",
-	onGain: function() { 
-		efficiency.soldiers += 0.01;
-		efficiency.cavalry += 0.01;
-		efficiency.soldiersParty += 0.01;
-		efficiency.cavalryParty += 0.01;
-	}
+	effectText:"Improve soldiers"
 },
 horseback: {
 	id:"horseback",
@@ -453,8 +438,7 @@ blessing: {
 	subType: "pantheon",
 	prereqs:{ deity: "the Fields", devotion: 10 },
 	require: { piety: 1000 },
-	effectText:"increase farmer food output",
-	onGain: function() { efficiency.farmers += 0.1; }
+	effectText:"increase farmer food output"
 },
 waste: {
 	id:"waste",
@@ -478,13 +462,7 @@ riddle: {
 	subType: "pantheon",
 	prereqs:{ deity: "Battle", devotion: 10 },
 	require: { piety: 1000 },
-	effectText:"improve soldiers",
-	onGain: function() { 
-		efficiency.soldiers += 0.01;
-		efficiency.cavalry += 0.01;
-		efficiency.soldiersParty += 0.01;
-		efficiency.cavalryParty += 0.01;
-	}
+	effectText:"improve soldiers"
 },
 throne: {
 	id:"throne",
@@ -586,7 +564,7 @@ wickerman: {
 	subType: "prayer",
 	prereqs:{ deity: "the Fields", devotion: 20 },
 	require: { wood: 500 },  //xxx +1 Worker
-	effectText:"Sacrifice 1 worker to gain a random bonus to a resource",
+	effectText:"Sacrifice 1 worker to gain a random bonus to a resource"
 },
 walk: { 
 	id:"walk", 
@@ -902,12 +880,15 @@ fortification = {
 	name:"fortification",
 	plural:"fortifications",
 	total:0,
+	efficiency: 0.01,
 	prereqs:{ architecture: true },
 	require:{
 		stone:100
 	},
 	effectText:"helps protect against attack"
 };
+
+function calcCombatMods() { return (0.01 * ((upgrades.riddle?1:0) + (upgrades.weaponry?1:0) + (upgrades.shields?1:0))); }
 
 var units = {
 unemployed: {
@@ -929,6 +910,11 @@ farmers: {
 	singular:"farmer",
 	alignment:"player",
 	source:"unemployed",
+	efficiency_base: 0.2,
+	get efficiency() { return this.efficiency_base + (0.1 * (
+	+ (upgrades.domestication?1:0) + (upgrades.ploughshares?1:0) + (upgrades.irrigation?1:0) 
+	+ (upgrades.croprotation?1:0) + (upgrades.selectivebreeding?1:0) + (upgrades.fertilisers?1:0) + (upgrades.blessing?1:0))); },
+	set efficiency(value) { this.efficiency_base = value; },
 	effectText:"Automatically gather food"
 },
 woodcutters: {
@@ -937,6 +923,7 @@ woodcutters: {
 	singular:"woodcutter",
 	alignment:"player",
 	source:"unemployed",
+	efficiency: 0.5,
 	effectText:"Automatically gather wood"
 },
 miners: {
@@ -945,6 +932,7 @@ miners: {
 	singular:"miner",
 	alignment:"player",
 	source:"unemployed",
+	efficiency: 0.2,
 	effectText:"Automatically gather stone"
 },
 tanners: {
@@ -953,6 +941,7 @@ tanners: {
 	singular:"tanner",
 	alignment:"player",
 	source:"unemployed",
+	efficiency: 0.5,
 	prereqs:{ tannery: 1 },
 	effectText:"Convert skins to leather"
 },
@@ -962,6 +951,7 @@ blacksmiths: {
 	singular:"blacksmith",
 	alignment:"player",
 	source:"unemployed",
+	efficiency: 0.5,
 	prereqs:{ smithy: 1 },
 	effectText:"Convert ore to metal"
 },
@@ -971,6 +961,7 @@ healers: {
 	singular:"healer",
 	alignment:"player",
 	source:"unemployed",
+	efficiency: 0.1,
 	prereqs:{ apothecary: 1 },
 	effectText:"Cure sick workers"
 },
@@ -980,6 +971,7 @@ clerics: {
 	singular:"cleric",
 	alignment:"player",
 	source:"unemployed",
+	efficiency: 0.05,
 	prereqs:{ temple: 1 },
 	effectText:"Generate piety, bury corpses"
 },
@@ -989,6 +981,7 @@ labourers: {
 	singular:"labourer",
 	alignment:"player",
 	source:"unemployed",
+	efficiency: 1.0,
 	prereqs:{ wonder: "building" }, //xxx This is a hack
 	effectText:"Use resources to build wonder"
 },
@@ -998,6 +991,9 @@ soldiers: {
 	singular:"soldier",
 	alignment:"player",
 	source:"unemployed",
+	efficiency_base: 0.05,
+	get efficiency() { return this.efficiency_base + calcCombatMods(); },
+	set efficiency(value) { this.efficiency_base = value; },
 	prereqs:{ barracks: 1 },
 	require:{
 		leather:10,
@@ -1011,6 +1007,9 @@ cavalry: {
 	singular:"cavalry",
 	alignment:"player",
 	source:"unemployed",
+	efficiency_base: 0.08,
+	get efficiency() { return this.efficiency_base + calcCombatMods(); },
+	set efficiency(value) { this.efficiency_base = value; },
 	prereqs:{ stable: 1 },
 	require:{
 		food:20,
@@ -1030,6 +1029,7 @@ wolves: {
 	name:"wolves",
 	singular:"wolf",
 	alignment:"animal",
+	efficiency: 0.05,
 	onWin: function() { doSlaughter(this); },
 	killFatigue:(1.0), // Max fraction that leave after killing the last person
 	killExhaustion:(1/2) // Chance of an attacker leaving after killing a person
@@ -1039,6 +1039,7 @@ bandits: {
 	name:"bandits",
 	singular:"bandit",
 	alignment:"mob",
+	efficiency: 0.07,
 	onWin: function() { doLoot(this); },
 	lootFatigue:(1/8) // Max fraction that leave after cleaning out a resource
 },
@@ -1047,6 +1048,7 @@ barbarians: {
 	name:"barbarians",
 	singular:"barbarian",
 	alignment:"mob",
+	efficiency: 0.09,
 	onWin: function() { doHavoc(this); },
 	lootFatigue:(1/24), // Max fraction that leave after cleaning out a resource
 	killFatigue:(1/3), // Max fraction that leave after killing the last person
@@ -1056,7 +1058,8 @@ esiege: {
 	id:"esiege",
 	name:"siege engines",
 	singular:"Siege Engine",
-	alignment:"mob"
+	alignment:"mob",
+	efficiency: 0.1  // 10% chance to hit
 },
 soldiersParty: {
 	id:"soldiersParty",
@@ -1064,6 +1067,9 @@ soldiersParty: {
 	singular:"soldier",
 	alignment:"player",
 	source:"soldiers",
+	efficiency_base: 0.05,
+	get efficiency() { return this.efficiency_base + calcCombatMods(); },
+	set efficiency(value) { this.efficiency_base = value; },
 	prereqs:{ standard: true, barracks: 1 }
 },
 cavalryParty: {
@@ -1072,6 +1078,9 @@ cavalryParty: {
 	singular:"cavalry",
 	alignment:"player",
 	source:"cavalry",
+	efficiency_base: 0.08,
+	get efficiency() { return this.efficiency_base + calcCombatMods(); },
+	set efficiency(value) { this.efficiency_base = value; },
 	prereqs:{ standard: true, stable: 1 }
 },
 siege: {
@@ -1079,6 +1088,7 @@ siege: {
 	name:"siege engines",
 	singular:"Siege Engine",
 	alignment:"player",
+	efficiency: 0.1, // 10% chance to hit
 	prereqs:{ standard: true, mathematics: true },
 	require:{
 		wood:200,
@@ -1090,19 +1100,22 @@ esoldiers: {
 	id:"esoldiers",
 	name:"soldiers",
 	singular:"soldier",
-	alignment:"mob"
+	alignment:"mob",
+	efficiency: 0.05
 },
 ecavalry: { // Not currently used.
 	id:"ecavalry",
 	name:"cavalry",
 	singular:"cavalry",
-	alignment:"mob"
+	alignment:"mob",
+	efficiency: 0.08
 },
 eforts: {
 	id:"eforts",
 	name:"fortifications",
 	singular:"fortification",
-	alignment:"mob"
+	alignment:"mob",
+	efficiency: 0.01 // -1% damage
 }
 };
 
@@ -1247,27 +1260,7 @@ population = {
 };
 efficiency = {
 	happiness:1,
-	farmers:0.2,
-	pestBonus:0,
-	woodcutters:0.5,
-	miners:0.2,
-	tanners:0.5,
-	blacksmiths:0.5,
-	healers:0.1,
-	clerics:0.05,
-	soldiers:0.05,
-	cavalry:0.08,
-	soldiersParty:0.05,
-	cavalryParty:0.08,
-	siege:0.1, //each siege engine has 10% to hit
-	wolves:0.05,
-	bandits:0.07,
-	barbarians:0.09,
-	esoldiers:0.05,
-	esiege:0.1, //each siege engine has 10% to hit
-	eforts:0.01, // -1% damage
-	fortification:0.01,
-	palisade:0.01 // Subtracted from attacker efficiency.
+	pestBonus:0
 };
 upgrades = {
 	skinning:false,
@@ -3273,6 +3266,7 @@ function load(loadType){
 			//set variables to load from
 			loadVar = read_cookie(saveTag1);
 			loadVar2 = read_cookie(saveTag2);
+			//xxxTODO: Merge loadVar2 into loadVar immediately.
 			//notify user
 			gameLog("Loaded saved game from cookie");
 			gameLog("Save system switching to localStorage.");
@@ -3366,6 +3360,10 @@ function load(loadType){
 	// v1.1.33: Achievement flags converted from int to bool (should be transparent)
 	// v1.1.33: upgrades.deityType no longer used
 	delete loadVar.upgrades.deityType;
+
+	// v1.1.34: Most efficiency values now recomputed from base values.
+	loadVar.efficiency = {	happiness: loadVar.efficiency.happiness,
+							pestBonus: loadVar.efficiency.pestBonus };
 	
 	////////////////////////////////////////////////////
 	//
@@ -3467,17 +3465,6 @@ function load(loadType){
 	document.getElementById("wonderNameC").innerHTML = wonder.name;
 	document.getElementById("startWonder").disabled = (wonder.completed || wonder.building);
 	document.getElementById("toggleAutosave").innerHTML = autosave ? "Disable Autosave" : "Enable Autosave";
-		
-	//Upgrade-related checks
-	efficiency.farmers = 0.2 + (0.1 * (
-	+ (upgrades.domestication?1:0) + (upgrades.ploughshares?1:0) + (upgrades.irrigation?1:0) 
-	+ (upgrades.croprotation?1:0) + (upgrades.selectivebreeding?1:0) + (upgrades.fertilisers?1:0) + (upgrades.blessing?1:0)));
-
-	var combatBonus = 0.01 * ((upgrades.riddle?1:0) + (upgrades.weaponry?1:0) + (upgrades.shields?1:0));
-	efficiency.soldiers = 0.05 + combatBonus;
-	efficiency.cavalry = 0.08 + combatBonus;
-	efficiency.soldiersParty = 0.05 + combatBonus;
-	efficiency.cavalryParty = 0.08 + combatBonus;
 }
 
 function save(savetype){
@@ -3785,34 +3772,16 @@ function reset(){
 
 	efficiency = {
 		happiness:1,
-		farmers:0.2 + (0.1 * (upgrades.blessing?1:0)),
-		pestBonus:0,
-		woodcutters:0.5,
-		miners:0.2,
-		tanners:0.5,
-		blacksmiths:0.5,
-		healers:0.1,
-		clerics:0.05,
-		soldiers:0.05,
-		cavalry:0.08,
-		soldiersParty:0.05,
-		cavalryParty:0.08,
-		wolves:0.05,
-		bandits:0.07,
-		barbarians:0.09,
-		esoldiers:0.05,
-		esiege:0.1, //each siege engine has 10% to hit
-		eforts:0.01, // -1% damage
-		fortification:0.01
+		pestBonus:0
 	};
 
 	upgrades = {
-		domestication:false,
-		ploughshares:false,
-		irrigation:false,
 		skinning:false,
 		harvesting:false,
 		prospecting:false,
+		domestication:false,
+		ploughshares:false,
+		irrigation:false,
 		butchering:false,
 		gardening:false,
 		extraction:false,
@@ -3965,7 +3934,7 @@ function reset(){
 function doFarmers() {
 	var millMod = 1;
 	if (population.current > 0 || population.zombies > 0) { millMod = population.current / (population.current + population.zombies); }
-	food.net = population.farmers * (1 + (efficiency.farmers * efficiency.happiness)) * (1 + efficiency.pestBonus) * (1 + (wonder.food/10)) * (1 + walkTotal/120) * (1 + mill.total * millMod / 200); //Farmers farm food
+	food.net = population.farmers * (1 + (units.farmers.efficiency * efficiency.happiness)) * (1 + efficiency.pestBonus) * (1 + (wonder.food/10)) * (1 + walkTotal/120) * (1 + mill.total * millMod / 200); //Farmers farm food
 	food.net -= population.current; //The living population eats food.
 	food.total += food.net;
 	if (upgrades.skinning && population.farmers > 0){ //and sometimes get skins
@@ -3974,7 +3943,7 @@ function doFarmers() {
 	}
 }
 function doWoodcutters() {
-	wood.net = population.woodcutters * (efficiency.woodcutters * efficiency.happiness) * (1 + (wonder.wood/10)); //Woodcutters cut wood
+	wood.net = population.woodcutters * (units.woodcutters.efficiency * efficiency.happiness) * (1 + (wonder.wood/10)); //Woodcutters cut wood
 	wood.total += wood.net;
 	if (upgrades.harvesting && population.woodcutters > 0){ //and sometimes get herbs
 		var num_herbs = wood.specialchance * (wood.increment + ((upgrades.gardening?1:0) * population.woodcutters / 5.0)) * (1 + (wonder.wood/10));
@@ -3983,7 +3952,7 @@ function doWoodcutters() {
 }
 
 function doMiners() {
-	stone.net = population.miners * (efficiency.miners * efficiency.happiness) * (1 + (wonder.stone/10)); //Miners mine stone
+	stone.net = population.miners * (units.miners.efficiency * efficiency.happiness) * (1 + (wonder.stone/10)); //Miners mine stone
 	stone.total += stone.net;
 	if (upgrades.prospecting && population.miners > 0){ //and sometimes get ore
 		var num_ore = stone.specialchance * (stone.increment + ((upgrades.extraction?1:0) * population.miners / 5.0)) * (1 + (wonder.ore/10));
@@ -3992,9 +3961,9 @@ function doMiners() {
 }
 
 function doBlacksmiths() {
-	if (ore.total >= population.blacksmiths * (efficiency.blacksmiths * efficiency.happiness)){
-		metal.total += population.blacksmiths * (efficiency.blacksmiths * efficiency.happiness) * (1 + (wonder.metal/10));
-		ore.total -= population.blacksmiths * (efficiency.blacksmiths * efficiency.happiness);
+	if (ore.total >= population.blacksmiths * (units.blacksmiths.efficiency * efficiency.happiness)){
+		metal.total += population.blacksmiths * (units.blacksmiths.efficiency * efficiency.happiness) * (1 + (wonder.metal/10));
+		ore.total -= population.blacksmiths * (units.blacksmiths.efficiency * efficiency.happiness);
 	} else if (population.blacksmiths) {
 		metal.total += ore.total * (1 + (wonder.metal/10));
 		ore.total = 0;
@@ -4002,9 +3971,9 @@ function doBlacksmiths() {
 }
 
 function doTanners() {
-	if (skins.total >= population.tanners * (efficiency.tanners * efficiency.happiness)){
-		leather.total += population.tanners * (efficiency.tanners * efficiency.happiness) * (1 + (wonder.leather/10));
-		skins.total -= population.tanners * (efficiency.tanners * efficiency.happiness);
+	if (skins.total >= population.tanners * (units.tanners.efficiency * efficiency.happiness)){
+		leather.total += population.tanners * (units.tanners.efficiency * efficiency.happiness) * (1 + (wonder.leather/10));
+		skins.total -= population.tanners * (units.tanners.efficiency * efficiency.happiness);
 	} else if (population.tanners) {
 		leather.total += skins.total * (1 + (wonder.leather/10));
 		skins.total = 0;
@@ -4012,7 +3981,7 @@ function doTanners() {
 }
 
 function doClerics() {
-	piety.total += population.clerics * (efficiency.clerics + (efficiency.clerics * (upgrades.writing?1:0))) * (1 + ((upgrades.secrets?1:0) * (1 - 100/(graveyard.total + 100)))) * efficiency.happiness * (1 + (wonder.piety/10));
+	piety.total += population.clerics * (units.clerics.efficiency + (units.clerics.efficiency * (upgrades.writing?1:0))) * (1 + ((upgrades.secrets?1:0) * (1 - 100/(graveyard.total + 100)))) * efficiency.happiness * (1 + (wonder.piety/10));
 }
 // Try to heal the specified number of people in the specified job
 // Makes them sick if the number is negative.
@@ -4067,7 +4036,7 @@ function doHealers() {
 	var numHealers = population.healers + (population.cats * (upgrades.companion?1:0));
 
 	// How much healing can we do?
-	cureCounter += (numHealers * efficiency.healers * efficiency.happiness);
+	cureCounter += (numHealers * units.healers.efficiency * efficiency.happiness);
 
 	// We can't cure more sick people than there are
 	cureCounter = Math.min(cureCounter, population.totalSick);
@@ -4123,14 +4092,14 @@ function doCorpses() {
 function doFight(attacker,defender)
 {
 	// Defenses vary depending on whether the player is attacking or defending.
-	var fortMod = (defender.alignment == "player" ? (fortification.total * efficiency.fortification)
-												  : (population.eforts * efficiency.eforts));
-	var palisadeMod = ((defender.alignment == "player")&&(upgrades.palisade)) ?  efficiency.palisade : 0;
+	var fortMod = (defender.alignment == "player" ? (fortification.total * fortification.efficiency)
+												  : (population.eforts * units.eforts.efficiency));
+	var palisadeMod = ((defender.alignment == "player")&&(upgrades.palisade)) ?  upgradeData.palisade.efficiency : 0;
 
 	// Determine casualties on each side.  Round fractional casualties
 	// probabilistically, and don't inflict more than 100% casualties.
-	var attackerCas = Math.min(population[attacker.id],rndRound(getCasualtyMod(defender.id,attacker.id) * population[defender.id] * efficiency[defender.id]));
-	var defenderCas = Math.min(population[defender.id],rndRound(getCasualtyMod(attacker.id,defender.id) * population[attacker.id] * (efficiency[attacker.id] - palisadeMod) * Math.max(1 - fortMod, 0)));
+	var attackerCas = Math.min(population[attacker.id],rndRound(getCasualtyMod(defender.id,attacker.id) * population[defender.id] * units[defender.id].efficiency));
+	var defenderCas = Math.min(population[defender.id],rndRound(getCasualtyMod(attacker.id,defender.id) * population[attacker.id] * (units[attacker.id].efficiency - palisadeMod) * Math.max(1 - fortMod, 0)));
 
 	population[attacker.id] -= attackerCas;
 	population[defender.id] -= defenderCas;
@@ -4257,7 +4226,7 @@ function doEsiege()
 			for (i = 0; i < firing; i++){
 				if (fortification.total > 0){ //still needs to be something to fire at
 					hit = Math.random();
-					if (hit < efficiency.esiege){
+					if (hit < units.esiege.efficiency){
 						fortification.total -= 1;
 						gameLog("Enemy siege engine damaged our fortifications");
 					} else if (hit > 0.95){ //each siege engine has 5% to misfire and destroy itself
@@ -4291,7 +4260,7 @@ function doSiege()
 	for (i = 0; i < firing; i++){
 		if (population.eforts > 0){ //still needs to be something to fire at
 			hit = Math.random();
-			if (hit < efficiency.siege){ //each siege engine has 10% to hit
+			if (hit < units.siege.efficiency){ //each siege engine has 10% to hit
 				population.eforts -= 1;
 			} else if (hit > 0.95){ //each siege engine has 5% to misfire and destroy itself
 				population.siege -= 1;
