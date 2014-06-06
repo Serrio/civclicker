@@ -20,15 +20,21 @@
 **/
 
 
-var version = 19;
-var versionData = {
-	major:  1,
-	minor:  1,
-	sub:   34,
-	mod:   "alpha"
-};
-var saveTag1 = "civ";
-var saveTag2 = "civ2";
+var version = 19; // This is an ordinal used to trigger reloads.
+function VersionData(major,minor,sub,mod) {
+	this.major = major;
+	this.minor = minor;
+	this.sub = sub;
+	this.mod = mod;
+}
+VersionData.prototype.toNumber = function() { return this.major*1000 + this.minor + this.sub/1000; };
+VersionData.prototype.toString = function() { return String(this.major) + "." 
+	+ String(this.minor) + "." + String(this.sub) + String(this.mod); };
+
+var versionData = new VersionData(1,1,34,"alpha");
+
+var saveTag = "civ";
+var saveTag2 = saveTag + "2"; // For old saves.
 var logRepeat = 1;
 
 
@@ -70,31 +76,45 @@ civSizes.getMaxPop = function(civType) {
 
 // Declare variables here so they can be referenced later.  
 var population, efficiency, upgrades;
-var food, wood, stone;
+var food, wood, stone, gold;
+var deity, wonder;
+var raiding, resourceClicks;
 
-var upgradeData = {
-skinning: {
+function Achievement(id, name, test) 
+{
+	if (!(this instanceof Achievement)) { return new Achievement(id, name, test); } // Prevent accidental namespace pollution
+	Object.call(this);			 this.id=id; 	this.name=name; 	this.test=test; 
+}
+
+// Initialize Data
+var civData = [
+// Upgrades
+{
+	type: "upgrade",
 	id:"skinning",
 	name:"Skinning",
 	subType: "upgrade",
 	require: { skins: 10 },
 	effectText:"Farmers can collect skins"
 },
-harvesting: {
+{
+	type: "upgrade",
 	id:"harvesting",
 	name:"Harvesting",
 	subType: "upgrade",
 	require: { herbs: 10 },
 	effectText:"Woodcutters can collect herbs" 
 },
-prospecting: {
+{
+	type: "upgrade",
 	id:"prospecting",
 	name:"Prospecting",
 	subType: "upgrade",
 	require: { ore: 10 },
 	effectText:"Miners can collect ore" 
 },
-domestication: {
+{
+	type: "upgrade",
 	id:"domestication",
 	name:"Domestication",
 	subType: "upgrade",
@@ -102,7 +122,8 @@ domestication: {
 	require: { leather: 20 },
 	effectText:"Increase farmer food output" 
 },
-ploughshares: {
+{
+	type: "upgrade",
 	id:"ploughshares",
 	name:"Ploughshares",
 	subType: "upgrade",
@@ -110,7 +131,8 @@ ploughshares: {
 	require: { metal:20 },
 	effectText:"Increase farmer food output"
 },
-irrigation: {
+{
+	type: "upgrade",
 	id:"irrigation",
 	name:"Irrigation",
 	subType: "upgrade",
@@ -120,7 +142,8 @@ irrigation: {
 		stone: 200 },
 	effectText:"Increase farmer food output"
 },
-butchering: {
+{
+	type: "upgrade",
 	id:"butchering",
 	name:"Butchering",
 	subType: "upgrade",
@@ -128,7 +151,8 @@ butchering: {
 	require: { leather: 40 },
 	effectText:"More farmers collect more skins" 
 },
-gardening: {
+{
+	type: "upgrade",
 	id:"gardening",
 	name:"Gardening",
 	subType: "upgrade",
@@ -136,7 +160,8 @@ gardening: {
 	require: { herbs: 40 },
 	effectText:"More woodcutters collect more herbs" 
 },
-extraction: {
+{
+	type: "upgrade",
 	id:"extraction",
 	name:"Extraction",
 	subType: "upgrade",
@@ -144,16 +169,17 @@ extraction: {
 	require: { metal: 40 },
 	effectText:"More miners collect more ore" 
 },
-flensing: {
+{
+	type: "upgrade",
 	id:"flensing",
 	name:"Flensing",
 	subType: "upgrade",
 	prereqs:{ architecture: true },
 	require: { metal: 1000 },
-	effectText:"Collect skins more frequently",
-	onGain: function() { food.specialchance += 0.1; }
+	effectText:"Collect skins more frequently"
 },
-macerating: {
+{
+	type: "upgrade",
 	id:"macerating",
 	name:"Macerating",
 	subType: "upgrade",
@@ -161,10 +187,10 @@ macerating: {
 	require: {
 		leather: 500,
 		stone: 500 },
-	effectText:"Collect ore more frequently",
-	onGain: function() { stone.specialchance += 0.1; }
+	effectText:"Collect ore more frequently"
 },
-croprotation: {
+{
+	type: "upgrade",
 	id:"croprotation",
 	name:"Crop Rotation",
 	subType: "upgrade",
@@ -174,7 +200,8 @@ croprotation: {
 		piety: 1000 },
 	effectText:"Increase farmer food output"
 },
-selectivebreeding: {
+{
+	type: "upgrade",
 	id:"selectivebreeding",
 	name:"Selective Breeding",
 	subType: "upgrade",
@@ -184,7 +211,8 @@ selectivebreeding: {
 		piety: 1000 },
 	effectText:"Increase farmer food output"
 },
-fertilisers: {
+{
+	type: "upgrade",
 	id:"fertilisers",
 	name:"Fertilisers",
 	subType: "upgrade",
@@ -194,7 +222,8 @@ fertilisers: {
 		piety: 1000 },
 	effectText:"Increase farmer food output"
 },
-masonry: {
+{
+	type: "upgrade",
 	id:"masonry",
 	name:"Masonry",
 	subType: "upgrade",
@@ -203,7 +232,8 @@ masonry: {
 		stone: 100 },
 	effectText:"Unlock more buildings and upgrades" 
 },
-construction: {
+{
+	type: "upgrade",
 	id:"construction",
 	name:"Construction",
 	subType: "upgrade",
@@ -213,7 +243,8 @@ construction: {
 		stone: 1000 },
 	effectText:"Unlock more buildings and upgrades" 
 },
-architecture: {
+{
+	type: "upgrade",
 	id:"architecture",
 	name:"Architecture",
 	subType: "upgrade",
@@ -223,7 +254,8 @@ architecture: {
 		stone: 10000 },
 	effectText:"Unlock more buildings and upgrades" 
 },
-tenements: {
+{
+	type: "upgrade",
 	id:"tenements",
 	name:"Tenements",
 	subType: "upgrade",
@@ -235,7 +267,8 @@ tenements: {
 	effectText:"Houses support +2 workers",
 	onGain: function() { updatePopulation(); } //due to population limits changing
 },
-slums: {
+{
+	type: "upgrade",
 	id:"slums",
 	name:"Slums",
 	subType: "upgrade",
@@ -247,7 +280,8 @@ slums: {
 	effectText:"Houses support +2 workers",
 	onGain: function() { updatePopulation(); } //due to population limits changing
 },
-granaries: {
+{
+	type: "upgrade",
 	id:"granaries",
 	name:"Granaries",
 	subType: "upgrade",
@@ -258,7 +292,8 @@ granaries: {
 	effectText:"Barns store double the amount of food",
 	onGain: function() { updateResourceTotals(); } //due to resource limits increasing
 },
-palisade: {
+{
+	type: "upgrade",
 	id:"palisade",
 	name:"Palisade",
 	subType: "upgrade",
@@ -269,7 +304,8 @@ palisade: {
 		stone: 1000 },
 	effectText:"Enemies do less damage" 
 },
-weaponry: {
+{
+	type: "upgrade",
 	id:"weaponry",
 	name:"Basic Weaponry",
 	subType: "upgrade",
@@ -279,7 +315,8 @@ weaponry: {
 		metal: 500 },
 	effectText:"Improve soldiers"
 },
-shields: {
+{
+	type: "upgrade",
 	id:"shields",
 	name:"Basic Shields",
 	subType: "upgrade",
@@ -289,7 +326,8 @@ shields: {
 		leather: 500 },
 	effectText:"Improve soldiers"
 },
-horseback: {
+{
+	type: "upgrade",
 	id:"horseback",
 	name:"Horseback Riding",
 	subType: "upgrade",
@@ -299,7 +337,8 @@ horseback: {
 		wood: 500 },
 	effectText:"Build stables" 
 },
-wheel: {
+{
+	type: "upgrade",
 	id:"wheel",
 	name:"The Wheel",
 	subType: "upgrade",
@@ -309,7 +348,8 @@ wheel: {
 		stone: 500 },
 	effectText:"Build mills" 
 },
-writing: {
+{
+	type: "upgrade",
 	id:"writing",
 	name:"Writing",
 	subType: "upgrade",
@@ -318,7 +358,8 @@ writing: {
 		skins: 500 },
 	effectText:"Increase cleric piety generation" 
 },
-administration: {
+{
+	type: "upgrade",
 	id:"administration",
 	name:"Administration",
 	subType: "upgrade",
@@ -328,7 +369,8 @@ administration: {
 		skins: 1000 },
 	effectText:"Increase land gained from raiding" 
 },
-codeoflaws: {
+{
+	type: "upgrade",
 	id:"codeoflaws",
 	name:"Code of Laws",
 	subType: "upgrade",
@@ -338,7 +380,8 @@ codeoflaws: {
 		skins: 1000 },
 	effectText:"Reduce unhappiness caused by overcrowding" 
 },
-mathematics: {
+{
+	type: "upgrade",
 	id:"mathematics",
 	name:"Mathematics",
 	subType: "upgrade",
@@ -348,7 +391,8 @@ mathematics: {
 		piety: 1000 },
 	effectText:"Create siege engines" 
 },
-aesthetics: {
+{
+	type: "upgrade",
 	id:"aesthetics",
 	name:"Aesthetics",
 	subType: "upgrade",
@@ -356,7 +400,8 @@ aesthetics: {
 	require: { piety: 5000 },
 	effectText:"Building temples increases happiness" 
 },
-civilservice: {
+{
+	type: "upgrade",
 	id:"civilservice",
 	name:"Civil Service",
 	subType: "upgrade",
@@ -364,7 +409,8 @@ civilservice: {
 	require: { piety: 5000 },
 	effectText:"Increase basic resources from clicking" 
 },
-feudalism: {
+{
+	type: "upgrade",
 	id:"feudalism",
 	name:"Feudalism",
 	subType: "upgrade",
@@ -372,7 +418,8 @@ feudalism: {
 	require: { piety: 10000 },
 	effectText:"Further increase basic resources from clicking" 
 },
-guilds: {
+{
+	type: "upgrade",
 	id:"guilds",
 	name:"Guilds",
 	subType: "upgrade",
@@ -380,7 +427,8 @@ guilds: {
 	require: { piety: 10000 },
 	effectText:"Increase special resources from clicking" 
 },
-serfs: {
+{
+	type: "upgrade",
 	id:"serfs",
 	name:"Serfs",
 	subType: "upgrade",
@@ -388,7 +436,8 @@ serfs: {
 	require: { piety: 20000 },
 	effectText:"Unemployed workers increase resources from clicking" 
 },
-nationalism: {
+{
+	type: "upgrade",
 	id:"nationalism",
 	name:"Nationalism",
 	subType: "upgrade",
@@ -396,7 +445,8 @@ nationalism: {
 	require: { piety: 50000 },
 	effectText:"Soldiers increase basic resources from clicking" 
 },
-worship: { 
+{ 
+	type: "upgrade",
 	id:"worship", 
 	name:"Worship", 
 	subType: "deity",
@@ -408,7 +458,9 @@ worship: {
 		renameDeity(); //Need to add in some handling for when this returns NULL.
 	}
 },
-lure: {
+// Pantheon Upgrades
+{
+	type: "upgrade",
 	id:"lure",
 	name:"Lure of Civilisation",
 	subType: "pantheon",
@@ -416,7 +468,8 @@ lure: {
 	require: { piety: 1000 },
 	effectText:"increase chance to get cats"
 },
-companion: {
+{
+	type: "upgrade",
 	id:"companion",
 	name:"Warmth of the Companion",
 	subType: "pantheon",
@@ -424,7 +477,8 @@ companion: {
 	require: { piety: 1000 },
 	effectText:"cats help heal the sick"
 },
-comfort: {
+{
+	type: "upgrade",
 	id:"comfort",
 	name:"Comfort of the Hearthfires",
 	subType: "pantheon",
@@ -432,7 +486,8 @@ comfort: {
 	require: { piety: 5000 },
 	effectText:"traders marginally more frequent"
 },
-blessing: {
+{
+	type: "upgrade",
 	id:"blessing",
 	name:"Blessing of Abundance",
 	subType: "pantheon",
@@ -440,7 +495,8 @@ blessing: {
 	require: { piety: 1000 },
 	effectText:"increase farmer food output"
 },
-waste: {
+{
+	type: "upgrade",
 	id:"waste",
 	name:"Abide No Waste",
 	subType: "pantheon",
@@ -448,7 +504,8 @@ waste: {
 	require: { piety: 1000 },
 	effectText:"workers will eat corpses if there is no food left"
 },
-stay: {
+{
+	type: "upgrade",
 	id:"stay",
 	name:"Stay With Us",
 	subType: "pantheon",
@@ -456,7 +513,8 @@ stay: {
 	require: { piety: 5000 },
 	effectText:"traders stay longer"
 },
-riddle: {
+{
+	type: "upgrade",
 	id:"riddle",
 	name:"Riddle of Steel",
 	subType: "pantheon",
@@ -464,7 +522,8 @@ riddle: {
 	require: { piety: 1000 },
 	effectText:"improve soldiers"
 },
-throne: {
+{
+	type: "upgrade",
 	id:"throne",
 	name:"Throne of Skulls",
 	subType: "pantheon",
@@ -472,7 +531,8 @@ throne: {
 	require: { piety: 1000 },
 	effectText:"slaying enemies creates temples"
 },
-lament: {
+{
+	type: "upgrade",
 	id:"lament",
 	name:"Lament of the Defeated",
 	subType: "pantheon",
@@ -480,7 +540,8 @@ lament: {
 	require: { piety: 5000 },
 	effectText:"Successful raids delay future invasions"
 },
-book: {
+{
+	type: "upgrade",
 	id:"book",
 	name:"The Book of the Dead",
 	subType: "pantheon",
@@ -488,7 +549,8 @@ book: {
 	require: { piety: 1000 },
 	effectText:"gain piety with deaths"
 },
-feast: {
+{
+	type: "upgrade",
 	id:"feast",
 	name:"A Feast for Crows",
 	subType: "pantheon",
@@ -496,7 +558,8 @@ feast: {
 	require: { piety: 1000 },
 	effectText:"corpses are less likely to cause illness"
 },
-secrets: {
+{
+	type: "upgrade",
 	id:"secrets",
 	name:"Secrets of the Tombs",
 	subType: "pantheon",
@@ -504,7 +567,9 @@ secrets: {
 	require: { piety: 5000 },
 	effectText:"graveyards increase cleric piety generation"
 },
-standard: { 
+// Special Upgrades
+{ 
+	type: "upgrade",
 	id:"standard", 
 	name:"Battle Standard", 
 	subType: "conquest",
@@ -514,7 +579,8 @@ standard: {
 		metal: 1000 },
 	effectText:"Lets you build an army (requires barracks)"
 },
-trade: { 
+{ 
+	type: "upgrade",
 	id:"trade", 
 	name:"Trade", 
 	subType: "trade",
@@ -522,7 +588,8 @@ trade: {
 	require: { gold: 1 }, 
 	effectText:"Open the trading post"
 },
-currency: { 
+{ 
+	type: "upgrade",
 	id:"currency", 
 	name:"Currency", 
 	subType: "trade",
@@ -531,7 +598,8 @@ currency: {
 		gold: 10 }, 
 	effectText:"Traders arrive more frequently, stay longer"
 },
-commerce: { 
+{ 
+	type: "upgrade",
 	id:"commerce", 
 	name:"Commerce", 
 	subType: "trade",
@@ -539,10 +607,9 @@ commerce: {
 		piety: 10000, 
 		gold: 100 }, 
 	effectText:"Traders arrive more frequently, stay longer"
-} };
-
-var powerData = {
-smite: { 
+},
+// Prayers
+{ 
 	id:"smite", 
 	name:"Smite Invaders", 
 	subType: "prayer",
@@ -550,7 +617,7 @@ smite: {
 	require: { piety: 100 },
 	effectText:"(per invader killed)"
 },
-glory: { 
+{ 
 	id:"glory", 
 	name:"For Glory!", 
 	subType: "prayer",
@@ -558,7 +625,7 @@ glory: {
 	require: { piety: 1000 }, 
 	effectText:"Temporarily makes raids more difficult, increases rewards"
 },
-wickerman: { 
+{ 
 	id:"wickerman", 
 	name:"Burn Wicker Man", 
 	subType: "prayer",
@@ -566,7 +633,7 @@ wickerman: {
 	require: { wood: 500 },  //xxx +1 Worker
 	effectText:"Sacrifice 1 worker to gain a random bonus to a resource"
 },
-walk: { 
+{ 
 	id:"walk", 
 	name:"Walk Behind the Rows", 
 	subType: "prayer",
@@ -575,7 +642,7 @@ walk: {
 	effectText:"boost food production by sacrificing 1 worker/sec.",
 	extraText: "<br /><button id='ceaseWalk' onmousedown='walk(false)' disabled='disabled'>Cease Walking</button>"
 },
-raiseDead: { 
+{ 
 	id:"raiseDead", 
 	name:"Raise Dead", 
 	subType: "prayer",
@@ -584,15 +651,15 @@ raiseDead: {
 	effectText:"Piety to raise the next zombie",
 	extraText:"<button onmousedown='raiseDead(100)' id='raiseDead100' class='x100' disabled='disabled'>x100</button><button onmousedown='raiseDead(Infinity)' id='raiseDeadMax' class='x100' disabled='disabled'>Max</button>"
 },
-shade: { 
+{  //xxx Resolve conflict with 'shade' unit.
 	id:"shade", 
 	name:"Summon Shades", 
 	subType: "prayer",
 	prereqs:{ deity: "the Underworld", devotion: 40 },
-	require: { piety: 100 }, 
+	require: { piety: 100 },  //xxx Also need slainEnemies
 	effectText:"Souls of the defeated rise to fight for you"
 },
-pestControl: { 
+{ 
 	id:"pestControl", 
 	name:"Pest Control", 
 	subType: "prayer",
@@ -600,16 +667,337 @@ pestControl: {
 	require: { piety: 100 }, 
 	effectText:"Give temporary boost to food production"
 },
-grace: { 
+{ 
 	id:"grace", 
 	name:"Grace", 
 	subType: "prayer",
 	prereqs:{ deity: "Cats", devotion: 40 },
 	require: { piety: 100 }, 
 	effectText:"Increase Happiness"
-} };
+},
+// Units
+{
+	type: "unit",
+	id:"unemployed",
+	name:"unemployed",
+	singular:"unemployed",
+	alignment:"player",
+	effectText:"Unassigned Workers"
+},
+{
+	type: "unit",
+	id:"totalSick",
+	name:"sick",
+	singular:"sick",
+	effectText:"Sick workers"
+},
+{
+	type: "unit",
+	id:"farmers",
+	name:"farmers",
+	singular:"farmer",
+	alignment:"player",
+	source:"unemployed",
+	efficiency_base: 0.2,
+	get efficiency() { return this.efficiency_base + (0.1 * (
+	+ (upgrades.domestication?1:0) + (upgrades.ploughshares?1:0) + (upgrades.irrigation?1:0) 
+	+ (upgrades.croprotation?1:0) + (upgrades.selectivebreeding?1:0) + (upgrades.fertilisers?1:0) + (upgrades.blessing?1:0))); },
+	set efficiency(value) { this.efficiency_base = value; },
+	effectText:"Automatically gather food"
+},
+{
+	type: "unit",
+	id:"woodcutters",
+	name:"woodcutters",
+	singular:"woodcutter",
+	alignment:"player",
+	source:"unemployed",
+	efficiency: 0.5,
+	effectText:"Automatically gather wood"
+},
+{
+	type: "unit",
+	id:"miners",
+	name:"miners",
+	singular:"miner",
+	alignment:"player",
+	source:"unemployed",
+	efficiency: 0.2,
+	effectText:"Automatically gather stone"
+},
+{
+	type: "unit",
+	id:"tanners",
+	name:"tanners",
+	singular:"tanner",
+	alignment:"player",
+	source:"unemployed",
+	efficiency: 0.5,
+	prereqs:{ tannery: 1 },
+	effectText:"Convert skins to leather"
+},
+{
+	type: "unit",
+	id:"blacksmiths",
+	name:"blacksmiths",
+	singular:"blacksmith",
+	alignment:"player",
+	source:"unemployed",
+	efficiency: 0.5,
+	prereqs:{ smithy: 1 },
+	effectText:"Convert ore to metal"
+},
+{
+	type: "unit",
+	id:"healers",
+	name:"healers",
+	singular:"healer",
+	alignment:"player",
+	source:"unemployed",
+	efficiency: 0.1,
+	prereqs:{ apothecary: 1 },
+	effectText:"Cure sick workers"
+},
+{
+	type: "unit",
+	id:"clerics",
+	name:"clerics",
+	singular:"cleric",
+	alignment:"player",
+	source:"unemployed",
+	efficiency: 0.05,
+	prereqs:{ temple: 1 },
+	effectText:"Generate piety, bury corpses"
+},
+{
+	type: "unit",
+	id:"labourers",
+	name:"labourers",
+	singular:"labourer",
+	alignment:"player",
+	source:"unemployed",
+	efficiency: 1.0,
+	prereqs:{ wonder: "building" }, //xxx This is a hack
+	effectText:"Use resources to build wonder"
+},
+{
+	type: "unit",
+	id:"soldiers",
+	name:"soldiers",
+	singular:"soldier",
+	alignment:"player",
+	source:"unemployed",
+	efficiency_base: 0.05,
+	get efficiency() { return this.efficiency_base + calcCombatMods(); },
+	set efficiency(value) { this.efficiency_base = value; },
+	prereqs:{ barracks: 1 },
+	require:{
+		leather:10,
+		metal:10
+	},
+	effectText:"Protect from attack"
+},
+{
+	type: "unit",
+	id:"cavalry",
+	name:"cavalry",
+	singular:"cavalry",
+	alignment:"player",
+	source:"unemployed",
+	efficiency_base: 0.08,
+	get efficiency() { return this.efficiency_base + calcCombatMods(); },
+	set efficiency(value) { this.efficiency_base = value; },
+	prereqs:{ stable: 1 },
+	require:{
+		food:20,
+		leather:20
+	},
+	effectText:"Protect from attack"
+},
+{ //xxx Resolve conflict with 'shade' prayer
+	type: "unit",
+	id:"shades",
+	name:"shades",
+	singular:"shade",
+	alignment:"player",
+	effectText:"Insubstantial spirits"
+},
+{
+	type: "unit",
+	id:"wolves",
+	name:"wolves",
+	singular:"wolf",
+	alignment:"animal",
+	efficiency: 0.05,
+	onWin: function() { doSlaughter(this); },
+	killFatigue:(1.0), // Max fraction that leave after killing the last person
+	killExhaustion:(1/2) // Chance of an attacker leaving after killing a person
+},
+{
+	type: "unit",
+	id:"bandits",
+	name:"bandits",
+	singular:"bandit",
+	alignment:"mob",
+	efficiency: 0.07,
+	onWin: function() { doLoot(this); },
+	lootFatigue:(1/8) // Max fraction that leave after cleaning out a resource
+},
+{
+	type: "unit",
+	id:"barbarians",
+	name:"barbarians",
+	singular:"barbarian",
+	alignment:"mob",
+	efficiency: 0.09,
+	onWin: function() { doHavoc(this); },
+	lootFatigue:(1/24), // Max fraction that leave after cleaning out a resource
+	killFatigue:(1/3), // Max fraction that leave after killing the last person
+	killExhaustion:(1.0) // Chance of an attacker leaving after killing a person
+},
+{
+	type: "unit",
+	id:"esiege",
+	name:"siege engines",
+	singular:"Siege Engine",
+	alignment:"mob",
+	efficiency: 0.1  // 10% chance to hit
+},
+{
+	type: "unit",
+	id:"soldiersParty",
+	name:"soldiers",
+	singular:"soldier",
+	alignment:"player",
+	source:"soldiers",
+	efficiency_base: 0.05,
+	get efficiency() { return this.efficiency_base + calcCombatMods(); },
+	set efficiency(value) { this.efficiency_base = value; },
+	prereqs:{ standard: true, barracks: 1 }
+},
+{
+	type: "unit",
+	id:"cavalryParty",
+	name:"cavalry",
+	singular:"cavalry",
+	alignment:"player",
+	source:"cavalry",
+	efficiency_base: 0.08,
+	get efficiency() { return this.efficiency_base + calcCombatMods(); },
+	set efficiency(value) { this.efficiency_base = value; },
+	prereqs:{ standard: true, stable: 1 }
+},
+{
+	type: "unit",
+	id:"siege",
+	name:"siege engines",
+	singular:"Siege Engine",
+	alignment:"player",
+	efficiency: 0.1, // 10% chance to hit
+	prereqs:{ standard: true, mathematics: true },
+	require:{
+		wood:200,
+		leather:50,
+		metal:50
+	}
+},
+{
+	type: "unit",
+	id:"esoldiers",
+	name:"soldiers",
+	singular:"soldier",
+	alignment:"mob",
+	efficiency: 0.05
+},
+{ // Not currently used.
+	type: "unit",
+	id:"ecavalry",
+	name:"cavalry",
+	singular:"cavalry",
+	alignment:"mob",
+	efficiency: 0.08
+},
+{
+	type: "unit",
+	id:"eforts",
+	name:"fortifications",
+	singular:"fortification",
+	alignment:"mob",
+	efficiency: 0.01 // -1% damage
+},
+// Achievements
+	//conquest
+new Achievement("raider"		, "Raider"			, function() { return raiding.victory; }),
+	//xxx Technically this also gives credit for capturing a siege engine.
+new Achievement("engineer"		, "Engi&shy;neer"	, function() { return population.siege > 0; }),
+	// If we beat the largest opponent, grant bonus achievement.
+new Achievement("domination"	, "Domi&shy;nation"	, function() { return raiding.victory && (raiding.last == civSizes[civSizes.length-1].id); }),
+	//happiness
+new Achievement("hated"		, "Hated"			, function() { return efficiency.happiness <= 0.5; }),
+new Achievement("loved"		, "Loved"			, function() { return efficiency.happiness >= 1.5; }),
+	//cats
+new Achievement("cat"			, "Cat!"			, function() { return population.cats >= 1; }),
+new Achievement("glaring"		, "Glaring"			, function() { return population.cats >= 10; }),
+new Achievement("clowder"		, "Clowder"			, function() { return population.cats >= 100; }),
+	//other population
+	//Plagued achievement requires sick people to outnumber healthy
+new Achievement("plague"		, "Plagued"			, function() { return population.totalSick > population.healthy; }),
+new Achievement("ghostTown"	, "Ghost Town"		, function() { return (population.current == 0) && (population.cap >= 1000); }),
+	//deities
+new Achievement("battle"		, "Battle"			, function() { return deity.type == "Battle"; }),
+new Achievement("fields"		, "Fields"			, function() { return deity.type == "the Fields"; }),
+new Achievement("underworld"	, "Under&shy;world"	, function() { return deity.type == "the Underworld"; }),
+new Achievement("cats"			, "Cats"			, function() { return deity.type == "Cats"; }),
+new Achievement("fullHouse"	, "Full House"		, function() { return deity.battle && deity.fields && deity.underworld && deity.cats; }),
+	//wonders
+new Achievement("wonder"		, "Wonder"			, function() { return wonder.completed; }),
+new Achievement("seven"		, "Seven!"			, function() { return wonder.food + wonder.wood + wonder.stone + wonder.skins + wonder.herbs + 
+																							wonder.ore + wonder.leather + wonder.metal + wonder.piety >= 7; }),
+	//trading
+new Achievement("merchant"		, "Merch&shy;ant"	, function() { return gold.total > 0; }),
+new Achievement("rushed"		, "Rushed"			, function() { return wonder.rushed; }),
+	//other
+new Achievement("neverclick"	, "Never&shy;click"	, function() { return wonder.completed && resourceClicks <= 22; })
+];
 
-// Initialize Data
+function calcCombatMods() { return (0.01 * ((upgrades.riddle?1:0) + (upgrades.weaponry?1:0) + (upgrades.shields?1:0))); }
+
+// Some attackers get a damage mod against some defenders
+//xxx This is too fragile; the unit definitions should be expanded with
+// categories, and this method rewritten using those categories instead
+// of specific unit types.
+function getCasualtyMod(attacker,defender)
+{
+	if ((defender == "cavalry" || defender == "cavalryParty") && (attacker != "wolves"))
+	{
+		return 1.50; // Cavalry take 50% more casualties vs infantry
+	}
+
+	return 1.0; // Otherwise no modifier
+}
+
+// Add a named alias to each entry.
+function indexArray(inArray) {
+	inArray.forEach( function(elem,i,arr){ 
+		if (!isValid(arr[elem.id])) { 
+			Object.defineProperty(arr, elem.id, { value : elem, enumerable:false });
+			}
+		else { console.log("Duplicate asset ID: "+elem.id); }
+}); }
+
+indexArray(civData);
+
+var upgradeData = [];
+var powerData = [];
+var units = [];
+var achData = [];
+civData.forEach( function(elem){ if (elem.type == "upgrade") { upgradeData.push(elem); } });
+civData.forEach( function(elem){ if (elem.subType == "prayer") { powerData.push(elem); } });
+civData.forEach( function(elem){ if (elem.type == "unit") { units.push(elem); } });
+civData.forEach( function(elem){ if (elem instanceof Achievement) { achData.push(elem); } });
+
+function getJobSingular(job) { return civData[job].singular; }
+
 var civName = "Woodstock",
 rulerName = "Orteil";
 food = {
@@ -665,13 +1053,13 @@ piety = {
 	id:"piety",
 	name:"piety",
 	total:0
-},
+};
 gold = {
 	id:"gold",
 	name:"gold",
 	total:0
-},
-corpses = {
+};
+var corpses = {
 	id:"corpses",
 	name:"corpses",
 	total:0
@@ -888,252 +1276,6 @@ fortification = {
 	effectText:"helps protect against attack"
 };
 
-function calcCombatMods() { return (0.01 * ((upgrades.riddle?1:0) + (upgrades.weaponry?1:0) + (upgrades.shields?1:0))); }
-
-var units = {
-unemployed: {
-	id:"unemployed",
-	name:"unemployed",
-	singular:"unemployed",
-	alignment:"player",
-	effectText:"Unassigned Workers"
-},
-sick: {
-	id:"totalSick",
-	name:"sick",
-	singular:"sick",
-	effectText:"Sick workers"
-},
-farmers: {
-	id:"farmers",
-	name:"farmers",
-	singular:"farmer",
-	alignment:"player",
-	source:"unemployed",
-	efficiency_base: 0.2,
-	get efficiency() { return this.efficiency_base + (0.1 * (
-	+ (upgrades.domestication?1:0) + (upgrades.ploughshares?1:0) + (upgrades.irrigation?1:0) 
-	+ (upgrades.croprotation?1:0) + (upgrades.selectivebreeding?1:0) + (upgrades.fertilisers?1:0) + (upgrades.blessing?1:0))); },
-	set efficiency(value) { this.efficiency_base = value; },
-	effectText:"Automatically gather food"
-},
-woodcutters: {
-	id:"woodcutters",
-	name:"woodcutters",
-	singular:"woodcutter",
-	alignment:"player",
-	source:"unemployed",
-	efficiency: 0.5,
-	effectText:"Automatically gather wood"
-},
-miners: {
-	id:"miners",
-	name:"miners",
-	singular:"miner",
-	alignment:"player",
-	source:"unemployed",
-	efficiency: 0.2,
-	effectText:"Automatically gather stone"
-},
-tanners: {
-	id:"tanners",
-	name:"tanners",
-	singular:"tanner",
-	alignment:"player",
-	source:"unemployed",
-	efficiency: 0.5,
-	prereqs:{ tannery: 1 },
-	effectText:"Convert skins to leather"
-},
-blacksmiths: {
-	id:"blacksmiths",
-	name:"blacksmiths",
-	singular:"blacksmith",
-	alignment:"player",
-	source:"unemployed",
-	efficiency: 0.5,
-	prereqs:{ smithy: 1 },
-	effectText:"Convert ore to metal"
-},
-healers: {
-	id:"healers",
-	name:"healers",
-	singular:"healer",
-	alignment:"player",
-	source:"unemployed",
-	efficiency: 0.1,
-	prereqs:{ apothecary: 1 },
-	effectText:"Cure sick workers"
-},
-clerics: {
-	id:"clerics",
-	name:"clerics",
-	singular:"cleric",
-	alignment:"player",
-	source:"unemployed",
-	efficiency: 0.05,
-	prereqs:{ temple: 1 },
-	effectText:"Generate piety, bury corpses"
-},
-labourers: {
-	id:"labourers",
-	name:"labourers",
-	singular:"labourer",
-	alignment:"player",
-	source:"unemployed",
-	efficiency: 1.0,
-	prereqs:{ wonder: "building" }, //xxx This is a hack
-	effectText:"Use resources to build wonder"
-},
-soldiers: {
-	id:"soldiers",
-	name:"soldiers",
-	singular:"soldier",
-	alignment:"player",
-	source:"unemployed",
-	efficiency_base: 0.05,
-	get efficiency() { return this.efficiency_base + calcCombatMods(); },
-	set efficiency(value) { this.efficiency_base = value; },
-	prereqs:{ barracks: 1 },
-	require:{
-		leather:10,
-		metal:10
-	},
-	effectText:"Protect from attack"
-},
-cavalry: {
-	id:"cavalry",
-	name:"cavalry",
-	singular:"cavalry",
-	alignment:"player",
-	source:"unemployed",
-	efficiency_base: 0.08,
-	get efficiency() { return this.efficiency_base + calcCombatMods(); },
-	set efficiency(value) { this.efficiency_base = value; },
-	prereqs:{ stable: 1 },
-	require:{
-		food:20,
-		leather:20
-	},
-	effectText:"Protect from attack"
-},
-shades: {
-	id:"shades",
-	name:"shades",
-	singular:"shade",
-	alignment:"player",
-	effectText:"Insubstantial spirits"
-},
-wolves: {
-	id:"wolves",
-	name:"wolves",
-	singular:"wolf",
-	alignment:"animal",
-	efficiency: 0.05,
-	onWin: function() { doSlaughter(this); },
-	killFatigue:(1.0), // Max fraction that leave after killing the last person
-	killExhaustion:(1/2) // Chance of an attacker leaving after killing a person
-},
-bandits: {
-	id:"bandits",
-	name:"bandits",
-	singular:"bandit",
-	alignment:"mob",
-	efficiency: 0.07,
-	onWin: function() { doLoot(this); },
-	lootFatigue:(1/8) // Max fraction that leave after cleaning out a resource
-},
-barbarians: {
-	id:"barbarians",
-	name:"barbarians",
-	singular:"barbarian",
-	alignment:"mob",
-	efficiency: 0.09,
-	onWin: function() { doHavoc(this); },
-	lootFatigue:(1/24), // Max fraction that leave after cleaning out a resource
-	killFatigue:(1/3), // Max fraction that leave after killing the last person
-	killExhaustion:(1.0) // Chance of an attacker leaving after killing a person
-},
-esiege: {
-	id:"esiege",
-	name:"siege engines",
-	singular:"Siege Engine",
-	alignment:"mob",
-	efficiency: 0.1  // 10% chance to hit
-},
-soldiersParty: {
-	id:"soldiersParty",
-	name:"soldiers",
-	singular:"soldier",
-	alignment:"player",
-	source:"soldiers",
-	efficiency_base: 0.05,
-	get efficiency() { return this.efficiency_base + calcCombatMods(); },
-	set efficiency(value) { this.efficiency_base = value; },
-	prereqs:{ standard: true, barracks: 1 }
-},
-cavalryParty: {
-	id:"cavalryParty",
-	name:"cavalry",
-	singular:"cavalry",
-	alignment:"player",
-	source:"cavalry",
-	efficiency_base: 0.08,
-	get efficiency() { return this.efficiency_base + calcCombatMods(); },
-	set efficiency(value) { this.efficiency_base = value; },
-	prereqs:{ standard: true, stable: 1 }
-},
-siege: {
-	id:"siege",
-	name:"siege engines",
-	singular:"Siege Engine",
-	alignment:"player",
-	efficiency: 0.1, // 10% chance to hit
-	prereqs:{ standard: true, mathematics: true },
-	require:{
-		wood:200,
-		leather:50,
-		metal:50
-	}
-},
-esoldiers: {
-	id:"esoldiers",
-	name:"soldiers",
-	singular:"soldier",
-	alignment:"mob",
-	efficiency: 0.05
-},
-ecavalry: { // Not currently used.
-	id:"ecavalry",
-	name:"cavalry",
-	singular:"cavalry",
-	alignment:"mob",
-	efficiency: 0.08
-},
-eforts: {
-	id:"eforts",
-	name:"fortifications",
-	singular:"fortification",
-	alignment:"mob",
-	efficiency: 0.01 // -1% damage
-}
-};
-
-function getJobSingular(job) { return units[job].singular; }
-
-// Some attackers get a damage mod against some defenders
-//xxx This is too fragile; the unit definitions should be expanded with
-// categories, and this method rewritten using those categories instead
-// of specific unit types.
-function getCasualtyMod(attacker,defender)
-{
-	if ((defender == "cavalry" || defender == "cavalryParty") && (attacker != "wolves"))
-	{
-		return 1.50; // Cavalry take 50% more casualties vs infantry
-	}
-
-	return 1.0; // Otherwise no modifier
-}
 
 // The 'name' on the altars is really the label on the button to make them.
 //xxx This should probably change.
@@ -1147,7 +1289,7 @@ var battleAltar = {
 	prereqs:{ deity: "Battle" },
 	require:{
 		stone:200,
-		metal:50,
+		metal:50,  // 50 + 50*total
 		piety:200
 	},
 	effectText:"+1 Devotion"
@@ -1161,8 +1303,8 @@ fieldsAltar = {
 	devotion:1,
 	prereqs:{ deity: "the Fields" },
 	require:{
-		food:500,
-		wood:500,
+		food:500, // 500 + 250*total
+		wood:500, // 500 + 250*total
 		stone:200,
 		piety:200
 	},
@@ -1179,7 +1321,7 @@ underworldAltar = {
 	require:{
 		stone:200,
 		piety:200,
-		corpses:1
+		corpses:1 // 1 + total
 	},
 	effectText:"+1 Devotion"
 },
@@ -1193,11 +1335,13 @@ catAltar = {
 	prereqs:{ deity: "Cats" },
 	require:{
 		stone:200,
-		herbs:100,
+		herbs:100, // 100 + 50*total
 		piety:200
 	},
 	effectText:"+1 Devotion"
-},
+};
+
+
 wonder = {
 	total:0,
 	food:0,
@@ -1216,7 +1360,7 @@ wonder = {
 	rushed:false,
 	progress:0
 };
-population = {
+var population = {
 	current:0,
 	cap:0,
 	cats:0,
@@ -1316,7 +1460,7 @@ upgrades = {
 	currency:false,
 	commerce:false
 };
-var deity = {
+deity = {
 	name:"",
 	type:"",
 	seniority:1,
@@ -1324,8 +1468,8 @@ var deity = {
 	fields:0,
 	underworld:0,
 	cats:0
-},
-achievements = {
+};
+var achievements = {
 	hamlet:false,
 	village:false,
 	smallTown:false,
@@ -1364,16 +1508,16 @@ trader = {
 	timer:0
 },
 civType = "Thorp",
-targetMax = "thorp",
+targetMax = "thorp";
 raiding = {
 	raiding:false,
 	victory:false,
 	iterations:0,
 	last:""
-},
-oldDeities = "",
+};
+resourceClicks = 0;
+var oldDeities = "",
 deityArray = [],
-resourceClicks = 0,
 attackCounter = 0,
 tradeCounter = 0,
 throneCount = 0,
@@ -1389,7 +1533,6 @@ usingWords = false,
 worksafe = false,
 size = 1,
 body = document.getElementsByTagName("body")[0];
-
 
 // Get an object's requirements in text form.
 // Pass it a cost object.
@@ -1475,6 +1618,7 @@ function payFor(costObj, num)
 // Returns the number that could be hired or fired (negative if fired).
 function canHire(job,num)
 {
+	//xxx Need to validate job
 	var buildingLimit = Infinity; // Additional limit from buildings.
 
 	if (num === undefined) { num = Infinity; } // Default to as many as we can.
@@ -1495,7 +1639,7 @@ function canHire(job,num)
 	    - (isValid(population[job+"Party"]) ? population[job+"Party"] : 0) );
 
 	// See if we can afford them; returns fewer if we can't afford them all
-	return Math.min(num,canAfford(units[job].require));
+	return Math.min(num,canAfford(civData[job].require));
 }
 
 // Interface initialization code
@@ -1665,33 +1809,33 @@ function getJobRowText(jobObj, onlyOnes, funcName, displayClass, allowSell)
 function addJobRows()
 {
 	document.getElementById("jobs").innerHTML += 
-		  getJobRowText(units.unemployed,false,null,"job")
-		+ getJobRowText(units.sick,false,null,"job")
-		+ getJobRowText(units.farmers)
-		+ getJobRowText(units.woodcutters)
-		+ getJobRowText(units.miners)
-		+ getJobRowText(units.tanners)
-		+ getJobRowText(units.blacksmiths)
-		+ getJobRowText(units.healers)
-		+ getJobRowText(units.clerics)
-		+ getJobRowText(units.labourers)
-		+ getJobRowText(units.soldiers)
-		+ getJobRowText(units.cavalry)
-		+ getJobRowText(units.shades,false,null,"job")
-		+ getJobRowText(units.wolves,false,null,"enemy")
-		+ getJobRowText(units.bandits,false,null,"enemy")
-		+ getJobRowText(units.barbarians,false,null,"enemy")
-		+ getJobRowText(units.esiege,false,null,"enemy");
+		  getJobRowText(civData.unemployed,false,null,"job")
+		+ getJobRowText(civData.totalSick,false,null,"job")
+		+ getJobRowText(civData.farmers)
+		+ getJobRowText(civData.woodcutters)
+		+ getJobRowText(civData.miners)
+		+ getJobRowText(civData.tanners)
+		+ getJobRowText(civData.blacksmiths)
+		+ getJobRowText(civData.healers)
+		+ getJobRowText(civData.clerics)
+		+ getJobRowText(civData.labourers)
+		+ getJobRowText(civData.soldiers)
+		+ getJobRowText(civData.cavalry)
+		+ getJobRowText(civData.shades,false,null,"job")
+		+ getJobRowText(civData.wolves,false,null,"enemy")
+		+ getJobRowText(civData.bandits,false,null,"enemy")
+		+ getJobRowText(civData.barbarians,false,null,"enemy")
+		+ getJobRowText(civData.esiege,false,null,"enemy");
 }
 
 // job - The job ID to update
 function updateJobButtons(job){
-
+//xxx Need to validate job.
 	var elem = document.getElementById(job + "Row");
 
 	// Reveal the row if prereqs are met
 	//xxx We don't hide it again if the prereq is later unmet, because we don't want to orphan workers.
-	if (meetsPrereqs(units[job].prereqs)) { setElemDisplay(elem,true); }
+	if (meetsPrereqs(civData[job].prereqs)) { setElemDisplay(elem,true); }
 
 	var numHire = canHire(job);
 	var numFire = -canHire(job,-Infinity);
@@ -1726,11 +1870,11 @@ function updateJobs(){
 function addPartyRows()
 {
 	document.getElementById("party").innerHTML += 
-		  getJobRowText(units.soldiersParty,false,"party","job")
-		+ getJobRowText(units.cavalryParty,false,"party","job")
-		+ getJobRowText(units.siege,false,"party","job",false)
-		+ getJobRowText(units.esoldiers,false,null,"enemy")
-		+ getJobRowText(units.eforts,false,null,"enemy");
+		  getJobRowText(civData.soldiersParty,false,"party","job")
+		+ getJobRowText(civData.cavalryParty,false,"party","job")
+		+ getJobRowText(civData.siege,false,"party","job",false)
+		+ getJobRowText(civData.esoldiers,false,null,"enemy")
+		+ getJobRowText(civData.eforts,false,null,"enemy");
 }
 
 function updatePartyRow(job) {
@@ -1740,11 +1884,11 @@ function updatePartyRow(job) {
 
 	// Reveal the row if prereqs are met
 	//xxx We don't hide it again if the prereq is later unmet, because we don't want to orphan workers.
-	if (meetsPrereqs(units[job].prereqs)) { setElemDisplay(elem,true); }
+	if (meetsPrereqs(civData[job].prereqs)) { setElemDisplay(elem,true); }
 
 	// If we have a designated source, limit to what it can provide.  Otherwise
 	// assume no limit.
-	limit = (isValid(units[job].source)) ?  population[units[job].source] : Infinity;
+	limit = (isValid(civData[job].source)) ?  population[civData[job].source] : Infinity;
 
 	elem.children[ 0].children[0].disabled = pacifist || (population[job] <   1); //    None
 	elem.children[ 1].children[0].disabled = pacifist || (population[job] <   1); // -Custom
@@ -1771,9 +1915,9 @@ function updatePartyButtons(){
 	elem = document.getElementById(job+"Row");
 	// Reveal the row if prereqs are met
 	//xxx We don't hide it again if the prereq is later unmet, because we don't want to orphan workers.
-	if (meetsPrereqs(units[job].prereqs)) { setElemDisplay(elem,true); }
+	if (meetsPrereqs(civData[job].prereqs)) { setElemDisplay(elem,true); }
 
-	limit = canAfford(units[job].require);
+	limit = canAfford(civData[job].require);
 	
 	elem.children[ 7].children[0].disabled = pacifist || (limit <   1); //       1
 	elem.children[ 8].children[0].disabled = pacifist || (limit <  10); //      10
@@ -1827,12 +1971,12 @@ function setPantheonUpgradeRowText(upgradeObj)
 // Dynamically create the upgrade purchase buttons.
 function addUpgradeRows()
 {
-	var i,s="";
+	var s="";
 
 	// Place the stubs for most upgrades under the upgrades tab.
-	for (i in upgradeData) { if (upgradeData.hasOwnProperty(i)) {
-		if (upgradeData[i].subType=="upgrade") { s += "<span id='"+i+"Line' class='upgradeLine'></span>"; }
-	}}
+	upgradeData.forEach( function(elem){ 
+		if (elem.subType=="upgrade") { s += "<span id='"+elem.id+"Line' class='upgradeLine'></span>"; }
+	});
 
 	s += "<span id='wonderLine'><br /><button id='startWonder' onmousedown='startWonder()'>"
 		+ "Start Building Wonder</button><br /></span>"
@@ -1842,14 +1986,14 @@ function addUpgradeRows()
 	document.getElementById("upgradesPane").innerHTML += s;
 
 	// Fill in the stubs we just added, as well as any pre-existing stubs.
-	for (i in upgradeData) { if (upgradeData.hasOwnProperty(i)) {
-		setUpgradeRowText(upgradeData[i]); 
-	}}
+	upgradeData.forEach( function(elem){ 
+		setUpgradeRowText(elem); 
+	});
 
 	// Deity Pantheon Upgrades
 	["riddle","throne","lament","blessing","waste","stay"
 	,"book","feast","secrets","lure","companion","comfort"]
-	.forEach(function(i){ setPantheonUpgradeRowText(upgradeData[i]); });
+	.forEach(function(i){ setPantheonUpgradeRowText(civData[i]); });
 
 	// Deity granted powers
 	["battleAltar","fieldsAltar","underworldAltar","catAltar"]
@@ -1857,23 +2001,22 @@ function addUpgradeRows()
 
 	// Deity granted powers
 	["smite","glory","wickerman","walk","raiseDead","shade","pestControl","grace"]
-	.forEach(function(i){ setPantheonUpgradeRowText(powerData[i]); });
+	.forEach(function(i){ setPantheonUpgradeRowText(civData[i]); });
 }
 
 // Dynamically create the lists of purchased upgrades.
 // Pantheon upgrades go in a separate list.
 function addPUpgradeRows()
 {
-	var upgradeObj,text="",upgradeId, standardUpgStr="", pantheonUpgStr="";
+	var text="", standardUpgStr="", pantheonUpgStr="";
 
-	for (upgradeId in upgradeData) { if (upgradeData.hasOwnProperty(upgradeId)) {
-		upgradeObj=upgradeData[upgradeId];
+	upgradeData.forEach( function(upgradeObj){ 
 		text = "<span id='P"+upgradeObj.id +"' class='Pupgrade'>"
 			+"<strong>"+upgradeObj.name+"</strong>"
 			+" - "+upgradeObj.effectText+"<br/></span>";
 		if (upgradeObj.subType == "pantheon") { pantheonUpgStr += text; }
 		else { standardUpgStr += text; }
-	}}
+	});
 
 	document.getElementById("purchased").innerHTML += standardUpgStr;
 	document.getElementById("purchasedPantheon").innerHTML = pantheonUpgStr;
@@ -2113,21 +2256,21 @@ function updateSpawnButtons(){
 // Check also to see if the player can afford an upgrade and enable/disable as necessary
 function updateUpgrades(){
 	var deitySpecEnable;
-	var upgradeId, havePrice, havePrereqs, haveUpgrade;
+	var havePrice, havePrereqs, haveUpgrade;
 
 	// Update all of the upgrades
-	for (upgradeId in upgrades) { if (upgrades.hasOwnProperty(upgradeId)) {
-		havePrice = (canAfford(upgradeData[upgradeId].require) > 0);
-		havePrereqs = meetsPrereqs(upgradeData[upgradeId].prereqs);
-		haveUpgrade = upgrades[upgradeId];
+	upgradeData.forEach( function(elem){ 
+		havePrice = (canAfford(elem.require) > 0);
+		havePrereqs = meetsPrereqs(elem.prereqs);
+		haveUpgrade = upgrades[elem.id];
 
 		// Only show the purchase button if we have the prereqs, but haven't bought it yet.
-		setElemDisplay(document.getElementById(upgradeId+"Line"),(havePrereqs && !haveUpgrade));
+		setElemDisplay(document.getElementById(elem.id+"Line"),(havePrereqs && !haveUpgrade));
 		// Show the already-purchased line if we've already bought it.
-		setElemDisplay(document.getElementById("P"+upgradeId),haveUpgrade);
+		setElemDisplay(document.getElementById("P"+elem.id),haveUpgrade);
 		// Only enable the button if we are able to buy, but haven't.
-		document.getElementById(upgradeId).disabled = (!havePrereqs || !havePrice || haveUpgrade);
-	}}
+		document.getElementById(elem.id).disabled = (!havePrereqs || !havePrice || haveUpgrade);
+	});
 
 	// Unlock other UI elements controlled by upgrades
 
@@ -2223,7 +2366,7 @@ function updateDevotion(){
 
 	// Process activated powers
 	["smite","glory","wickerman","walk","shade","pestControl","grace"].forEach(function(i){ 
-		obj = powerData[i];
+		obj = civData[i];
 		setElemDisplay(document.getElementById(i+"Line"), meetsPrereqs(obj.prereqs));
 		document.getElementById(i).disabled = !(meetsPrereqs(obj.prereqs) && canAfford(obj.require));
 	});
@@ -2267,44 +2410,6 @@ function updateRequirements(buildingObj){
 	if (displayNode && isValid(buildingObj.require)) { displayNode.innerHTML = getReqText(buildingObj.require); }
 }
 
-function Achievement(id, name, test) 
-{	if (!(this instanceof Achievement)) { return new Achievement(id, name, test); } // Prevent accidental namespace pollution
-	Object.call(this);			 this.id=id; 	this.name=name; 	this.test=test; }
-
-var achData = {
-	//conquest
-	raider:		 new Achievement("raider"		, "Raider"			, function() { return raiding.victory; }),
-	//xxx Technically this also gives credit for capturing a siege engine.
-	engineer:	 new Achievement("engineer"		, "Engi&shy;neer"	, function() { return population.siege > 0; }),
-	// If we beat the largest opponent, grant bonus achievement.
-	domination:	 new Achievement("domination"	, "Domi&shy;nation"	, function() { return raiding.victory && (raiding.last == civSizes[civSizes.length-1].id); }),
-	//happiness
-	hated:		 new Achievement("hated"		, "Hated"			, function() { return efficiency.happiness <= 0.5; }),
-	loved:		 new Achievement("loved"		, "Loved"			, function() { return efficiency.happiness >= 1.5; }),
-	//cats
-	cat:		 new Achievement("cat"			, "Cat!"			, function() { return population.cats >= 1; }),
-	glaring:	 new Achievement("glaring"		, "Glaring"			, function() { return population.cats >= 10; }),
-	clowder:	 new Achievement("clowder"		, "Clowder"			, function() { return population.cats >= 100; }),
-	//other population
-	//Plagued achievement requires sick people to outnumber healthy
-	plague:		 new Achievement("plague"		, "Plagued"			, function() { return population.totalSick > population.healthy; }),
-	ghostTown:	 new Achievement("ghostTown"	, "Ghost Town"		, function() { return (population.current == 0) && (population.cap >= 1000); }),
-	//deities
-	battle:		 new Achievement("battle"		, "Battle"			, function() { return deity.type == "Battle"; }),
-	fields:		 new Achievement("fields"		, "Fields"			, function() { return deity.type == "the Fields"; }),
-	underworld:	 new Achievement("underworld"	, "Under&shy;world"	, function() { return deity.type == "the Underworld"; }),
-	cats:		 new Achievement("cats"			, "Cats"			, function() { return deity.type == "Cats"; }),
-	fullHouse:	 new Achievement("fullHouse"	, "Full House"		, function() { return deity.battle && deity.fields && deity.underworld && deity.cats; }),
-	//wonders
-	wonder:		 new Achievement("wonder"		, "Wonder"			, function() { return wonder.completed; }),
-	seven:		 new Achievement("seven"		, "Seven!"			, function() { return wonder.food + wonder.wood + wonder.stone + wonder.skins + wonder.herbs + 
-																							wonder.ore + wonder.leather + wonder.metal + wonder.piety >= 7; }),
-	//trading
-	merchant:	 new Achievement("merchant"		, "Merch&shy;ant"	, function() { return gold.total > 0; }),
-	rushed:		 new Achievement("rushed"		, "Rushed"			, function() { return wonder.rushed; }),
-	//other
-	neverclick:	 new Achievement("neverclick"	, "Never&shy;click"	, function() { return wonder.completed && resourceClicks <= 22; })
-};
 
 // achId can be:
 //   true:  Generate a line break
@@ -2331,7 +2436,7 @@ function addAchievementRows()
 	[true, "raider", "engineer", "domination", false, "hated", "loved", false, "cat", "glaring", "clowder", false, 
 	"plague", false, "ghostTown", true, "battle", "fields", "underworld", "cats", "fullHouse", false, 
 	"wonder", "seven", false, "merchant", "rushed", false, "neverclick"]
-	.forEach(function(element) { s += getAchRowText(element, ((typeof element != "boolean") ? achData[element].name : undefined)); });
+	.forEach(function(element) { s += getAchRowText(element, ((typeof element != "boolean") ? civData[element].name : undefined)); });
 
 	document.getElementById("achievements").innerHTML += s;
 }
@@ -2345,7 +2450,6 @@ function testAchievement(achObj)
 }
 
 function testAchievements(){
-	var achId;
 	// Test civ size achievement based on current size.
 	var civTypeInfo = civSizes.getCivSize(population.current);
 	if (achievements.hasOwnProperty(civTypeInfo.id)) {
@@ -2353,7 +2457,9 @@ function testAchievements(){
 	}
 
 	// Now test other achievements
-	for (achId in achData) { testAchievement(achData[achId]); }
+	achData.forEach(function(element) { 
+		testAchievement(element);
+	});
 
 	updateAchievements();
 }
@@ -2370,7 +2476,9 @@ function updateAchievements(){
 	for (i=1;i<civSizes.length;++i) { updateAchievement(civSizes[i].id); }
 
 	// Then update the rest.
-	for (i in achData) { if (achData.hasOwnProperty(i)) { updateAchievement(achData[i].id); } }
+	achData.forEach(function(element) { 
+		updateAchievement(element.id);
+	});
 }
 
 
@@ -2510,17 +2618,19 @@ function update(){
 // Game functions
 
 function increment(material){
-	var specialAmount, specialMaterial, activity;
+	var specialChance = material.specialChance, specialAmount, specialMaterial, activity;
 	//This function is called every time a player clicks on a primary resource button
 	resourceClicks += 1;
 	document.getElementById("clicks").innerHTML = prettify(Math.round(resourceClicks));
 	material.total = material.total + material.increment + (material.increment * 9 * (upgrades.civilservice?1:0)) + (material.increment * 40 * (upgrades.feudalism?1:0)) + ((upgrades.serfs?1:0) * Math.floor(Math.log(population.unemployed * 10 + 1))) + ((upgrades.nationalism?1:0) * Math.floor(Math.log((population.soldiers + population.cavalry) * 10 + 1)));
 	//Handles random collection of special resources.
+	if ((material === food) && (upgrades.flensing))    { specialChance += 0.1; }
+	if ((material === stone) && (upgrades.macerating)) { specialChance += 0.1; }
 	if (Math.random() < material.specialchance){
 		specialAmount = material.increment * (1 + (9 * (upgrades.guilds?1:0)));
-		if (material == food)  { specialMaterial = skins; activity = "foraging"; }
-		if (material == wood)  { specialMaterial = herbs; activity = "woodcutting"; }
-		if (material == stone) { specialMaterial = ore; activity = "mining"; }
+		if (material === food)  { specialMaterial = skins; activity = "foraging"; }
+		if (material === wood)  { specialMaterial = herbs; activity = "woodcutting"; }
+		if (material === stone) { specialMaterial = ore; activity = "mining"; }
 		specialMaterial.total += specialAmount;
 		gameLog("Found " + specialMaterial.name + " while " + activity);
 	}
@@ -2700,7 +2810,7 @@ function hire(job,num){
 	num = canHire(job,num);  // How many can we actually get?
 
 	// Pay for them if we're buying
-	if (num > 0) { payFor(units[job].require,num); }
+	if (num > 0) { payFor(civData[job].require,num); }
 
 	// Do the actual hiring
 	population[job] += num;
@@ -2762,11 +2872,13 @@ function shade(){
 //Called whenever player clicks a button to try to buy an upgrade.
 function upgrade(name){
 	//If the player has the resources, toggles the upgrade on and does stuff dependent on the upgrade.
-	if (!isValid(upgradeData[name])) { console.log("Unknown upgrade: "+name); return; }
-	if (!meetsPrereqs(upgradeData[name].prereqs)) { return; } // Check prereqs
-	if (payFor(upgradeData[name].require) < 1) { return; } // Try to pay
+	if (!isValid(civData[name])||(civData[name].type != "upgrade" )) 
+		{ console.log("Unknown upgrade: "+name); return; }
+
+	if (!meetsPrereqs(civData[name].prereqs)) { return; } // Check prereqs
+	if (payFor(civData[name].require) < 1) { return; } // Try to pay
 	upgrades[name] = true; // Mark upgrade
-	if (isValid(upgradeData[name].onGain)) {upgradeData[name].onGain(); } // Take effect
+	if (isValid(civData[name].onGain)) {civData[name].onGain(); } // Take effect
 
 	updateUpgrades(); //Update which upgrades are available to the player
 	updateResourceTotals(); //Update reduced resource totals as appropriate.
@@ -2799,8 +2911,8 @@ function digGraves(num){
 //xxx Doesn't currently pick from the army
 function randomHealthyWorker(){
 	var num = Math.random() * population.healthy;
-	var jobs=[units.unemployed,units.farmers,units.woodcutters,units.miners,units.tanners,units.blacksmiths,
-			  units.healers,units.clerics,units.labourers,units.cavalry,units.soldiers];
+	var jobs=[civData.unemployed,civData.farmers,civData.woodcutters,civData.miners,civData.tanners,civData.blacksmiths,
+			  civData.healers,civData.clerics,civData.labourers,civData.cavalry,civData.soldiers];
 	var chance = 0;
 	var i;
 	for (i=0;i<jobs.length;++i)
@@ -3262,11 +3374,12 @@ function load(loadType){
 		
 	if (loadType === "cookie"){
 		//check for cookies
-		if (read_cookie(saveTag1) && read_cookie(saveTag2)){
+		if (read_cookie(saveTag) && read_cookie(saveTag2)){
 			//set variables to load from
-			loadVar = read_cookie(saveTag1);
+			loadVar = read_cookie(saveTag);
 			loadVar2 = read_cookie(saveTag2);
-			//xxxTODO: Merge loadVar2 into loadVar immediately.
+			loadVar = mergeObj(loadVar, loadVar2);
+			loadVar2 = undefined;
 			//notify user
 			gameLog("Loaded saved game from cookie");
 			gameLog("Save system switching to localStorage.");
@@ -3282,25 +3395,33 @@ function load(loadType){
 		var string2;
 		var msg;
 		try {
-			string1 = localStorage.getItem(saveTag1);
+			string1 = localStorage.getItem(saveTag);
 			string2 = localStorage.getItem(saveTag2);
 		} catch(err) {
-			if (err instanceof SecurityError)
-				{ msg = "Browser security settings blocked access to local storage."; }
-			else 
-				{ msg = "Cannot access localStorage - browser may not support localStorage, or storage may be corrupt"; }
-			console.log(msg);
+			if (!string1) { // It could be fine if string2 fails.
+				if (err instanceof SecurityError)
+					{ msg = "Browser security settings blocked access to local storage."; }
+				else 
+					{ msg = "Cannot access localStorage - browser may not support localStorage, or storage may be corrupt"; }
+				console.log(msg);
+				return load("cookie");
+			}
 		}
-		if (string1 && string2){
+		
+		try {
 			loadVar = JSON.parse(string1);
-			loadVar2 = JSON.parse(string2);
-			//notify user
-			gameLog("Loaded saved game from localStorage");
-		} else {
+			if (string2) { 
+				loadVar2 = JSON.parse(string2);
+				loadVar = mergeObj(loadVar, loadVar2);
+				loadVar2 = undefined;
+			}
+		} catch(err) {
 			console.log("Unable to find variables in localStorage. Attempting to load cookie.");
-			load("cookie");
-			return false;
+			return load("cookie");
 		}
+
+		//notify user
+		gameLog("Loaded saved game from localStorage");
 	}
 	
 	if (loadType === "import"){
@@ -3310,18 +3431,33 @@ function load(loadType){
 		var revived = JSON.parse(decompressed);
 		//set variables to load from
 		loadVar = revived[0];
-		loadVar2 = revived[1];
+		if (isValid(revived[1])) {
+			loadVar2 = revived[1];
+			loadVar = mergeObj(loadVar, loadVar2);
+			loadVar2 = undefined;
+		}
 		//notify user
 		gameLog("Imported saved game");
 		//close import/export dialog
 		//impexp();
 	}
 
-	var versionData = mergeObj(loadVar.versionData);
-	console.log("Loading save game version " + versionData.major +
-		"." + versionData.minor + "." + versionData.sub + "(" + versionData.mod + ").");
+	// Refuse to load saved games from future versions.
+	var saveVersion = new VersionData();
+	mergeObj(saveVersion,loadVar.versionData);
+	if (saveVersion.toNumber() > versionData.toNumber)
+	{
+		console.log("Cannot load; saved game v" + saveVersion + " is newer than game version " + versionData);
+		return false;
+	}
+
+
+	console.log("Loading save game version " + saveVersion.major +
+		"." + saveVersion.minor + "." + saveVersion.sub + "(" + saveVersion.mod + ").");
 	
 	// BACKWARD COMPATIBILITY SECTION //////////////////
+	// v1.1.35: eliminated 2nd variable
+	
 	// v1.1.13: population.corpses moved to corpses.total
 	if (!isValid(loadVar.corpses)) { loadVar.corpses = {}; }
 	if (isValid(loadVar.population.corpses)) { 
@@ -3387,43 +3523,43 @@ function load(loadType){
 		gold = mergeObj(gold, loadVar.gold);
 	}
 	corpses = mergeObj(corpses, loadVar.corpses);
-	if (isValid(loadVar2.wonder)){
-		wonder = mergeObj(wonder, loadVar2.wonder);
+	if (isValid(loadVar.wonder)){
+		wonder = mergeObj(wonder, loadVar.wonder);
 	}
-	land = mergeObj(land, loadVar2.land);
-	tent = mergeObj(tent, loadVar2.tent);
-	whut = mergeObj(whut, loadVar2.whut);
-	cottage = mergeObj(cottage, loadVar2.cottage);
-	house = mergeObj(house, loadVar2.house);
-	mansion = mergeObj(mansion, loadVar2.mansion);
-	barn = mergeObj(barn, loadVar2.barn);
-	woodstock = mergeObj(woodstock, loadVar2.woodstock);
-	stonestock = mergeObj(stonestock, loadVar2.stonestock);
-	tannery = mergeObj(tannery, loadVar2.tannery);
-	smithy = mergeObj(smithy, loadVar2.smithy);
-	apothecary = mergeObj(apothecary, loadVar2.apothecary);
-	temple = mergeObj(temple, loadVar2.temple);
-	barracks = mergeObj(barracks, loadVar2.barracks);
-	stable = mergeObj(stable, loadVar2.stable);
-	mill = mergeObj(mill, loadVar2.mill);
+	land = mergeObj(land, loadVar.land);
+	tent = mergeObj(tent, loadVar.tent);
+	whut = mergeObj(whut, loadVar.whut);
+	cottage = mergeObj(cottage, loadVar.cottage);
+	house = mergeObj(house, loadVar.house);
+	mansion = mergeObj(mansion, loadVar.mansion);
+	barn = mergeObj(barn, loadVar.barn);
+	woodstock = mergeObj(woodstock, loadVar.woodstock);
+	stonestock = mergeObj(stonestock, loadVar.stonestock);
+	tannery = mergeObj(tannery, loadVar.tannery);
+	smithy = mergeObj(smithy, loadVar.smithy);
+	apothecary = mergeObj(apothecary, loadVar.apothecary);
+	temple = mergeObj(temple, loadVar.temple);
+	barracks = mergeObj(barracks, loadVar.barracks);
+	stable = mergeObj(stable, loadVar.stable);
+	mill = mergeObj(mill, loadVar.mill);
 	updateRequirements(mill);
-	graveyard = mergeObj(graveyard, loadVar2.graveyard);
-	fortification = mergeObj(fortification, loadVar2.fortification);
+	graveyard = mergeObj(graveyard, loadVar.graveyard);
+	fortification = mergeObj(fortification, loadVar.fortification);
 	updateRequirements(fortification);
-	battleAltar = mergeObj(battleAltar, loadVar2.battleAltar);
+	battleAltar = mergeObj(battleAltar, loadVar.battleAltar);
 	updateRequirements(battleAltar);
-	fieldsAltar = mergeObj(fieldsAltar, loadVar2.fieldsAltar);
+	fieldsAltar = mergeObj(fieldsAltar, loadVar.fieldsAltar);
 	updateRequirements(fieldsAltar);
-	underworldAltar = mergeObj(underworldAltar, loadVar2.underworldAltar);
+	underworldAltar = mergeObj(underworldAltar, loadVar.underworldAltar);
 	updateRequirements(underworldAltar);
-	catAltar = mergeObj(catAltar, loadVar2.catAltar);
+	catAltar = mergeObj(catAltar, loadVar.catAltar);
 	updateRequirements(catAltar);
-	if (isValid(loadVar2.resourceClicks)){
-		resourceClicks = mergeObj(resourceClicks, loadVar2.resourceClicks);
+	if (isValid(loadVar.resourceClicks)){
+		resourceClicks = mergeObj(resourceClicks, loadVar.resourceClicks);
 	} else {
 		resourceClicks = 999; //stops people getting the achievement with an old save version
 	}
-	worksafe = mergeObj(worksafe, loadVar2.worksafe);
+	worksafe = mergeObj(worksafe, loadVar.worksafe);
 	population = mergeObj(population, loadVar.population);
 	efficiency = mergeObj(efficiency, loadVar.efficiency);
 	upgrades = mergeObj(upgrades, loadVar.upgrades);
@@ -3470,9 +3606,8 @@ function load(loadType){
 function save(savetype){
 	var xmlhttp;
 	//Create objects and populate them with the variables, these will be 
-	//stored in HTML5 localStorage.  Split into two vars for historical
-	//reasons (cookies didn't allow more than 4k).  Cookie support is now
-	//deprecated.
+	//stored in HTML5 localStorage.
+	//Cookie-based saves are no longer supported.
 
 	var saveVar = {
 		food:food,
@@ -3501,9 +3636,7 @@ function save(savetype){
 		walkTotal:walkTotal,
 		targetMax:targetMax,
 		size:size,
-		versionData:versionData
-	};
-	var saveVar2 = {
+		versionData:versionData,
 		land:land,
 		wonder:wonder,
 		tent:tent,
@@ -3540,27 +3673,26 @@ function save(savetype){
 	////////////////////////////////////////////////////
 
 	// Delete the old cookie-based save to avoid mismatched saves
-	document.cookie = [saveTag1, "=; expires=Thu, 01-Jan-1970 00:00:01 GMT; path=/; domain=.", window.location.host.toString()].join("");
+	document.cookie = [saveTag, "=; expires=Thu, 01-Jan-1970 00:00:01 GMT; path=/; domain=.", window.location.host.toString()].join("");
 	document.cookie = [saveTag2, "=; expires=Thu, 01-Jan-1970 00:00:01 GMT; path=/; domain=.", window.location.host.toString()].join("");
 
 	//set localstorage
 	try {
-		localStorage.setItem(saveTag1, JSON.stringify(saveVar));
-		localStorage.setItem(saveTag2, JSON.stringify(saveVar2));
+		localStorage.setItem(saveTag, JSON.stringify(saveVar));
 	} catch(err) {
 		console.log("Cannot access localStorage - browser may be old or storage may be corrupt");
+		alert("Save Failed!");
 	}
 	//Update console for debugging, also the player depending on the type of save (manual/auto)
 	console.log("Attempted save");
 	if (savetype == "export"){
-		var savestring = "[" + JSON.stringify(saveVar) + "," + JSON.stringify(saveVar2) + "]";
+		var savestring = "[" + JSON.stringify(saveVar) + "]";
 		var compressed = LZString.compressToBase64(savestring);
-		console.log("Compressing Save");
-		console.log("Compressed from " + savestring.length + " to " + compressed.length + " characters");
+		console.log("Compressed save from " + savestring.length + " to " + compressed.length + " characters");
 		document.getElementById("impexpField").value = compressed;
 		gameLog("Saved game and exported to base64");
 	}
-	if (localStorage.getItem(saveTag1) && localStorage.getItem(saveTag2)) {
+	if (localStorage.getItem(saveTag)) {
 		console.log("Savegame exists");
 		if (savetype == "auto"){
 			console.log("Autosave");
@@ -3600,9 +3732,9 @@ function deleteSave(){
 	//Deletes the current savegame by setting the game's cookies to expire in the past.
 	var really = confirm("Really delete save?"); //Check the player really wanted to do that.
 	if (really){
-		document.cookie = [saveTag1, "=; expires=Thu, 01-Jan-1970 00:00:01 GMT; path=/; domain=.", window.location.host.toString()].join("");
+		document.cookie = [saveTag, "=; expires=Thu, 01-Jan-1970 00:00:01 GMT; path=/; domain=.", window.location.host.toString()].join("");
 		document.cookie = [saveTag2, "=; expires=Thu, 01-Jan-1970 00:00:01 GMT; path=/; domain=.", window.location.host.toString()].join("");
-		localStorage.removeItem(saveTag1);
+		localStorage.removeItem(saveTag);
 		localStorage.removeItem(saveTag2);
 		gameLog("Save Deleted");
 	}
@@ -3932,18 +4064,19 @@ function reset(){
 }
 
 function doFarmers() {
+	var specialChance = stone.specialChance + (upgrades.flensing ? 0.1 : 0);
 	var millMod = 1;
 	if (population.current > 0 || population.zombies > 0) { millMod = population.current / (population.current + population.zombies); }
-	food.net = population.farmers * (1 + (units.farmers.efficiency * efficiency.happiness)) * (1 + efficiency.pestBonus) * (1 + (wonder.food/10)) * (1 + walkTotal/120) * (1 + mill.total * millMod / 200); //Farmers farm food
+	food.net = population.farmers * (1 + (civData.farmers.efficiency * efficiency.happiness)) * (1 + efficiency.pestBonus) * (1 + (wonder.food/10)) * (1 + walkTotal/120) * (1 + mill.total * millMod / 200); //Farmers farm food
 	food.net -= population.current; //The living population eats food.
 	food.total += food.net;
 	if (upgrades.skinning && population.farmers > 0){ //and sometimes get skins
-		var num_skins = food.specialchance * (food.increment + ((upgrades.butchering?1:0) * population.farmers / 15.0)) * (1 + (wonder.skins/10));
+		var num_skins = specialChance * (food.increment + ((upgrades.butchering?1:0) * population.farmers / 15.0)) * (1 + (wonder.skins/10));
 		skins.total += rndRound(num_skins);
 	}
 }
 function doWoodcutters() {
-	wood.net = population.woodcutters * (units.woodcutters.efficiency * efficiency.happiness) * (1 + (wonder.wood/10)); //Woodcutters cut wood
+	wood.net = population.woodcutters * (civData.woodcutters.efficiency * efficiency.happiness) * (1 + (wonder.wood/10)); //Woodcutters cut wood
 	wood.total += wood.net;
 	if (upgrades.harvesting && population.woodcutters > 0){ //and sometimes get herbs
 		var num_herbs = wood.specialchance * (wood.increment + ((upgrades.gardening?1:0) * population.woodcutters / 5.0)) * (1 + (wonder.wood/10));
@@ -3952,18 +4085,19 @@ function doWoodcutters() {
 }
 
 function doMiners() {
-	stone.net = population.miners * (units.miners.efficiency * efficiency.happiness) * (1 + (wonder.stone/10)); //Miners mine stone
+	var specialChance = stone.specialChance + (upgrades.macerating ? 0.1 : 0);
+	stone.net = population.miners * (civData.miners.efficiency * efficiency.happiness) * (1 + (wonder.stone/10)); //Miners mine stone
 	stone.total += stone.net;
 	if (upgrades.prospecting && population.miners > 0){ //and sometimes get ore
-		var num_ore = stone.specialchance * (stone.increment + ((upgrades.extraction?1:0) * population.miners / 5.0)) * (1 + (wonder.ore/10));
+		var num_ore = specialChance * (stone.increment + ((upgrades.extraction?1:0) * population.miners / 5.0)) * (1 + (wonder.ore/10));
 		ore.total += rndRound(num_ore);
 	}
 }
 
 function doBlacksmiths() {
-	if (ore.total >= population.blacksmiths * (units.blacksmiths.efficiency * efficiency.happiness)){
-		metal.total += population.blacksmiths * (units.blacksmiths.efficiency * efficiency.happiness) * (1 + (wonder.metal/10));
-		ore.total -= population.blacksmiths * (units.blacksmiths.efficiency * efficiency.happiness);
+	if (ore.total >= population.blacksmiths * (civData.blacksmiths.efficiency * efficiency.happiness)){
+		metal.total += population.blacksmiths * (civData.blacksmiths.efficiency * efficiency.happiness) * (1 + (wonder.metal/10));
+		ore.total -= population.blacksmiths * (civData.blacksmiths.efficiency * efficiency.happiness);
 	} else if (population.blacksmiths) {
 		metal.total += ore.total * (1 + (wonder.metal/10));
 		ore.total = 0;
@@ -3971,9 +4105,9 @@ function doBlacksmiths() {
 }
 
 function doTanners() {
-	if (skins.total >= population.tanners * (units.tanners.efficiency * efficiency.happiness)){
-		leather.total += population.tanners * (units.tanners.efficiency * efficiency.happiness) * (1 + (wonder.leather/10));
-		skins.total -= population.tanners * (units.tanners.efficiency * efficiency.happiness);
+	if (skins.total >= population.tanners * (civData.tanners.efficiency * efficiency.happiness)){
+		leather.total += population.tanners * (civData.tanners.efficiency * efficiency.happiness) * (1 + (wonder.leather/10));
+		skins.total -= population.tanners * (civData.tanners.efficiency * efficiency.happiness);
 	} else if (population.tanners) {
 		leather.total += skins.total * (1 + (wonder.leather/10));
 		skins.total = 0;
@@ -3981,7 +4115,7 @@ function doTanners() {
 }
 
 function doClerics() {
-	piety.total += population.clerics * (units.clerics.efficiency + (units.clerics.efficiency * (upgrades.writing?1:0))) * (1 + ((upgrades.secrets?1:0) * (1 - 100/(graveyard.total + 100)))) * efficiency.happiness * (1 + (wonder.piety/10));
+	piety.total += population.clerics * (civData.clerics.efficiency + (civData.clerics.efficiency * (upgrades.writing?1:0))) * (1 + ((upgrades.secrets?1:0) * (1 - 100/(graveyard.total + 100)))) * efficiency.happiness * (1 + (wonder.piety/10));
 }
 // Try to heal the specified number of people in the specified job
 // Makes them sick if the number is negative.
@@ -4036,7 +4170,7 @@ function doHealers() {
 	var numHealers = population.healers + (population.cats * (upgrades.companion?1:0));
 
 	// How much healing can we do?
-	cureCounter += (numHealers * units.healers.efficiency * efficiency.happiness);
+	cureCounter += (numHealers * civData.healers.efficiency * efficiency.happiness);
 
 	// We can't cure more sick people than there are
 	cureCounter = Math.min(cureCounter, population.totalSick);
@@ -4093,13 +4227,13 @@ function doFight(attacker,defender)
 {
 	// Defenses vary depending on whether the player is attacking or defending.
 	var fortMod = (defender.alignment == "player" ? (fortification.total * fortification.efficiency)
-												  : (population.eforts * units.eforts.efficiency));
-	var palisadeMod = ((defender.alignment == "player")&&(upgrades.palisade)) ?  upgradeData.palisade.efficiency : 0;
+												  : (population.eforts * civData.eforts.efficiency));
+	var palisadeMod = ((defender.alignment == "player")&&(upgrades.palisade)) ?  civData.palisade.efficiency : 0;
 
 	// Determine casualties on each side.  Round fractional casualties
 	// probabilistically, and don't inflict more than 100% casualties.
-	var attackerCas = Math.min(population[attacker.id],rndRound(getCasualtyMod(defender.id,attacker.id) * population[defender.id] * units[defender.id].efficiency));
-	var defenderCas = Math.min(population[defender.id],rndRound(getCasualtyMod(attacker.id,defender.id) * population[attacker.id] * (units[attacker.id].efficiency - palisadeMod) * Math.max(1 - fortMod, 0)));
+	var attackerCas = Math.min(population[attacker.id],rndRound(getCasualtyMod(defender.id,attacker.id) * population[defender.id] * civData[defender.id].efficiency));
+	var defenderCas = Math.min(population[defender.id],rndRound(getCasualtyMod(attacker.id,defender.id) * population[attacker.id] * (civData[attacker.id].efficiency - palisadeMod) * Math.max(1 - fortMod, 0)));
 
 	population[attacker.id] -= attackerCas;
 	population[defender.id] -= defenderCas;
@@ -4189,9 +4323,9 @@ function doSack(attacker)
 function doHavoc()
 {
 	var havoc = Math.random(); //barbarians do different things
-	if      (havoc < 0.3) { doSlaughter(units.barbarians); } 
-	else if (havoc < 0.6) { doLoot(units.barbarians); } 
-	else                  { doSack(units.barbarians); }
+	if      (havoc < 0.3) { doSlaughter(civData.barbarians); } 
+	else if (havoc < 0.6) { doLoot(civData.barbarians); } 
+	else                  { doSack(civData.barbarians); }
 }
 
 function doShades()
@@ -4206,9 +4340,9 @@ function doShades()
 		population[attacker.id] -= Math.floor(num);
 	}
 
-	shadeAttack(units.wolves);
-	shadeAttack(units.bandits);
-	shadeAttack(units.barbarians);
+	shadeAttack(civData.wolves, civData.shades);
+	shadeAttack(civData.bandits, civData.shades);
+	shadeAttack(civData.barbarians, civData.shades);
 
 	population.shades = Math.floor(population.shades * 0.95);
 	if (population.shades < 0) { population.shades = 0; }
@@ -4226,7 +4360,7 @@ function doEsiege()
 			for (i = 0; i < firing; i++){
 				if (fortification.total > 0){ //still needs to be something to fire at
 					hit = Math.random();
-					if (hit < units.esiege.efficiency){
+					if (hit < civData.esiege.efficiency){
 						fortification.total -= 1;
 						gameLog("Enemy siege engine damaged our fortifications");
 					} else if (hit > 0.95){ //each siege engine has 5% to misfire and destroy itself
@@ -4260,7 +4394,7 @@ function doSiege()
 	for (i = 0; i < firing; i++){
 		if (population.eforts > 0){ //still needs to be something to fire at
 			hit = Math.random();
-			if (hit < units.siege.efficiency){ //each siege engine has 10% to hit
+			if (hit < civData.siege.efficiency){ //each siege engine has 10% to hit
 				population.eforts -= 1;
 			} else if (hit > 0.95){ //each siege engine has 5% to misfire and destroy itself
 				population.siege -= 1;
@@ -4276,11 +4410,11 @@ function doSkirmish(attacker)
 	if (population.soldiers > 0 || population.cavalry > 0){ //FIGHT!
 		//handles cavalry
 		if (population.cavalry > 0){
-			doFight(attacker,units.cavalry);
+			doFight(attacker,civData.cavalry);
 		}
 		//handles soldiers
 		if (population.soldiers > 0){
-			doFight(attacker,units.soldiers);
+			doFight(attacker,civData.soldiers);
 		}
 		//Updates population figures (including total population)
 		updatePopulation();
@@ -4291,9 +4425,9 @@ function doSkirmish(attacker)
 
 //Handling mob attacks
 function doMobs() {
-	doSkirmish(units.wolves);
-	doSkirmish(units.bandits);
-	doSkirmish(units.barbarians);
+	doSkirmish(civData.wolves);
+	doSkirmish(civData.bandits);
+	doSkirmish(civData.barbarians);
 	doShades();
 	doEsiege();
 }
@@ -4329,11 +4463,11 @@ function doRaid() {
 			/* FIGHT! */
 			//Handles cavalry
 			if (population.cavalryParty > 0){
-				doFight(units.cavalryParty,units.esoldiers);
+				doFight(civData.cavalryParty,civData.esoldiers);
 			}
 			//Handles infantry
 			if (population.soldiersParty > 0){
-				doFight(units.soldiersParty,units.esoldiers);
+				doFight(civData.soldiersParty,civData.esoldiers);
 			}
 			//Handles siege engines
 			if (population.siege > 0 && population.eforts > 0){ //need to be siege weapons and something to fire at
@@ -4411,6 +4545,8 @@ function doLabourers() {
 
 // Start of init program code
 function initCivclicker() {
+	document.title = "CivClicker ("+versionData+")"; //xxx Not in XML DOM.
+
 	addBuildingRows();
 	addJobRows();
 	addPartyRows();
@@ -4420,7 +4556,7 @@ function initCivclicker() {
 	addRaidRows();
 
 	//Prompt player for names
-	if (!localStorage.getItem("civ") && !read_cookie("civ")) {
+	if (!localStorage.getItem(saveTag) && !read_cookie(saveTag)) {
 		renameCiv();
 		renameRuler();
 	}
