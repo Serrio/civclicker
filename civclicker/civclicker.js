@@ -31,7 +31,7 @@ VersionData.prototype.toNumber = function() { return this.major*1000 + this.mino
 VersionData.prototype.toString = function() { return String(this.major) + "." 
 	+ String(this.minor) + "." + String(this.sub) + String(this.mod); };
 
-var versionData = new VersionData(1,1,34,"alpha");
+var versionData = new VersionData(1,1,36,"alpha");
 
 var saveTag = "civ";
 var saveTag2 = saveTag + "2"; // For old saves.
@@ -2081,6 +2081,9 @@ function updateResourceTotals(){
 	document.getElementById("trade").disabled = (trader.time == 0) ||
 		(trader.material.total < trader.requested);
 
+	// Cheaters don't get names.
+	document.getElementById("renameRuler").disabled = (rulerName == "Cheater");
+
 	updatePopulation(); //updatePopulation() handles the population caps, which are determined by buildings.
 }
 
@@ -3408,15 +3411,20 @@ function load(loadType){
 			}
 		}
 		
-		try {
-			loadVar = JSON.parse(string1);
-			if (string2) { 
-				loadVar2 = JSON.parse(string2);
-				loadVar = mergeObj(loadVar, loadVar2);
-				loadVar2 = undefined;
-			}
-		} catch(err) {
+		if (!string1) {
 			console.log("Unable to find variables in localStorage. Attempting to load cookie.");
+			return load("cookie");
+		}
+
+		// Try to parse the strings
+		if (string1) { try { loadVar  = JSON.parse(string1); } catch(ignore){} }
+		if (string2) { try { loadVar2 = JSON.parse(string1); } catch(ignore){} }
+
+		// If there's a second string (old save game format), merge it in.
+		if (loadVar2) { loadVar = mergeObj(loadVar, loadVar2); loadVar2 = undefined; }
+
+		if (!loadVar) {
+			console.log("Unable to parse variables in localStorage. Attempting to load cookie.");
 			return load("cookie");
 		}
 
@@ -3764,6 +3772,7 @@ function reset(){
 	var msg = "Really reset? You will keep past deities and wonders (and cats)"; //Check player really wanted to do that.
 	if (!confirm(msg)) { return false; } // declined
 
+	paneSelect("buildings");
 	if (upgrades.deity){
 		if (oldDeities){
 			//Relegates current deity to the oldDeities table.
