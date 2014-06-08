@@ -159,7 +159,7 @@ button:disabled{
 }
 
 .paneSelector{
-	width:15%;
+	width:12%;
 	float:left;
 	text-align:center;
 	margin:1em 0;
@@ -172,9 +172,12 @@ button:disabled{
 	text-shadow: none;
 	cursor:pointer;
 }
-#deitySelect{ display: none; }
-#conquestSelect{ display: none; }
-#tradeSelect{ display: none; }
+#deitySelect,
+#conquestSelect,
+#tradeSelect{ 
+	display: none; 
+}
+
 .selected{
 	border-bottom:none;
 	background:none;
@@ -194,7 +197,9 @@ button:disabled{
 #upgradesPane,
 #deityPane,
 #conquestPane,
-#tradePane{
+#tradePane,
+#achievementsPane,
+#settingsPane {
 	display:none;
 }
 

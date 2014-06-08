@@ -31,7 +31,7 @@ VersionData.prototype.toNumber = function() { return this.major*1000 + this.mino
 VersionData.prototype.toString = function() { return String(this.major) + "." 
 	+ String(this.minor) + "." + String(this.sub) + String(this.mod); };
 
-var versionData = new VersionData(1,1,36,"alpha");
+var versionData = new VersionData(1,1,37,"alpha");
 
 var saveTag = "civ";
 var saveTag2 = saveTag + "2"; // For old saves.
@@ -2621,14 +2621,14 @@ function update(){
 // Game functions
 
 function increment(material){
-	var specialChance = material.specialChance, specialAmount, specialMaterial, activity;
+	var specialchance = material.specialchance, specialAmount, specialMaterial, activity;
 	//This function is called every time a player clicks on a primary resource button
 	resourceClicks += 1;
 	document.getElementById("clicks").innerHTML = prettify(Math.round(resourceClicks));
 	material.total = material.total + material.increment + (material.increment * 9 * (upgrades.civilservice?1:0)) + (material.increment * 40 * (upgrades.feudalism?1:0)) + ((upgrades.serfs?1:0) * Math.floor(Math.log(population.unemployed * 10 + 1))) + ((upgrades.nationalism?1:0) * Math.floor(Math.log((population.soldiers + population.cavalry) * 10 + 1)));
 	//Handles random collection of special resources.
-	if ((material === food) && (upgrades.flensing))    { specialChance += 0.1; }
-	if ((material === stone) && (upgrades.macerating)) { specialChance += 0.1; }
+	if ((material === food) && (upgrades.flensing))    { specialchance += 0.1; }
+	if ((material === stone) && (upgrades.macerating)) { specialchance += 0.1; }
 	if (Math.random() < material.specialchance){
 		specialAmount = material.increment * (1 + (9 * (upgrades.guilds?1:0)));
 		if (material === food)  { specialMaterial = skins; activity = "foraging"; }
@@ -4073,14 +4073,14 @@ function reset(){
 }
 
 function doFarmers() {
-	var specialChance = stone.specialChance + (upgrades.flensing ? 0.1 : 0);
+	var specialchance = food.specialchance + (upgrades.flensing ? 0.1 : 0);
 	var millMod = 1;
 	if (population.current > 0 || population.zombies > 0) { millMod = population.current / (population.current + population.zombies); }
 	food.net = population.farmers * (1 + (civData.farmers.efficiency * efficiency.happiness)) * (1 + efficiency.pestBonus) * (1 + (wonder.food/10)) * (1 + walkTotal/120) * (1 + mill.total * millMod / 200); //Farmers farm food
 	food.net -= population.current; //The living population eats food.
 	food.total += food.net;
 	if (upgrades.skinning && population.farmers > 0){ //and sometimes get skins
-		var num_skins = specialChance * (food.increment + ((upgrades.butchering?1:0) * population.farmers / 15.0)) * (1 + (wonder.skins/10));
+		var num_skins = specialchance * (food.increment + ((upgrades.butchering?1:0) * population.farmers / 15.0)) * (1 + (wonder.skins/10));
 		skins.total += rndRound(num_skins);
 	}
 }
@@ -4094,11 +4094,11 @@ function doWoodcutters() {
 }
 
 function doMiners() {
-	var specialChance = stone.specialChance + (upgrades.macerating ? 0.1 : 0);
+	var specialchance = stone.specialchance + (upgrades.macerating ? 0.1 : 0);
 	stone.net = population.miners * (civData.miners.efficiency * efficiency.happiness) * (1 + (wonder.stone/10)); //Miners mine stone
 	stone.total += stone.net;
 	if (upgrades.prospecting && population.miners > 0){ //and sometimes get ore
-		var num_ore = specialChance * (stone.increment + ((upgrades.extraction?1:0) * population.miners / 5.0)) * (1 + (wonder.ore/10));
+		var num_ore = specialchance * (stone.increment + ((upgrades.extraction?1:0) * population.miners / 5.0)) * (1 + (wonder.ore/10));
 		ore.total += rndRound(num_ore);
 	}
 }
@@ -4771,12 +4771,16 @@ function paneSelect(name){
 	document.getElementById("deityPane").style.display = "none";
 	document.getElementById("conquestPane").style.display = "none";
 	document.getElementById("tradePane").style.display = "none";
+	document.getElementById("achievementsPane").style.display = "none";
+	document.getElementById("settingsPane").style.display = "none";
 	//xxx DOM CSS should be able to add class here more cleanly.
 	document.getElementById("buildingsSelect").className = "paneSelector";
 	document.getElementById("upgradesSelect").className = "paneSelector";
 	document.getElementById("deitySelect").className = "paneSelector";
 	document.getElementById("conquestSelect").className = "paneSelector";
 	document.getElementById("tradeSelect").className = "paneSelector";
+	document.getElementById("achievementsSelect").className = "paneSelector";
+	document.getElementById("settingsSelect").className = "paneSelector";
 
 	// Turn the desired ones back on.
 	document.getElementById(name + "Pane").style.display = "block";

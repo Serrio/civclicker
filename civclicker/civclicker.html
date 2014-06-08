@@ -127,6 +127,8 @@
 			<div id="deitySelect" class="paneSelector" onclick="paneSelect('deity')">Deity</div>
 			<div id="conquestSelect" class="paneSelector" onclick="paneSelect('conquest')">Conquest</div>
 			<div id="tradeSelect" class="paneSelector" onclick="paneSelect('trade')">Trade</div>
+			<div id="achievementsSelect" class="paneSelector" onclick="paneSelect('achievements')">Achievements</div>
+			<div id="settingsSelect" class="paneSelector" onclick="paneSelect('settings')">Settings</div>
 			<div style="clear:both;"></div>
 		</div>
 		
@@ -236,6 +238,35 @@
 				<button class="tradeResource" onmousedown="buy(metal)">Buy 250 Metal</button><br />
 			</div>
 		</div>
+		<div id="achievementsPane">
+			<div id="achievements">
+				<h3>Achievements</h3>
+			</div>
+		</div>
+		<div id="settingsPane">
+			<div id="settings">
+				<h3>Settings</h3>
+				<button onmousedown="save('manual')" title="Save your current stats">Manual Save</button><br />
+				<button id="toggleAutosave" onmousedown="toggleAutosave()" title="Autosave toggle">Disable Autosave</button><br />
+				<button onmousedown="deleteSave()" title="Delete your saved stats">Delete Save File</button><br />
+				<br />
+				<button onmousedown="reset()" title="Reset your game">Reset Game</button><span class="note"><span id="resetNote"><br/>Resetting allows you to </span><span id="resetDeity">gain another deity</span><span id="resetBoth"><br/> and </span><span id="resetWonder">build another Wonder</span></span><br />
+				<br />
+				<button onmousedown="renameCiv()" title="Rename your civilisation">Rename Civilisation</button><br />
+				<button id="renameRuler" onmousedown="renameRuler()" title="Rename yourself">Rename Yourself</button><br />
+				<button id="renameDeity" onmousedown="renameDeity()" title="Rename your deity" disabled="disabled">Rename Current Deity</button><br />
+				<br />
+				<button id="toggleCustomIncrements" onmousedown="toggleCustomIncrements()" title="Custom Increment toggle">Enable Custom Increments</button><br />
+				<br />
+				<button id="smallerText" onmousedown="text(-1)" title="Smaller Text">Smaller Text</button><br />
+				<button id="largerText" onmousedown="text(1)" title="Larger Text">Larger Text</button><br />
+				<button id="toggleDelimiters" onmousedown="toggleDelimiters()" title="Toggle Delimiters">Disable Delimiters</button><br />
+				<button id="textShadow" onmousedown="textShadow()" title="Toggle Text Shadow">Enable Text Shadow</button><br />
+				<button id="toggleNotes" onmousedown="toggleNotes()" title="Toggle Notes">Disable Notes</button><br />
+				<button id="toggleWorksafe" onmousedown="toggleWorksafe()" title="Toggle Worksafe Mode">Toggle Worksafe Mode</button><br />
+				<!--<button id="iconToggle" onmousedown="iconToggle()" title="Toggle Icons">Use Words</button><br />-->
+			</div>
+		</div>
 	</div>
 </div>
 
@@ -340,28 +371,6 @@
 		<h3>Wonders</h3>
 		<table id="pastWonders"><tr><td></td></tr></table>
 	</div>
-	<div id="settings">
-		<h3>Settings</h3>
-		<button onmousedown="save('manual')" title="Save your current stats">Manual Save</button><br />
-		<button id="toggleAutosave" onmousedown="toggleAutosave()" title="Autosave toggle">Disable Autosave</button><br />
-		<button onmousedown="deleteSave()" title="Delete your saved stats">Delete Save File</button><br />
-		<br />
-		<button onmousedown="reset()" title="Reset your game">Reset Game</button><span class="note"><span id="resetNote"><br/>Resetting allows you to </span><span id="resetDeity">gain another deity</span><span id="resetBoth"><br/> and </span><span id="resetWonder">build another Wonder</span></span><br />
-		<br />
-		<button onmousedown="renameCiv()" title="Rename your civilisation">Rename Civilisation</button><br />
-		<button id="renameRuler" onmousedown="renameRuler()" title="Rename yourself">Rename Yourself</button><br />
-		<button id="renameDeity" onmousedown="renameDeity()" title="Rename your deity" disabled="disabled">Rename Current Deity</button><br />
-		<br />
-		<button id="toggleCustomIncrements" onmousedown="toggleCustomIncrements()" title="Custom Increment toggle">Enable Custom Increments</button><br />
-		<br />
-		<button id="smallerText" onmousedown="text(-1)" title="Smaller Text">Smaller Text</button><br />
-		<button id="largerText" onmousedown="text(1)" title="Larger Text">Larger Text</button><br />
-		<button id="toggleDelimiters" onmousedown="toggleDelimiters()" title="Toggle Delimiters">Disable Delimiters</button><br />
-		<button id="textShadow" onmousedown="textShadow()" title="Toggle Text Shadow">Enable Text Shadow</button><br />
-		<button id="toggleNotes" onmousedown="toggleNotes()" title="Toggle Notes">Disable Notes</button><br />
-		<button id="toggleWorksafe" onmousedown="toggleWorksafe()" title="Toggle Worksafe Mode">Toggle Worksafe Mode</button><br />
-		<!--<button id="iconToggle" onmousedown="iconToggle()" title="Toggle Icons">Use Words</button><br />-->
-	</div>
 	<div id="stats">
 		<h3>Stats</h3>
 		Resource clicks: <span id="clicks">0</span><br />
@@ -373,10 +382,6 @@
 		<span id="walkGroup"><br />Walk: <span id="walkStat">0</span> workers per second<br /></span>
 		<br />
 		Cats: <span data-action="display_pop" data-target="cats">0</span><br />
-	</div>
-	<div style="clear:both;"><br /></div>
-	<div id="achievements">
-		<h3>Achievements</h3>
 	</div>
 </div>
 
