@@ -17,13 +17,13 @@
 	along with this program in the LICENSE file.
 	If it is not there, see <http://www.gnu.org/licenses/>.
 -->
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-gb" lang="en-gb">
 <head>
 	<title>CivClicker</title>
 	<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 	<link rel="stylesheet" type="text/css" href="civclicker.css" />
 	<link rel="canonical" href="http://civclicker.sourceforge.net/civclicker/civclicker.html" />
-	<meta name="description" content="CivClicker: Build a Civilization In Your Browser" />
+	<meta name="description" content="CivClicker: Build a Civilisation In Your Browser" />
 
 	<script type="application/javascript" src="lz-string.js"></script>
 	<script type="application/javascript" src="jsutils.js"></script>
@@ -59,7 +59,7 @@
 			<h3>Basic Resources</h3>
 			<table id="basicResources">
 				<tr>
-					<td><button onmousedown="increment(food)">Gather Food</button></td>
+					<td><button onmousedown="increment('food')">Gather Food</button></td>
 					<td>Food: </td>
 					<td class="number"><span data-action="display" data-target="food">0</span></td>
 					<td class="icon"><img src="images/food.png" class="icon icon-lg" alt="Food"/></td>
@@ -67,7 +67,7 @@
 					<td class="number net"><span data-action="displayNet" data-target="food">0</span>/s</td>
 				</tr>
 				<tr>
-					<td><button onmousedown="increment(wood)">Cut Wood</button></td>
+					<td><button onmousedown="increment('wood')">Cut Wood</button></td>
 					<td>Wood: </td>
 					<td class="number"><span data-action="display" data-target="wood">0</span></td>
 					<td class="icon"><img src="images/wood.png" class="icon icon-lg" alt="Wood"/></td>
@@ -75,7 +75,7 @@
 					<td class="number net"><span data-action="displayNet" data-target="wood">0</span>/s</td>
 				</tr>
 				<tr>
-					<td><button onmousedown="increment(stone)">Mine Stone</button></td>
+					<td><button onmousedown="increment('stone')">Mine Stone</button></td>
 					<td>Stone: </td>
 					<td class="number"><span data-action="display" data-target="stone">0</span></td>
 					<td class="icon"><img src="images/stone.png" class="icon icon-lg" alt="Stone"/></td>
@@ -179,7 +179,7 @@
 					<tr id="bookLine"></tr>
 					<tr id="raiseDeadLine"></tr>
 					<tr id="feastLine"></tr>
-					<tr id="shadeLine"></tr>
+					<tr id="summonShadeLine"></tr>
 					<tr id="secretsLine"></tr>
 				</table>
 			</div>
@@ -228,14 +228,14 @@
 				<span id="commerceLine"></span>
 				<div id="speedWonderGroup"><br /><button id="speedWonder" onmousedown="speedWonder()">Speed Wonder<br />(100 gold)</button><span class="note">Increase wonder progress</span></div>
 				<h4>Buy Resources (1 gold)</h4>
-				<button class="tradeResource" onmousedown="buy(food)">Buy 5000 Food</button><br />
-				<button class="tradeResource" onmousedown="buy(wood)">Buy 5000 Wood</button><br />
-				<button class="tradeResource" onmousedown="buy(stone)">Buy 5000 Stone</button><br />
-				<button class="tradeResource" onmousedown="buy(skins)">Buy 500 Skins</button><br />
-				<button class="tradeResource" onmousedown="buy(herbs)">Buy 500 Herbs</button><br />
-				<button class="tradeResource" onmousedown="buy(ore)">Buy 500 Ore</button><br />
-				<button class="tradeResource" onmousedown="buy(leather)">Buy 250 Leather</button><br />
-				<button class="tradeResource" onmousedown="buy(metal)">Buy 250 Metal</button><br />
+				<button class="tradeResource" onmousedown="buy('food')">Buy 5000 Food</button><br />
+				<button class="tradeResource" onmousedown="buy('wood')">Buy 5000 Wood</button><br />
+				<button class="tradeResource" onmousedown="buy('stone')">Buy 5000 Stone</button><br />
+				<button class="tradeResource" onmousedown="buy('skins')">Buy 500 Skins</button><br />
+				<button class="tradeResource" onmousedown="buy('herbs')">Buy 500 Herbs</button><br />
+				<button class="tradeResource" onmousedown="buy('ore')">Buy 500 Ore</button><br />
+				<button class="tradeResource" onmousedown="buy('leather')">Buy 250 Leather</button><br />
+				<button class="tradeResource" onmousedown="buy('metal')">Buy 250 Metal</button><br />
 			</div>
 		</div>
 		<div id="achievementsPane">
@@ -285,7 +285,7 @@
 				</tr>
 				<tr id="zombieWorkers">
 					<td>Zombies: </td>
-					<td class="number"><span data-action="display_pop" data-target="zombies">0</span></td>
+					<td class="number"><span data-action="display" data-target="zombie">0</span></td>
 				</tr>
 				<tr>
 					<td>Happiness: </td>
@@ -376,12 +376,12 @@
 		Resource clicks: <span id="clicks">0</span><br />
 		Total Land: <span id="totalLand">1000</span><br />
 		Total Buildings: <span id="totalBuildings">0</span><br />
-		Enemies Slain: <span data-action="display_pop" data-target="enemiesSlain">0</span><br />
+		Enemies Slain: <span data-action="display" data-target="enemySlain">0</span><br />
 		Unburied Corpses: <span data-action="display" data-target="corpses">0</span><br />
-		<span id="gravesTotal">Unfilled Graves: <span data-action="display_pop" data-target="graves">0</span><br /></span>
+		<span id="graveTotal">Unfilled Graves: <span data-action="display" data-target="grave">0</span><br /></span>
 		<span id="walkGroup"><br />Walk: <span id="walkStat">0</span> workers per second<br /></span>
 		<br />
-		Cats: <span data-action="display_pop" data-target="cats">0</span><br />
+		Cats: <span data-action="display" data-target="cat">0</span><br />
 	</div>
 </div>
 

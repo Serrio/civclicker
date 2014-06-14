@@ -306,12 +306,12 @@ button:disabled{
 	text-transform:capitalize;
 }
 
-#tannersRow,
-#blacksmithsRow,
-#healersRow,
-#clericsRow,
-#labourersRow,
-#soldiersRow,
+#tannerRow,
+#blacksmithRow,
+#healerRow,
+#clericRow,
+#labourerRow,
+#soldierRow,
 #cavalryRow{
 	display:none;
 }
@@ -320,9 +320,9 @@ button:disabled{
 	text-transform:capitalize;
 }
 
-#wolvesRow,
-#banditsRow,
-#barbariansRow,
+#wolfRow,
+#banditRow,
+#barbarianRow,
 #esiegeRow{
 	display:none;
 }
@@ -332,8 +332,8 @@ button:disabled{
 	display:none;
 }
 
-#esoldiersRow,
-#efortsRow{
+#esoldierRow,
+#efortRow{
 	display:none;
 }
 
@@ -383,7 +383,7 @@ button.build{
 	width:50%;
 	float:left;
 }
-#gravesTotal{
+#graveTotal{
 	display:none;
 }
 #settings{
@@ -405,7 +405,7 @@ button.build{
 #totalSickRow{
 	display:none;
 }
-#shadesRow{
+#shadeRow{
 	display:none;
 }
 
