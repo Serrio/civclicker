@@ -66,10 +66,10 @@ civSizes.getCivSize = function(popcnt) {
 // To find the max pop, we look at the next entry's min_pop and subtract one.
 // If this is the last entry, return -1.
 // xxx Should we return Infinity instead?  If so, need to modify invade().
-civSizes.getMaxPop = function(civType) {
-	if ((civSizes[civType] + 1) < civSizes.length)
+civSizes.getMaxPop = function(civTypeId) {
+	if ((civSizes[civTypeId] + 1) < civSizes.length)
 	{	
-		return civSizes[civSizes[civType] + 1].min_pop - 1;
+		return civSizes[civSizes[civTypeId] + 1].min_pop - 1;
 	}
 	return -1;
 };
@@ -1797,12 +1797,16 @@ gloryTimer = 0,
 cureCounter = 0,
 graceCost = 1000,
 walkTotal = 0,
-autosave = true,
-autosaveCounter = 1,
-customIncrements = false,
-usingWords = false,
-worksafe = false,
-size = 1,
+
+// These are settings that should probably be tied to the browser.
+settings = {
+	autosave : true,
+	autosaveCounter : 1,
+	customIncr : false,
+	usingWords : false,
+	worksafe : false,
+	fontSize : 1
+},
 body = document.getElementsByTagName("body")[0];
 
 // Get an object's requirements in text form.
@@ -1985,6 +1989,12 @@ function addBuildingRows()
 		+ getBuildingRowText(civData.graveyard)
 		+ getBuildingRowText(civData.mill,true)
 		+ getBuildingRowText(civData.fortification,true);
+}
+
+//xxx This should become an onGain() member method of the building classes
+function updateRequirements(buildingObj){
+	var displayNode = document.getElementById(buildingObj.id + "Cost");
+	if (displayNode && isValid(buildingObj.require)) { displayNode.innerHTML = getReqText(buildingObj.require); }
 }
 
 function updateBuildingRow(buildingObj){
@@ -2414,7 +2424,7 @@ function updatePopulation(){
 	//Unlocking interface elements as population increases to reduce unnecessary clicking
 	//xxx These should be reset in reset()
 	if (population.current + curCiv.zombie.owned >= 10) {
-		if (!customIncrements){	
+		if (!settings.customIncr){	
 			setElemDisplay(document.getElementById("spawn10"),true);
 			elems = document.getElementsByClassName("job10");
 			for(i = 0; i < elems.length; i++) {
@@ -2423,7 +2433,7 @@ function updatePopulation(){
 		}
 	}
 	if (population.current + curCiv.zombie.owned >= 100) {
-		if (!customIncrements){
+		if (!settings.customIncr){
 			setElemDisplay(document.getElementById("spawn100"),true);
 			elems = document.getElementsByClassName("building10");
 			for(i = 0; i < elems.length; i++) {
@@ -2436,7 +2446,7 @@ function updatePopulation(){
 		}
 	}
 	if (population.current + curCiv.zombie.owned >= 1000) {
-		if (!customIncrements){
+		if (!settings.customIncr){
 			setElemDisplay(document.getElementById("spawn1000"),true);
 			setElemDisplay(document.getElementById("spawnMax"),true);
 			elems = document.getElementsByClassName("building100");
@@ -2455,7 +2465,7 @@ function updatePopulation(){
 		}
 	}
 	if (population.current + curCiv.zombie.owned >= 10000) {
-		if (!customIncrements){
+		if (!settings.customIncr){
 			elems = document.getElementsByClassName("building1000");
 			for(i = 0; i < elems.length; i++) {
 				setElemDisplay(elems[i],true);
@@ -2654,12 +2664,6 @@ function updateDevotion(){
 	document.getElementById("ceaseWalk").disabled = (walkTotal == 0);
 
 	// raiseDead buttons updated by UpdateSpawnButtons
-}
-
-//xxx This should become an onGain() member method of the building classes
-function updateRequirements(buildingObj){
-	var displayNode = document.getElementById(buildingObj.id + "Cost");
-	if (displayNode && isValid(buildingObj.require)) { displayNode.innerHTML = getReqText(buildingObj.require); }
 }
 
 
@@ -3045,7 +3049,7 @@ function hire(job,num){
 	num = canHire(job,num);  // How many can we actually get?
 
 	// Pay for them if we're buying
-	if (num > 0) { payFor(civData[job].require,num); }
+	payFor(civData[job].require,num);
 
 	// Do the actual hiring
 	civData[job].owned += num;
@@ -3743,7 +3747,7 @@ function load(loadType){
 	loadVar.efficiency = {	happiness: loadVar.efficiency.happiness,
 							pestBonus: loadVar.efficiency.pestBonus };
 	
-	// v1.1.37: Resources and buildings moved to curCiv substructure
+	// v1.1.37: Most assets moved to curCiv substructure
 	if (!isValid(loadVar.curCiv)) { loadVar.curCiv = {
 		civName: loadVar.civName,
 		rulerName: loadVar.rulerName,
@@ -3924,6 +3928,11 @@ function load(loadType){
 		loadVar.curCiv.enemySlain = { owned:loadVar.population.enemiesSlain };
 		loadVar.curCiv.shade = { owned:loadVar.population.shades };
 	}
+
+	// v1.1.37: Game settings moved to settings object, but we deliberately
+	// don't try to migrate them.  'autosave', 'worksafe', and 'fontSize'
+	// values from earlier versions will be discarded.
+
 	////////////////////////////////////////////////////
 
 	curCiv = mergeObj(curCiv,loadVar.curCiv);
@@ -3943,7 +3952,6 @@ function load(loadType){
 	} else {
 		resourceClicks = 999; //stops people getting the achievement with an old save version
 	}
-	worksafe = mergeObj(worksafe, loadVar.worksafe);
 	efficiency = mergeObj(efficiency, loadVar.efficiency);
 	if (isValid(loadVar.deity)) {
 		deity = mergeObj(deity, loadVar.deity);
@@ -3959,8 +3967,7 @@ function load(loadType){
 	if (isValid(loadVar.deityArray)){ deityArray = mergeObj(deityArray, loadVar.deityArray); }
 	if (isValid(loadVar.graceCost)){ graceCost = mergeObj(graceCost, loadVar.graceCost); }
 	if (isValid(loadVar.walkTotal)){ walkTotal = mergeObj(walkTotal, loadVar.walkTotal); }
-	if (isValid(loadVar.autosave)){ autosave = mergeObj(autosave, loadVar.autosave); }
-	if (isValid(loadVar.size)) { size = mergeObj(size, loadVar.size); }
+	if (isValid(loadVar.settings)){ settings = mergeObj(settings,loadVar.settings); }
 	updateResourceTotals();
 	updateMobs();
 	updateDeity();
@@ -3977,7 +3984,7 @@ function load(loadType){
 	document.getElementById("wonderNameP").innerHTML = wonder.name;
 	document.getElementById("wonderNameC").innerHTML = wonder.name;
 	document.getElementById("startWonder").disabled = (wonder.completed || wonder.building);
-	document.getElementById("toggleAutosave").innerHTML = autosave ? "Disable Autosave" : "Enable Autosave";
+	document.getElementById("toggleAutosave").innerHTML = settings.autosave ? "Disable Autosave" : "Enable Autosave";
 }
 
 function save(savetype){
@@ -4002,10 +4009,8 @@ function save(savetype){
 		graceCost:graceCost,
 		walkTotal:walkTotal,
 		resourceClicks:resourceClicks,
-		// UI Settings
-		autosave:autosave,
-		size:size, // Font size
-		worksafe:worksafe
+		// UI Settings; we may exclude these if we're doing an export to string.
+		settings:settings
 	};
 
 	////////////////////////////////////////////////////
@@ -4024,6 +4029,9 @@ function save(savetype){
 	//Update console for debugging, also the player depending on the type of save (manual/auto)
 	console.log("Attempted save");
 	if (savetype == "export"){
+		// We don't export UI settings.
+		delete saveVar.settings;
+
 		var savestring = "[" + JSON.stringify(saveVar) + "]";
 		var compressed = LZString.compressToBase64(savestring);
 		console.log("Compressed save from " + savestring.length + " to " + compressed.length + " characters");
@@ -4061,9 +4069,9 @@ function save(savetype){
 
 function toggleAutosave(){
 	//Turns autosave on or off. Default on.
-	autosave = !autosave;
-	console.log("Autosave toggled to " + (autosave ? "on" : "off"));
-	document.getElementById("toggleAutosave").innerHTML = autosave ? "Disable Autosave" : "Enable Autosave";
+	settings.autosave = !settings.autosave;
+	console.log("Autosave toggled to " + (settings.autosave ? "on" : "off"));
+	document.getElementById("toggleAutosave").innerHTML = settings.autosave ? "Disable Autosave" : "Enable Autosave";
 }
 
 function deleteSave(){
@@ -4668,8 +4676,8 @@ function doSack(attacker)
 	if (target == civData.fortification) { destroyVerb = "damaged"; } 
 
 	if (target.owned > 0){
-		target.owned -= 1;
-		cuvCiv.freeLand.owned += num;
+		--target.owned;
+		++curCiv.freeLand.owned;
 		gameLog(target.name + " " + destroyVerb + " by " + attacker.name);
 	} else {
 		//some will leave
@@ -4929,12 +4937,12 @@ function initCivclicker() {
 
 	load("localStorage");//immediately attempts to load
 
-	body.style.fontSize = size + "em";
-	if (!worksafe){
+	body.style.fontSize = settings.fontSize + "em";
+	if (!settings.worksafe){
 		body.classList.add("hasBackground");
 	} else {
 		body.classList.remove("hasBackground");
-		if (!usingWords){
+		if (!settings.usingWords){
 			var elems = document.getElementsByClassName("icon");
 			var i;
 			for(i = 0; i < elems.length; i++) {
@@ -4955,11 +4963,11 @@ window.setInterval(function(){
 	//var start = new Date().getTime();
 	
 	//Autosave
-	if (autosave) {
-		autosaveCounter += 1;
-		if (autosaveCounter >= 60){ //Currently autosave is every minute. Might change to 5 mins in future.
+	if (settings.autosave) {
+		settings.autosaveCounter += 1;
+		if (settings.autosaveCounter >= 60){ //Currently autosave is every minute. Might change to 5 mins in future.
 			save("auto");
-			autosaveCounter = 1;
+			settings.autosaveCounter = 1;
 		}
 	}
 	
@@ -5149,42 +5157,42 @@ function toggleCustomIncrements(){
 	var elems;
 	var curPop = population.current + curCiv.zombie.owned;
 
-	customIncrements = !customIncrements;
+	settings.customIncr = !settings.customIncr;
 	document.getElementById("toggleCustomIncrements").innerHTML = 
-		customIncrements ? "Disable Custom Increments" : "Enable Custom Increments";
-	setElemDisplay(document.getElementById("customJobIncrement"),customIncrements);
-	setElemDisplay(document.getElementById("customArmyIncrement"),customIncrements);
-	setElemDisplay(document.getElementById("customBuildIncrement"),customIncrements);
-	setElemDisplay(document.getElementById("customSpawnIncrement"),customIncrements);
-	setElemDisplay(document.getElementById("spawn1group"),!customIncrements);
-	setElemDisplay(document.getElementById("spawn10"  ),!customIncrements && (curPop >=   10));
-	setElemDisplay(document.getElementById("spawn100" ),!customIncrements && (curPop >=  100));
-	setElemDisplay(document.getElementById("spawn1000"),!customIncrements && (curPop >= 1000));
-	setElemDisplay(document.getElementById("spawnMax" ),!customIncrements && (curPop >= 1000));
+		settings.customIncr ? "Disable Custom Increments" : "Enable Custom Increments";
+	setElemDisplay(document.getElementById("customJobIncrement"),settings.customIncr);
+	setElemDisplay(document.getElementById("customArmyIncrement"),settings.customIncr);
+	setElemDisplay(document.getElementById("customBuildIncrement"),settings.customIncr);
+	setElemDisplay(document.getElementById("customSpawnIncrement"),settings.customIncr);
+	setElemDisplay(document.getElementById("spawn1group"),!settings.customIncr);
+	setElemDisplay(document.getElementById("spawn10"  ),!settings.customIncr && (curPop >=   10));
+	setElemDisplay(document.getElementById("spawn100" ),!settings.customIncr && (curPop >=  100));
+	setElemDisplay(document.getElementById("spawn1000"),!settings.customIncr && (curPop >= 1000));
+	setElemDisplay(document.getElementById("spawnMax" ),!settings.customIncr && (curPop >= 1000));
 
 	elems = document.getElementsByClassName("job10");
-	for (i = 0; i < elems.length; ++i) { setElemDisplay(elems[i],!customIncrements && (curPop >= 10)); }
+	for (i = 0; i < elems.length; ++i) { setElemDisplay(elems[i],!settings.customIncr && (curPop >= 10)); }
 
 	elems = document.getElementsByClassName("job100");
-	for (i = 0; i < elems.length; ++i) { setElemDisplay(elems[i],!customIncrements && (curPop >= 100)); }
+	for (i = 0; i < elems.length; ++i) { setElemDisplay(elems[i],!settings.customIncr && (curPop >= 100)); }
 
 	elems = document.getElementsByClassName("job1000");
-	for (i = 0; i < elems.length; ++i) { setElemDisplay(elems[i],!customIncrements && (curPop >= 1000)); }
+	for (i = 0; i < elems.length; ++i) { setElemDisplay(elems[i],!settings.customIncr && (curPop >= 1000)); }
 
 	elems = document.getElementsByClassName("building10");
-	for (i = 0; i < elems.length; ++i) { setElemDisplay(elems[i],!customIncrements && (curPop >= 100)); }
+	for (i = 0; i < elems.length; ++i) { setElemDisplay(elems[i],!settings.customIncr && (curPop >= 100)); }
 
 	elems = document.getElementsByClassName("building100");
-	for (i = 0; i < elems.length; ++i) { setElemDisplay(elems[i],!customIncrements && (curPop >= 1000)); }
+	for (i = 0; i < elems.length; ++i) { setElemDisplay(elems[i],!settings.customIncr && (curPop >= 1000)); }
 
 	elems = document.getElementsByClassName("building1000");
-	for (i = 0; i < elems.length; ++i) { setElemDisplay(elems[i],!customIncrements && (curPop >= 10000)); }
+	for (i = 0; i < elems.length; ++i) { setElemDisplay(elems[i],!settings.customIncr && (curPop >= 10000)); }
 
 	elems = document.getElementsByClassName("jobCustom");
-	for (i = 0; i < elems.length; ++i) { setElemDisplay(elems[i],customIncrements); }
+	for (i = 0; i < elems.length; ++i) { setElemDisplay(elems[i],settings.customIncr); }
 
 	elems = document.getElementsByClassName("buildingCustom");
-	for (i = 0; i < elems.length; ++i) { setElemDisplay(elems[i],customIncrements); }
+	for (i = 0; i < elems.length; ++i) { setElemDisplay(elems[i],settings.customIncr); }
 }
 
 // Toggles the display of the .notes class
@@ -5223,15 +5231,15 @@ function versionAlert(){
 
 function text(scale){
 	if (scale > 0){
-		size += 0.1 * scale;
+		settings.fontSize += 0.1 * scale;
 		document.getElementById("smallerText").disabled = false;
 	} else {
-		if (size > 0.7){
-			size += 0.1 * scale;
-			if (size <= 0.7) { document.getElementById("smallerText").disabled = true; }
+		if (settings.fontSize > 0.7){
+			settings.fontSize += 0.1 * scale;
+			if (settings.fontSize <= 0.7) { document.getElementById("smallerText").disabled = true; }
 		}
 	}
-	body.style.fontSize = size + "em";
+	body.style.fontSize = settings.fontSize + "em";
 }
 
 function textShadow(){
@@ -5246,11 +5254,11 @@ function textShadow(){
 
 function iconToggle(){
 	//does nothing yet, will probably toggle display for "icon" and "word" classes as that's probably the simplest way to do this
-	if (usingWords){
-		usingWords = false;
+	if (settings.usingWords){
+		settings.usingWords = false;
 		document.getElementById("iconToggle").innerHTML = "Use Words";
 	} else {
-		usingWords = true;
+		settings.usingWords = true;
 		document.getElementById("iconToggle").innerHTML = "Use Icons";
 	}
 }
@@ -5278,13 +5286,13 @@ function toggleWorksafe(){
 	var i;
 	var elems;
 
-	worksafe = !worksafe;
+	settings.worksafe = !settings.worksafe;
 	body.classList.toggle("hasBackground");
-	if (!usingWords)
+	if (!settings.usingWords)
 	{
 		elems = document.getElementsByClassName("icon");
 		for(i = 0; i < elems.length; i++) {
-			elems[i].style.visibility = worksafe ? "hidden" : "visible";
+			elems[i].style.visibility = settings.worksafe ? "hidden" : "visible";
 		}
 	}
 }
