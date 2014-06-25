@@ -389,7 +389,7 @@ var civData = [
 {
 	type: "resource",
 	id:"freeLand",
-	name:"free land",
+	name:"land",
 	get owned() { return curCiv[this.id].owned; },
 	set owned(value) { curCiv[this.id].owned = value; }
 },
@@ -1733,7 +1733,7 @@ var resourceData= [];
 var buildingData= [];
 var upgradeData = [];
 var powerData = [];
-var units = [];
+var unitData = [];
 var achData = [];
 
 civData.forEach( function(elem){ 
@@ -1741,7 +1741,7 @@ civData.forEach( function(elem){
 	if (elem.type == "building") { buildingData.push(elem); } 
 	if (elem.type == "upgrade") { upgradeData.push(elem); }
 	if (elem.subType == "prayer") { powerData.push(elem); }
-	if (elem.type == "unit") { units.push(elem); }
+	if (elem.type == "unit") { unitData.push(elem); }
 	if (elem instanceof Achievement) { achData.push(elem); }
 });
 
@@ -1788,7 +1788,8 @@ targetMax = "thorp";
 raiding = {
 	raiding:false,
 	victory:false,
-	iterations:0,
+	epop:0,
+	plunderLoot: {},
 	last:""
 };
 
@@ -2326,6 +2327,8 @@ function updateResourceTotals(){
 	// "display".  The "data-target" of such elements is presumed to contain
 	// the global variable name to be displayed as the element's content.
 	//xxx This should probably require data-target too.
+	//xxx Note that this is now also updating nearly all updatable values,
+	// including population.
 	displayElems=document.querySelectorAll("[data-action='display']");
 	for (i=0;i<displayElems.length;++i)
 	{
@@ -2411,6 +2414,9 @@ function updatePopulation(){
 	// "display_pop".  The "data-target" of such elements is presumed to contain
 	// the population subproperty to be displayed as the element's content.
 	//xxx This selector should probably require data-target too.
+	//xxx Note that relatively few values are still stored in the population
+	// struct; most of them are now updated by the 'display' action run
+	// by updateResourceTotals().
 	displayElems=document.querySelectorAll("[data-action='display_pop']");
 	for (i=0;i<displayElems.length;++i)
 	{
@@ -3411,60 +3417,59 @@ function party(job,num){
 
 function invade(ecivtype){
 	//invades a certain type of civilisation based on the button clicked
-	var iterations = 0; //used to calculate random number of soldiers
 	raiding.raiding = true;
 	raiding.last = ecivtype;
 
-	var epop = civSizes.getMaxPop(ecivtype) + 1;
-	if (epop <= 0 ) // no max pop; use 2x min pop. xxx Assumes -1 sentinal value
-	{
-		epop = civSizes[civSizes[ecivtype]].min_pop * 2;
-	}
+	raiding.epop = civSizes.getMaxPop(ecivtype) + 1;
+	// If no max pop, use 2x min pop. xxx Assumes -1 sentinal value
+	if (raiding.epop <= 0 ) { raiding.epop = civSizes[civSizes[ecivtype]].min_pop * 2; }
+	if (curCiv.gloryTimer > 0) { raiding.epop *= 2; } //doubles soldiers fought
 
-	iterations = epop / 20;  // Minimum 5% military
+	// 5-25% of enemy population is soldiers.
+	civData.esoldier.owned += (raiding.epop/20) + Math.floor(Math.random() * (raiding.epop/5));
+	civData.efort.owned += Math.floor(Math.random() * (raiding.epop/5000));
 
-	if (curCiv.gloryTimer > 0) { iterations = (iterations * 2); } //doubles soldiers fought
-	var esoldierRes = iterations + Math.floor(Math.random() * iterations * 4);
-	var efortsRes = Math.floor(Math.random() * iterations / 250);
-	civData.esoldier.owned += esoldierRes;
-	civData.efort.owned += efortsRes;
-	if (curCiv.gloryTimer > 0) { iterations = (iterations * 2); } //quadruples rewards (doubled here because doubled already above)
-	raiding.iterations = iterations;
+	// Glory redoubles rewards (doubled here because doubled already above)
+	var baseLoot = raiding.epop / (1 + (curCiv.gloryTimer <= 0));
+
+	// Set rewards of land and other random plunder.
+	raiding.plunderLoot = {
+		food    : Math.round(baseLoot * Math.random()),
+		wood    : Math.round(baseLoot * Math.random()),
+		stone   : Math.round(baseLoot * Math.random()),
+		skins   : Math.round(baseLoot * Math.random()),
+		herbs   : Math.round(baseLoot * Math.random()),
+		ore     : Math.round(baseLoot * Math.random()),
+		leather : Math.round(baseLoot * Math.random()),
+		metal   : Math.round(baseLoot * Math.random()),
+		freeLand: Math.round(baseLoot * (1 + (civData.administration.owned)))
+	};
+
 	updateTargets(); //updates largest raid target
+	updateParty();
 	updatePopulation();
+	updateResourceTotals();
 	document.getElementById("raidGroup").style.display = "none"; //Hides raid buttons until the raid is finished
 }
 function onInvade(event) { return invade(dataset(event.target,"civtype")); }
 
 function plunder(){
 	var plunderMsg = "";
-	//capture land
-	var plunderLand = Math.round((1 + (civData.administration.owned)) * raiding.iterations * 10);
-	//randomise loot
-	var plunderLoot = {
-		food    : Math.round(Math.random() * raiding.iterations * 10),
-		wood    : Math.round(Math.random() * raiding.iterations * 10),
-		stone   : Math.round(Math.random() * raiding.iterations * 10),
-		skins   : Math.round(Math.random() * raiding.iterations * 10),
-		herbs   : Math.round(Math.random() * raiding.iterations * 10),
-		ore     : Math.round(Math.random() * raiding.iterations * 10),
-		leather : Math.round(Math.random() * raiding.iterations * 10),
-		metal   : Math.round(Math.random() * raiding.iterations * 10)
-	};
 
 	//add loot
 	updateResourceTotals();
-	payFor(plunderLoot,-1);  // We pay for -1 of these to receive them.
-	curCiv.freeLand.owned += plunderLand;
+	payFor(raiding.plunderLoot,-1);  // We pay for -1 of these to receive them.
 
 	// create message to notify player
 	plunderMsg = civSizes[civSizes[raiding.last]].name + " defeated! ";
-	plunderMsg += "Plundered " + getReqText(plunderLoot) + ". ";
-	plunderMsg += "Captured " + prettify(plunderLand) + " land.";
+	plunderMsg += "Plundered " + getReqText(raiding.plunderLoot) + ". ";
 	gameLog(plunderMsg); 
 
+	raiding.plunderLoot = {};
 	raiding.raiding = false; //ends the raid state
 	raiding.victory = false; //ends the victory state
+	raiding.epop = 0;
+	raiding.last = "";
 	document.getElementById("victoryGroup").style.display = "none";
 }
 
@@ -3990,6 +3995,16 @@ function load(loadType){
 	{
 		settingsVar = loadVar.settings;
 		delete loadVar.settings;
+	}
+
+	// v1.1.39: Raiding now stores enemy population instead of 'iterations'.
+	if (isValid(loadVar.raiding) && isValid(loadVar.raiding.iterations))
+	{
+		loadVar.raiding.epop = loadVar.raiding.iterations * 20;
+		// Plunder calculations now moved to the start of the raid.
+		// This should rarely happen, but give a consolation prize.
+		loadVar.raiding.plunderLoot = { gold: 1 };
+		delete loadVar.raiding.iterations;
 	}
 
 	////////////////////////////////////////////////////
@@ -4896,7 +4911,7 @@ function raidWin() {
 
 	//lamentation
 	if (civData.lament.owned){
-		curCiv.attackCounter -= Math.ceil(raiding.iterations/100);
+		curCiv.attackCounter -= Math.ceil(raiding.epop/2000);
 	}
 }
 
@@ -4939,16 +4954,17 @@ function doRaid() {
 		} else {
 			//victory outcome has been handled, end raid
 			raiding.raiding = false;
-			raiding.iterations = 0;
+			raiding.epop = 0;
 		}
 	} else {
 		gameLog("Raid defeated");
 		civData.esoldier.owned = 0;
 		civData.efort.owned = 0;
 		civData.siege.owned = 0;
-		updateParty();
 		raiding.raiding = false;
-		raiding.iterations = 0;
+		raiding.epop = 0;
+		raiding.plunderLoot = {};
+		updateParty();
 	}
 }
 
