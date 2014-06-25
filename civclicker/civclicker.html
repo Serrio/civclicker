@@ -144,59 +144,59 @@
 		
 		<div id="deityPane">
 			<span id="worshipLine"></span>
-			<div id="deitySpecialisation">
-				<button id="deityBattle" onmousedown="selectDeity('battle')">Battle<br />(500 piety)</button><span class="note">Note: you can only pick one of these</span><br />
-				<button id="deityFields" onmousedown="selectDeity('fields')">The Fields<br />(500 piety)</button><span class="note">Note: you can only pick one of these</span><br />
-				<button id="deityUnderworld" onmousedown="selectDeity('underworld')">The Underworld<br />(500 piety)</button><span class="note">Note: you can only pick one of these</span><br />
-				<button id="deityCats" onmousedown="selectDeity('cats')">Cats<br />(500 piety)</button><span class="note">Note: you can only pick one of these</span><br />
+			<div id="deityDomains">
+				<button id="battleDeity" onmousedown="selectDeity('battle')">Battle<br />(500 piety)</button><span class="note">Note: you can only pick one of these</span><br />
+				<button id="fieldsDeity" onmousedown="selectDeity('fields')">The Fields<br />(500 piety)</button><span class="note">Note: you can only pick one of these</span><br />
+				<button id="underworldDeity" onmousedown="selectDeity('underworld')">The Underworld<br />(500 piety)</button><span class="note">Note: you can only pick one of these</span><br />
+				<button id="catsDeity" onmousedown="selectDeity('cats')">Cats<br />(500 piety)</button><span class="note">Note: you can only pick one of these</span><br />
 			</div>
 			<div id="battleUpgrades">
 				<h3>The Strength of Battle</h3>
 				<table>
-					<tr id="battleAltarLine"></tr>
-					<tr id="riddleLine"></tr>
-					<tr id="smiteLine"></tr>
-					<tr id="throneLine"></tr>
-					<tr id="gloryLine"></tr>
-					<tr id="lamentLine"></tr>
+					<tr id="battleAltarLine"><td></td></tr>
+					<tr id="riddleLine"><td></td></tr>
+					<tr id="smiteLine"><td></td></tr>
+					<tr id="throneLine"><td></td></tr>
+					<tr id="gloryLine"><td></td></tr>
+					<tr id="lamentLine"><td></td></tr>
 				</table>
 			</div>
 			<div id="fieldsUpgrades">
 				<h3>The Bounty of the Fields</h3>
 				<table>
-					<tr id="fieldsAltarLine"></tr>
-					<tr id="blessingLine"></tr>
-					<tr id="wickermanLine"></tr>
-					<tr id="wasteLine"></tr>
-					<tr id="walkLine"></tr>
-					<tr id="stayLine"></tr>
+					<tr id="fieldsAltarLine"><td></td></tr>
+					<tr id="blessingLine"><td></td></tr>
+					<tr id="wickermanLine"><td></td></tr>
+					<tr id="wasteLine"><td></td></tr>
+					<tr id="walkLine"><td></td></tr>
+					<tr id="stayLine"><td></td></tr>
 				</table>
 			</div>
 			<div id="underworldUpgrades">
 				<h3>The Dread Power of the Underworld</h3>
 				<table>
-					<tr id="underworldAltarLine"></tr>
-					<tr id="bookLine"></tr>
-					<tr id="raiseDeadLine"></tr>
-					<tr id="feastLine"></tr>
-					<tr id="summonShadeLine"></tr>
-					<tr id="secretsLine"></tr>
+					<tr id="underworldAltarLine"><td></td></tr>
+					<tr id="bookLine"><td></td></tr>
+					<tr id="raiseDeadLine"><td></td></tr>
+					<tr id="feastLine"><td></td></tr>
+					<tr id="summonShadeLine"><td></td></tr>
+					<tr id="secretsLine"><td></td></tr>
 				</table>
 			</div>
 			<div id="catsUpgrades">
 				<h3>The Grace of Cats</h3>
 				<table>
-					<tr id="catAltarLine"></tr>
-					<tr id="lureLine"></tr>
-					<tr id="pestControlLine"></tr>
-					<tr id="companionLine"></tr>
-					<tr id="graceLine"></tr>
-					<tr id="comfortLine"></tr>
+					<tr id="catAltarLine"><td></td></tr>
+					<tr id="lureLine"><td></td></tr>
+					<tr id="pestControlLine"><td></td></tr>
+					<tr id="companionLine"><td></td></tr>
+					<tr id="graceLine"><td></td></tr>
+					<tr id="comfortLine"><td></td></tr>
 				</table>
 			</div>
 			<div id="iconoclasmGroup">
 				<br />
-				<button id="iconoclasm" onmousedown="iconoclasmList()">Iconoclasm<br />(1000 piety)</button><span class="note">Remove an old deity</span><br />
+				<button id="iconoclasm" onmousedown="iconoclasmList()">Iconoclasm<br />(1000 piety)</button><span class="note">Remove an old deity to gain gold</span><br />
 				<div id="iconoclasmList"></div>
 			</div>
 		</div>
@@ -353,13 +353,7 @@
 	</div>
 	<div id="pantheonContainer">
 		<h3>Pantheon</h3>
-		<table id="activeDeity">
-			<tr id="deity1">
-				<td><strong><span id="deity1Name">No deity</span></strong><span id="deity1Type" class="deityType"></span></td>
-				<td>Devotion: <span id="devotion1">0</span></td>
-				<td class="removeDeity"><button class="removeDeity" onmousedown="removeDeity(deity1)">X</button></td>
-			</tr>
-		</table>
+		<table id="activeDeity"><tr><td></td></tr></table>
 		<br />
 		<table id="oldDeities"><tr><td></td></tr></table>
 	</div>

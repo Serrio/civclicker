@@ -22,6 +22,29 @@
 </head>
 <body class="hasBackground">
 <h1>CivClicker Updates</h1>
+	<h2>2014-06-25: v1.1.39(alpha)</h2>
+	<p>
+		It is now possible to worship a deity already in the pantheon.  The old
+		deity's domain is automatically selected at no cost.  Devotion (altars)
+		still need to be repurchased.
+	</p><p>
+		Number delimiter settings are now saved. (Original Bug)
+	</p><p>
+		A number of timers and counters that used to be lost on a reload are
+		now saved and restored properly.  This includes effects for Pest
+		Control, Throne of Bones, partially completed healing, and the timers
+		for attack and trade. (Original Bug)
+	</p><p>
+		Rulers may not name themselves after an existing deity.  They may, 
+		however, name a deity after themselves when first creating it.
+	</p><p>
+		Deities must now have at least one devotion to survive a reset.
+	</p><p>
+		Fix a bug that caused mill/fortification costs not to be reset after
+		being sacked by barbarians.
+	</p><p>
+		Excise removeDeity() code that was never implemented. (Original)
+	</p>
 	<h2>2014-06-16: v1.1.38(alpha)</h2>
 	<p>
 		If a large quantity building purchase causes overcrowding, only cause
@@ -94,7 +117,7 @@
 		Deity upgrades don't appear until the player has enough devotion
 		to unlock them.
 	</p><p>
-		Deity specializations now disable properly if the player can't afford
+		Deity domains now disable properly if the player can't afford
 		them. (Original Bug)
 	</p><p>
 		Flensing, Macerating, and Trade are now properly removed after a reset

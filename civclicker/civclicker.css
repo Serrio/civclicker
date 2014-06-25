@@ -258,13 +258,8 @@ button:disabled{
 	display:none;
 }
 
-.deityType{
+.deityDomain{
 	padding-right:20px;
-}
-.removeDeity{
-	margin-left:20px;
-	width:30px;
-	display:none;
 }
 #oldDeities{
 	display:none;
@@ -275,7 +270,7 @@ button:disabled{
 #pastWonders td{
 	padding-right:1em;
 }
-#deitySpecialisation{
+#deityDomains{
 	display:none;
 }
 
