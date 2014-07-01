@@ -31,7 +31,7 @@ VersionData.prototype.toNumber = function() { return this.major*1000 + this.mino
 VersionData.prototype.toString = function() { return String(this.major) + "." 
 	+ String(this.minor) + "." + String(this.sub) + String(this.mod); };
 
-var versionData = new VersionData(1,1,39,"alpha");
+var versionData = new VersionData(1,1,40,"alpha");
 
 var saveTag = "civ";
 var saveTag2 = saveTag + "2"; // For old saves.
@@ -261,822 +261,387 @@ var wonder;
 var population, efficiency;
 var raiding;
 
-function CivObj()
+//xxxTODO: Create a mechanism to automate the creation of a class hierarchy,
+// specifying base class, shared props, instance props.
+function CivObj(props, asProto)
 {
-	if (!(this instanceof CivObj)) { return new CivObj(); } // Prevent accidental namespace pollution
-	Object.call(this);
+	if (!(this instanceof CivObj)) { return new CivObj(props); } // Prevent accidental namespace pollution
+	var names = asProto ? null : ["id","name","owned","prereqs","require","effectText"];
+	Object.call(this,props);
+	copyProps(this,props,names,true);
 }
-//Object.defineProperties(CivObj.prototype, { "owned": {
-	//"get": function() { return curCiv[this.id].owned; },
-	//"set": function(value) {   curCiv[this.id].owned = value; }
-//} });
+// Common Properties: id, name, owned, prereqs, require, effectText,
 CivObj.prototype = {
+	constructor: CivObj,
 	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; }
+	set owned(value) { curCiv[this.id].owned = value; },
+	prereqs: {},
+	require: {},
+	effectText: ""
 };
-CivObj.prototype.constructor = CivObj;
 
-function Achievement(id, name, test) 
+function Resource(props) // props is an object containing the desired properties.
 {
-	if (!(this instanceof Achievement)) { return new Achievement(id, name, test); } // Prevent accidental namespace pollution
-	CivObj.call(this);
-	this.id=id; 	
-	this.name=name; 	
-	this.test=test; 
+	if (!(this instanceof Resource)) { return new Resource(props); } // Prevent accidental namespace pollution
+	CivObj.call(this,props);
+	copyProps(this,props,null,true);
+	// Occasional Properties: increment, specialChance, net
 }
-Achievement.prototype = new CivObj();
-Achievement.prototype.constructor = Achievement;
+Resource.prototype = new CivObj({
+	constructor: Resource,
+	type: "resource",
+	// 'net' accessor always exists, even if the underlying value is undefined for most resources.
+	get net() { return curCiv[this.id].net; },
+	set net(value) { curCiv[this.id].net = value; },
+	increment: 0,
+	specialChance: 0
+},true);
+
+function Building(props) // props is an object containing the desired properties.
+{
+	if (!(this instanceof Building)) { return new Building(props); } // Prevent accidental namespace pollution
+	CivObj.call(this,props);
+	copyProps(this,props,null,true);
+	// Occasional Properties: subType, efficiency, devotion
+	// plural should get moved during I18N.
+}
+// Common Properties: type="building"
+Building.prototype = new CivObj({
+	constructor: Building,
+	type: "building"
+},true);
+
+function Upgrade(props) // props is an object containing the desired properties.
+{
+	if (!(this instanceof Upgrade)) { return new Upgrade(props); } // Prevent accidental namespace pollution
+	CivObj.call(this,props);
+	copyProps(this,props,null,true);
+	// Occasional Properties: subType, efficiency, extraText, onGain
+
+}
+// Common Properties: type="upgrade"
+Upgrade.prototype = new CivObj({
+	constructor: Upgrade,
+	type: "upgrade"
+},true);
+
+function Unit(props) // props is an object containing the desired properties.
+{
+	if (!(this instanceof Unit)) { return new Unit(props); } // Prevent accidental namespace pollution
+	CivObj.call(this,props);
+	copyProps(this,props,null,true);
+	// Occasional Properties: singular, plural, subType, prereqs, require, effectText, alignment,
+	// source, efficiency_base, efficiency, onWin, lootFatigue, killFatigue, killExhaustion
+}
+// Common Properties: type="unit"
+Unit.prototype = new CivObj({
+	constructor: Unit,
+	type: "unit"
+},true);
+
+function Achievement(props) // props is an object containing the desired properties.
+{
+	if (!(this instanceof Achievement)) { return new Achievement(props); } // Prevent accidental namespace pollution
+	CivObj.call(this,props);
+	copyProps(this,props,null,true);
+	// Occasional Properties: test
+}
+// Common Properties: type="achievement"
+Achievement.prototype = new CivObj({
+	constructor: Achievement,
+	type: "achievement"
+},true);
 
 // Initialize Data
 var civData = [
 // Resources
-{
-	type: "resource",
-	id:"food",
-	name:"food",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
-	get net() { return curCiv[this.id].net; },
-	set net(value) { curCiv[this.id].net = value; },
-	increment:1,
-	specialchance:0.1
-},
-{
-	type: "resource",
-	id:"wood",
-	name:"wood",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
-	get net() { return curCiv[this.id].net; },
-	set net(value) { curCiv[this.id].net = value; },
-	increment:1,
-	specialchance:0.1
-},
-{
-	type: "resource",
-	id:"stone",
-	name:"stone",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
-	get net() { return curCiv[this.id].net; },
-	set net(value) { curCiv[this.id].net = value; },
-	increment:1,
-	specialchance:0.1
-},
-{
-	type: "resource",
-	id:"skins",
-	name:"skins",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; }
-},
-{
-	type: "resource",
-	id:"herbs",
-	name:"herbs",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; }
-},
-{
-	type: "resource",
-	id:"ore",
-	name:"ore",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; }
-},
-{
-	type: "resource",
-	id:"leather",
-	name:"leather",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; }
-},
-{
-	type: "resource",
-	id:"metal",
-	name:"metal",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; }
-},
-{
-	type: "resource",
-	id:"piety",
-	name:"piety",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; }
-},
-{
-	type: "resource",
-	id:"gold",
-	name:"gold",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; }
-},
-{
-	type: "resource",
-	id:"corpses",
-	name:"corpses",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; }
-},
-{
-	type: "resource",
-	id:"devotion",
-	name:"devotion",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; }
-},
-{
-	type: "resource",
-	id:"freeLand",
-	name:"land",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; }
-},
-// Bulidings
-{
-	type: "building",
-	id:"tent",
-	name:"tent",
-	plural:"tents",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
+new Resource({ id:"food", name:"food", increment:1, specialchance:0.1 }),
+new Resource({ id:"wood", name:"wood", increment:1, specialchance:0.1 }),
+new Resource({ id:"stone", name:"stone", increment:1, specialchance:0.1 }),
+new Resource({ id:"skins", name:"skins" }),
+new Resource({ id:"herbs", name:"herbs" }),
+new Resource({ id:"ore", name:"ore" }),
+new Resource({ id:"leather", name:"leather" }),
+new Resource({ id:"metal", name:"metal" }),
+new Resource({ id:"piety", name:"piety" }),
+new Resource({ id:"gold", name:"gold" }),
+new Resource({ id:"corpses", name:"corpses" }),
+new Resource({ id:"devotion", name:"devotion" }),
+new Resource({ id:"freeLand", name:"land" }),
+// Buildings
+new Building({ id:"tent", name:"tent", plural:"tents",
 	require: { wood:2, skins:2 },
-	effectText:"+1 max pop."
-},
-{
-	type: "building",
-	id:"hut",
-	name:"wooden hut",
-	plural:"wooden huts",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
+	effectText:"+1 max pop." }),
+new Building({ id:"hut", name:"wooden hut", plural:"wooden huts",
 	require : { wood:20, skins:1 },
-	effectText:"+3 max pop."
-},
-{
-	type: "building",
-	id:"cottage",
-	name:"cottage",
-	plural:"cottages",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
+	effectText:"+3 max pop." }),
+new Building({ id:"cottage", name:"cottage", plural:"cottages",
+	prereqs:{ masonry: true },
 	require:{ wood:10, stone:30 },
-	prereqs:{ masonry: true },
-	effectText:"+6 max pop."
-},
-{
-	type: "building",
-	id:"house",
-	name:"house",
-	plural:"houses",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
-	require:{ wood:30, stone:70 },
+	effectText:"+6 max pop." }),
+new Building({ id:"house", name:"house", plural:"houses",
 	prereqs:{ construction: true },
-	effectText:"+10 max pop."
-},
-{
-	type: "building",
-	id:"mansion",
-	name:"mansion",
-	plural:"mansions",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
-	require:{ wood:200, stone:200, leather:20 },
+	require:{ wood:30, stone:70 },
+	effectText:"+10 max pop." }),
+new Building({ id:"mansion", name:"mansion", plural:"mansions",
 	prereqs:{ architecture: true },
-	effectText:"+50 max pop."
-},
-{
-	type: "building",
-	id:"barn",
-	name:"barn",
-	plural:"barns",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
+	require:{ wood:200, stone:200, leather:20 },
+	effectText:"+50 max pop." }),
+new Building({ id:"barn", name:"barn", plural:"barns",
 	require:{ wood:100 },
-	effectText:"store +200 food"
-},
-{
-	type: "building",
-	id:"woodstock",
-	name:"wood stockpile",
-	plural:"wood stockpiles",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
+	effectText:"store +200 food" }),
+new Building({ id:"woodstock", name:"wood stockpile", plural:"wood stockpiles",
 	require:{ wood:100 },
-	effectText:"store +200 wood"
-},
-{
-	type: "building",
-	id:"stonestock",
-	name:"stone stockpile",
-	plural:"stone stockpiles",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
+	effectText:"store +200 wood" }),
+new Building({ id:"stonestock", name:"stone stockpile", plural:"stone stockpiles",
 	require:{ wood:100 },
-	effectText:"store +200 stone"
-},
-{
-	type: "building",
-	id:"tannery",
-	name:"tannery",
-	plural:"tanneries",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
+	effectText:"store +200 stone" }),
+new Building({ id:"tannery", name:"tannery", plural:"tanneries",
+	prereqs:{ masonry: true },
 	require:{ wood:30, stone:70, skins:2 },
+	effectText:"allows 1 tanner" }),
+new Building({ id:"smithy", name:"smithy", plural:"smithies",
 	prereqs:{ masonry: true },
-	effectText:"allows 1 tanner"
-},
-{
-	type: "building",
-	id:"smithy",
-	name:"smithy",
-	plural:"smithies",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
 	require:{ wood:30, stone:70, ore:2 },
+	effectText:"allows 1 blacksmith" }),
+new Building({ id:"apothecary", name:"apothecary", plural:"apothecaries",
 	prereqs:{ masonry: true },
-	effectText:"allows 1 blacksmith"
-},
-{
-	type: "building",
-	id:"apothecary",
-	name:"apothecary",
-	plural:"apothecaries",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
 	require:{ wood:30, stone:70, herbs:2 },
+	effectText:"allows 1 healer" }),
+new Building({ id:"temple", name:"temple", plural:"temples",
 	prereqs:{ masonry: true },
-	effectText:"allows 1 healer"
-},
-{
-	type: "building",
-	id:"temple",
-	name:"temple",
-	plural:"temples",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
 	require:{ wood:30, stone:120 },
+	effectText:"allows 1 cleric" }),
+new Building({ id:"barracks", name:"barracks", plural:"barracks",
 	prereqs:{ masonry: true },
-	effectText:"allows 1 cleric"
-},
-{
-	type: "building",
-	id:"barracks",
-	name:"barracks",
-	plural:"barracks",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
 	require:{ food:20, wood:60, stone:120, metal:10 },
-	prereqs:{ masonry: true },
-	effectText:"allows 10 soldiers"
-},
-{
-	type: "building",
-	id:"stable",
-	name:"stable",
-	plural:"stables",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
-	require:{ food:60, wood:60, stone:120, leather:10 },
+	effectText:"allows 10 soldiers" }),
+new Building({ id:"stable", name:"stable", plural:"stables",
 	prereqs:{ horseback: true },
-	effectText:"allows 10 cavalry"
-},
-{
-	type: "building",
-	id:"mill",
-	name:"mill",
-	plural:"mills",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
+	require:{ food:60, wood:60, stone:120, leather:10 },
+	effectText:"allows 10 cavalry" }),
+new Building({ id:"mill", name:"mill", plural:"mills",
+	prereqs:{ wheel: true },
 	get require() { return { wood  : 100 * (this.owned + 1) * Math.pow(1.05,this.owned),
 							 stone : 100 * (this.owned + 1) * Math.pow(1.05,this.owned) }; },
 	set require(value) { return this.require; },
-	prereqs:{ wheel: true },
 	effectText:"improves farmers"
-},
-{
-	type: "building",
-	id:"graveyard",
-	name:"graveyard",
-	plural:"graveyards",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
+}),
+new Building({ id:"graveyard", name:"graveyard", plural:"graveyards",
 	require:{ wood:50, stone:200, herbs:50 },
 	effectText:"contains 100 graves"
-},
-{
-	type: "building",
-	id:"fortification",
-	name:"fortification",
-	plural:"fortifications",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
+}),
+new Building({ id:"fortification", name:"fortification", plural:"fortifications", efficiency: 0.01,
+	prereqs:{ architecture: true },
 	get require() { return { stone : 100 * (this.owned + 1) * Math.pow(1.05,this.owned) }; },
 	set require(value) { return this.require; },
-	efficiency: 0.01,
-	prereqs:{ architecture: true },
 	effectText:"helps protect against attack"
-},
+}),
 // Altars
 // The 'name' on the altars is really the label on the button to make them.
 //xxx This should probably change.
-{
-	type: "building",
-	id:"battleAltar",
-	name:"Build Altar",
-	plural:"battle altars",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
-	get require() { return { stone:200, piety:200,
-					metal : 50 + (50 * this.owned) }; },
-	set require(value) { return this.require; },
-	subType: "altar",
-	devotion:1,
+new Building({ id:"battleAltar", name:"Build Altar", plural:"battle altars", subType: "altar", devotion:1,
 	prereqs:{ deity: "battle" },
-	effectText:"+1 Devotion"
-},
-{
-	type: "building",
-	id:"fieldsAltar",
-	name:"Build Altar",
-	plural:"fields altars",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
-	get require() { return { stone:200, piety:200,
-			food : 500 + (250 * this.owned),
-			wood : 500 + (250 * this.owned) }; },
+	get require() { return { stone:200, piety:200, metal : 50 + (50 * this.owned) }; },
 	set require(value) { return this.require; },
-	subType: "altar",
-	devotion:1,
+	effectText:"+1 Devotion"
+}),
+new Building({ id:"fieldsAltar", name:"Build Altar", plural:"fields altars", subType: "altar", devotion:1,
 	prereqs:{ deity: "fields" },
-	effectText:"+1 Devotion"
-},
-{
-	type: "building",
-	id:"underworldAltar",
-	name:"Build Altar",
-	plural:"underworld altars",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
 	get require() { return { stone:200, piety:200,
-					corpses : 1 + this.owned }; },
+			food : 500 + (250 * this.owned), wood : 500 + (250 * this.owned) }; },
 	set require(value) { return this.require; },
-	subType: "altar",
-	devotion:1,
+	effectText:"+1 Devotion"
+}),
+new Building({ id:"underworldAltar", name:"Build Altar", plural:"underworld altars", subType: "altar", devotion:1,
 	prereqs:{ deity: "underworld" },
-	effectText:"+1 Devotion"
-},
-{
-	type: "building",
-	id:"catAltar",
-	name:"Build Altar",
-	plural:"cat altars",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
-	get require() { return { stone:200, piety:200,
-					herbs : 100 + (50 * this.owned) }; },
+	get require() { return { stone:200, piety:200, corpses : 1 + this.owned }; },
 	set require(value) { return this.require; },
-	subType: "altar",
-	devotion:1,
-	prereqs:{ deity: "cats" },
 	effectText:"+1 Devotion"
-},
+}),
+new Building({ id:"catAltar", name:"Build Altar", plural:"cat altars", subType: "altar", devotion:1,
+	prereqs:{ deity: "cats" },
+	get require() { return { stone:200, piety:200, herbs : 100 + (50 * this.owned) }; },
+	set require(value) { return this.require; },
+	effectText:"+1 Devotion"
+}),
 // Upgrades
-{
-	type: "upgrade",
-	id:"skinning",
-	name:"Skinning",
-	subType: "upgrade",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
+new Upgrade({ id:"skinning", name:"Skinning", subType: "upgrade",
 	require: { skins: 10 },
 	effectText:"Farmers can collect skins"
-},
-{
-	type: "upgrade",
-	id:"harvesting",
-	name:"Harvesting",
-	subType: "upgrade",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
+}),
+new Upgrade({ id:"harvesting", name:"Harvesting", subType: "upgrade",
 	require: { herbs: 10 },
 	effectText:"Woodcutters can collect herbs" 
-},
-{
-	type: "upgrade",
-	id:"prospecting",
-	name:"Prospecting",
-	subType: "upgrade",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
+}),
+new Upgrade({ id:"prospecting", name:"Prospecting", subType: "upgrade",
 	require: { ore: 10 },
 	effectText:"Miners can collect ore" 
-},
-{
-	type: "upgrade",
-	id:"domestication",
-	name:"Domestication",
-	subType: "upgrade",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
+}),
+new Upgrade({ id:"domestication", name:"Domestication", subType: "upgrade",
 	prereqs:{ masonry: true },
 	require: { leather: 20 },
 	effectText:"Increase farmer food output" 
-},
-{
-	type: "upgrade",
-	id:"ploughshares",
-	name:"Ploughshares",
-	subType: "upgrade",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
+}),
+new Upgrade({ id:"ploughshares", name:"Ploughshares", subType: "upgrade",
 	prereqs:{ masonry: true },
 	require: { metal:20 },
 	effectText:"Increase farmer food output"
-},
-{
-	type: "upgrade",
-	id:"irrigation",
-	name:"Irrigation",
-	subType: "upgrade",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
+}),
+new Upgrade({ id:"irrigation", name:"Irrigation", subType: "upgrade",
 	prereqs:{ masonry: true },
-	require: {
-		wood: 500,
-		stone: 200 },
+	require: { wood: 500, stone: 200 },
 	effectText:"Increase farmer food output"
-},
-{
-	type: "upgrade",
-	id:"butchering",
-	name:"Butchering",
-	subType: "upgrade",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
+}),
+new Upgrade({ id:"butchering", name:"Butchering", subType: "upgrade",
 	prereqs:{ construction: true, skinning: true },
 	require: { leather: 40 },
 	effectText:"More farmers collect more skins" 
-},
-{
-	type: "upgrade",
-	id:"gardening",
-	name:"Gardening",
-	subType: "upgrade",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
+}),
+new Upgrade({ id:"gardening", name:"Gardening", subType: "upgrade",
 	prereqs:{ construction: true, harvesting: true },
 	require: { herbs: 40 },
 	effectText:"More woodcutters collect more herbs" 
-},
-{
-	type: "upgrade",
-	id:"extraction",
-	name:"Extraction",
-	subType: "upgrade",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
+}),
+new Upgrade({ id:"extraction", name:"Extraction", subType: "upgrade",
 	prereqs:{ construction: true, prospecting: true },
 	require: { metal: 40 },
 	effectText:"More miners collect more ore" 
-},
-{
-	type: "upgrade",
-	id:"flensing",
-	name:"Flensing",
-	subType: "upgrade",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
+}),
+new Upgrade({ id:"flensing", name:"Flensing", subType: "upgrade",
 	prereqs:{ architecture: true },
 	require: { metal: 1000 },
 	effectText:"Collect skins more frequently"
-},
-{
-	type: "upgrade",
-	id:"macerating",
-	name:"Macerating",
-	subType: "upgrade",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
+}),
+new Upgrade({ id:"macerating", name:"Macerating", subType: "upgrade",
 	prereqs:{ architecture: true },
-	require: {
-		leather: 500,
-		stone: 500 },
+	require: { leather: 500, stone: 500 },
 	effectText:"Collect ore more frequently"
-},
-{
-	type: "upgrade",
-	id:"croprotation",
-	name:"Crop Rotation",
-	subType: "upgrade",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
+}),
+new Upgrade({ id:"croprotation", name:"Crop Rotation", subType: "upgrade",
 	prereqs:{ architecture: true },
-	require: {
-		herbs: 5000,
-		piety: 1000 },
+	require: { herbs: 5000, piety: 1000 },
 	effectText:"Increase farmer food output"
-},
-{
-	type: "upgrade",
-	id:"selectivebreeding",
-	name:"Selective Breeding",
-	subType: "upgrade",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
+}),
+new Upgrade({ id:"selectivebreeding", name:"Selective Breeding", subType: "upgrade",
 	prereqs:{ architecture: true },
-	require: {
-		skins: 5000,
-		piety: 1000 },
+	require: { skins: 5000, piety: 1000 },
 	effectText:"Increase farmer food output"
-},
-{
-	type: "upgrade",
-	id:"fertilisers",
-	name:"Fertilisers",
-	subType: "upgrade",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
+}),
+new Upgrade({ id:"fertilisers", name:"Fertilisers", subType: "upgrade",
 	prereqs:{ architecture: true },
-	require: {
-		ore: 5000,
-		piety: 1000 },
+	require: { ore: 5000, piety: 1000 },
 	effectText:"Increase farmer food output"
-},
-{
-	type: "upgrade",
-	id:"masonry",
-	name:"Masonry",
-	subType: "upgrade",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
-	require: {
-		wood: 100,
-		stone: 100 },
+}),
+new Upgrade({ id:"masonry", name:"Masonry", subType: "upgrade",
+	require: { wood: 100, stone: 100 },
 	effectText:"Unlock more buildings and upgrades" 
-},
-{
-	type: "upgrade",
-	id:"construction",
-	name:"Construction",
-	subType: "upgrade",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
+}),
+new Upgrade({ id:"construction", name:"Construction", subType: "upgrade",
 	prereqs:{ masonry: true },
-	require: {
-		wood: 1000,
-		stone: 1000 },
+	require: { wood: 1000, stone: 1000 },
 	effectText:"Unlock more buildings and upgrades" 
-},
-{
-	type: "upgrade",
-	id:"architecture",
-	name:"Architecture",
-	subType: "upgrade",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
+}),
+new Upgrade({ id:"architecture", name:"Architecture", subType: "upgrade",
 	prereqs:{ construction: true },
-	require: {
-		wood: 10000,
-		stone: 10000 },
+	require: { wood: 10000, stone: 10000 },
 	effectText:"Unlock more buildings and upgrades" 
-},
-{
-	type: "upgrade",
-	id:"tenements",
-	name:"Tenements",
-	subType: "upgrade",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
+}),
+new Upgrade({ id:"tenements", name:"Tenements", subType: "upgrade",
 	prereqs:{ construction: true },
-	require: {
-		food: 200,
-		wood: 500,
-		stone: 500 },
+	require: { food: 200, wood: 500, stone: 500 },
 	effectText:"Houses support +2 workers",
 	onGain: function() { updatePopulation(); } //due to population limits changing
-},
-{
-	type: "upgrade",
-	id:"slums",
-	name:"Slums",
-	subType: "upgrade",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
+}),
+new Upgrade({ id:"slums", name:"Slums", subType: "upgrade",
 	prereqs:{ architecture: true },
-	require: {
-		food: 500,
-		wood: 1000,
-		stone: 1000 },
+	require: { food: 500, wood: 1000, stone: 1000 },
 	effectText:"Houses support +2 workers",
 	onGain: function() { updatePopulation(); } //due to population limits changing
-},
-{
-	type: "upgrade",
-	id:"granaries",
-	name:"Granaries",
-	subType: "upgrade",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
+}),
+new Upgrade({ id:"granaries", name:"Granaries", subType: "upgrade",
 	prereqs:{ masonry: true },
-	require: {
-		wood: 1000,
-		stone: 1000 },
+	require: { wood: 1000, stone: 1000 },
 	effectText:"Barns store double the amount of food",
 	onGain: function() { updateResourceTotals(); } //due to resource limits increasing
-},
-{
-	type: "upgrade",
-	id:"palisade",
-	name:"Palisade",
-	subType: "upgrade",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
+}),
+new Upgrade({ id:"palisade", name:"Palisade", subType: "upgrade",
 	efficiency: 0.01, // Subtracted from attacker efficiency.
 	prereqs:{ construction: true },
-	require: {
-		wood: 2000,
-		stone: 1000 },
+	require: { wood: 2000, stone: 1000 },
 	effectText:"Enemies do less damage" 
-},
-{
-	type: "upgrade",
-	id:"weaponry",
-	name:"Basic Weaponry",
-	subType: "upgrade",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
+}),
+new Upgrade({ id:"weaponry", name:"Basic Weaponry", subType: "upgrade",
 	prereqs:{ masonry: true },
-	require: {
-		wood: 500,
-		metal: 500 },
+	require: { wood: 500, metal: 500 },
 	effectText:"Improve soldiers"
-},
-{
-	type: "upgrade",
-	id:"shields",
-	name:"Basic Shields",
-	subType: "upgrade",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
+}),
+new Upgrade({ id:"shields", name:"Basic Shields", subType: "upgrade",
 	prereqs:{ masonry: true },
-	require: {
-		wood: 500,
-		leather: 500 },
+	require: { wood: 500, leather: 500 },
 	effectText:"Improve soldiers"
-},
-{
-	type: "upgrade",
-	id:"horseback",
-	name:"Horseback Riding",
-	subType: "upgrade",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
+}),
+new Upgrade({ id:"horseback", name:"Horseback Riding", subType: "upgrade",
 	prereqs:{ masonry: true },
-	require: {
-		food: 500,
-		wood: 500 },
+	require: { food: 500, wood: 500 },
 	effectText:"Build stables" 
-},
-{
-	type: "upgrade",
-	id:"wheel",
-	name:"The Wheel",
-	subType: "upgrade",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
+}),
+new Upgrade({ id:"wheel", name:"The Wheel", subType: "upgrade",
 	prereqs:{ masonry: true },
-	require: {
-		wood: 500,
-		stone: 500 },
+	require: { wood: 500, stone: 500 },
 	effectText:"Build mills" 
-},
-{
-	type: "upgrade",
-	id:"writing",
-	name:"Writing",
-	subType: "upgrade",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
+}),
+new Upgrade({ id:"writing", name:"Writing", subType: "upgrade",
 	prereqs:{ masonry: true },
-	require: {
-		skins: 500 },
+	require: { skins: 500 },
 	effectText:"Increase cleric piety generation" 
-},
-{
-	type: "upgrade",
-	id:"administration",
-	name:"Administration",
-	subType: "upgrade",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
+}),
+new Upgrade({ id:"administration", name:"Administration", subType: "upgrade",
 	prereqs:{ writing: true },
-	require: {
-		stone: 1000,
-		skins: 1000 },
+	require: { stone: 1000, skins: 1000 },
 	effectText:"Increase land gained from raiding" 
-},
-{
-	type: "upgrade",
-	id:"codeoflaws",
-	name:"Code of Laws",
-	subType: "upgrade",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
+}),
+new Upgrade({ id:"codeoflaws", name:"Code of Laws", subType: "upgrade",
 	prereqs:{ writing: true },
-	require: {
-		stone: 1000,
-		skins: 1000 },
+	require: { stone: 1000, skins: 1000 },
 	effectText:"Reduce unhappiness caused by overcrowding" 
-},
-{
-	type: "upgrade",
-	id:"mathematics",
-	name:"Mathematics",
-	subType: "upgrade",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
+}),
+new Upgrade({ id:"mathematics", name:"Mathematics", subType: "upgrade",
 	prereqs:{ writing: true },
-	require: {
-		herbs: 1000,
-		piety: 1000 },
+	require: { herbs: 1000, piety: 1000 },
 	effectText:"Create siege engines" 
-},
-{
-	type: "upgrade",
-	id:"aesthetics",
-	name:"Aesthetics",
-	subType: "upgrade",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
+}),
+new Upgrade({ id:"aesthetics", name:"Aesthetics", subType: "upgrade",
 	prereqs:{ writing: true },
 	require: { piety: 5000 },
 	effectText:"Building temples increases happiness" 
-},
-{
-	type: "upgrade",
-	id:"civilservice",
-	name:"Civil Service",
-	subType: "upgrade",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
+}),
+new Upgrade({ id:"civilservice", name:"Civil Service", subType: "upgrade",
 	prereqs:{ architecture: true },
 	require: { piety: 5000 },
 	effectText:"Increase basic resources from clicking" 
-},
-{
-	type: "upgrade",
-	id:"feudalism",
-	name:"Feudalism",
-	subType: "upgrade",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
+}),
+new Upgrade({ id:"feudalism", name:"Feudalism", subType: "upgrade",
 	prereqs:{ civilservice: true },
 	require: { piety: 10000 },
 	effectText:"Further increase basic resources from clicking" 
-},
-{
-	type: "upgrade",
-	id:"guilds",
-	name:"Guilds",
-	subType: "upgrade",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
+}),
+new Upgrade({ id:"guilds", name:"Guilds", subType: "upgrade",
 	prereqs:{ civilservice: true },
 	require: { piety: 10000 },
 	effectText:"Increase special resources from clicking" 
-},
-{
-	type: "upgrade",
-	id:"serfs",
-	name:"Serfs",
-	subType: "upgrade",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
+}),
+new Upgrade({ id:"serfs", name:"Serfs", subType: "upgrade",
 	prereqs:{ civilservice: true },
 	require: { piety: 20000 },
 	effectText:"Unemployed workers increase resources from clicking" 
-},
-{
-	type: "upgrade",
-	id:"nationalism",
-	name:"Nationalism",
-	subType: "upgrade",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
+}),
+new Upgrade({ id:"nationalism", name:"Nationalism", subType: "upgrade",
 	prereqs:{ civilservice: true },
 	require: { piety: 50000 },
 	effectText:"Soldiers increase basic resources from clicking" 
-},
-{ 
-	type: "upgrade",
-	id:"worship", 
-	name:"Worship", 
-	subType: "deity",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
+}),
+new Upgrade({ id:"worship", name:"Worship", subType: "deity",
 	prereqs:{ temple: 1 },
 	require: { piety: 1000 },
 	effectText:"Begin worshipping a deity (requires temple)",
@@ -1084,286 +649,141 @@ var civData = [
 		updateUpgrades();
 		renameDeity(); //Need to add in some handling for when this returns NULL.
 	}
-},
+}),
 // Pantheon Upgrades
-{
-	type: "upgrade",
-	id:"lure",
-	name:"Lure of Civilisation",
-	subType: "pantheon",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
+new Upgrade({ id:"lure", name:"Lure of Civilisation", subType: "pantheon",
 	prereqs:{ deity: "cats", devotion: 10 },
 	require: { piety: 1000 },
 	effectText:"increase chance to get cats"
-},
-{
-	type: "upgrade",
-	id:"companion",
-	name:"Warmth of the Companion",
-	subType: "pantheon",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
+}),
+new Upgrade({ id:"companion", name:"Warmth of the Companion", subType: "pantheon",
 	prereqs:{ deity: "cats", devotion: 30 },
 	require: { piety: 1000 },
 	effectText:"cats help heal the sick"
-},
-{
-	type: "upgrade",
-	id:"comfort",
-	name:"Comfort of the Hearthfires",
-	subType: "pantheon",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
+}),
+new Upgrade({ id:"comfort", name:"Comfort of the Hearthfires", subType: "pantheon",
 	prereqs:{ deity: "cats", devotion: 50 },
 	require: { piety: 5000 },
 	effectText:"traders marginally more frequent"
-},
-{
-	type: "upgrade",
-	id:"blessing",
-	name:"Blessing of Abundance",
-	subType: "pantheon",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
+}),
+new Upgrade({ id:"blessing", name:"Blessing of Abundance", subType: "pantheon",
 	prereqs:{ deity: "fields", devotion: 10 },
 	require: { piety: 1000 },
 	effectText:"increase farmer food output"
-},
-{
-	type: "upgrade",
-	id:"waste",
-	name:"Abide No Waste",
-	subType: "pantheon",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
+}),
+new Upgrade({ id:"waste", name:"Abide No Waste", subType: "pantheon",
 	prereqs:{ deity: "fields", devotion: 30 },
 	require: { piety: 1000 },
 	effectText:"workers will eat corpses if there is no food left"
-},
-{
-	type: "upgrade",
-	id:"stay",
-	name:"Stay With Us",
-	subType: "pantheon",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
+}),
+new Upgrade({ id:"stay", name:"Stay With Us", subType: "pantheon",
 	prereqs:{ deity: "fields", devotion: 50 },
 	require: { piety: 5000 },
 	effectText:"traders stay longer"
-},
-{
-	type: "upgrade",
-	id:"riddle",
-	name:"Riddle of Steel",
-	subType: "pantheon",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
+}),
+new Upgrade({ id:"riddle", name:"Riddle of Steel", subType: "pantheon",
 	prereqs:{ deity: "battle", devotion: 10 },
 	require: { piety: 1000 },
 	effectText:"improve soldiers"
-},
-{
-	type: "upgrade",
-	id:"throne",
-	name:"Throne of Skulls",
-	subType: "pantheon",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
+}),
+new Upgrade({ id:"throne", name:"Throne of Skulls", subType: "pantheon",
 	prereqs:{ deity: "battle", devotion: 30 },
 	require: { piety: 1000 },
 	effectText:"slaying enemies creates temples"
-},
-{
-	type: "upgrade",
-	id:"lament",
-	name:"Lament of the Defeated",
-	subType: "pantheon",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
+}),
+new Upgrade({ id:"lament", name:"Lament of the Defeated", subType: "pantheon",
 	prereqs:{ deity: "battle", devotion: 50 },
 	require: { piety: 5000 },
 	effectText:"Successful raids delay future invasions"
-},
-{
-	type: "upgrade",
-	id:"book",
-	name:"The Book of the Dead",
-	subType: "pantheon",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
+}),
+new Upgrade({ id:"book", name:"The Book of the Dead", subType: "pantheon",
 	prereqs:{ deity: "underworld", devotion: 10 },
 	require: { piety: 1000 },
 	effectText:"gain piety with deaths"
-},
-{
-	type: "upgrade",
-	id:"feast",
-	name:"A Feast for Crows",
-	subType: "pantheon",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
+}),
+new Upgrade({ id:"feast", name:"A Feast for Crows", subType: "pantheon",
 	prereqs:{ deity: "underworld", devotion: 30 },
 	require: { piety: 1000 },
 	effectText:"corpses are less likely to cause illness"
-},
-{
-	type: "upgrade",
-	id:"secrets",
-	name:"Secrets of the Tombs",
-	subType: "pantheon",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
+}),
+new Upgrade({ id:"secrets", name:"Secrets of the Tombs", subType: "pantheon",
 	prereqs:{ deity: "underworld", devotion: 50 },
 	require: { piety: 5000 },
 	effectText:"graveyards increase cleric piety generation"
-},
+}),
 // Special Upgrades
-{ 
-	type: "upgrade",
-	id:"standard", 
-	name:"Battle Standard", 
-	subType: "conquest",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
+new Upgrade({ id:"standard", name:"Battle Standard", subType: "conquest",
 	prereqs:{ barracks: 1 },
-	require: {
-		leather: 1000, 
-		metal: 1000 },
+	require: { leather: 1000, metal: 1000 },
 	effectText:"Lets you build an army (requires barracks)"
-},
-{ 
-	type: "upgrade",
-	id:"trade", 
-	name:"Trade", 
-	subType: "trade",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
+}),
+new Upgrade({ id:"trade", name:"Trade", subType: "trade",
 	prereqs: { gold: 1 }, 
 	require: { gold: 1 }, 
 	effectText:"Open the trading post"
-},
-{ 
-	type: "upgrade",
-	id:"currency", 
-	name:"Currency", 
-	subType: "trade",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
-	require: { 
-		ore: 1000, 
-		gold: 10 }, 
+}),
+new Upgrade({ id:"currency", name:"Currency", subType: "trade",
+	require: { ore: 1000, gold: 10 }, 
 	effectText:"Traders arrive more frequently, stay longer"
-},
-{ 
-	type: "upgrade",
-	id:"commerce", 
-	name:"Commerce", 
-	subType: "trade",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
-	require: { 
-		piety: 10000, 
-		gold: 100 }, 
+}),
+new Upgrade({ id:"commerce", name:"Commerce", subType: "trade",
+	require: { piety: 10000, gold: 100 }, 
 	effectText:"Traders arrive more frequently, stay longer"
-},
+}),
 // Prayers
-{ 
-	id:"smite", 
-	name:"Smite Invaders", 
-	subType: "prayer",
+new Upgrade({ id:"smite", name:"Smite Invaders", subType: "prayer",
 	prereqs:{ deity: "battle", devotion: 20 },
 	require: { piety: 100 },
 	effectText:"(per invader killed)"
-},
-{ 
-	id:"glory", 
-	name:"For Glory!", 
-	subType: "prayer",
+}),
+new Upgrade({ id:"glory", name:"For Glory!", subType: "prayer",
 	prereqs:{ deity: "battle", devotion: 40 },
 	require: { piety: 1000 }, 
 	effectText:"Temporarily makes raids more difficult, increases rewards"
-},
-{ 
-	id:"wickerman", 
-	name:"Burn Wicker Man", 
-	subType: "prayer",
+}),
+new Upgrade({ id:"wickerman", name:"Burn Wicker Man", subType: "prayer",
 	prereqs:{ deity: "fields", devotion: 20 },
 	require: { wood: 500 },  //xxx +1 Worker
 	effectText:"Sacrifice 1 worker to gain a random bonus to a resource"
-},
-{ 
-	id:"walk", 
-	name:"Walk Behind the Rows", 
-	subType: "prayer",
+}),
+new Upgrade({ id:"walk", name:"Walk Behind the Rows", subType: "prayer",
 	prereqs:{ deity: "fields", devotion: 40 },
 	require: { }, //xxx 1 Worker/sec
 	effectText:"boost food production by sacrificing 1 worker/sec.",
 	extraText: "<br /><button id='ceaseWalk' onmousedown='walk(false)' disabled='disabled'>Cease Walking</button>"
-},
-{ 
-	id:"raiseDead", 
-	name:"Raise Dead", 
-	subType: "prayer",
+}),
+new Upgrade({ id:"raiseDead", name:"Raise Dead", subType: "prayer",
 	prereqs:{ deity: "underworld", devotion: 20 },
 	require: { corpses: 1, piety: 4 }, //xxx Nonlinear cost
 	effectText:"Piety to raise the next zombie",
 	extraText:"<button onmousedown='raiseDead(100)' id='raiseDead100' class='x100' disabled='disabled'>x100</button><button onmousedown='raiseDead(Infinity)' id='raiseDeadMax' class='x100' disabled='disabled'>Max</button>"
-},
-{
-	id:"summonShade", 
-	name:"Summon Shades", 
-	subType: "prayer",
+}),
+new Upgrade({ id:"summonShade", name:"Summon Shades", subType: "prayer",
 	prereqs:{ deity: "underworld", devotion: 40 },
 	require: { piety: 100 },  //xxx Also need slainEnemies
 	effectText:"Souls of the defeated rise to fight for you"
-},
-{ 
-	id:"pestControl", 
-	name:"Pest Control", 
-	subType: "prayer",
+}),
+new Upgrade({ id:"pestControl", name:"Pest Control", subType: "prayer",
 	prereqs:{ deity: "cats", devotion: 20 },
 	require: { piety: 100 }, 
 	effectText:"Give temporary boost to food production"
-},
-{ 
-	id:"grace", 
-	name:"Grace", 
-	subType: "prayer",
+}),
+new Upgrade({ id:"grace", name:"Grace", subType: "prayer",
 	prereqs:{ deity: "cats", devotion: 40 },
 	require: { piety: 100 }, 
 	effectText:"Increase Happiness"
-},
+}),
 // Units
-{
-	type: "unit",
-	id:"unemployed",
-	name:"unemployed",
-	singular:"unemployed",
-	plural:"unemployed",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
+new Unit({ id:"unemployed", name:"unemployed", singular:"unemployed", plural:"unemployed",
 	alignment:"player",
 	effectText:"Unassigned Workers"
-},
-{
-	type: "unit",
-	id:"totalSick",
-	name:"sick",
-	singular:"sick",
-	plural:"sick",
-	get owned() { return population[this.id]; },
-	set owned(value) { population[this.id]= value; },
+}),
+new Unit({ id:"totalSick", name:"sick", singular:"sick", plural:"sick",
+	get owned() { return isValid(population) ? population[this.id] : 0; },
+	set owned(value) { if (isValid(population)) { population[this.id]= value;} },
 	effectText:"Sick workers"
-},
-{
-	type: "unit",
-	id:"farmer",
-	name:"farmers",
-	singular:"farmer",
-	plural:"farmers",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
+}),
+new Unit({ id:"farmer", name:"farmers", singular:"farmer", plural:"farmers",
 	alignment:"player",
 	source:"unemployed",
 	efficiency_base: 0.2,
@@ -1373,322 +793,162 @@ var civData = [
 	+ civData.blessing.owned)); },
 	set efficiency(value) { this.efficiency_base = value; },
 	effectText:"Automatically gather food"
-},
-{
-	type: "unit",
-	id:"woodcutter",
-	name:"woodcutters",
-	singular:"woodcutter",
-	plural:"woodcutters",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
-	alignment:"player",
-	source:"unemployed",
+}),
+new Unit({ id:"woodcutter", name:"woodcutters", singular:"woodcutter", plural:"woodcutters",
+	alignment:"player", source:"unemployed",
 	efficiency: 0.5,
 	effectText:"Automatically gather wood"
-},
-{
-	type: "unit",
-	id:"miner",
-	name:"miners",
-	singular:"miner",
-	plural:"miners",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
-	alignment:"player",
-	source:"unemployed",
+}),
+new Unit({ id:"miner", name:"miners", singular:"miner", plural:"miners",
+	alignment:"player", source:"unemployed",
 	efficiency: 0.2,
 	effectText:"Automatically gather stone"
-},
-{
-	type: "unit",
-	id:"tanner",
-	name:"tanners",
-	singular:"tanner",
-	plural:"tanners",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
-	alignment:"player",
-	source:"unemployed",
+}),
+new Unit({ id:"tanner", name:"tanners", singular:"tanner", plural:"tanners",
+	alignment:"player", source:"unemployed",
 	efficiency: 0.5,
 	prereqs:{ tannery: 1 },
 	effectText:"Convert skins to leather"
-},
-{
-	type: "unit",
-	id:"blacksmith",
-	name:"blacksmiths",
-	singular:"blacksmith",
-	plural:"blacksmiths",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
-	alignment:"player",
-	source:"unemployed",
+}),
+new Unit({ id:"blacksmith", name:"blacksmiths", singular:"blacksmith", plural:"blacksmiths",
+	alignment:"player", source:"unemployed",
 	efficiency: 0.5,
 	prereqs:{ smithy: 1 },
 	effectText:"Convert ore to metal"
-},
-{
-	type: "unit",
-	id:"healer",
-	name:"healers",
-	singular:"healer",
-	plural:"healers",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
-	alignment:"player",
-	source:"unemployed",
+}),
+new Unit({ id:"healer", name:"healers", singular:"healer", plural:"healers",
+	alignment:"player", source:"unemployed",
 	efficiency: 0.1,
 	prereqs:{ apothecary: 1 },
 	effectText:"Cure sick workers"
-},
-{
-	type: "unit",
-	id:"cleric",
-	name:"clerics",
-	singular:"cleric",
-	plural:"clerics",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
-	alignment:"player",
-	source:"unemployed",
+}),
+new Unit({ id:"cleric", name:"clerics", singular:"cleric", plural:"clerics",
+	alignment:"player", source:"unemployed",
 	efficiency: 0.05,
 	prereqs:{ temple: 1 },
 	effectText:"Generate piety, bury corpses"
-},
-{
-	type: "unit",
-	id:"labourer",
-	name:"labourers",
-	singular:"labourer",
-	plural:"labourers",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
-	alignment:"player",
-	source:"unemployed",
+}),
+new Unit({ id:"labourer", name:"labourers", singular:"labourer", plural:"labourers",
+	alignment:"player", source:"unemployed",
 	efficiency: 1.0,
 	prereqs:{ wonder: "building" }, //xxx This is a hack
 	effectText:"Use resources to build wonder"
-},
-{
-	type: "unit",
-	id:"soldier",
-	name:"soldiers",
-	singular:"soldier",
-	plural:"soldiers",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
-	alignment:"player",
-	source:"unemployed",
+}),
+new Unit({ id:"soldier", name:"soldiers", singular:"soldier", plural:"soldiers",
+	alignment:"player", source:"unemployed",
 	efficiency_base: 0.05,
 	get efficiency() { return this.efficiency_base + calcCombatMods(); },
 	set efficiency(value) { this.efficiency_base = value; },
 	prereqs:{ barracks: 1 },
-	require:{
-		leather:10,
-		metal:10
-	},
+	require:{ leather:10, metal:10 },
 	effectText:"Protect from attack"
-},
-{
-	type: "unit",
-	id:"cavalry",
-	name:"cavalry",
-	singular:"cavalry",
-	plural:"cavalry",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
-	alignment:"player",
-	source:"unemployed",
+}),
+new Unit({ id:"cavalry", name:"cavalry", singular:"cavalry", plural:"cavalry",
+	alignment:"player", source:"unemployed",
 	efficiency_base: 0.08,
 	get efficiency() { return this.efficiency_base + calcCombatMods(); },
 	set efficiency(value) { this.efficiency_base = value; },
 	prereqs:{ stable: 1 },
-	require:{
-		food:20,
-		leather:20
-	},
+	require:{ food:20, leather:20 },
 	effectText:"Protect from attack"
-},
-{
-	type: "unit",
-	id:"shade",
-	name:"shades",
-	singular:"shade",
-	plural:"shades",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
+}),
+new Unit({ id:"shade", name:"shades", singular:"shade", plural:"shades",
 	alignment:"player",
 	effectText:"Insubstantial spirits"
-},
-{
-	type: "unit",
-	id:"wolf",
-	name:"wolves",
-	singular:"wolf",
-	plural:"wolves",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
+}),
+new Unit({ id:"wolf", name:"wolves", singular:"wolf", plural:"wolves",
 	alignment:"animal",
 	efficiency: 0.05,
 	onWin: function() { doSlaughter(this); },
 	killFatigue:(1.0), // Max fraction that leave after killing the last person
 	killExhaustion:(1/2) // Chance of an attacker leaving after killing a person
-},
-{
-	type: "unit",
-	id:"bandit",
-	name:"bandits",
-	singular:"bandit",
-	plural:"bandits",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
+}),
+new Unit({ id:"bandit", name:"bandits", singular:"bandit", plural:"bandits",
 	alignment:"mob",
 	efficiency: 0.07,
 	onWin: function() { doLoot(this); },
 	lootFatigue:(1/8) // Max fraction that leave after cleaning out a resource
-},
-{
-	type: "unit",
-	id:"barbarian",
-	name:"barbarians",
-	singular:"barbarian",
-	plural:"barbarians",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
+}),
+new Unit({ id:"barbarian", name:"barbarians", singular:"barbarian", plural:"barbarians",
 	alignment:"mob",
 	efficiency: 0.09,
 	onWin: function() { doHavoc(this); },
 	lootFatigue:(1/24), // Max fraction that leave after cleaning out a resource
 	killFatigue:(1/3), // Max fraction that leave after killing the last person
 	killExhaustion:(1.0) // Chance of an attacker leaving after killing a person
-},
-{
-	type: "unit",
-	id:"esiege",
-	name:"siege engines",
-	singular:"Siege Engine",
-	plural:"siege engines",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
+}),
+new Unit({ id:"esiege", name:"siege engines", singular:"Siege Engine", plural:"siege engines",
 	alignment:"mob",
 	efficiency: 0.1  // 10% chance to hit
-},
-{
-	type: "unit",
-	id:"soldierParty",
-	name:"soldiers",
-	singular:"soldier",
-	plural:"soldiers",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
-	alignment:"player",
-	source:"soldier",
+}),
+new Unit({ id:"soldierParty", name:"soldiers", singular:"soldier", plural:"soldiers",
+	alignment:"player", source:"soldier",
 	efficiency_base: 0.05,
 	get efficiency() { return this.efficiency_base + calcCombatMods(); },
 	set efficiency(value) { this.efficiency_base = value; },
 	prereqs:{ standard: true, barracks: 1 }
-},
-{
-	type: "unit",
-	id:"cavalryParty",
-	name:"cavalry",
-	singular:"cavalry",
-	plural:"cavalry",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
-	alignment:"player",
-	source:"cavalry",
+}),
+new Unit({ id:"cavalryParty", name:"cavalry", singular:"cavalry", plural:"cavalry",
+	alignment:"player", source:"cavalry",
 	efficiency_base: 0.08,
 	get efficiency() { return this.efficiency_base + calcCombatMods(); },
 	set efficiency(value) { this.efficiency_base = value; },
 	prereqs:{ standard: true, stable: 1 }
-},
-{
-	type: "unit",
-	id:"siege",
-	name:"siege engines",
-	singular:"Siege Engine",
-	plural:"siege engines",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
+}),
+new Unit({ id:"siege", name:"siege engines", singular:"Siege Engine", plural:"siege engines",
 	alignment:"player",
 	efficiency: 0.1, // 10% chance to hit
 	prereqs:{ standard: true, mathematics: true },
-	require:{
-		wood:200,
-		leather:50,
-		metal:50
-	}
-},
-{
-	type: "unit",
-	id:"esoldier",
-	name:"soldiers",
-	singular:"soldier",
-	plural:"soldiers",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
+	require:{ wood:200, leather:50, metal:50 }
+}),
+new Unit({ id:"esoldier", name:"soldiers", singular:"soldier", plural:"soldiers",
 	alignment:"mob",
 	efficiency: 0.05
-},
-{ // Not currently used.
-	type: "unit",
-	id:"ecavalry",
-	name:"cavalry",
-	singular:"cavalry",
-	plural:"cavalry",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
+}),
+// Not currently used.
+new Unit({ id:"ecavalry", name:"cavalry", singular:"cavalry", plural:"cavalry",
 	alignment:"mob",
 	efficiency: 0.08
-},
-{
-	type: "unit",
-	id:"efort",
-	name:"fortifications",
-	singular:"fortification",
-	plural:"fortifications",
-	get owned() { return curCiv[this.id].owned; },
-	set owned(value) { curCiv[this.id].owned = value; },
+}),
+new Unit({ id:"efort", name:"fortifications", singular:"fortification", plural:"fortifications",
 	alignment:"mob",
 	efficiency: 0.01 // -1% damage
-},
+}),
 // Achievements
 	//conquest
-new Achievement("raiderAch"		, "Raider"			, function() { return raiding.victory; }),
+new Achievement({id:"raiderAch"		, name:"Raider"			, test:function() { return raiding.victory; }}),
 	//xxx Technically this also gives credit for capturing a siege engine.
-new Achievement("engineerAch"	, "Engi&shy;neer"	, function() { return curCiv.siege.owned > 0; }),
+new Achievement({id:"engineerAch"	, name:"Engi&shy;neer"	, test:function() { return curCiv.siege.owned > 0; }}),
 	// If we beat the largest possible opponent, grant bonus achievement.
-new Achievement("dominationAch"	, "Domi&shy;nation"	, function() { return raiding.victory && (raiding.last == civSizes[civSizes.length-1].id); }),
+new Achievement({id:"dominationAch"	, name:"Domi&shy;nation"	, test:function() { return raiding.victory && (raiding.last == civSizes[civSizes.length-1].id); }}),
 	//happiness
-new Achievement("hatedAch"		, "Hated"			, function() { return efficiency.happiness <= 0.5; }),
-new Achievement("lovedAch"		, "Loved"			, function() { return efficiency.happiness >= 1.5; }),
+new Achievement({id:"hatedAch"		, name:"Hated"			, test:function() { return efficiency.happiness <= 0.5; }}),
+new Achievement({id:"lovedAch"		, name:"Loved"			, test:function() { return efficiency.happiness >= 1.5; }}),
 	//cats
-new Achievement("catAch"		, "Cat!"			, function() { return curCiv.cat.owned >= 1; }),
-new Achievement("glaringAch"	, "Glaring"			, function() { return curCiv.cat.owned >= 10; }),
-new Achievement("clowderAch"	, "Clowder"			, function() { return curCiv.cat.owned >= 100; }),
+new Achievement({id:"catAch"		, name:"Cat!"			, test:function() { return curCiv.cat.owned >= 1; }}),
+new Achievement({id:"glaringAch"	, name:"Glaring"			, test:function() { return curCiv.cat.owned >= 10; }}),
+new Achievement({id:"clowderAch"	, name:"Clowder"			, test:function() { return curCiv.cat.owned >= 100; }}),
 	//other population
 	//Plagued achievement requires sick people to outnumber healthy
-new Achievement("plaguedAch"	, "Plagued"			, function() { return population.totalSick > population.healthy; }),
-new Achievement("ghostTownAch"	, "Ghost Town"		, function() { return (population.current == 0) && (population.cap >= 1000); }),
+new Achievement({id:"plaguedAch"	, name:"Plagued"			, test:function() { return population.totalSick > population.healthy; }}),
+new Achievement({id:"ghostTownAch"	, name:"Ghost Town"		, test:function() { return (population.current == 0) && (population.cap >= 1000); }}),
 	//deities
 	//xxx TODO: Should make this loop through the domains
-new Achievement("battleAch"		, "Battle"			, function() { return getCurDeityDomain() == "battle"; }),
-new Achievement("fieldsAch"		, "Fields"			, function() { return getCurDeityDomain() == "fields"; }),
-new Achievement("underworldAch"	, "Under&shy;world"	, function() { return getCurDeityDomain() == "underworld"; }),
-new Achievement("catsAch"		, "Cats"			, function() { return getCurDeityDomain() == "cats"; }),
-new Achievement("fullHouseAch"	, "Full House"		, function() { return curCiv.battleAch.owned && curCiv.fieldsAch.owned && curCiv.underworldAch.owned && curCiv.catsAch.owned; }),
+new Achievement({id:"battleAch"		, name:"Battle"			, test:function() { return getCurDeityDomain() == "battle"; }}),
+new Achievement({id:"fieldsAch"		, name:"Fields"			, test:function() { return getCurDeityDomain() == "fields"; }}),
+new Achievement({id:"underworldAch"	, name:"Under&shy;world"	, test:function() { return getCurDeityDomain() == "underworld"; }}),
+new Achievement({id:"catsAch"		, name:"Cats"			, test:function() { return getCurDeityDomain() == "cats"; }}),
+new Achievement({id:"fullHouseAch"	, name:"Full House"		, test:function() { return curCiv.battleAch.owned && curCiv.fieldsAch.owned && curCiv.underworldAch.owned && curCiv.catsAch.owned; }}),
 	//wonders
-new Achievement("wonderAch"		, "Wonder"			, function() { return wonder.completed; }),
-new Achievement("sevenAch"		, "Seven!"			, function() { return wonder.food + wonder.wood + wonder.stone + wonder.skins 
+new Achievement({id:"wonderAch"		, name:"Wonder"			, test:function() { return wonder.completed; }}),
+new Achievement({id:"sevenAch"		, name:"Seven!"			, test:function() { return wonder.food + wonder.wood + wonder.stone + wonder.skins 
 																		+ wonder.herbs + wonder.ore + wonder.leather + wonder.metal 
-																		+ wonder.piety >= 7; }),
+																		+ wonder.piety >= 7; }}),
 	//trading
-new Achievement("merchantAch"	, "Merch&shy;ant"	, function() { return curCiv.gold.owned > 0; }),
-new Achievement("rushedAch"		, "Rushed"			, function() { return wonder.rushed; }),
+new Achievement({id:"merchantAch"	, name:"Merch&shy;ant"	, test:function() { return curCiv.gold.owned > 0; }}),
+new Achievement({id:"rushedAch"		, name:"Rushed"			, test:function() { return wonder.rushed; }}),
 	//other
-new Achievement("neverclickAch"	, "Never&shy;click"	, function() { return wonder.completed && curCiv.resourceClicks <= 22; })
+new Achievement({id:"neverclickAch"	, name:"Never&shy;click"	, test:function() { return wonder.completed && curCiv.resourceClicks <= 22; }})
 ];
 
 function initCivData() {
@@ -1696,37 +956,20 @@ function initCivData() {
 	var testCivSizeAch = function() { return (this.id == civSizes.getCivSize(population.current).id+"Ach"); };
 	// Add the civ size based achivements to the front of the data, so that they come first.
 	for (i=1;i<civSizes.length;++i) {
-		civData.unshift(new Achievement(civSizes[i].id+"Ach", civSizes[i].name, testCivSizeAch));
+		civData.unshift(new Achievement({id:civSizes[i].id+"Ach", name:civSizes[i].name, test:testCivSizeAch}));
 	}
 	//xxx TODO: Add deity domain based achievements here too.
 }
 initCivData();
 
-function calcCombatMods() { return (0.01 * ((civData.riddle.owned) + (civData.weaponry.owned) + (civData.shields.owned))); }
-
-// Some attackers get a damage mod against some defenders
-//xxx This is too fragile; the unit definitions should be expanded with
-// categories, and this method rewritten using those categories instead
-// of specific unit types.
-function getCasualtyMod(attacker,defender)
-{
-	if ((defender == "cavalry" || defender == "cavalryParty") && (attacker != "wolf"))
-	{
-		return 1.50; // Cavalry take 50% more casualties vs infantry
-	}
-
-	return 1.0; // Otherwise no modifier
-}
-
 // Add a named alias to each entry.
 function indexArray(inArray) {
 	inArray.forEach( function(elem,i,arr){ 
-		if (!isValid(arr[elem.id])) { 
+		if (isValid(elem.id) && !isValid(arr[elem.id])) { 
 			Object.defineProperty(arr, elem.id, { value : elem, enumerable:false });
 			}
-		else { console.log("Duplicate asset ID: "+elem.id); }
+		else { console.log("Duplicate or missing asset ID: "+elem.id); }
 }); }
-
 indexArray(civData);
 
 var resourceData= [];
@@ -1739,8 +982,8 @@ var achData = [];
 civData.forEach( function(elem){ 
 	if (elem.type == "resource") { resourceData.push(elem); } 
 	if (elem.type == "building") { buildingData.push(elem); } 
-	if (elem.type == "upgrade") { upgradeData.push(elem); }
 	if (elem.subType == "prayer") { powerData.push(elem); }
+	else if (elem.type == "upgrade") { upgradeData.push(elem); }
 	if (elem.type == "unit") { unitData.push(elem); }
 	if (elem instanceof Achievement) { achData.push(elem); }
 });
@@ -1812,6 +1055,22 @@ var population = {
 	totalSick:0
 };
 var body = document.getElementsByTagName("body")[0];
+
+function calcCombatMods() { return (0.01 * ((civData.riddle.owned) + (civData.weaponry.owned) + (civData.shields.owned))); }
+
+// Some attackers get a damage mod against some defenders
+//xxx This is too fragile; the unit definitions should be expanded with
+// categories, and this method rewritten using those categories instead
+// of specific unit types.
+function getCasualtyMod(attacker,defender)
+{
+	if ((defender == "cavalry" || defender == "cavalryParty") && (attacker != "wolf"))
+	{
+		return 1.50; // Cavalry take 50% more casualties vs infantry
+	}
+
+	return 1.0; // Otherwise no modifier
+}
 
 // Get an object's requirements in text form.
 // Pass it a cost object.
@@ -3034,7 +2293,7 @@ function pickStarveTarget() {
 	{
 		for (jobNum=0;jobNum<jobList.length;++jobNum)
 		{
-			if (civData[jobList[jobNum]+modList[modNum]].owned > 0) 
+			if (curCiv[jobList[jobNum]+modList[modNum]].owned > 0) 
 				{ return {job:  jobList[jobNum]+modList[modNum], 
 				          base: jobList[jobNum]}; }
 		}
@@ -4162,6 +3421,7 @@ function haveDeity(name)
 }
 
 function renameRuler(newName){
+	if (curCiv.rulerName == "Cheater") { return; } // Reputations suck, don't they?
 	//Prompts player, uses result as rulerName
 	while (!newName || haveDeity(newName)!==false) {
 		newName = prompt("What is your name?",(newName || curCiv.rulerName || "Orteil"));
@@ -5020,6 +4280,7 @@ function initCivclicker() {
 	addPUpgradeRows();
 	addAchievementRows();
 	addRaidRows();
+	makeDeitiesTables();
 
 	//Prompt player for names
 	if (!localStorage.getItem(saveTag) && !read_cookie(saveTag)) {
@@ -5339,25 +4600,16 @@ function textShadow(){
 	}
 }
 
+// Does nothing yet, will probably toggle display for "icon" and "word" classes 
+// as that's probably the simplest way to do this.
 function iconToggle(){
-	//does nothing yet, will probably toggle display for "icon" and "word" classes as that's probably the simplest way to do this
-	if (settings.usingWords){
-		settings.usingWords = false;
-		document.getElementById("iconToggle").innerHTML = "Use Words";
-	} else {
-		settings.usingWords = true;
-		document.getElementById("iconToggle").innerHTML = "Use Icons";
-	}
+	settings.usingWords = !settings.usingWords;
+	document.getElementById("iconToggle").innerHTML = (settings.usingWords) ? "Use Icons" : "Use Words";
 }
 
 function prettify(input){
-	if (!settings.delimiters){
-		return input.toString();
-	} 
 	//xxx TODO: Add appropriate format options
-	return Number(input).toLocaleString();
-	//xxx Old way.  Might switch back if browser support is too lacking.
-	//return num2fmtString(input);
+	return (settings.delimiters) ? Number(input).toLocaleString() : input.toString();
 }
 
 function toggleDelimiters(){

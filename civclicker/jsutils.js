@@ -51,39 +51,6 @@ function read_cookie(name) {
 }
 
 
-/**
- * Convert a number to a string with digits separated using an ISO delimiter.
- * @param {number} input - The number to process.
- * @returns {string} The number, with digit groups separated.
- */
-function num2fmtString(input){
-	var output = "";
-	var i;
-	output = input.toString();
-	var characteristic = "", //the bit that comes before the decimal point
-		mantissa = "", //the bit that comes afterwards
-		digitCount = 0,
-		delimiter = "&#8239;"; //thin space is the ISO standard thousands delimiter. we need a non-breaking version
-
-	//first split the string on the decimal point, and assign to the characteristic and mantissa
-	var parts = output.split(".");
-	if (typeof parts[1] === "string") { mantissa = "." + parts[1]; } //check it's defined first, and tack a decimal point to the start of it
-
-	//then insert the commas in the characteristic
-	var charArray = parts[0].split(""); //breaks it into an array
-	for (i=charArray.length; i>0; i--){ //counting backwards through the array
-		characteristic = charArray[i-1] + characteristic; //add the array item at the front of the string
-		digitCount++;
-		if (digitCount == 3 && i!=1){ //once every three digits (but not at the head of the number)
-			characteristic = delimiter + characteristic; //add the delimiter at the front of the string
-			digitCount = 0;
-		}
-	}
-	output = characteristic + mantissa; //reassemble the number
- 
-	return output;
-}
-
 // Calculates the summation of elements (n...m] of the arithmetic sequence
 // with increment "incr".
 function calcArithSum(incr,n,m)
@@ -214,3 +181,21 @@ function rndRound(num)
 	var baseVal = Math.floor(num);
 	return baseVal + ((Math.random() < (num - baseVal)) ? 1 : 0)
 }
+
+
+// Copy properties from to dest from src
+// If 'names' array supplied, only copies the named properties
+// If 'deleteOld' is true, deletes the properties from the old object
+function copyProps(dest,src,names,deleteOld)
+{
+	if (!(names instanceof Array)) { names = Object.getOwnPropertyNames(src); }
+	if (!isValid(deleteOld)) { deleteOld = false; }
+
+	names.forEach(function(elem){
+		if (!src.hasOwnProperty(elem)) { return; }
+		// This syntax is needed to copy get/set properly; you can't just use '='.
+		Object.defineProperty(dest,elem,Object.getOwnPropertyDescriptor(src,elem));
+		if (deleteOld) { delete src[elem]; }
+	});
+}
+
