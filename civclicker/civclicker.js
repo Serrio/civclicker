@@ -31,7 +31,7 @@ VersionData.prototype.toNumber = function() { return this.major*1000 + this.mino
 VersionData.prototype.toString = function() { return String(this.major) + "." 
 	+ String(this.minor) + "." + String(this.sub) + String(this.mod); };
 
-var versionData = new VersionData(1,1,40,"alpha");
+var versionData = new VersionData(1,1,41,"alpha");
 
 var saveTag = "civ";
 var saveTag2 = saveTag + "2"; // For old saves.
@@ -79,61 +79,11 @@ civSizes.getMaxPop = function(civTypeId) {
 var curCiv = {
 	civName : "Woodstock",
 	rulerName : "Orteil",
-	food : { owned:0, net:0 },
-	wood : { owned:0, net:0 },
-	stone : { owned:0, net:0 },
-	skins : { owned:0 },
-	herbs : { owned:0 },
-	ore : { owned:0 },
-	leather : { owned:0 },
-	metal : { owned:0 },
-	piety : { owned:0 },
-	gold : { owned:0 },
-	corpses : { owned:0 },
-	devotion : { owned:0 },
-	freeLand : { owned:1000 },
-
-	tent : { owned:0 },
-	hut : { owned:0 },
-	cottage : { owned:0 },
-	house : { owned:0 },
-	mansion : { owned:0 },
-	barn : { owned:0 },
-	woodstock : { owned:0 },
-	stonestock : { owned:0 },
-	tannery : { owned:0 },
-	smithy : { owned:0 },
-	apothecary : { owned:0 },
-	temple : { owned:0 },
-	barracks : { owned:0 },
-	stable : { owned:0 },
-	mill : { owned:0 },
-	graveyard : { owned:0 },
-	fortification : { owned:0 },
-	battleAltar : { owned:0 },
-	fieldsAltar : { owned:0 },
-	underworldAltar : { owned:0 },
-	catAltar : { owned:0 },
 
 	cat: { owned:0 },
 	zombie: { owned:0 },
 	grave: { owned:0 },
-	unemployed: { owned:0 },
-	farmer: { owned:0 },
-	woodcutter: { owned:0 },
-	miner: { owned:0 },
-	tanner: { owned:0 },
-	blacksmith: { owned:0 },
-	healer: { owned:0 },
-	cleric: { owned:0 },
-	labourer: { owned:0 },
-	soldier: { owned:0 },
-	cavalry: { owned:0 },
-	soldierParty: { owned:0 },
-	cavalryParty: { owned:0 },
-	siege: { owned:0 },
-	esoldier: { owned:0 },
-	efort: { owned:0 },
+	enemySlain: { owned:0 },
 	unemployedIll: { owned:0 },
 	farmerIll: { owned:0 },
 	woodcutterIll: { owned:0 },
@@ -145,97 +95,6 @@ var curCiv = {
 	labourerIll: { owned:0 },
 	soldierIll: { owned:0 },
 	cavalryIll: { owned:0 },
-	wolf: { owned:0 },
-	bandit: { owned:0 },
-	barbarian: { owned:0 },
-	esiege: { owned:0 },
-	enemySlain: { owned:0 },
-	shade: { owned:0 },
-
-	skinning: { owned:false },
-	harvesting: { owned:false },
-	prospecting: { owned:false },
-	domestication: { owned:false },
-	ploughshares: { owned:false },
-	irrigation: { owned:false },
-	butchering: { owned:false },
-	gardening: { owned:false },
-	extraction: { owned:false },
-	flensing: { owned:false },
-	macerating: { owned:false },
-	croprotation: { owned:false },
-	selectivebreeding: { owned:false },
-	fertilisers: { owned:false },
-	masonry: { owned:false },
-	construction: { owned:false },
-	architecture: { owned:false },
-	tenements: { owned:false },
-	slums: { owned:false },
-	granaries: { owned:false },
-	palisade: { owned:false },
-	weaponry: { owned:false },
-	shields: { owned:false },
-	horseback: { owned:false },
-	wheel: { owned:false },
-	writing: { owned:false },
-	administration: { owned:false },
-	codeoflaws: { owned:false },
-	mathematics: { owned:false },
-	aesthetics: { owned:false },
-	civilservice: { owned:false },
-	feudalism: { owned:false },
-	guilds: { owned:false },
-	serfs: { owned:false },
-	nationalism: { owned:false },
-	worship: { owned:false },
-	lure: { owned:false },
-	companion: { owned:false },
-	comfort: { owned:false },
-	blessing: { owned:false },
-	waste: { owned:false },
-	stay: { owned:false },
-	riddle: { owned:false },
-	throne: { owned:false },
-	lament: { owned:false },
-	book: { owned:false },
-	feast: { owned:false },
-	secrets: { owned:false },
-	standard: { owned:false },
-	trade: { owned:false },
-	currency: { owned:false },
-	commerce: { owned:false },
-
-	hamletAch: { owned:false },
-	villageAch: { owned:false },
-	smallTownAch: { owned:false },
-	largeTownAch: { owned:false },
-	smallCityAch: { owned:false },
-	largeCityAch: { owned:false },
-	metropolisAch: { owned:false },
-	smallNationAch: { owned:false },
-	nationAch: { owned:false },
-	largeNationAch: { owned:false },
-	empireAch: { owned:false },
-	raiderAch: { owned:false },
-	engineerAch: { owned:false },
-	dominationAch: { owned:false },
-	hatedAch: { owned:false },
-	lovedAch: { owned:false },
-	catAch: { owned:false },
-	glaringAch: { owned:false },
-	clowderAch: { owned:false },
-	battleAch: { owned:false },
-	catsAch: { owned:false },
-	fieldsAch: { owned:false },
-	underworldAch: { owned:false },
-	fullHouseAch: { owned:false },
-	plaguedAch: { owned:false },
-	ghostTownAch: { owned:false },
-	wonderAch: { owned:false },
-	sevenAch: { owned:false },
-	merchantAch: { owned:false },
-	rushedAch: { owned:false },
-	neverclickAch: { owned:false },
 
 	resourceClicks : 0, // For NeverClick
 	attackCounter : 0, // How long since last attack?
@@ -258,15 +117,23 @@ var curCiv = {
 function getCurDeityDomain() { return (curCiv.deities.length > 0) ? curCiv.deities[0].domain : undefined; }
 
 var wonder;
-var population, efficiency;
+var efficiency;
 var raiding;
+
+// These are not saved, but we need them up here for the asset data to init properly.
+var population = {
+	current:0,
+	cap:0,
+	healthy:0,
+	totalSick:0
+};
 
 //xxxTODO: Create a mechanism to automate the creation of a class hierarchy,
 // specifying base class, shared props, instance props.
 function CivObj(props, asProto)
 {
 	if (!(this instanceof CivObj)) { return new CivObj(props); } // Prevent accidental namespace pollution
-	var names = asProto ? null : ["id","name","owned","prereqs","require","effectText"];
+	var names = asProto ? null : ["id","name","owned","prereqs","require","effectText","prestige","initOwned","init","reset"];
 	Object.call(this,props);
 	copyProps(this,props,names,true);
 }
@@ -277,7 +144,11 @@ CivObj.prototype = {
 	set owned(value) { curCiv[this.id].owned = value; },
 	prereqs: {},
 	require: {},
-	effectText: ""
+	effectText: "",
+	prestige: false,
+	initOwned: 0,  // Override this to undefined to inhibit initialization.
+	init: function() { if (this.initOwned !== undefined) { curCiv[this.id] = {}; this.owned = this.initOwned; } },
+	reset: function() { if (!this.prestige) { return this.init(); } } // Default reset behavior is to re-init non-prestige items.
 };
 
 function Resource(props) // props is an object containing the desired properties.
@@ -317,12 +188,14 @@ function Upgrade(props) // props is an object containing the desired properties.
 	CivObj.call(this,props);
 	copyProps(this,props,null,true);
 	// Occasional Properties: subType, efficiency, extraText, onGain
-
+	if (this.subType == "prayer") { this.initOwned = undefined; } // Prayers don't get initial values.
+	if (this.subType == "pantheon") { this.prestigue = true; } // Pantheon upgrades are not lost on reset.
 }
 // Common Properties: type="upgrade"
 Upgrade.prototype = new CivObj({
 	constructor: Upgrade,
-	type: "upgrade"
+	type: "upgrade",
+	initOwned: false
 },true);
 
 function Unit(props) // props is an object containing the desired properties.
@@ -349,7 +222,9 @@ function Achievement(props) // props is an object containing the desired propert
 // Common Properties: type="achievement"
 Achievement.prototype = new CivObj({
 	constructor: Achievement,
-	type: "achievement"
+	type: "achievement",
+	initOwned: false,
+	prestige : true // Achievements are not lost on reset.
 },true);
 
 // Initialize Data
@@ -367,7 +242,7 @@ new Resource({ id:"piety", name:"piety" }),
 new Resource({ id:"gold", name:"gold" }),
 new Resource({ id:"corpses", name:"corpses" }),
 new Resource({ id:"devotion", name:"devotion" }),
-new Resource({ id:"freeLand", name:"land" }),
+new Resource({ id:"freeLand", name:"land", initOwned:1000 }),
 // Buildings
 new Building({ id:"tent", name:"tent", plural:"tents",
 	require: { wood:2, skins:2 },
@@ -760,7 +635,7 @@ new Upgrade({ id:"raiseDead", name:"Raise Dead", subType: "prayer",
 }),
 new Upgrade({ id:"summonShade", name:"Summon Shades", subType: "prayer",
 	prereqs:{ deity: "underworld", devotion: 40 },
-	require: { piety: 100 },  //xxx Also need slainEnemies
+	require: { piety: 1000 },  //xxx Also need slainEnemies
 	effectText:"Souls of the defeated rise to fight for you"
 }),
 new Upgrade({ id:"pestControl", name:"Pest Control", subType: "prayer",
@@ -770,7 +645,7 @@ new Upgrade({ id:"pestControl", name:"Pest Control", subType: "prayer",
 }),
 new Upgrade({ id:"grace", name:"Grace", subType: "prayer",
 	prereqs:{ deity: "cats", devotion: 40 },
-	require: { piety: 100 }, 
+	require: { piety: 1000 }, //xxx This is not fixed; see curCiv.graceCost
 	effectText:"Increase Happiness"
 }),
 // Units
@@ -779,8 +654,10 @@ new Unit({ id:"unemployed", name:"unemployed", singular:"unemployed", plural:"un
 	effectText:"Unassigned Workers"
 }),
 new Unit({ id:"totalSick", name:"sick", singular:"sick", plural:"sick",
-	get owned() { return isValid(population) ? population[this.id] : 0; },
-	set owned(value) { if (isValid(population)) { population[this.id]= value;} },
+	//xxx This (alternate data location) could probably be cleaner.
+	get owned() { return population[this.id]; },
+	set owned(value) { population[this.id]= value; },
+	init: function() { this.owned = this.initOwned; },
 	effectText:"Sick workers"
 }),
 new Unit({ id:"farmer", name:"farmers", singular:"farmer", plural:"farmers",
@@ -951,7 +828,7 @@ new Achievement({id:"rushedAch"		, name:"Rushed"			, test:function() { return wo
 new Achievement({id:"neverclickAch"	, name:"Never&shy;click"	, test:function() { return wonder.completed && curCiv.resourceClicks <= 22; }})
 ];
 
-function initCivData() {
+function augmentCivData() {
 	var i;
 	var testCivSizeAch = function() { return (this.id == civSizes.getCivSize(population.current).id+"Ach"); };
 	// Add the civ size based achivements to the front of the data, so that they come first.
@@ -960,15 +837,17 @@ function initCivData() {
 	}
 	//xxx TODO: Add deity domain based achievements here too.
 }
-initCivData();
+augmentCivData();
 
-// Add a named alias to each entry.
 function indexArray(inArray) {
 	inArray.forEach( function(elem,i,arr){ 
+		// Add a named alias to each entry.
 		if (isValid(elem.id) && !isValid(arr[elem.id])) { 
 			Object.defineProperty(arr, elem.id, { value : elem, enumerable:false });
 			}
 		else { console.log("Duplicate or missing asset ID: "+elem.id); }
+
+		elem.init(); // Initialize data for this item.
 }); }
 indexArray(civData);
 
@@ -1047,13 +926,6 @@ var settings = {
 	delimiters : true
 };
 
-// These are not saved.
-var population = {
-	current:0,
-	cap:0,
-	healthy:0,
-	totalSick:0
-};
 var body = document.getElementsByTagName("body")[0];
 
 function calcCombatMods() { return (0.01 * ((civData.riddle.owned) + (civData.weaponry.owned) + (civData.shields.owned))); }
@@ -1221,6 +1093,7 @@ function getBuildingRowText(buildingObj, onlyOnes)
 	s += "<td class='buildingnames'>"+buildingObj.plural+": </td>";
 	s += "<td class='number'><span data-action='display' data-target='"+bldId+"'>0</span></td>";
 	s += "<td><span id='"+bldId+"Cost'class='cost'>";
+	//xxx This really should check for non-empty require and effectText.
 	if (isValid(buildingObj.require)) { s += getReqText(buildingObj.require); }
 	s += "</span><span class='note'>: ";
 	if (isValid(buildingObj.effectText)) { s += buildingObj.effectText; }
@@ -1342,7 +1215,9 @@ function getJobRowText(jobObj, onlyOnes, funcName, displayClass, allowSell)
 	s += "<td><span id='"+jobId+"Cost' class='cost'>";
 	if (isValid(jobObj.require)) { s += getReqText(jobObj.require); }
 	s += "</span><span class='note'>";
-	if (isValid(jobObj.require) && isValid(jobObj.effectText)) { s += ": "; }
+	// We need the ':' if we have (nonempty) requirements and some effectText.
+	//xxx This should really test for non-empty effectText.
+	if (isValid(jobObj.require) && (Object.keys(jobObj.require).length !== 0) && isValid(jobObj.effectText)) { s += ": "; }
 	if (isValid(jobObj.effectText)) { s += jobObj.effectText; }
 	s += "</span></td>";
 	s += "</tr>";
@@ -2387,6 +2262,7 @@ function raiseDead(num){
 }
 
 function summonShade(){
+	//xxx This should use the require cost from civData.
 	if (curCiv.piety.owned < 1000) { return 0; }
 	if (curCiv.enemySlain.owned <= 0) { return 0; }
 
@@ -3476,66 +3352,14 @@ function reset(){
 	var msg = "Really reset? You will keep past deities and wonders (and cats)"; //Check player really wanted to do that.
 	if (!confirm(msg)) { return false; } // declined
 
-	paneSelect("buildings");
-		
 	curCiv = {
 		civName : curCiv.civName,
 		rulerName : curCiv.rulerName,
-		food : { owned:0, net:0 },
-		wood : { owned:0, net:0 },
-		stone : { owned:0, net:0 },
-		skins : { owned:0 },
-		herbs : { owned:0 },
-		ore : { owned:0 },
-		leather : { owned:0 },
-		metal : { owned:0 },
-		piety : { owned:0 },
-		gold : { owned:0 },
-		corpses : { owned:0 },
-		devotion : { owned:0 },
-		freeLand : { owned:1000 },
-
-		tent : { owned:0 },
-		hut : { owned:0 },
-		cottage : { owned:0 },
-		house : { owned:0 },
-		mansion : { owned:0 },
-		barn : { owned:0 },
-		woodstock : { owned:0 },
-		stonestock : { owned:0 },
-		tannery : { owned:0 },
-		smithy : { owned:0 },
-		apothecary : { owned:0 },
-		temple : { owned:0 },
-		barracks : { owned:0 },
-		stable : { owned:0 },
-		mill : { owned:0 },
-		graveyard : { owned:0 },
-		fortification : { owned:0 },
-		battleAltar : { owned:0 },
-		fieldsAltar : { owned:0 },
-		underworldAltar : { owned:0 },
-		catAltar : { owned:0 },
 
 		cat:curCiv.cat, //Cats always carry over
 		zombie: { owned:0 },
 		grave: { owned:0 },
-		unemployed: { owned:0 },
-		farmer: { owned:0 },
-		woodcutter: { owned:0 },
-		miner: { owned:0 },
-		tanner: { owned:0 },
-		blacksmith: { owned:0 },
-		healer: { owned:0 },
-		cleric: { owned:0 },
-		labourer: { owned:0 },
-		soldier: { owned:0 },
-		cavalry: { owned:0 },
-		soldierParty: { owned:0 },
-		cavalryParty: { owned:0 },
-		siege: { owned:0 },
-		esoldier: { owned:0 },
-		efort: { owned:0 },
+		enemySlain: { owned:0 },
 		unemployedIll: { owned:0 },
 		farmerIll: { owned:0 },
 		woodcutterIll: { owned:0 },
@@ -3547,53 +3371,6 @@ function reset(){
 		labourerIll: { owned:0 },
 		soldierIll: { owned:0 },
 		cavalryIll: { owned:0 },
-		wolf: { owned:0 },
-		bandit: { owned:0 },
-		barbarian: { owned:0 },
-		esiege: { owned:0 },
-		enemySlain: { owned:0 },
-		shade: { owned:0 },
-
-		skinning: { owned:false },
-		harvesting: { owned:false },
-		prospecting: { owned:false },
-		domestication: { owned:false },
-		ploughshares: { owned:false },
-		irrigation: { owned:false },
-		butchering: { owned:false },
-		gardening: { owned:false },
-		extraction: { owned:false },
-		flensing: { owned:false },
-		macerating: { owned:false },
-		croprotation: { owned:false },
-		selectivebreeding: { owned:false },
-		fertilisers: { owned:false },
-		masonry: { owned:false },
-		construction: { owned:false },
-		architecture: { owned:false },
-		tenements: { owned:false },
-		slums: { owned:false },
-		granaries: { owned:false },
-		palisade: { owned:false },
-		weaponry: { owned:false },
-		shields: { owned:false },
-		horseback: { owned:false },
-		wheel: { owned:false },
-		writing: { owned:false },
-		administration: { owned:false },
-		codeoflaws: { owned:false },
-		mathematics: { owned:false },
-		aesthetics: { owned:false },
-		civilservice: { owned:false },
-		feudalism: { owned:false },
-		guilds: { owned:false },
-		serfs: { owned:false },
-		nationalism: { owned:false },
-		worship: { owned:false },
-		standard: { owned:false },
-		trade: { owned:false },
-		currency: { owned:false },
-		commerce: { owned:false },
 
 		//Pantheon upgrades are permanent across resets
 		deities : curCiv.deities,
@@ -3610,38 +3387,6 @@ function reset(){
 		feast: curCiv.feast,
 		secrets: curCiv.secrets,
 
-		hamletAch: { owned:false },
-		villageAch: { owned:false },
-		smallTownAch: { owned:false },
-		largeTownAch: { owned:false },
-		smallCityAch: { owned:false },
-		largeCityAch: { owned:false },
-		metropolisAch: { owned:false },
-		smallNationAch: { owned:false },
-		nationAch: { owned:false },
-		largeNationAch: { owned:false },
-		empireAch: { owned:false },
-		raiderAch: { owned:false },
-		engineerAch: { owned:false },
-		dominationAch: { owned:false },
-		hatedAch: { owned:false },
-		lovedAch: { owned:false },
-		catAch: { owned:false },
-		glaringAch: { owned:false },
-		clowderAch: { owned:false },
-		battleAch: { owned:false },
-		catsAch: { owned:false },
-		fieldsAch: { owned:false },
-		underworldAch: { owned:false },
-		fullHouseAch: { owned:false },
-		plaguedAch: { owned:false },
-		ghostTownAch: { owned:false },
-		wonderAch: { owned:false },
-		sevenAch: { owned:false },
-		merchantAch: { owned:false },
-		rushedAch: { owned:false },
-		neverclickAch: { owned:false },
-
 		resourceClicks : 0, // For NeverClick
 		attackCounter : 0, // How long since last attack?
 		tradeCounter : 0, // How long since last trader?
@@ -3652,6 +3397,12 @@ function reset(){
 		graceCost : 1000, // Increasing cost to use Grace to increase morale.
 		walkTotal : 0 // Sacrifice rate
 	};
+
+	// Let each data subpoint re-init.
+	//xxx It might be better not to replace the curCiv object above.
+	civData.forEach( function(elem){ 
+		elem.reset();
+	});
 
 	// If our current deity is powerless, delete it.
 	if (!curCiv.deities[0].maxDev) {
@@ -4285,7 +4036,7 @@ function initCivclicker() {
 	//Prompt player for names
 	if (!localStorage.getItem(saveTag) && !read_cookie(saveTag)) {
 		renameCiv();
-		renameRuler(curCiv.rulerName);
+		renameRuler();
 	}
 
 	load("localStorage");//immediately attempts to load
@@ -4349,6 +4100,9 @@ window.setInterval(function(){
 		curCiv.food.owned = 0;
 		updatePopulation(); //Called because starve() doesn't. May just change starve()?
 	}
+
+	//xxx Need to kill workers who die from exposure.
+
 	//Workers convert secondary resources into tertiary resources
 	doBlacksmiths();
 	doTanners();
