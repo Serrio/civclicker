@@ -1476,12 +1476,15 @@ function updateResourceTotals(){
 	for (i=0;i<displayElems.length;++i)
 	{
 		elem = displayElems[i];
-		val = curCiv[dataset(elem,"target")].net.toFixed(1);
-		elem.innerHTML = prettify(val);
+		val = curCiv[dataset(elem,"target")].net;
+		if (!isValid(val)) { continue; }
+
 		// Colourise net production values.
 		if      (val < 0) { elem.style.color="#f00"; }
 		else if (val > 0) { elem.style.color="#0b0"; }
 		else              { elem.style.color="#000"; }
+
+		elem.innerHTML = prettify(val.toFixed(1));
 	}
 
 	if (curCiv.gold.owned >= 1){
@@ -3386,6 +3389,38 @@ function reset(){
 		book: curCiv.book,
 		feast: curCiv.feast,
 		secrets: curCiv.secrets,
+
+		hamletAch: curCiv.hamletAch,
+		villageAch: curCiv.villageAch,
+		smallTownAch: curCiv.smallTownAch,
+		largeTownAch: curCiv.largeTownAch,
+		smallCityAch: curCiv.smallCityAch,
+		largeCityAch: curCiv.largeCityAch,
+		metropolisAch: curCiv.metropolisAch,
+		smallNationAch: curCiv.smallNationAch,
+		nationAch: curCiv.nationAch,
+		largeNationAch: curCiv.largeNationAch,
+		empireAch: curCiv.empireAch,
+		raiderAch: curCiv.raiderAch,
+		engineerAch: curCiv.engineerAch,
+		dominationAch: curCiv.dominationAch,
+		hatedAch: curCiv.hatedAch,
+		lovedAch: curCiv.lovedAch,
+		catAch: curCiv.catAch,
+		glaringAch: curCiv.glaringAch,
+		clowderAch: curCiv.clowderAch,
+		battleAch: curCiv.battleAch,
+		catsAch: curCiv.catsAch,
+		fieldsAch: curCiv.fieldsAch,
+		underworldAch: curCiv.underworldAch,
+		fullHouseAch: curCiv.fullHouseAch,
+		plaguedAch: curCiv.plaguedAch,
+		ghostTownAch: curCiv.ghostTownAch,
+		wonderAch: curCiv.wonderAch,
+		sevenAch: curCiv.sevenAch,
+		merchantAch: curCiv.merchantAch,
+		rushedAch: curCiv.rushedAch,
+		neverclickAch: curCiv.neverclickAch,
 
 		resourceClicks : 0, // For NeverClick
 		attackCounter : 0, // How long since last attack?
