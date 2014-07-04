@@ -19,10 +19,10 @@
 @import url('fonts/OpenSans-CondLight.css');
 
 body{
-	font-family: sans-serif;
-	/*font-weight:600;*/
-	/*text-shadow: 3px 0 0 #fff, -3px 0 0 #fff, 0 3px 0 #fff, 0 -3px 0 #fff, 2px 2px 0 #fff, -2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff;*/
-	text-shadow:none;
+    font-family: sans-serif;
+    /*font-weight:600;*/
+    /*text-shadow: 3px 0 0 #fff, -3px 0 0 #fff, 0 3px 0 #fff, 0 -3px 0 #fff, 2px 2px 0 #fff, -2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff;*/
+    text-shadow:none;
 }
 
 /* You can't easily apply opacity to a background image.  This does it by
@@ -33,165 +33,165 @@ body{
     position: fixed;
     top: 0;
     left: 0;
-	bottom: 0;
-	right: 0;
+    bottom: 0;
+    right: 0;
     z-index: -1;
-	background: url('images/constableLandscapeRetouched.jpg') no-repeat center center fixed;
-	background-size: cover;
-	opacity: 0.18;
+    background: url('images/constableLandscapeRetouched.jpg') no-repeat center center fixed;
+    background-size: cover;
+    opacity: 0.18;
 }
 
 #strip{
-	text-shadow:none;
+    text-shadow:none;
 }
 
 .icon-lg{
-	height:42px;
-	width:42px;
+    height:42px;
+    width:42px;
 }
 .icon-sm{
-	height:16px;
-	width:16px;
-	margin: 2px 0 -2px 0;
+    height:16px;
+    width:16px;
+    margin: 2px 0 -2px 0;
 }
 
 #header{
-	position:relative;
+    position:relative;
 }
 
 h1{
-	float:left;
-	bottom:0;
+    float:left;
+    bottom:0;
 }
 #ruler{
-	position:absolute;
-	float:left;
-	padding-left:1em;
-	bottom:0;
+    position:absolute;
+    float:left;
+    padding-left:1em;
+    bottom:0;
 }
 
 #impexp{
-	display:none;
-	position:absolute;
-	top:0;
-	right:0;
-	width:40%;
-	border:1px solid black;
-	background-color:#fff;
-	z-index:1;
+    display:none;
+    position:absolute;
+    top:0;
+    right:0;
+    width:40%;
+    border:1px solid black;
+    background-color:#fff;
+    z-index:1;
 }
 #impexpField{
-	display:block;
-	width:90%;
-	height:10em;
-	margin:1em auto;
+    display:block;
+    width:90%;
+    height:10em;
+    margin:1em auto;
 }
 #expButton{
-	width:7em;
-	float:left;
-	margin-left:5%;
-	margin-bottom:1em;
+    width:7em;
+    float:left;
+    margin-left:5%;
+    margin-bottom:1em;
 }
 #expSelect{
-	width:7em;
-	float:left;
-	margin-left:1em;
-	margin-bottom:1em;
+    width:7em;
+    float:left;
+    margin-left:1em;
+    margin-bottom:1em;
 }
 #impButton{
-	width:7em;
-	float:right;
-	margin-right:1em;
-	margin-bottom:1em;
+    width:7em;
+    float:right;
+    margin-right:1em;
+    margin-bottom:1em;
 }
 #impexpClose{
-	width:7em;
-	float:right;
-	margin-right:5%;
-	margin-bottom:1em;
+    width:7em;
+    float:right;
+    margin-right:5%;
+    margin-bottom:1em;
 }
 
 .net{
-	padding-left:1em;
+    padding-left:1em;
 }
 
 h3{
-	clear:both;
+    clear:both;
 }
 button{
-	width:190px;
-	border:2px solid black;
-	background-color:#fff;
-	margin-right:10px;
-	padding:0.1em;
-	font-size:1.0em;
-	font-weight:500;
+    width:190px;
+    border:2px solid black;
+    background-color:#fff;
+    margin-right:10px;
+    padding:0.1em;
+    font-size:1.0em;
+    font-weight:500;
 }
 button:hover{
-	background-color:#eee;
+    background-color:#eee;
 }
 button:disabled{
-	color:#ccc;
-	font-weight:normal;
+    color:#ccc;
+    font-weight:normal;
 }
 #jobs button{
-	width:48px;
-	text-shadow:none;
-	font-weight:normal;
-	font-size:0.9em;
-	margin-right:5px;
+    width:48px;
+    text-shadow:none;
+    font-weight:normal;
+    font-size:0.9em;
+    margin-right:5px;
 }
 #jobs .jobCustom button{
-	width:90px;
+    width:90px;
 }
 #party .jobCustom button{
-	width:90px;
+    width:90px;
 }
 #buildings .buildingCustom button{
-	width:90px;
+    width:90px;
 }
 #party button{
-	width:48px;
-	text-shadow:none;
-	font-weight:normal;
-	font-size:0.9em;
-	margin-right:5px;
+    width:48px;
+    text-shadow:none;
+    font-weight:normal;
+    font-size:0.9em;
+    margin-right:5px;
 }
 
 .paneSelector{
-	width:12%;
-	float:left;
-	text-align:center;
-	margin:1em 0;
-	line-height:2em;
-	border:2px solid black;
-	background-color:#fff;
+    width:12%;
+    float:left;
+    text-align:center;
+    margin:1em 0;
+    line-height:2em;
+    border:2px solid black;
+    background-color:#fff;
 }
 .paneSelector:hover{
-	text-decoration:underline;
-	text-shadow: none;
-	cursor:pointer;
+    text-decoration:underline;
+    text-shadow: none;
+    cursor:pointer;
 }
 #deitySelect,
 #conquestSelect,
 #tradeSelect{ 
-	display: none; 
+    display: none; 
 }
 
 .selected{
-	border-bottom:none;
-	background:none;
-	color:white;
-	text-shadow: 2px 0 0 #000, -2px 0 0 #000, 0 2px 0 #000, 0 -2px 0 #000, 1px 1px #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
+    border-bottom:none;
+    background:none;
+    color:white;
+    text-shadow: 2px 0 0 #000, -2px 0 0 #000, 0 2px 0 #000, 0 -2px 0 #000, 1px 1px #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
 }
 .selected:hover{
-	text-decoration:none;
-	cursor:auto;
-	background:none;
-	text-shadow: 2px 0 0 #000, -2px 0 0 #000, 0 2px 0 #000, 0 -2px 0 #000, 1px 1px #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
+    text-decoration:none;
+    cursor:auto;
+    background:none;
+    text-shadow: 2px 0 0 #000, -2px 0 0 #000, 0 2px 0 #000, 0 -2px 0 #000, 1px 1px #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
 }
 .devcost{
-	padding-right:1em;
+    padding-right:1em;
 }
 
 #upgradesPane,
@@ -200,54 +200,54 @@ button:disabled{
 #tradePane,
 #achievementsPane,
 #settingsPane {
-	display:none;
+    display:none;
 }
 
 #conquest{
-	display:none;
+    display:none;
 }
 .job{
-	width:120px;
+    width:120px;
 }
 .note{
-	/*width: 380px;*/
-	text-align:right;
-	font-style:italic;
-	color:#555;
-	padding-left:1em;
+    /*width: 380px;*/
+    text-align:right;
+    font-style:italic;
+    color:#555;
+    padding-left:1em;
 }
 .cost{
-	white-space:nowrap;
-	text-align:right;
-	font-style:italic;
-	color:#555;
-	padding-left:1em;
-	margin-right:-1em;
+    white-space:nowrap;
+    text-align:right;
+    font-style:italic;
+    color:#555;
+    padding-left:1em;
+    margin-right:-1em;
 }
 #jobs .note{
-	width:300px;
+    width:300px;
 }
 .number{
-	text-align:right;
-	padding-right:5px;
+    text-align:right;
+    padding-right:5px;
 }
 .icon{
-	padding-right:10px;
+    padding-right:10px;
 }
 #resources{
-	float:left;
-	width:50%;
+    float:left;
+    width:50%;
 }
 #population{
-	float:left;
-	width:50%;
+    float:left;
+    width:50%;
 }
 
 #spawn10,
 #spawn100,
 #spawn1000,
 #spawnMax{
-	display:none;
+    display:none;
 }
 
 .job10,
@@ -255,50 +255,50 @@ button:disabled{
 .jobCustom,
 .jobAll,
 .jobNone{
-	display:none;
+    display:none;
 }
 
 .deityDomain{
-	padding-right:20px;
+    padding-right:20px;
 }
 #oldDeities{
-	display:none;
+    display:none;
 }
 #oldDeities td{
-	padding-right:1em;
+    padding-right:1em;
 }
 #pastWonders td{
-	padding-right:1em;
+    padding-right:1em;
 }
 #deityDomains{
-	display:none;
+    display:none;
 }
 
 #battleUpgrades,
 #fieldsUpgrades,
 #underworldUpgrades,
 #catsUpgrades{
-	display:none;
+    display:none;
 }
 .enemy{
-	color:red;
-	font-weight:bold;
+    color:red;
+    font-weight:bold;
 }
 #customJobIncrement{
-	display:none;
+    display:none;
 }
 #customBuildIncrement{
-	margin-left:1em;
-	display:none;
+    margin-left:1em;
+    display:none;
 }
 #customArmyIncrement{
-	display:none;
+    display:none;
 }
 #customSpawnIncrement{
-	display:none;
+    display:none;
 }
 .job{
-	text-transform:capitalize;
+    text-transform:capitalize;
 }
 
 #tannerRow,
@@ -308,66 +308,66 @@ button:disabled{
 #labourerRow,
 #soldierRow,
 #cavalryRow{
-	display:none;
+    display:none;
 }
 
 .enemy{
-	text-transform:capitalize;
+    text-transform:capitalize;
 }
 
 #wolfRow,
 #banditRow,
 #barbarianRow,
 #esiegeRow{
-	display:none;
+    display:none;
 }
 
 #cavalryPartyRow,
 #siegeRow{
-	display:none;
+    display:none;
 }
 
 #esoldierRow,
 #efortRow{
-	display:none;
+    display:none;
 }
 
 #victoryGroup{
-	display:none;
+    display:none;
 }
 .buildingnames{
-	padding-left:5px;
-	text-transform:capitalize;
+    padding-left:5px;
+    text-transform:capitalize;
 }
 button.build{
-	text-transform:capitalize;
+    text-transform:capitalize;
 }
 
 .building10,
 .building100,
 .building1000,
 .buildingCustom{
-	display:none;
+    display:none;
 }
 
 #buildings button{
-	margin-right:3px;
+    margin-right:3px;
 }
 
 .x10,
 .x100,
 .x1000{
-	width:48px;
-	text-shadow:none;
-	font-weight:normal;
-	font-size:0.9em;
+    width:48px;
+    text-shadow:none;
+    font-weight:normal;
+    font-size:0.9em;
 }
 #zombieWorkers{
-	display:none;
+    display:none;
 }
 
 .Pupgrade {
-	display:none;
+    display:none;
 }
 
 #logTable td{
@@ -375,68 +375,68 @@ button.build{
 }
 
 #stats{
-	width:50%;
-	float:left;
+    width:50%;
+    float:left;
 }
 #graveTotal{
-	display:none;
+    display:none;
 }
 #settings{
-	width:50%;
-	float:left;
+    width:50%;
+    float:left;
 }
 
 #strip{
-	width:100%;
-	height:1.5em;
-	margin-bottom:-2em;
-	text-align:right;
+    width:100%;
+    height:1.5em;
+    margin-bottom:-2em;
+    text-align:right;
 }
 #stripInner{
-	position:relative;
-	z-index:1;
-	width:100%;
+    position:relative;
+    z-index:1;
+    width:100%;
 }
 #totalSickRow{
-	display:none;
+    display:none;
 }
 #shadeRow{
-	display:none;
+    display:none;
 }
 
 .achievement{
-	display:block;
-	float:left;
-	width:50px;
-	height:50px;
-	border:2px solid black;
-	background-color:#aaa;
-	background-image:url('images/achLocked.jpg');
+    display:block;
+    float:left;
+    width:50px;
+    height:50px;
+    border:2px solid black;
+    background-color:#aaa;
+    background-image:url('images/achLocked.jpg');
 }
 .break{
-	display:block;
-	float:left;
-	width:20px;
+    display:block;
+    float:left;
+    width:20px;
 }
 .unlockedAch{
-	box-sizing:border-box;
-	-moz-box-sizing:border-box; /* Firefox needs a nonstandard name */
-	width:100%;
-	height:100%;
-	padding:0.2em;
-	font-size:0.9em;
-	text-shadow:none;
-	font-weight:normal;
-	background-color:#fff;
-	display:none; /* Initially */
+    box-sizing:border-box;
+    -moz-box-sizing:border-box; /* Firefox needs a nonstandard name */
+    width:100%;
+    height:100%;
+    padding:0.2em;
+    font-size:0.9em;
+    text-shadow:none;
+    font-weight:normal;
+    background-color:#fff;
+    display:none; /* Initially */
 }
 
 #upgradesPane .upgradeLine {
-	display:none;
+    display:none;
 }
 
 #wonderLine{
-	display:none;
+    display:none;
 }
 
 #cottageRow,
@@ -450,127 +450,127 @@ button.build{
 #stableRow,
 #millRow,
 #fortificationRow{
-	display:none;
+    display:none;
 }
 
 #gloryGroup{
-	display:none;
+    display:none;
 }
 #happiness{
-	color:#0d0;
+    color:#0d0;
 }
 #wondersContainer{
-	display:none;
-	padding-top:1.5em;
-	padding-bottom:0.5em;
+    display:none;
+    padding-top:1.5em;
+    padding-bottom:0.5em;
 }
 .wonderTitle{
-	font-weight:bold;
-	margin-bottom:1em;
+    font-weight:bold;
+    margin-bottom:1em;
 }
 #renameWonder{
-	width:5em;
+    width:5em;
 }
 #progressContainer{
-	width:50%;
-	border:1px solid black;
+    width:50%;
+    border:1px solid black;
 }
 #progressBar{
-	height:1em;
-	background-color:green;
-	width:0%;
+    height:1em;
+    background-color:green;
+    width:0%;
 }
 #inProgress{
-	display:none;
+    display:none;
 }
 #completed{
-	display:none;
+    display:none;
 }
 .wonderBonus{
-	width:5em;
+    width:5em;
 }
 #lowResources{
-	display:none;
-	color:red;
+    display:none;
+    color:red;
 }
 #goldRow{
-	display:none;
+    display:none;
 }
 #tradeContainer{
-	display:none;
-	padding:0.5em 0 0.8em 0;
-	margin:0.8em 0;
-	width:50%;
-	text-align:center;
-	background-color:#9d9;
-	border-radius:1.5em;
+    display:none;
+    padding:0.5em 0 0.8em 0;
+    margin:0.8em 0;
+    width:50%;
+    text-align:center;
+    background-color:#9d9;
+    border-radius:1.5em;
 }
 #trader{
-	height:2em;
-	width:70%;
+    height:2em;
+    width:70%;
 }
 #tradeUpgradeContainer{
-	display:none;
+    display:none;
 }
 #speedWonderGroup{
-	display:none;
+    display:none;
 }
 #iconoclasmGroup{
-	display:none;
+    display:none;
 }
 #iconoclasmList{
-	padding-left:2em;
+    padding-left:2em;
 }
 #versionAlert{
-	display:none;
+    display:none;
 }
 #newVersionText{
-	color:#f00;
-	text-decoration:underline;
+    color:#f00;
+    text-decoration:underline;
 }
 #newVersionText:hover{
-	cursor:pointer;
+    cursor:pointer;
 }
 
 #basicResources{
-	margin-left:0.5em;
+    margin-left:0.5em;
 }
 #basicResources button{
-	padding:0.3em;
+    padding:0.3em;
 }
 #specialResourcesContainer{
-	margin-bottom:0.5em;
+    margin-bottom:0.5em;
 }
 #specialResourcesContainer .number{
-	padding:0 0.5em 0.3em 0.5em;
+    padding:0 0.5em 0.3em 0.5em;
 }
 #specialResourcesContainer img{
-	padding-right:5em;
+    padding-right:5em;
 }
 
 #walkGroup{
-	display:none;
+    display:none;
 }
 
 
 #purchased, #purchasedPantheon{
-	margin-left:1em;
+    margin-left:1em;
 }
 #purchased *, #purchasedPantheon * {
-	line-height:1.5em;
+    line-height:1.5em;
 }
 
 #resetNote{
-	display:none;
+    display:none;
 }
 #resetDeity{
-	display:none;
+    display:none;
 }
 #resetBoth{
-	display:none;
+    display:none;
 }
 #resetWonder{
-	display:none;
+    display:none;
 }
 
 

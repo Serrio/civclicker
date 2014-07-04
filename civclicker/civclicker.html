@@ -1,382 +1,382 @@
 <!DOCTYPE html>
 <!--
-	CivClicker
-	Copyright (C) 2014; see the AUTHORS file for authorship.
+    CivClicker
+    Copyright (C) 2014; see the AUTHORS file for authorship.
 
-	This program is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation, either version 3 of the License, or
-	(at your option) any later version.
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
 
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
-	You should have received a copy of the GNU General Public License
-	along with this program in the LICENSE file.
-	If it is not there, see <http://www.gnu.org/licenses/>.
+    You should have received a copy of the GNU General Public License
+    along with this program in the LICENSE file.
+    If it is not there, see <http://www.gnu.org/licenses/>.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-gb" lang="en-gb">
 <head>
-	<title>CivClicker</title>
-	<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
-	<link rel="stylesheet" type="text/css" href="civclicker.css" />
-	<link rel="canonical" href="http://civclicker.sourceforge.net/civclicker/civclicker.html" />
-	<meta name="description" content="CivClicker: Build a Civilisation In Your Browser" />
+    <title>CivClicker</title>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="civclicker.css" />
+    <link rel="canonical" href="http://civclicker.sourceforge.net/civclicker/civclicker.html" />
+    <meta name="description" content="CivClicker: Build a Civilisation In Your Browser" />
 
-	<script type="application/javascript" src="lz-string.js"></script>
-	<script type="application/javascript" src="jsutils.js"></script>
+    <script type="application/javascript" src="lz-string.js"></script>
+    <script type="application/javascript" src="jsutils.js"></script>
 </head>
 <body class="hasBackground">
 
 <div id="strip">
-	<div id="stripInner">
-		<a href="civFAQ.html" target="_blank">FAQ / Instructions / Bugfixing</a> - 
-		<a href="civUpdates.html" target="_blank">Game Updates Log</a> - 
-		<a href="#" onclick="impExp()">Import/Export Save</a>
-		<span id="versionAlert"> - <span id="newVersionText" onclick="location.reload()">New Version Available</span></span>
-	</div>
+    <div id="stripInner">
+        <a href="civFAQ.html" target="_blank">FAQ / Instructions / Bugfixing</a> - 
+        <a href="civUpdates.html" target="_blank">Game Updates Log</a> - 
+        <a href="#" onclick="impExp()">Import/Export Save</a>
+        <span id="versionAlert"> - <span id="newVersionText" onclick="location.reload()">New Version Available</span></span>
+    </div>
 </div>
 
 <div id="impexp">
-	<textarea id="impexpField"></textarea>
-	<button id="expButton" onclick="save('export')">Export</button>
-	<button id="expSelect" onclick="document.getElementById('impexpField').select();">Select All</button>
-	<button id="impexpClose" onclick="impExp()">Close</button>
-	<button id="impButton" onclick="load('import')">Import</button>
+    <textarea id="impexpField"></textarea>
+    <button id="expButton" onclick="save('export')">Export</button>
+    <button id="expSelect" onclick="document.getElementById('impexpField').select();">Select All</button>
+    <button id="impexpClose" onclick="impExp()">Close</button>
+    <button id="impButton" onclick="load('import')">Import</button>
 </div>
 
 <div id="header">
-	<h1>The <span id="civType">Thorp</span> of <span id="civName">Woodstock</span></h1>
-	<div id="ruler">Ruled by the <span id="appellation">mighty</span> <span id="rulerName">Orteil</span></div>
-	<div style="clear:both;"></div>
+    <h1>The <span id="civType">Thorp</span> of <span id="civName">Woodstock</span></h1>
+    <div id="ruler">Ruled by the <span id="appellation">mighty</span> <span id="rulerName">Orteil</span></div>
+    <div style="clear:both;"></div>
 </div>
 
 <div id="resources">
-	<div id="resourcesContainer">
-		<div id="basicResourcesContainer">
-			<h3>Basic Resources</h3>
-			<table id="basicResources">
-				<tr>
-					<td><button onmousedown="increment('food')">Gather Food</button></td>
-					<td>Food: </td>
-					<td class="number"><span data-action="display" data-target="food">0</span></td>
-					<td class="icon"><img src="images/food.png" class="icon icon-lg" alt="Food"/></td>
-					<td class="number">(Max storage: <span id="maxfood">200</span>)</td>
-					<td class="number net"><span data-action="displayNet" data-target="food">0</span>/s</td>
-				</tr>
-				<tr>
-					<td><button onmousedown="increment('wood')">Cut Wood</button></td>
-					<td>Wood: </td>
-					<td class="number"><span data-action="display" data-target="wood">0</span></td>
-					<td class="icon"><img src="images/wood.png" class="icon icon-lg" alt="Wood"/></td>
-					<td class="number">(Max storage: <span id="maxwood">200</span>)</td>
-					<td class="number net"><span data-action="displayNet" data-target="wood">0</span>/s</td>
-				</tr>
-				<tr>
-					<td><button onmousedown="increment('stone')">Mine Stone</button></td>
-					<td>Stone: </td>
-					<td class="number"><span data-action="display" data-target="stone">0</span></td>
-					<td class="icon"><img src="images/stone.png" class="icon icon-lg" alt="Stone"/></td>
-					<td class="number">(Max storage: <span id="maxstone">200</span>)</td>
-					<td class="number net"><span data-action="displayNet" data-target="stone">0</span>/s</td>
-				</tr>
-			</table>
-		</div>
-		<div id="specialResourcesContainer">
-			<h3>Special Resources</h3>
-			<table>
-				<tr>
-					<td>Skins: </td>
-					<td class="number"><span data-action="display" data-target="skins">0</span></td>
-					<td><img src="images/skins.png" class="icon icon-lg" alt="Skins"/></td>
-					<td>Leather: </td>
-					<td class="number"><span data-action="display" data-target="leather">0</span></td>
-					<td class="icon"><img src="images/leather.png" class="icon icon-lg" alt="Leather"/></td>
-				</tr>
-				<tr>
-					<td>Herbs: </td>
-					<td class="number"><span data-action="display" data-target="herbs">0</span></td>
-					<td><img src="images/herbs.png" class="icon icon-lg" alt="Herbs"/></td>
-					<td>Piety: </td>
-					<td class="number"><span data-action="display" data-target="piety">0</span></td>
-					<td class="icon"><img src="images/piety.png" class="icon icon-lg" alt="Piety"/></td>
-				</tr>
-				<tr>
-					<td>Ore: </td>
-					<td class="number"><span data-action="display" data-target="ore">0</span></td>
-					<td><img src="images/ore.png" class="icon icon-lg" alt="Ore"/></td>
-					<td>Metal: </td>
-					<td class="number"><span data-action="display" data-target="metal">0</span></td>
-					<td class="icon"><img src="images/metal.png" class="icon icon-lg" alt="Metal"/></td>
-				</tr>
-				<tr id="goldRow">
-					<td>Gold: </td>
-					<td class="number"><span data-action="display" data-target="gold">0</span></td>
-					<td class="icon"><img src="images/gold.png" class="icon icon-lg" alt="Gold"/></td>
-					<td colspan="3"></td>
-				</tr>
-			</table>
-		</div>
-	</div>
-	<div id="panesSelectors">
-		<div id="selectors">
-			<div id="buildingsSelect" class="paneSelector selected" onclick="paneSelect('buildings')">Buildings</div>
-			<div id="upgradesSelect" class="paneSelector" onclick="paneSelect('upgrades')">Upgrades</div>
-			<div id="deitySelect" class="paneSelector" onclick="paneSelect('deity')">Deity</div>
-			<div id="conquestSelect" class="paneSelector" onclick="paneSelect('conquest')">Conquest</div>
-			<div id="tradeSelect" class="paneSelector" onclick="paneSelect('trade')">Trade</div>
-			<div id="achievementsSelect" class="paneSelector" onclick="paneSelect('achievements')">Achievements</div>
-			<div id="settingsSelect" class="paneSelector" onclick="paneSelect('settings')">Settings</div>
-			<div style="clear:both;"></div>
-		</div>
-		
-		<div id="buildingsPane">
-			<p id="customBuildIncrement">
-				Custom Increment: <input id="buildCustom" type="number" min="1" step="1" value="1" />
-			</p>
-			<span>Available Land: <span id="freeLand">1000</span></span>
-			<table id="buildings"></table>
-		</div>
-		
-		<div id="upgradesPane"></div>
-		
-		<div id="deityPane">
-			<span id="worshipLine"></span>
-			<div id="deityDomains">
-				<button id="battleDeity" onmousedown="selectDeity('battle')">Battle<br />(500 piety)</button><span class="note">Note: you can only pick one of these</span><br />
-				<button id="fieldsDeity" onmousedown="selectDeity('fields')">The Fields<br />(500 piety)</button><span class="note">Note: you can only pick one of these</span><br />
-				<button id="underworldDeity" onmousedown="selectDeity('underworld')">The Underworld<br />(500 piety)</button><span class="note">Note: you can only pick one of these</span><br />
-				<button id="catsDeity" onmousedown="selectDeity('cats')">Cats<br />(500 piety)</button><span class="note">Note: you can only pick one of these</span><br />
-			</div>
-			<div id="battleUpgrades">
-				<h3>The Strength of Battle</h3>
-				<table>
-					<tr id="battleAltarLine"><td></td></tr>
-					<tr id="riddleLine"><td></td></tr>
-					<tr id="smiteLine"><td></td></tr>
-					<tr id="throneLine"><td></td></tr>
-					<tr id="gloryLine"><td></td></tr>
-					<tr id="lamentLine"><td></td></tr>
-				</table>
-			</div>
-			<div id="fieldsUpgrades">
-				<h3>The Bounty of the Fields</h3>
-				<table>
-					<tr id="fieldsAltarLine"><td></td></tr>
-					<tr id="blessingLine"><td></td></tr>
-					<tr id="wickermanLine"><td></td></tr>
-					<tr id="wasteLine"><td></td></tr>
-					<tr id="walkLine"><td></td></tr>
-					<tr id="stayLine"><td></td></tr>
-				</table>
-			</div>
-			<div id="underworldUpgrades">
-				<h3>The Dread Power of the Underworld</h3>
-				<table>
-					<tr id="underworldAltarLine"><td></td></tr>
-					<tr id="bookLine"><td></td></tr>
-					<tr id="raiseDeadLine"><td></td></tr>
-					<tr id="feastLine"><td></td></tr>
-					<tr id="summonShadeLine"><td></td></tr>
-					<tr id="secretsLine"><td></td></tr>
-				</table>
-			</div>
-			<div id="catsUpgrades">
-				<h3>The Grace of Cats</h3>
-				<table>
-					<tr id="catAltarLine"><td></td></tr>
-					<tr id="lureLine"><td></td></tr>
-					<tr id="pestControlLine"><td></td></tr>
-					<tr id="companionLine"><td></td></tr>
-					<tr id="graceLine"><td></td></tr>
-					<tr id="comfortLine"><td></td></tr>
-				</table>
-			</div>
-			<div id="iconoclasmGroup">
-				<br />
-				<button id="iconoclasm" onmousedown="iconoclasmList()">Iconoclasm<br />(1000 piety)</button><span class="note">Remove an old deity to gain gold</span><br />
-				<div id="iconoclasmList"></div>
-			</div>
-		</div>
-		<div id="conquestPane">
-			<span id="standardLine"></span>
-			<div id="conquest">
-				<h4>Army</h4>
-				<p id="customArmyIncrement">
-					Custom Increment: <input id="armyCustom" type="number" min="1" step="1" value="1" />
-				</p>
-				<table id="party"></table>
-				<br />
-				<div id="raidGroup">
-					<h4>To War!</h4>
-					<p id="gloryGroup">
-						Glory: <span id="gloryTimer">0</span> seconds remain
-					</p>
-				</div>
-				<div id="victoryGroup">
-					<h4>Victory!</h4>
-					<button id="plunder" onmousedown="plunder()">Plunder Resources</button><br />
-				</div>
-			</div>
-		</div>
-		<div id="tradePane">
-			<span id="tradeLine"></span>
-			<div id="tradeUpgradeContainer">
-				<span id="currencyLine"></span>
-				<span id="commerceLine"></span>
-				<div id="speedWonderGroup"><br /><button id="speedWonder" onmousedown="speedWonder()">Speed Wonder<br />(100 gold)</button><span class="note">Increase wonder progress</span></div>
-				<h4>Buy Resources (1 gold)</h4>
-				<button class="tradeResource" onmousedown="buy('food')">Buy 5000 Food</button><br />
-				<button class="tradeResource" onmousedown="buy('wood')">Buy 5000 Wood</button><br />
-				<button class="tradeResource" onmousedown="buy('stone')">Buy 5000 Stone</button><br />
-				<button class="tradeResource" onmousedown="buy('skins')">Buy 500 Skins</button><br />
-				<button class="tradeResource" onmousedown="buy('herbs')">Buy 500 Herbs</button><br />
-				<button class="tradeResource" onmousedown="buy('ore')">Buy 500 Ore</button><br />
-				<button class="tradeResource" onmousedown="buy('leather')">Buy 250 Leather</button><br />
-				<button class="tradeResource" onmousedown="buy('metal')">Buy 250 Metal</button><br />
-			</div>
-		</div>
-		<div id="achievementsPane">
-			<div id="achievements">
-				<h3>Achievements</h3>
-			</div>
-		</div>
-		<div id="settingsPane">
-			<div id="settings">
-				<h3>Settings</h3>
-				<button onmousedown="save('manual')" title="Save your current stats">Manual Save</button><br />
-				<button id="toggleAutosave" onmousedown="toggleAutosave()" title="Autosave toggle">Disable Autosave</button><br />
-				<button onmousedown="deleteSave()" title="Delete your saved stats">Delete Save File</button><br />
-				<br />
-				<button onmousedown="reset()" title="Reset your game">Reset Game</button><span class="note"><span id="resetNote"><br/>Resetting allows you to </span><span id="resetDeity">gain another deity</span><span id="resetBoth"><br/> and </span><span id="resetWonder">build another Wonder</span></span><br />
-				<br />
-				<button onmousedown="renameCiv()" title="Rename your civilisation">Rename Civilisation</button><br />
-				<button id="renameRuler" onmousedown="renameRuler()" title="Rename yourself">Rename Yourself</button><br />
-				<button id="renameDeity" onmousedown="renameDeity()" title="Rename your deity" disabled="disabled">Rename Current Deity</button><br />
-				<br />
-				<button id="toggleCustomIncrements" onmousedown="toggleCustomIncrements()" title="Custom Increment toggle">Enable Custom Increments</button><br />
-				<br />
-				<button id="smallerText" onmousedown="text(-1)" title="Smaller Text">Smaller Text</button><br />
-				<button id="largerText" onmousedown="text(1)" title="Larger Text">Larger Text</button><br />
-				<button id="toggleDelimiters" onmousedown="toggleDelimiters()" title="Toggle Delimiters">Disable Delimiters</button><br />
-				<button id="textShadow" onmousedown="textShadow()" title="Toggle Text Shadow">Enable Text Shadow</button><br />
-				<button id="toggleNotes" onmousedown="toggleNotes()" title="Toggle Notes">Disable Notes</button><br />
-				<button id="toggleWorksafe" onmousedown="toggleWorksafe()" title="Toggle Worksafe Mode">Toggle Worksafe Mode</button><br />
-				<!--<button id="iconToggle" onmousedown="iconToggle()" title="Toggle Icons">Use Words</button><br />-->
-			</div>
-		</div>
-	</div>
+    <div id="resourcesContainer">
+        <div id="basicResourcesContainer">
+            <h3>Basic Resources</h3>
+            <table id="basicResources">
+                <tr>
+                    <td><button onmousedown="increment('food')">Gather Food</button></td>
+                    <td>Food: </td>
+                    <td class="number"><span data-action="display" data-target="food">0</span></td>
+                    <td class="icon"><img src="images/food.png" class="icon icon-lg" alt="Food"/></td>
+                    <td class="number">(Max storage: <span id="maxfood">200</span>)</td>
+                    <td class="number net"><span data-action="displayNet" data-target="food">0</span>/s</td>
+                </tr>
+                <tr>
+                    <td><button onmousedown="increment('wood')">Cut Wood</button></td>
+                    <td>Wood: </td>
+                    <td class="number"><span data-action="display" data-target="wood">0</span></td>
+                    <td class="icon"><img src="images/wood.png" class="icon icon-lg" alt="Wood"/></td>
+                    <td class="number">(Max storage: <span id="maxwood">200</span>)</td>
+                    <td class="number net"><span data-action="displayNet" data-target="wood">0</span>/s</td>
+                </tr>
+                <tr>
+                    <td><button onmousedown="increment('stone')">Mine Stone</button></td>
+                    <td>Stone: </td>
+                    <td class="number"><span data-action="display" data-target="stone">0</span></td>
+                    <td class="icon"><img src="images/stone.png" class="icon icon-lg" alt="Stone"/></td>
+                    <td class="number">(Max storage: <span id="maxstone">200</span>)</td>
+                    <td class="number net"><span data-action="displayNet" data-target="stone">0</span>/s</td>
+                </tr>
+            </table>
+        </div>
+        <div id="specialResourcesContainer">
+            <h3>Special Resources</h3>
+            <table>
+                <tr>
+                    <td>Skins: </td>
+                    <td class="number"><span data-action="display" data-target="skins">0</span></td>
+                    <td><img src="images/skins.png" class="icon icon-lg" alt="Skins"/></td>
+                    <td>Leather: </td>
+                    <td class="number"><span data-action="display" data-target="leather">0</span></td>
+                    <td class="icon"><img src="images/leather.png" class="icon icon-lg" alt="Leather"/></td>
+                </tr>
+                <tr>
+                    <td>Herbs: </td>
+                    <td class="number"><span data-action="display" data-target="herbs">0</span></td>
+                    <td><img src="images/herbs.png" class="icon icon-lg" alt="Herbs"/></td>
+                    <td>Piety: </td>
+                    <td class="number"><span data-action="display" data-target="piety">0</span></td>
+                    <td class="icon"><img src="images/piety.png" class="icon icon-lg" alt="Piety"/></td>
+                </tr>
+                <tr>
+                    <td>Ore: </td>
+                    <td class="number"><span data-action="display" data-target="ore">0</span></td>
+                    <td><img src="images/ore.png" class="icon icon-lg" alt="Ore"/></td>
+                    <td>Metal: </td>
+                    <td class="number"><span data-action="display" data-target="metal">0</span></td>
+                    <td class="icon"><img src="images/metal.png" class="icon icon-lg" alt="Metal"/></td>
+                </tr>
+                <tr id="goldRow">
+                    <td>Gold: </td>
+                    <td class="number"><span data-action="display" data-target="gold">0</span></td>
+                    <td class="icon"><img src="images/gold.png" class="icon icon-lg" alt="Gold"/></td>
+                    <td colspan="3"></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <div id="panesSelectors">
+        <div id="selectors">
+            <div id="buildingsSelect" class="paneSelector selected" onclick="paneSelect('buildings')">Buildings</div>
+            <div id="upgradesSelect" class="paneSelector" onclick="paneSelect('upgrades')">Upgrades</div>
+            <div id="deitySelect" class="paneSelector" onclick="paneSelect('deity')">Deity</div>
+            <div id="conquestSelect" class="paneSelector" onclick="paneSelect('conquest')">Conquest</div>
+            <div id="tradeSelect" class="paneSelector" onclick="paneSelect('trade')">Trade</div>
+            <div id="achievementsSelect" class="paneSelector" onclick="paneSelect('achievements')">Achievements</div>
+            <div id="settingsSelect" class="paneSelector" onclick="paneSelect('settings')">Settings</div>
+            <div style="clear:both;"></div>
+        </div>
+        
+        <div id="buildingsPane">
+            <p id="customBuildIncrement">
+                Custom Increment: <input id="buildCustom" type="number" min="1" step="1" value="1" />
+            </p>
+            <span>Available Land: <span id="freeLand">1000</span></span>
+            <table id="buildings"></table>
+        </div>
+        
+        <div id="upgradesPane"></div>
+        
+        <div id="deityPane">
+            <span id="worshipLine"></span>
+            <div id="deityDomains">
+                <button id="battleDeity" onmousedown="selectDeity('battle')">Battle<br />(500 piety)</button><span class="note">Note: you can only pick one of these</span><br />
+                <button id="fieldsDeity" onmousedown="selectDeity('fields')">The Fields<br />(500 piety)</button><span class="note">Note: you can only pick one of these</span><br />
+                <button id="underworldDeity" onmousedown="selectDeity('underworld')">The Underworld<br />(500 piety)</button><span class="note">Note: you can only pick one of these</span><br />
+                <button id="catsDeity" onmousedown="selectDeity('cats')">Cats<br />(500 piety)</button><span class="note">Note: you can only pick one of these</span><br />
+            </div>
+            <div id="battleUpgrades">
+                <h3>The Strength of Battle</h3>
+                <table>
+                    <tr id="battleAltarLine"><td></td></tr>
+                    <tr id="riddleLine"><td></td></tr>
+                    <tr id="smiteLine"><td></td></tr>
+                    <tr id="throneLine"><td></td></tr>
+                    <tr id="gloryLine"><td></td></tr>
+                    <tr id="lamentLine"><td></td></tr>
+                </table>
+            </div>
+            <div id="fieldsUpgrades">
+                <h3>The Bounty of the Fields</h3>
+                <table>
+                    <tr id="fieldsAltarLine"><td></td></tr>
+                    <tr id="blessingLine"><td></td></tr>
+                    <tr id="wickermanLine"><td></td></tr>
+                    <tr id="wasteLine"><td></td></tr>
+                    <tr id="walkLine"><td></td></tr>
+                    <tr id="stayLine"><td></td></tr>
+                </table>
+            </div>
+            <div id="underworldUpgrades">
+                <h3>The Dread Power of the Underworld</h3>
+                <table>
+                    <tr id="underworldAltarLine"><td></td></tr>
+                    <tr id="bookLine"><td></td></tr>
+                    <tr id="raiseDeadLine"><td></td></tr>
+                    <tr id="feastLine"><td></td></tr>
+                    <tr id="summonShadeLine"><td></td></tr>
+                    <tr id="secretsLine"><td></td></tr>
+                </table>
+            </div>
+            <div id="catsUpgrades">
+                <h3>The Grace of Cats</h3>
+                <table>
+                    <tr id="catAltarLine"><td></td></tr>
+                    <tr id="lureLine"><td></td></tr>
+                    <tr id="pestControlLine"><td></td></tr>
+                    <tr id="companionLine"><td></td></tr>
+                    <tr id="graceLine"><td></td></tr>
+                    <tr id="comfortLine"><td></td></tr>
+                </table>
+            </div>
+            <div id="iconoclasmGroup">
+                <br />
+                <button id="iconoclasm" onmousedown="iconoclasmList()">Iconoclasm<br />(1000 piety)</button><span class="note">Remove an old deity to gain gold</span><br />
+                <div id="iconoclasmList"></div>
+            </div>
+        </div>
+        <div id="conquestPane">
+            <span id="standardLine"></span>
+            <div id="conquest">
+                <h4>Army</h4>
+                <p id="customArmyIncrement">
+                    Custom Increment: <input id="armyCustom" type="number" min="1" step="1" value="1" />
+                </p>
+                <table id="party"></table>
+                <br />
+                <div id="raidGroup">
+                    <h4>To War!</h4>
+                    <p id="gloryGroup">
+                        Glory: <span id="gloryTimer">0</span> seconds remain
+                    </p>
+                </div>
+                <div id="victoryGroup">
+                    <h4>Victory!</h4>
+                    <button id="plunder" onmousedown="plunder()">Plunder Resources</button><br />
+                </div>
+            </div>
+        </div>
+        <div id="tradePane">
+            <span id="tradeLine"></span>
+            <div id="tradeUpgradeContainer">
+                <span id="currencyLine"></span>
+                <span id="commerceLine"></span>
+                <div id="speedWonderGroup"><br /><button id="speedWonder" onmousedown="speedWonder()">Speed Wonder<br />(100 gold)</button><span class="note">Increase wonder progress</span></div>
+                <h4>Buy Resources (1 gold)</h4>
+                <button class="tradeResource" onmousedown="buy('food')">Buy 5000 Food</button><br />
+                <button class="tradeResource" onmousedown="buy('wood')">Buy 5000 Wood</button><br />
+                <button class="tradeResource" onmousedown="buy('stone')">Buy 5000 Stone</button><br />
+                <button class="tradeResource" onmousedown="buy('skins')">Buy 500 Skins</button><br />
+                <button class="tradeResource" onmousedown="buy('herbs')">Buy 500 Herbs</button><br />
+                <button class="tradeResource" onmousedown="buy('ore')">Buy 500 Ore</button><br />
+                <button class="tradeResource" onmousedown="buy('leather')">Buy 250 Leather</button><br />
+                <button class="tradeResource" onmousedown="buy('metal')">Buy 250 Metal</button><br />
+            </div>
+        </div>
+        <div id="achievementsPane">
+            <div id="achievements">
+                <h3>Achievements</h3>
+            </div>
+        </div>
+        <div id="settingsPane">
+            <div id="settings">
+                <h3>Settings</h3>
+                <button onmousedown="save('manual')" title="Save your current stats">Manual Save</button><br />
+                <button id="toggleAutosave" onmousedown="toggleAutosave()" title="Autosave toggle">Disable Autosave</button><br />
+                <button onmousedown="deleteSave()" title="Delete your saved stats">Delete Save File</button><br />
+                <br />
+                <button onmousedown="reset()" title="Reset your game">Reset Game</button><span class="note"><span id="resetNote"><br/>Resetting allows you to </span><span id="resetDeity">gain another deity</span><span id="resetBoth"><br/> and </span><span id="resetWonder">build another Wonder</span></span><br />
+                <br />
+                <button onmousedown="renameCiv()" title="Rename your civilisation">Rename Civilisation</button><br />
+                <button id="renameRuler" onmousedown="renameRuler()" title="Rename yourself">Rename Yourself</button><br />
+                <button id="renameDeity" onmousedown="renameDeity()" title="Rename your deity" disabled="disabled">Rename Current Deity</button><br />
+                <br />
+                <button id="toggleCustomIncrements" onmousedown="toggleCustomIncrements()" title="Custom Increment toggle">Enable Custom Increments</button><br />
+                <br />
+                <button id="smallerText" onmousedown="text(-1)" title="Smaller Text">Smaller Text</button><br />
+                <button id="largerText" onmousedown="text(1)" title="Larger Text">Larger Text</button><br />
+                <button id="toggleDelimiters" onmousedown="toggleDelimiters()" title="Toggle Delimiters">Disable Delimiters</button><br />
+                <button id="textShadow" onmousedown="textShadow()" title="Toggle Text Shadow">Enable Text Shadow</button><br />
+                <button id="toggleNotes" onmousedown="toggleNotes()" title="Toggle Notes">Disable Notes</button><br />
+                <button id="toggleWorksafe" onmousedown="toggleWorksafe()" title="Toggle Worksafe Mode">Toggle Worksafe Mode</button><br />
+                <!--<button id="iconToggle" onmousedown="iconToggle()" title="Toggle Icons">Use Words</button><br />-->
+            </div>
+        </div>
+    </div>
 </div>
 
 <div id="population">
-	<div id="populationContainer">
-		<h3>Population</h3>
-		<div id="populationNumbers">
-			<table>
-				<tr>
-					<td>Current Population: </td>
-					<td class="number"><span data-action="display_pop" data-target="current">0</span></td>
-				</tr>
-				<tr>
-					<td>Maximum Population: </td>
-					<td class="number"><span data-action="display_pop" data-target="cap">0</span></td>
-				</tr>
-				<tr id="zombieWorkers">
-					<td>Zombies: </td>
-					<td class="number"><span data-action="display" data-target="zombie">0</span></td>
-				</tr>
-				<tr>
-					<td>Happiness: </td>
-					<td><span id="happiness">Content</span></td>
-				</tr>
-			</table>
-			<br />
-		</div>
-		<div id="populationCreate">
-			<div id="spawn1group"><button id="spawn1" onmousedown="spawn(1)" disabled="disabled">Create Worker</button><span class="cost"><span id="workerCost">20</span> food</span><span class="note">: Create a new worker</span><br /></div>
-			<div id='spawn10'><button id="spawn10button" onmousedown="spawn(10)">Create 10 Workers</button><span class="cost"><span id="workerCost10">200</span> food</span><span class="note">: Create 10 new workers</span></div>
-			<div id='spawn100'><button id="spawn100button" onmousedown="spawn(100)">Create 100 Workers</button><span class="cost"><span id="workerCost100">2000</span> food</span><span class="note">: Create 100 new workers</span></div>
-			<div id='spawn1000'><button id="spawn1000button" onmousedown="spawn(1000)">Create 1000 Workers</button><span class="cost"><span id="workerCost1000">20000</span> food</span><span class="note">: Create 1000 new workers</span></div>
-			<div id='spawnMax'><button id="spawnMaxbutton" onmousedown="spawn(Infinity)">Create <span id="workerNumMax">Max</span> Workers</button><span class="cost"><span id="workerCostMax"></span> food</span><span class="note">: Create as many new workers as possible</span></div>
-			<div id="customSpawnIncrement"><button id="spawnCustomButton" onmousedown="spawn('custom')">Create Workers</button><input id="spawnCustom" type="number" min="1" step="1" value="1" />
-			</div>
-		</div>
-	</div>
-	<div id="jobsContainer">
-		<h3>Jobs</h3>
-		<p id="customJobIncrement">
-			Custom Increment: <input id="jobCustom" type="number" min="1" step="1" value="1" />
-		</p>
-		<table id="jobs"></table>
-	</div>
-	<div id="tradeContainer">
-		Trader offers 1 gold for <span id="tradeRequested">0</span> <span id="tradeType">food</span><br />
-		<button id="trader" onmousedown="trade()">Trade</button>
-	</div>
-	<div id="wondersContainer">
-		<div id="wonderBuilding">
-			<div id="inProgress">
-				<span class="wonderTitle">Progress on <span id="wonderNameP">Wonder</span> - <span id="progressNumber">0</span>%</span> - <button id="renameWonder" onmousedown="renameWonder()">Rename</button>
-				<div id="progressContainer"><div id="progressBar"></div></div>
-				<div id="lowResources">Limited<span id="limited"> by low resources</span></div>
-			</div>
-			<div id="completed">
-				<div class="wonderTitle"><span id="wonderNameC">Wonder</span> Completed! Choose Bonus:</div>
-				<button class="wonderBonus" onmousedown="wonderBonus('food')">Food</button>
-				<button class="wonderBonus" onmousedown="wonderBonus('wood')">Wood</button>
-				<button class="wonderBonus" onmousedown="wonderBonus('stone')">Stone</button><br />
-				<button class="wonderBonus" onmousedown="wonderBonus('skins')">Skins</button>
-				<button class="wonderBonus" onmousedown="wonderBonus('herbs')">Herbs</button>
-				<button class="wonderBonus" onmousedown="wonderBonus('ore')">Ore</button><br />
-				<button class="wonderBonus" onmousedown="wonderBonus('leather')">Leather</button>
-				<button class="wonderBonus" onmousedown="wonderBonus('piety')">Piety</button>
-				<button class="wonderBonus" onmousedown="wonderBonus('metal')">Metal</button>
-			</div>
-		</div>
-	</div>
-	<div id="eventsContainer">
-		<h3>Events</h3>
-		<table id="logTable">
-			<tr id="log0"><td id="logT"></td><td id="logL"></td><td id="logR"></td></tr>
-			<tr id="log1"><td colspan="3"></td></tr>
-			<tr id="log2"><td colspan="3"></td></tr>
-			<tr id="log3"><td colspan="3"></td></tr>
-			<tr id="log4"><td colspan="3"></td></tr>
-			<!-- <tr id="log5"><td colspan="3"></td></tr>
-			<tr id="log6"><td colspan="3"></td></tr>
-			<tr id="log7"><td colspan="3"></td></tr>
-			<tr id="log8"><td colspan="3"></td></tr>
-			<tr id="log9"><td colspan="3"></td></tr> -->
-		</table>
-	</div>
-	<div id="pantheonContainer">
-		<h3>Pantheon</h3>
-		<table id="activeDeity"><tr><td></td></tr></table>
-		<br />
-		<table id="oldDeities"><tr><td></td></tr></table>
-	</div>
-	<div id="permaUpgradeContainer">
-		<h3>Pantheon Upgrades</h3>
-		<div id="purchasedPantheon"></div>
-	</div>
-	<div id="pastWondersContainer">
-		<h3>Wonders</h3>
-		<table id="pastWonders"><tr><td></td></tr></table>
-	</div>
-	<div id="stats">
-		<h3>Stats</h3>
-		Resource clicks: <span id="clicks">0</span><br />
-		Total Land: <span id="totalLand">1000</span><br />
-		Total Buildings: <span id="totalBuildings">0</span><br />
-		Enemies Slain: <span data-action="display" data-target="enemySlain">0</span><br />
-		Unburied Corpses: <span data-action="display" data-target="corpses">0</span><br />
-		<span id="graveTotal">Unfilled Graves: <span data-action="display" data-target="grave">0</span><br /></span>
-		<span id="walkGroup"><br />Walk: <span id="walkStat">0</span> workers per second<br /></span>
-		<br />
-		Cats: <span data-action="display" data-target="cat">0</span><br />
-	</div>
+    <div id="populationContainer">
+        <h3>Population</h3>
+        <div id="populationNumbers">
+            <table>
+                <tr>
+                    <td>Current Population: </td>
+                    <td class="number"><span data-action="display_pop" data-target="current">0</span></td>
+                </tr>
+                <tr>
+                    <td>Maximum Population: </td>
+                    <td class="number"><span data-action="display_pop" data-target="cap">0</span></td>
+                </tr>
+                <tr id="zombieWorkers">
+                    <td>Zombies: </td>
+                    <td class="number"><span data-action="display" data-target="zombie">0</span></td>
+                </tr>
+                <tr>
+                    <td>Happiness: </td>
+                    <td><span id="happiness">Content</span></td>
+                </tr>
+            </table>
+            <br />
+        </div>
+        <div id="populationCreate">
+            <div id="spawn1group"><button id="spawn1" onmousedown="spawn(1)" disabled="disabled">Create Worker</button><span class="cost"><span id="workerCost">20</span> food</span><span class="note">: Create a new worker</span><br /></div>
+            <div id='spawn10'><button id="spawn10button" onmousedown="spawn(10)">Create 10 Workers</button><span class="cost"><span id="workerCost10">200</span> food</span><span class="note">: Create 10 new workers</span></div>
+            <div id='spawn100'><button id="spawn100button" onmousedown="spawn(100)">Create 100 Workers</button><span class="cost"><span id="workerCost100">2000</span> food</span><span class="note">: Create 100 new workers</span></div>
+            <div id='spawn1000'><button id="spawn1000button" onmousedown="spawn(1000)">Create 1000 Workers</button><span class="cost"><span id="workerCost1000">20000</span> food</span><span class="note">: Create 1000 new workers</span></div>
+            <div id='spawnMax'><button id="spawnMaxbutton" onmousedown="spawn(Infinity)">Create <span id="workerNumMax">Max</span> Workers</button><span class="cost"><span id="workerCostMax"></span> food</span><span class="note">: Create as many new workers as possible</span></div>
+            <div id="customSpawnIncrement"><button id="spawnCustomButton" onmousedown="spawn('custom')">Create Workers</button><input id="spawnCustom" type="number" min="1" step="1" value="1" />
+            </div>
+        </div>
+    </div>
+    <div id="jobsContainer">
+        <h3>Jobs</h3>
+        <p id="customJobIncrement">
+            Custom Increment: <input id="jobCustom" type="number" min="1" step="1" value="1" />
+        </p>
+        <table id="jobs"></table>
+    </div>
+    <div id="tradeContainer">
+        Trader offers 1 gold for <span id="tradeRequested">0</span> <span id="tradeType">food</span><br />
+        <button id="trader" onmousedown="trade()">Trade</button>
+    </div>
+    <div id="wondersContainer">
+        <div id="wonderBuilding">
+            <div id="inProgress">
+                <span class="wonderTitle">Progress on <span id="wonderNameP">Wonder</span> - <span id="progressNumber">0</span>%</span> - <button id="renameWonder" onmousedown="renameWonder()">Rename</button>
+                <div id="progressContainer"><div id="progressBar"></div></div>
+                <div id="lowResources">Limited<span id="limited"> by low resources</span></div>
+            </div>
+            <div id="completed">
+                <div class="wonderTitle"><span id="wonderNameC">Wonder</span> Completed! Choose Bonus:</div>
+                <button class="wonderBonus" onmousedown="wonderBonus('food')">Food</button>
+                <button class="wonderBonus" onmousedown="wonderBonus('wood')">Wood</button>
+                <button class="wonderBonus" onmousedown="wonderBonus('stone')">Stone</button><br />
+                <button class="wonderBonus" onmousedown="wonderBonus('skins')">Skins</button>
+                <button class="wonderBonus" onmousedown="wonderBonus('herbs')">Herbs</button>
+                <button class="wonderBonus" onmousedown="wonderBonus('ore')">Ore</button><br />
+                <button class="wonderBonus" onmousedown="wonderBonus('leather')">Leather</button>
+                <button class="wonderBonus" onmousedown="wonderBonus('piety')">Piety</button>
+                <button class="wonderBonus" onmousedown="wonderBonus('metal')">Metal</button>
+            </div>
+        </div>
+    </div>
+    <div id="eventsContainer">
+        <h3>Events</h3>
+        <table id="logTable">
+            <tr id="log0"><td id="logT"></td><td id="logL"></td><td id="logR"></td></tr>
+            <tr id="log1"><td colspan="3"></td></tr>
+            <tr id="log2"><td colspan="3"></td></tr>
+            <tr id="log3"><td colspan="3"></td></tr>
+            <tr id="log4"><td colspan="3"></td></tr>
+            <!-- <tr id="log5"><td colspan="3"></td></tr>
+            <tr id="log6"><td colspan="3"></td></tr>
+            <tr id="log7"><td colspan="3"></td></tr>
+            <tr id="log8"><td colspan="3"></td></tr>
+            <tr id="log9"><td colspan="3"></td></tr> -->
+        </table>
+    </div>
+    <div id="pantheonContainer">
+        <h3>Pantheon</h3>
+        <table id="activeDeity"><tr><td></td></tr></table>
+        <br />
+        <table id="oldDeities"><tr><td></td></tr></table>
+    </div>
+    <div id="permaUpgradeContainer">
+        <h3>Pantheon Upgrades</h3>
+        <div id="purchasedPantheon"></div>
+    </div>
+    <div id="pastWondersContainer">
+        <h3>Wonders</h3>
+        <table id="pastWonders"><tr><td></td></tr></table>
+    </div>
+    <div id="stats">
+        <h3>Stats</h3>
+        Resource clicks: <span id="clicks">0</span><br />
+        Total Land: <span id="totalLand">1000</span><br />
+        Total Buildings: <span id="totalBuildings">0</span><br />
+        Enemies Slain: <span data-action="display" data-target="enemySlain">0</span><br />
+        Unburied Corpses: <span data-action="display" data-target="corpses">0</span><br />
+        <span id="graveTotal">Unfilled Graves: <span data-action="display" data-target="grave">0</span><br /></span>
+        <span id="walkGroup"><br />Walk: <span id="walkStat">0</span> workers per second<br /></span>
+        <br />
+        Cats: <span data-action="display" data-target="cat">0</span><br />
+    </div>
 </div>
 
 <script type="application/javascript" src="civclicker.js"></script>
