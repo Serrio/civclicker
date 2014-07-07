@@ -199,6 +199,14 @@
                 <button id="iconoclasm" onmousedown="iconoclasmList()">Iconoclasm<br />(1000 piety)</button><span class="note">Remove an old deity to gain gold</span><br />
                 <div id="iconoclasmList"></div>
             </div>
+            <div id="pantheonContainer">
+                <h3>Pantheon</h3>
+                <table id="oldDeities"><tr><td></td></tr></table>
+            </div>
+            <div id="permaUpgradeContainer">
+                <h3>Pantheon Upgrades</h3>
+                <div id="purchasedPantheon"></div>
+            </div>
         </div>
         <div id="conquestPane">
             <span id="standardLine"></span>
@@ -226,7 +234,6 @@
             <div id="tradeUpgradeContainer">
                 <span id="currencyLine"></span>
                 <span id="commerceLine"></span>
-                <div id="speedWonderGroup"><br /><button id="speedWonder" onmousedown="speedWonder()">Speed Wonder<br />(100 gold)</button><span class="note">Increase wonder progress</span></div>
                 <h4>Buy Resources (1 gold)</h4>
                 <button class="tradeResource" onmousedown="buy('food')">Buy 5000 Food</button><br />
                 <button class="tradeResource" onmousedown="buy('wood')">Buy 5000 Wood</button><br />
@@ -315,27 +322,6 @@
         Trader offers 1 gold for <span id="tradeRequested">0</span> <span id="tradeType">food</span><br />
         <button id="trader" onmousedown="trade()">Trade</button>
     </div>
-    <div id="wondersContainer">
-        <div id="wonderBuilding">
-            <div id="inProgress">
-                <span class="wonderTitle">Progress on <span id="wonderNameP">Wonder</span> - <span id="progressNumber">0</span>%</span> - <button id="renameWonder" onmousedown="renameWonder()">Rename</button>
-                <div id="progressContainer"><div id="progressBar"></div></div>
-                <div id="lowResources">Limited<span id="limited"> by low resources</span></div>
-            </div>
-            <div id="completed">
-                <div class="wonderTitle"><span id="wonderNameC">Wonder</span> Completed! Choose Bonus:</div>
-                <button class="wonderBonus" onmousedown="wonderBonus('food')">Food</button>
-                <button class="wonderBonus" onmousedown="wonderBonus('wood')">Wood</button>
-                <button class="wonderBonus" onmousedown="wonderBonus('stone')">Stone</button><br />
-                <button class="wonderBonus" onmousedown="wonderBonus('skins')">Skins</button>
-                <button class="wonderBonus" onmousedown="wonderBonus('herbs')">Herbs</button>
-                <button class="wonderBonus" onmousedown="wonderBonus('ore')">Ore</button><br />
-                <button class="wonderBonus" onmousedown="wonderBonus('leather')">Leather</button>
-                <button class="wonderBonus" onmousedown="wonderBonus('piety')">Piety</button>
-                <button class="wonderBonus" onmousedown="wonderBonus('metal')">Metal</button>
-            </div>
-        </div>
-    </div>
     <div id="eventsContainer">
         <h3>Events</h3>
         <table id="logTable">
@@ -351,18 +337,32 @@
             <tr id="log9"><td colspan="3"></td></tr> -->
         </table>
     </div>
-    <div id="pantheonContainer">
-        <h3>Pantheon</h3>
+    <div id="deityContainer">
+        <h3>Current Deity</h3>
         <table id="activeDeity"><tr><td></td></tr></table>
-        <br />
-        <table id="oldDeities"><tr><td></td></tr></table>
     </div>
-    <div id="permaUpgradeContainer">
-        <h3>Pantheon Upgrades</h3>
-        <div id="purchasedPantheon"></div>
-    </div>
-    <div id="pastWondersContainer">
+    <div id="wondersContainer">
         <h3>Wonders</h3>
+        <span id="startWonderLine"><button id="startWonder" onmousedown="startWonder()">Start Building Wonder</button></span>
+        <div id="wonderInProgress">
+            <span class="wonderTitle">Progress on <span id="wonderNameP">Wonder</span> - <span id="progressNumber">0</span>%</span> - <button id="renameWonder" onmousedown="renameWonder()">Rename</button>
+            <div id="progressContainer"><div id="progressBar"></div></div>
+            <div id="lowResources">Limited<span id="limited"> by low resources</span></div>
+            <div id="speedWonderGroup"><br /><button id="speedWonder" onmousedown="speedWonder()">Speed Wonder</button>
+            <span id="speedWonderCost" class="cost">100 gold</span><span class="note">: Increase wonder progress</span></div>
+        </div>
+        <div id="wonderCompleted">
+            <div class="wonderTitle"><span id="wonderNameC">Wonder</span> Completed! Choose Bonus:</div>
+            <button class="wonderBonus" onmousedown="wonderBonus('food')">Food</button>
+            <button class="wonderBonus" onmousedown="wonderBonus('wood')">Wood</button>
+            <button class="wonderBonus" onmousedown="wonderBonus('stone')">Stone</button><br />
+            <button class="wonderBonus" onmousedown="wonderBonus('skins')">Skins</button>
+            <button class="wonderBonus" onmousedown="wonderBonus('herbs')">Herbs</button>
+            <button class="wonderBonus" onmousedown="wonderBonus('ore')">Ore</button><br />
+            <button class="wonderBonus" onmousedown="wonderBonus('leather')">Leather</button>
+            <button class="wonderBonus" onmousedown="wonderBonus('piety')">Piety</button>
+            <button class="wonderBonus" onmousedown="wonderBonus('metal')">Metal</button>
+        </div>
         <table id="pastWonders"><tr><td></td></tr></table>
     </div>
     <div id="stats">

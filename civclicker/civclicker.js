@@ -31,7 +31,7 @@ VersionData.prototype.toNumber = function() { return this.major*1000 + this.mino
 VersionData.prototype.toString = function() { return String(this.major) + "." 
     + String(this.minor) + "." + String(this.sub) + String(this.mod); };
 
-var versionData = new VersionData(1,1,41,"alpha");
+var versionData = new VersionData(1,1,42,"alpha");
 
 var saveTag = "civ";
 var saveTag2 = saveTag + "2"; // For old saves.
@@ -303,6 +303,7 @@ new Building({ id:"mill", name:"mill", plural:"mills",
     effectText:"improves farmers"
 }),
 new Building({ id:"graveyard", name:"graveyard", plural:"graveyards",
+    prereqs:{ masonry: true },
     require:{ wood:50, stone:200, herbs:50 },
     effectText:"contains 100 graves"
 }),
@@ -654,6 +655,7 @@ new Unit({ id:"unemployed", name:"unemployed", singular:"unemployed", plural:"un
     effectText:"Unassigned Workers"
 }),
 new Unit({ id:"totalSick", name:"sick", singular:"sick", plural:"sick",
+    require: undefined,  // Cannot be purchased.
     //xxx This (alternate data location) could probably be cleaner.
     get owned() { return population[this.id]; },
     set owned(value) { population[this.id]= value; },
@@ -738,13 +740,15 @@ new Unit({ id:"wolf", name:"wolves", singular:"wolf", plural:"wolves",
     efficiency: 0.05,
     onWin: function() { doSlaughter(this); },
     killFatigue:(1.0), // Max fraction that leave after killing the last person
-    killExhaustion:(1/2) // Chance of an attacker leaving after killing a person
+    killExhaustion:(1/2), // Chance of an attacker leaving after killing a person
+    effectText:"Eat your workers"
 }),
 new Unit({ id:"bandit", name:"bandits", singular:"bandit", plural:"bandits",
     alignment:"mob",
     efficiency: 0.07,
     onWin: function() { doLoot(this); },
-    lootFatigue:(1/8) // Max fraction that leave after cleaning out a resource
+    lootFatigue:(1/8), // Max fraction that leave after cleaning out a resource
+    effectText:"Steal your resources"
 }),
 new Unit({ id:"barbarian", name:"barbarians", singular:"barbarian", plural:"barbarians",
     alignment:"mob",
@@ -752,11 +756,13 @@ new Unit({ id:"barbarian", name:"barbarians", singular:"barbarian", plural:"barb
     onWin: function() { doHavoc(this); },
     lootFatigue:(1/24), // Max fraction that leave after cleaning out a resource
     killFatigue:(1/3), // Max fraction that leave after killing the last person
-    killExhaustion:(1.0) // Chance of an attacker leaving after killing a person
+    killExhaustion:(1.0), // Chance of an attacker leaving after killing a person
+    effectText:"Slaughter, plunder, and burn"
 }),
 new Unit({ id:"esiege", name:"siege engines", singular:"Siege Engine", plural:"siege engines",
     alignment:"mob",
-    efficiency: 0.1  // 10% chance to hit
+    efficiency: 0.1,  // 10% chance to hit
+    effectText:"Destroy your fortifications"
 }),
 new Unit({ id:"soldierParty", name:"soldiers", singular:"soldier", plural:"soldiers",
     alignment:"player", source:"soldier",
@@ -776,7 +782,8 @@ new Unit({ id:"siege", name:"siege engines", singular:"Siege Engine", plural:"si
     alignment:"player",
     efficiency: 0.1, // 10% chance to hit
     prereqs:{ standard: true, mathematics: true },
-    require:{ wood:200, leather:50, metal:50 }
+    require:{ wood:200, leather:50, metal:50 },
+    effectText:"Destroy enemy fortifications"
 }),
 new Unit({ id:"esoldier", name:"soldiers", singular:"soldier", plural:"soldiers",
     alignment:"mob",
@@ -893,8 +900,8 @@ wonder = {
     piety:0,
     array:[],  // Array of [name, resourceId] for all wonders.
     name:"",
-    building:false,
-    completed:false,
+    building:false, // 'true' once construction starts, and back to 'false' after final selection made.
+    completed:false, // 'true' once construction finished.
     rushed:false,
     progress:0
 };
@@ -950,6 +957,7 @@ function getCasualtyMod(attacker,defender)
 //xxx Also only works for resource or building requirements, not units.
 function getReqText(costObj)
 {
+    if (!isValid(costObj)) { return ""; }
     var i, num;
     var text = "";
     for(i in costObj)
@@ -964,6 +972,7 @@ function getReqText(costObj)
 }
 
 // Returns when the player meets the given upgrade prereqs.
+// Undefined prereqs are assumed to be nonexistent.
 function meetsPrereqs(prereqObj)
 {
     if (!isValid(prereqObj)) { prereqObj = {}; }
@@ -987,10 +996,11 @@ function meetsPrereqs(prereqObj)
 
 
 // Returns how many of this item the player can afford.
+// An undefined cost structure is assumed to mean it cannot be purchased.
 //xxx DOES NOT WORK for nonlinear building cost buildings!
 function canAfford(costObj)
 {
-    if (!isValid(costObj)) { costObj = {}; }
+    if (!isValid(costObj)) { return 0; }
     var i, num = Infinity;
     for(i in costObj)
     {
@@ -1067,6 +1077,17 @@ function canHire(job,num)
 // Eventually, I hope to implement dynamic CSS rules, so that I can restyle 
 // lots of elements at once.
 
+// Generate two HTML <span> texts to display an item's cost and effect note.
+function getCostNote(civObj)
+{
+    // Only add a ":" if both items are present.
+    var reqText = getReqText(civObj.require);
+    var effectText = (isValid(civObj.effectText)) ? civObj.effectText : "";
+    var separator = (reqText && effectText) ? ": " : "";
+
+    return "<span id='"+civObj.id+"Cost'class='cost'>" + reqText + "</span>"
+         + "<span class='note'>" + separator + civObj.effectText + "</span>";
+}
 
 // Pass this the building definition object.
 // Also pass 'true' to only generate the x1 button (for mills and fortifications)
@@ -1092,12 +1113,7 @@ function getBuildingRowText(buildingObj, onlyOnes)
     }
     s += "<td class='buildingnames'>"+buildingObj.plural+": </td>";
     s += "<td class='number'><span data-action='display' data-target='"+bldId+"'>0</span></td>";
-    s += "<td><span id='"+bldId+"Cost'class='cost'>";
-    //xxx This really should check for non-empty require and effectText.
-    if (isValid(buildingObj.require)) { s += getReqText(buildingObj.require); }
-    s += "</span><span class='note'>: ";
-    if (isValid(buildingObj.effectText)) { s += buildingObj.effectText; }
-    s += "</span></td>";
+    s += "<td>" + getCostNote(buildingObj) + "</td>";
     s += "</tr>";
     return s;
 }
@@ -1130,7 +1146,7 @@ function addBuildingRows()
 //xxx This should become an onGain() member method of the building classes
 function updateRequirements(buildingObj){
     var displayNode = document.getElementById(buildingObj.id + "Cost");
-    if (displayNode && isValid(buildingObj.require)) { displayNode.innerHTML = getReqText(buildingObj.require); }
+    if (displayNode) { displayNode.innerHTML = getReqText(buildingObj.require); }
 }
 
 function updateBuildingRow(buildingObj){
@@ -1212,14 +1228,7 @@ function getJobRowText(jobObj, onlyOnes, funcName, displayClass, allowSell)
     s += "<td class='job10'></td><td class='job100'></td>" +
          "<td class='jobCustom'></td><td class='jobAll'></td>";
     }
-    s += "<td><span id='"+jobId+"Cost' class='cost'>";
-    if (isValid(jobObj.require)) { s += getReqText(jobObj.require); }
-    s += "</span><span class='note'>";
-    // We need the ':' if we have (nonempty) requirements and some effectText.
-    //xxx This should really test for non-empty effectText.
-    if (isValid(jobObj.require) && (Object.keys(jobObj.require).length !== 0) && isValid(jobObj.effectText)) { s += ": "; }
-    if (isValid(jobObj.effectText)) { s += jobObj.effectText; }
-    s += "</span></td>";
+    s += "<td>" + getCostNote(jobObj) + "</td>";
     s += "</tr>";
     return s;
 }
@@ -1368,8 +1377,9 @@ function setUpgradeRowText(upgradeObj)
 
     elem.outerHTML = "<span id='"+upgradeObj.id+"Line' class='upgradeLine'>"
     +    "<button id='"+upgradeObj.id+"' onmousedown=\"upgrade('"+upgradeObj.id+"')\">"
-    +    upgradeObj.name+"<br />("+getReqText(upgradeObj.require)+")</button>"
-    +    "<span class='note'>"+upgradeObj.effectText+"</span><br /></span>";
+    +    upgradeObj.name+"</button>"
+    +    getCostNote(upgradeObj)
+    +    "<br /></span>";
 }
 function setPantheonUpgradeRowText(upgradeObj)
 {
@@ -1392,8 +1402,8 @@ function setPantheonUpgradeRowText(upgradeObj)
                                               : ("upgrade('"+upgradeObj.id + "')"))
         +"\" disabled='disabled'>" + upgradeObj.name + "</button>"
         +(isValid(upgradeObj.extraText) ? upgradeObj.extraText : "")+"</td>"
-        +"<td><span id='"+upgradeObj.id+"Cost' class='cost'>"+getReqText(upgradeObj.require)+"</span>"
-        +"<span class='note'>: "+upgradeObj.effectText+"</span></td></tr>";
+        +"<td>" + getCostNote(upgradeObj) + "</td>"
+        +"</tr>";
 }
 // Dynamically create the upgrade purchase buttons.
 function addUpgradeRows()
@@ -1405,10 +1415,8 @@ function addUpgradeRows()
         if (elem.subType=="upgrade") { s += "<span id='"+elem.id+"Line' class='upgradeLine'></span>"; }
     });
 
-    s += "<span id='wonderLine'><br /><button id='startWonder' onmousedown='startWonder()'>"
-        + "Start Building Wonder</button><br /></span>"
-        + "<h3>Purchased Upgrades</h3>"
-        + "<div id='purchased'></div>";
+    s += "<h3>Purchased Upgrades</h3>"
+       + "<div id='purchased'></div>";
 
     document.getElementById("upgradesPane").innerHTML += s;
 
@@ -1422,7 +1430,7 @@ function addUpgradeRows()
     ,"book","feast","secrets","lure","companion","comfort"]
     .forEach(function(i){ setPantheonUpgradeRowText(civData[i]); });
 
-    // Deity granted powers
+    // Altars
     ["battleAltar","fieldsAltar","underworldAltar","catAltar"]
     .forEach(function(i){ setPantheonUpgradeRowText(civData[i]); });
 
@@ -1723,11 +1731,6 @@ function updateUpgrades(){
         document.getElementById(elem.id).disabled = (!havePrereqs || !havePrice || haveUpgrade);
     });
 
-    // Unlock other UI elements controlled by upgrades
-
-    if (civData.architecture.owned && civData.civilservice.owned){ //unlock wonders
-        setElemDisplay(document.getElementById("wonderLine"),true);
-    } 
     //deity techs
     document.getElementById("renameDeity").disabled = (!civData.worship.owned);
     setElemDisplay(document.getElementById("deityDomains"),((civData.worship.owned) && (getCurDeityDomain() == "")));
@@ -1760,6 +1763,7 @@ function updateDeity(){
     document.getElementById("deityADevotion").innerHTML = curCiv.devotion.owned;
 
     // Display if we have an active deity, or any old ones.
+    setElemDisplay(document.getElementById("deityContainer"),(curCiv.deities[0].name));
     setElemDisplay(document.getElementById("activeDeity"),(curCiv.deities[0].name));
     setElemDisplay(document.getElementById("oldDeities"),(curCiv.deities[0].name || curCiv.deities.length > 1));
     setElemDisplay(document.getElementById("iconoclasmGroup"),(curCiv.deities.length > 1));
@@ -1921,28 +1925,30 @@ function updateHappiness(){
     document.getElementById("happiness").style.color = color;
 }
 
-function updateWonder(){
-    //updates the display of wonders and wonder building
-    if (wonder.building){
-        //show building area and labourers
-        document.getElementById("labourerRow").style.display = "table-row";
-        document.getElementById("wondersContainer").style.display = "block";
-        if (wonder.completed){
-            document.getElementById("inProgress").style.display = "none";
-            document.getElementById("completed").style.display = "block";
-            document.getElementById("speedWonderGroup").style.display = "none";
-        } else {
-            document.getElementById("inProgress").style.display = "block";
-            document.getElementById("progressBar").style.width = wonder.progress.toFixed(2) + "%";
-            document.getElementById("progressNumber").innerHTML = wonder.progress.toFixed(2);
-            document.getElementById("completed").style.display = "none";
-            document.getElementById("speedWonderGroup").style.display = "block";
-        }
-    } else {
-        //hide building area and labourers
-        document.getElementById("labourerRow").style.display = "none";
-        document.getElementById("wondersContainer").style.display = "none";
+//updates the display of wonders and wonder building
+function updateWonder() {
+    var haveTech = (civData.architecture.owned && civData.civilservice.owned);
+
+    // Display this section if we have any wonders or could build one.
+    setElemDisplay(document.getElementById("wondersContainer"),(haveTech || wonder.total > 0));
+
+	// Can start building a wonder, but haven't yet.
+    setElemDisplay(document.getElementById("startWonderLine"),(haveTech && !wonder.building && !wonder.completed));
+    document.getElementById("startWonder").disabled = (!haveTech || wonder.building || wonder.completed); 
+
+    // Construction in progress; show/hide building area and labourers
+    setElemDisplay(document.getElementById("labourerRow"),(wonder.building && !wonder.completed));
+    setElemDisplay(document.getElementById("wonderInProgress"),(wonder.building && !wonder.completed));
+    setElemDisplay(document.getElementById("speedWonderGroup"),(wonder.building && !wonder.completed));
+    document.getElementById("speedWonder").disabled = (!wonder.building || wonder.completed || !canAfford({ gold: 100 }));
+    if (wonder.building && !wonder.completed){
+        document.getElementById("progressBar").style.width = wonder.progress.toFixed(2) + "%";
+        document.getElementById("progressNumber").innerHTML = wonder.progress.toFixed(2);
     }
+
+    // Finished, but haven't picked the resource yet.
+	setElemDisplay(document.getElementById("wonderCompleted"),(wonder.building && wonder.completed));
+ 
     updateWonderList();
 }
 
@@ -1969,10 +1975,10 @@ function updateWonderList(){
 }
 
 function updateReset(){
-    document.getElementById("resetNote"  ).style.display = (civData.worship.owned || wonder.completed) ? "inline" : "none";
-    document.getElementById("resetDeity" ).style.display = (civData.worship.owned  ) ? "inline" : "none";
-    document.getElementById("resetWonder").style.display = (wonder.completed) ? "inline" : "none";
-    document.getElementById("resetBoth"  ).style.display = (civData.worship.owned && wonder.completed) ? "inline" : "none";
+    setElemDisplay(document.getElementById("resetNote"  ), (civData.worship.owned || wonder.completed));
+    setElemDisplay(document.getElementById("resetDeity" ), (civData.worship.owned));
+    setElemDisplay(document.getElementById("resetWonder"), (wonder.completed));
+    setElemDisplay(document.getElementById("resetBoth"  ), (civData.worship.owned && wonder.completed));
 }
 
 function update(){
@@ -2223,6 +2229,7 @@ function hire(job,num){
     civData[job].owned += num;
     civData.unemployed.owned -= num;
 
+    updateResourceTotals(); //update with new resource number
     updatePopulation(); // Updates the page with the num in each job.
 
     return num;
@@ -2654,10 +2661,8 @@ function mood(delta){
 
 function startWonder(){
     if (!wonder.completed && !wonder.building){
-        renameWonder();
-        document.getElementById("startWonder").disabled = true;
-        document.getElementById("speedWonderGroup").style.display = "block";
         wonder.building = true;
+        renameWonder();
         updateWonder();
     }
 }
@@ -2952,7 +2957,7 @@ function load(loadType){
         temple : { owned:loadVar.temple.total },
         barracks : { owned:loadVar.barracks.total },
         stable : { owned:loadVar.stable.total },
-        mill : { owned:loadVar.mill.total, require:loadVar.mill.require },
+        mill : { owned:loadVar.mill.total },
         graveyard : { owned:loadVar.graveyard.total },
         fortification : { owned:loadVar.fortification.total },
         battleAltar : { owned:loadVar.battleAltar.total },
@@ -3182,7 +3187,6 @@ function load(loadType){
     document.getElementById("rulerName").innerHTML = curCiv.rulerName;
     document.getElementById("wonderNameP").innerHTML = wonder.name;
     document.getElementById("wonderNameC").innerHTML = wonder.name;
-    document.getElementById("startWonder").disabled = (wonder.completed || wonder.building);
     document.getElementById("toggleAutosave").innerHTML = settings.autosave ? "Disable Autosave" : "Enable Autosave";
 }
 
@@ -3560,8 +3564,6 @@ function reset(){
 
     document.getElementById("tradeContainer").style.display = "none";
     document.getElementById("tradeUpgradeContainer").style.display = "none";
-    document.getElementById("startWonder").disabled = false;
-    document.getElementById("wonderLine").style.display = "none";
     document.getElementById("iconoclasmList").innerHTML = "";
     document.getElementById("iconoclasm").disabled = false;
     gameLog("Game Reset"); //Inform player.
@@ -3716,7 +3718,7 @@ function doCorpses() {
 
     // Corpses lying around will occasionally make people sick.
     // 1-in-50 chance (1-in-100 with feast)
-    var sickChance = Math.random() * 50 * (2 * civData.feast.owned);
+    var sickChance = 50 * Math.random() * (1 + civData.feast.owned);
     if (sickChance >= 1) { return; }
 
     // Infect up to 1% of the population.
@@ -4254,6 +4256,7 @@ window.setInterval(function(){
     updateTargets();
     updateSpawnButtons();
     updateDevotion();
+    updateWonder();
     updateReset();
     
     //Debugging - mark end of main loop and calculate delta in milliseconds

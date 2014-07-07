@@ -267,9 +267,6 @@ button:disabled{
 #oldDeities td{
     padding-right:1em;
 }
-#pastWonders td{
-    padding-right:1em;
-}
 #deityDomains{
     display:none;
 }
@@ -435,10 +432,6 @@ button.build{
     display:none;
 }
 
-#wonderLine{
-    display:none;
-}
-
 #cottageRow,
 #houseRow,
 #mansionRow,
@@ -461,8 +454,17 @@ button.build{
 }
 #wondersContainer{
     display:none;
-    padding-top:1.5em;
     padding-bottom:0.5em;
+}
+#startWonderLine{
+    display:none;
+}
+
+#pastWonders {
+    padding-top:1em;
+}
+#pastWonders td {
+    padding-right:1em;
 }
 .wonderTitle{
     font-weight:bold;
@@ -480,10 +482,14 @@ button.build{
     background-color:green;
     width:0%;
 }
-#inProgress{
+#wonderInProgress{
     display:none;
 }
-#completed{
+#speedWonderGroup{
+    display:none;
+}
+#wonderCompleted{
+    padding-top:1em;
     display:none;
 }
 .wonderBonus{
@@ -510,9 +516,6 @@ button.build{
     width:70%;
 }
 #tradeUpgradeContainer{
-    display:none;
-}
-#speedWonderGroup{
     display:none;
 }
 #iconoclasmGroup{
