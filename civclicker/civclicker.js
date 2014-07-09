@@ -31,7 +31,7 @@ VersionData.prototype.toNumber = function() { return this.major*1000 + this.mino
 VersionData.prototype.toString = function() { return String(this.major) + "." 
     + String(this.minor) + "." + String(this.sub) + String(this.mod); };
 
-var versionData = new VersionData(1,1,42,"alpha");
+var versionData = new VersionData(1,1,43,"alpha");
 
 var saveTag = "civ";
 var saveTag2 = saveTag + "2"; // For old saves.
@@ -133,22 +133,33 @@ var population = {
 function CivObj(props, asProto)
 {
     if (!(this instanceof CivObj)) { return new CivObj(props); } // Prevent accidental namespace pollution
-    var names = asProto ? null : ["id","name","owned","prereqs","require","effectText","prestige","initOwned","init","reset"];
+    //xxx Should these just be taken off the prototype's property names?
+    var names = asProto ? null : ["id","name","subType","owned","prereqs","require","effectText","prestige"
+                                 ,"initOwned","init","reset","limit","hasVariableCost"];
     Object.call(this,props);
     copyProps(this,props,names,true);
 }
 // Common Properties: id, name, owned, prereqs, require, effectText,
+//xxx TODO: Add save/load methods.
 CivObj.prototype = {
     constructor: CivObj,
+    subType: "normal",
     get owned() { return curCiv[this.id].owned; },
     set owned(value) { curCiv[this.id].owned = value; },
     prereqs: {},
     require: {},
     effectText: "",
     prestige: false,
-    initOwned: 0,  // Override this to undefined to inhibit initialization.
+    initOwned: 0,  // Override this to undefined to inhibit initialization.  Also sets the type of the 'owned' property.
     init: function() { if (this.initOwned !== undefined) { curCiv[this.id] = {}; this.owned = this.initOwned; } },
-    reset: function() { if (!this.prestige) { return this.init(); } } // Default reset behavior is to re-init non-prestige items.
+    reset: function() { if (!this.prestige) { return this.init(); } }, // Default reset behavior is to re-init non-prestige items.
+    //xxx Should this be implemented as a getter?
+    limit: function() { return (typeof this.initOwned == "number") ? Infinity // Default is no limit for numbers
+                             : (typeof this.initOwned == "boolean") ? true : 0; }, // true (1) for booleans, 0 otherwise.
+    //xxx This is a hack; it assumes that any CivObj with a getter for its
+    // 'require' has a variable cost.  Which is currently true, but might not
+    // always be.
+    hasVariableCost: function() { return Object.getOwnPropertyDescriptor(this,"require").get !== undefined; }
 };
 
 function Resource(props) // props is an object containing the desired properties.
@@ -195,7 +206,8 @@ function Upgrade(props) // props is an object containing the desired properties.
 Upgrade.prototype = new CivObj({
     constructor: Upgrade,
     type: "upgrade",
-    initOwned: false
+    initOwned: false,
+    limit: function() { return 1; } // Can't re-buy these.
 },true);
 
 function Unit(props) // props is an object containing the desired properties.
@@ -224,7 +236,8 @@ Achievement.prototype = new CivObj({
     constructor: Achievement,
     type: "achievement",
     initOwned: false,
-    prestige : true // Achievements are not lost on reset.
+    prestige : true, // Achievements are not lost on reset.
+    limit: function() { return 1; } // Can't re-buy these.
 },true);
 
 // Initialize Data
@@ -295,24 +308,21 @@ new Building({ id:"stable", name:"stable", plural:"stables",
     prereqs:{ horseback: true },
     require:{ food:60, wood:60, stone:120, leather:10 },
     effectText:"allows 10 cavalry" }),
+new Building({ id:"graveyard", name:"graveyard", plural:"graveyards",
+    prereqs:{ masonry: true },
+    require:{ wood:50, stone:200, herbs:50 },
+    effectText:"contains 100 graves" }),
 new Building({ id:"mill", name:"mill", plural:"mills",
     prereqs:{ wheel: true },
     get require() { return { wood  : 100 * (this.owned + 1) * Math.pow(1.05,this.owned),
                              stone : 100 * (this.owned + 1) * Math.pow(1.05,this.owned) }; },
     set require(value) { return this.require; },
-    effectText:"improves farmers"
-}),
-new Building({ id:"graveyard", name:"graveyard", plural:"graveyards",
-    prereqs:{ masonry: true },
-    require:{ wood:50, stone:200, herbs:50 },
-    effectText:"contains 100 graves"
-}),
+    effectText:"improves farmers" }),
 new Building({ id:"fortification", name:"fortification", plural:"fortifications", efficiency: 0.01,
     prereqs:{ architecture: true },
     get require() { return { stone : 100 * (this.owned + 1) * Math.pow(1.05,this.owned) }; },
     set require(value) { return this.require; },
-    effectText:"helps protect against attack"
-}),
+    effectText:"helps protect against attack" }),
 // Altars
 // The 'name' on the altars is really the label on the button to make them.
 //xxx This should probably change.
@@ -320,109 +330,88 @@ new Building({ id:"battleAltar", name:"Build Altar", plural:"battle altars", sub
     prereqs:{ deity: "battle" },
     get require() { return { stone:200, piety:200, metal : 50 + (50 * this.owned) }; },
     set require(value) { return this.require; },
-    effectText:"+1 Devotion"
-}),
+    effectText:"+1 Devotion" }),
 new Building({ id:"fieldsAltar", name:"Build Altar", plural:"fields altars", subType: "altar", devotion:1,
     prereqs:{ deity: "fields" },
     get require() { return { stone:200, piety:200,
             food : 500 + (250 * this.owned), wood : 500 + (250 * this.owned) }; },
     set require(value) { return this.require; },
-    effectText:"+1 Devotion"
-}),
+    effectText:"+1 Devotion" }),
 new Building({ id:"underworldAltar", name:"Build Altar", plural:"underworld altars", subType: "altar", devotion:1,
     prereqs:{ deity: "underworld" },
     get require() { return { stone:200, piety:200, corpses : 1 + this.owned }; },
     set require(value) { return this.require; },
-    effectText:"+1 Devotion"
-}),
+    effectText:"+1 Devotion" }),
 new Building({ id:"catAltar", name:"Build Altar", plural:"cat altars", subType: "altar", devotion:1,
     prereqs:{ deity: "cats" },
     get require() { return { stone:200, piety:200, herbs : 100 + (50 * this.owned) }; },
     set require(value) { return this.require; },
-    effectText:"+1 Devotion"
-}),
+    effectText:"+1 Devotion" }),
 // Upgrades
 new Upgrade({ id:"skinning", name:"Skinning", subType: "upgrade",
     require: { skins: 10 },
-    effectText:"Farmers can collect skins"
-}),
+    effectText:"Farmers can collect skins" }),
 new Upgrade({ id:"harvesting", name:"Harvesting", subType: "upgrade",
     require: { herbs: 10 },
-    effectText:"Woodcutters can collect herbs" 
-}),
+    effectText:"Woodcutters can collect herbs" }),
 new Upgrade({ id:"prospecting", name:"Prospecting", subType: "upgrade",
     require: { ore: 10 },
-    effectText:"Miners can collect ore" 
-}),
+    effectText:"Miners can collect ore" }),
 new Upgrade({ id:"domestication", name:"Domestication", subType: "upgrade",
     prereqs:{ masonry: true },
     require: { leather: 20 },
-    effectText:"Increase farmer food output" 
-}),
+    effectText:"Increase farmer food output" }),
 new Upgrade({ id:"ploughshares", name:"Ploughshares", subType: "upgrade",
     prereqs:{ masonry: true },
     require: { metal:20 },
-    effectText:"Increase farmer food output"
-}),
+    effectText:"Increase farmer food output" }),
 new Upgrade({ id:"irrigation", name:"Irrigation", subType: "upgrade",
     prereqs:{ masonry: true },
     require: { wood: 500, stone: 200 },
-    effectText:"Increase farmer food output"
-}),
+    effectText:"Increase farmer food output" }),
 new Upgrade({ id:"butchering", name:"Butchering", subType: "upgrade",
     prereqs:{ construction: true, skinning: true },
     require: { leather: 40 },
-    effectText:"More farmers collect more skins" 
-}),
+    effectText:"More farmers collect more skins" }),
 new Upgrade({ id:"gardening", name:"Gardening", subType: "upgrade",
     prereqs:{ construction: true, harvesting: true },
     require: { herbs: 40 },
-    effectText:"More woodcutters collect more herbs" 
-}),
+    effectText:"More woodcutters collect more herbs" }),
 new Upgrade({ id:"extraction", name:"Extraction", subType: "upgrade",
     prereqs:{ construction: true, prospecting: true },
     require: { metal: 40 },
-    effectText:"More miners collect more ore" 
-}),
+    effectText:"More miners collect more ore" }),
 new Upgrade({ id:"flensing", name:"Flensing", subType: "upgrade",
     prereqs:{ architecture: true },
     require: { metal: 1000 },
-    effectText:"Collect skins more frequently"
-}),
+    effectText:"Collect skins more frequently" }),
 new Upgrade({ id:"macerating", name:"Macerating", subType: "upgrade",
     prereqs:{ architecture: true },
     require: { leather: 500, stone: 500 },
-    effectText:"Collect ore more frequently"
-}),
+    effectText:"Collect ore more frequently" }),
 new Upgrade({ id:"croprotation", name:"Crop Rotation", subType: "upgrade",
     prereqs:{ architecture: true },
     require: { herbs: 5000, piety: 1000 },
-    effectText:"Increase farmer food output"
-}),
+    effectText:"Increase farmer food output" }),
 new Upgrade({ id:"selectivebreeding", name:"Selective Breeding", subType: "upgrade",
     prereqs:{ architecture: true },
     require: { skins: 5000, piety: 1000 },
-    effectText:"Increase farmer food output"
-}),
+    effectText:"Increase farmer food output" }),
 new Upgrade({ id:"fertilisers", name:"Fertilisers", subType: "upgrade",
     prereqs:{ architecture: true },
     require: { ore: 5000, piety: 1000 },
-    effectText:"Increase farmer food output"
-}),
+    effectText:"Increase farmer food output" }),
 new Upgrade({ id:"masonry", name:"Masonry", subType: "upgrade",
     require: { wood: 100, stone: 100 },
-    effectText:"Unlock more buildings and upgrades" 
-}),
+    effectText:"Unlock more buildings and upgrades" }),
 new Upgrade({ id:"construction", name:"Construction", subType: "upgrade",
     prereqs:{ masonry: true },
     require: { wood: 1000, stone: 1000 },
-    effectText:"Unlock more buildings and upgrades" 
-}),
+    effectText:"Unlock more buildings and upgrades" }),
 new Upgrade({ id:"architecture", name:"Architecture", subType: "upgrade",
     prereqs:{ construction: true },
     require: { wood: 10000, stone: 10000 },
-    effectText:"Unlock more buildings and upgrades" 
-}),
+    effectText:"Unlock more buildings and upgrades" }),
 new Upgrade({ id:"tenements", name:"Tenements", subType: "upgrade",
     prereqs:{ construction: true },
     require: { food: 200, wood: 500, stone: 500 },
@@ -445,78 +434,63 @@ new Upgrade({ id:"palisade", name:"Palisade", subType: "upgrade",
     efficiency: 0.01, // Subtracted from attacker efficiency.
     prereqs:{ construction: true },
     require: { wood: 2000, stone: 1000 },
-    effectText:"Enemies do less damage" 
-}),
+    effectText:"Enemies do less damage" }),
 new Upgrade({ id:"weaponry", name:"Basic Weaponry", subType: "upgrade",
     prereqs:{ masonry: true },
     require: { wood: 500, metal: 500 },
-    effectText:"Improve soldiers"
-}),
+    effectText:"Improve soldiers" }),
 new Upgrade({ id:"shields", name:"Basic Shields", subType: "upgrade",
     prereqs:{ masonry: true },
     require: { wood: 500, leather: 500 },
-    effectText:"Improve soldiers"
-}),
+    effectText:"Improve soldiers" }),
 new Upgrade({ id:"horseback", name:"Horseback Riding", subType: "upgrade",
     prereqs:{ masonry: true },
     require: { food: 500, wood: 500 },
-    effectText:"Build stables" 
-}),
+    effectText:"Build stables" }),
 new Upgrade({ id:"wheel", name:"The Wheel", subType: "upgrade",
     prereqs:{ masonry: true },
     require: { wood: 500, stone: 500 },
-    effectText:"Build mills" 
-}),
+    effectText:"Build mills" }),
 new Upgrade({ id:"writing", name:"Writing", subType: "upgrade",
     prereqs:{ masonry: true },
     require: { skins: 500 },
-    effectText:"Increase cleric piety generation" 
-}),
+    effectText:"Increase cleric piety generation" }),
 new Upgrade({ id:"administration", name:"Administration", subType: "upgrade",
     prereqs:{ writing: true },
     require: { stone: 1000, skins: 1000 },
-    effectText:"Increase land gained from raiding" 
-}),
+    effectText:"Increase land gained from raiding" }),
 new Upgrade({ id:"codeoflaws", name:"Code of Laws", subType: "upgrade",
     prereqs:{ writing: true },
     require: { stone: 1000, skins: 1000 },
-    effectText:"Reduce unhappiness caused by overcrowding" 
-}),
+    effectText:"Reduce unhappiness caused by overcrowding" }),
 new Upgrade({ id:"mathematics", name:"Mathematics", subType: "upgrade",
     prereqs:{ writing: true },
     require: { herbs: 1000, piety: 1000 },
-    effectText:"Create siege engines" 
-}),
+    effectText:"Create siege engines" }),
 new Upgrade({ id:"aesthetics", name:"Aesthetics", subType: "upgrade",
     prereqs:{ writing: true },
     require: { piety: 5000 },
-    effectText:"Building temples increases happiness" 
-}),
+    effectText:"Building temples increases happiness" }),
 new Upgrade({ id:"civilservice", name:"Civil Service", subType: "upgrade",
     prereqs:{ architecture: true },
     require: { piety: 5000 },
-    effectText:"Increase basic resources from clicking" 
-}),
+    effectText:"Increase basic resources from clicking" }),
 new Upgrade({ id:"feudalism", name:"Feudalism", subType: "upgrade",
     prereqs:{ civilservice: true },
     require: { piety: 10000 },
-    effectText:"Further increase basic resources from clicking" 
-}),
+    effectText:"Further increase basic resources from clicking" }),
 new Upgrade({ id:"guilds", name:"Guilds", subType: "upgrade",
     prereqs:{ civilservice: true },
     require: { piety: 10000 },
-    effectText:"Increase special resources from clicking" 
-}),
+    effectText:"Increase special resources from clicking" }),
 new Upgrade({ id:"serfs", name:"Serfs", subType: "upgrade",
     prereqs:{ civilservice: true },
     require: { piety: 20000 },
-    effectText:"Unemployed workers increase resources from clicking" 
-}),
+    effectText:"Unemployed workers increase resources from clicking" }),
 new Upgrade({ id:"nationalism", name:"Nationalism", subType: "upgrade",
     prereqs:{ civilservice: true },
     require: { piety: 50000 },
-    effectText:"Soldiers increase basic resources from clicking" 
-}),
+    effectText:"Soldiers increase basic resources from clicking" }),
 new Upgrade({ id:"worship", name:"Worship", subType: "deity",
     prereqs:{ temple: 1 },
     require: { piety: 1000 },
@@ -524,144 +498,117 @@ new Upgrade({ id:"worship", name:"Worship", subType: "deity",
     onGain: function() {
         updateUpgrades();
         renameDeity(); //Need to add in some handling for when this returns NULL.
-    }
-}),
+    } }),
 // Pantheon Upgrades
 new Upgrade({ id:"lure", name:"Lure of Civilisation", subType: "pantheon",
     prereqs:{ deity: "cats", devotion: 10 },
     require: { piety: 1000 },
-    effectText:"increase chance to get cats"
-}),
+    effectText:"increase chance to get cats" }),
 new Upgrade({ id:"companion", name:"Warmth of the Companion", subType: "pantheon",
     prereqs:{ deity: "cats", devotion: 30 },
     require: { piety: 1000 },
-    effectText:"cats help heal the sick"
-}),
+    effectText:"cats help heal the sick" }),
 new Upgrade({ id:"comfort", name:"Comfort of the Hearthfires", subType: "pantheon",
     prereqs:{ deity: "cats", devotion: 50 },
     require: { piety: 5000 },
-    effectText:"traders marginally more frequent"
-}),
+    effectText:"traders marginally more frequent" }),
 new Upgrade({ id:"blessing", name:"Blessing of Abundance", subType: "pantheon",
     prereqs:{ deity: "fields", devotion: 10 },
     require: { piety: 1000 },
-    effectText:"increase farmer food output"
-}),
+    effectText:"increase farmer food output" }),
 new Upgrade({ id:"waste", name:"Abide No Waste", subType: "pantheon",
     prereqs:{ deity: "fields", devotion: 30 },
     require: { piety: 1000 },
-    effectText:"workers will eat corpses if there is no food left"
-}),
+    effectText:"workers will eat corpses if there is no food left" }),
 new Upgrade({ id:"stay", name:"Stay With Us", subType: "pantheon",
     prereqs:{ deity: "fields", devotion: 50 },
     require: { piety: 5000 },
-    effectText:"traders stay longer"
-}),
+    effectText:"traders stay longer" }),
 new Upgrade({ id:"riddle", name:"Riddle of Steel", subType: "pantheon",
     prereqs:{ deity: "battle", devotion: 10 },
     require: { piety: 1000 },
-    effectText:"improve soldiers"
-}),
+    effectText:"improve soldiers" }),
 new Upgrade({ id:"throne", name:"Throne of Skulls", subType: "pantheon",
     prereqs:{ deity: "battle", devotion: 30 },
     require: { piety: 1000 },
-    effectText:"slaying enemies creates temples"
-}),
+    effectText:"slaying enemies creates temples" }),
 new Upgrade({ id:"lament", name:"Lament of the Defeated", subType: "pantheon",
     prereqs:{ deity: "battle", devotion: 50 },
     require: { piety: 5000 },
-    effectText:"Successful raids delay future invasions"
-}),
+    effectText:"Successful raids delay future invasions" }),
 new Upgrade({ id:"book", name:"The Book of the Dead", subType: "pantheon",
     prereqs:{ deity: "underworld", devotion: 10 },
     require: { piety: 1000 },
-    effectText:"gain piety with deaths"
-}),
+    effectText:"gain piety with deaths" }),
 new Upgrade({ id:"feast", name:"A Feast for Crows", subType: "pantheon",
     prereqs:{ deity: "underworld", devotion: 30 },
     require: { piety: 1000 },
-    effectText:"corpses are less likely to cause illness"
-}),
+    effectText:"corpses are less likely to cause illness" }),
 new Upgrade({ id:"secrets", name:"Secrets of the Tombs", subType: "pantheon",
     prereqs:{ deity: "underworld", devotion: 50 },
     require: { piety: 5000 },
-    effectText:"graveyards increase cleric piety generation"
-}),
+    effectText:"graveyards increase cleric piety generation" }),
 // Special Upgrades
 new Upgrade({ id:"standard", name:"Battle Standard", subType: "conquest",
     prereqs:{ barracks: 1 },
     require: { leather: 1000, metal: 1000 },
-    effectText:"Lets you build an army (requires barracks)"
-}),
+    effectText:"Lets you build an army (requires barracks)" }),
 new Upgrade({ id:"trade", name:"Trade", subType: "trade",
     prereqs: { gold: 1 }, 
     require: { gold: 1 }, 
-    effectText:"Open the trading post"
-}),
+    effectText:"Open the trading post" }),
 new Upgrade({ id:"currency", name:"Currency", subType: "trade",
     require: { ore: 1000, gold: 10 }, 
-    effectText:"Traders arrive more frequently, stay longer"
-}),
+    effectText:"Traders arrive more frequently, stay longer" }),
 new Upgrade({ id:"commerce", name:"Commerce", subType: "trade",
     require: { piety: 10000, gold: 100 }, 
-    effectText:"Traders arrive more frequently, stay longer"
-}),
+    effectText:"Traders arrive more frequently, stay longer" }),
 // Prayers
 new Upgrade({ id:"smite", name:"Smite Invaders", subType: "prayer",
     prereqs:{ deity: "battle", devotion: 20 },
     require: { piety: 100 },
-    effectText:"(per invader killed)"
-}),
+    effectText:"(per invader killed)" }),
 new Upgrade({ id:"glory", name:"For Glory!", subType: "prayer",
     prereqs:{ deity: "battle", devotion: 40 },
     require: { piety: 1000 }, 
-    effectText:"Temporarily makes raids more difficult, increases rewards"
-}),
+    effectText:"Temporarily makes raids more difficult, increases rewards" }),
 new Upgrade({ id:"wickerman", name:"Burn Wicker Man", subType: "prayer",
     prereqs:{ deity: "fields", devotion: 20 },
     require: { wood: 500 },  //xxx +1 Worker
-    effectText:"Sacrifice 1 worker to gain a random bonus to a resource"
-}),
+    effectText:"Sacrifice 1 worker to gain a random bonus to a resource" }),
 new Upgrade({ id:"walk", name:"Walk Behind the Rows", subType: "prayer",
     prereqs:{ deity: "fields", devotion: 40 },
     require: { }, //xxx 1 Worker/sec
     effectText:"boost food production by sacrificing 1 worker/sec.",
-    extraText: "<br /><button id='ceaseWalk' onmousedown='walk(false)' disabled='disabled'>Cease Walking</button>"
-}),
+    extraText: "<br /><button id='ceaseWalk' onmousedown='walk(false)' disabled='disabled'>Cease Walking</button>" }),
 new Upgrade({ id:"raiseDead", name:"Raise Dead", subType: "prayer",
     prereqs:{ deity: "underworld", devotion: 20 },
     require: { corpses: 1, piety: 4 }, //xxx Nonlinear cost
     effectText:"Piety to raise the next zombie",
-    extraText:"<button onmousedown='raiseDead(100)' id='raiseDead100' class='x100' disabled='disabled'>x100</button><button onmousedown='raiseDead(Infinity)' id='raiseDeadMax' class='x100' disabled='disabled'>Max</button>"
-}),
+    extraText:"<button onmousedown='raiseDead(100)' id='raiseDead100' class='x100' disabled='disabled'>x100</button><button onmousedown='raiseDead(Infinity)' id='raiseDeadMax' class='x100' disabled='disabled'>Max</button>" }),
 new Upgrade({ id:"summonShade", name:"Summon Shades", subType: "prayer",
     prereqs:{ deity: "underworld", devotion: 40 },
     require: { piety: 1000 },  //xxx Also need slainEnemies
-    effectText:"Souls of the defeated rise to fight for you"
-}),
+    effectText:"Souls of the defeated rise to fight for you" }),
 new Upgrade({ id:"pestControl", name:"Pest Control", subType: "prayer",
     prereqs:{ deity: "cats", devotion: 20 },
     require: { piety: 100 }, 
-    effectText:"Give temporary boost to food production"
-}),
+    effectText:"Give temporary boost to food production" }),
 new Upgrade({ id:"grace", name:"Grace", subType: "prayer",
     prereqs:{ deity: "cats", devotion: 40 },
     require: { piety: 1000 }, //xxx This is not fixed; see curCiv.graceCost
-    effectText:"Increase Happiness"
-}),
+    effectText:"Increase Happiness" }),
 // Units
 new Unit({ id:"unemployed", name:"unemployed", singular:"unemployed", plural:"unemployed",
     alignment:"player",
-    effectText:"Unassigned Workers"
-}),
+    effectText:"Unassigned Workers" }),
 new Unit({ id:"totalSick", name:"sick", singular:"sick", plural:"sick",
     require: undefined,  // Cannot be purchased.
     //xxx This (alternate data location) could probably be cleaner.
     get owned() { return population[this.id]; },
     set owned(value) { population[this.id]= value; },
     init: function() { this.owned = this.initOwned; },
-    effectText:"Sick workers"
-}),
+    effectText:"Sick workers" }),
 new Unit({ id:"farmer", name:"farmers", singular:"farmer", plural:"farmers",
     alignment:"player",
     source:"unemployed",
@@ -671,48 +618,44 @@ new Unit({ id:"farmer", name:"farmers", singular:"farmer", plural:"farmers",
     + civData.croprotation.owned + civData.selectivebreeding.owned + civData.fertilisers.owned 
     + civData.blessing.owned)); },
     set efficiency(value) { this.efficiency_base = value; },
-    effectText:"Automatically gather food"
-}),
+    effectText:"Automatically gather food" }),
 new Unit({ id:"woodcutter", name:"woodcutters", singular:"woodcutter", plural:"woodcutters",
     alignment:"player", source:"unemployed",
     efficiency: 0.5,
-    effectText:"Automatically gather wood"
-}),
+    effectText:"Automatically gather wood" }),
 new Unit({ id:"miner", name:"miners", singular:"miner", plural:"miners",
     alignment:"player", source:"unemployed",
     efficiency: 0.2,
-    effectText:"Automatically gather stone"
-}),
+    effectText:"Automatically gather stone" }),
 new Unit({ id:"tanner", name:"tanners", singular:"tanner", plural:"tanners",
     alignment:"player", source:"unemployed",
     efficiency: 0.5,
     prereqs:{ tannery: 1 },
-    effectText:"Convert skins to leather"
-}),
+    limit: function() { return civData.tannery.owned; },
+    effectText:"Convert skins to leather" }),
 new Unit({ id:"blacksmith", name:"blacksmiths", singular:"blacksmith", plural:"blacksmiths",
     alignment:"player", source:"unemployed",
     efficiency: 0.5,
     prereqs:{ smithy: 1 },
-    effectText:"Convert ore to metal"
-}),
+    limit: function() { return civData.smithy.owned; },
+    effectText:"Convert ore to metal" }),
 new Unit({ id:"healer", name:"healers", singular:"healer", plural:"healers",
     alignment:"player", source:"unemployed",
     efficiency: 0.1,
     prereqs:{ apothecary: 1 },
-    effectText:"Cure sick workers"
-}),
+    limit: function() { return civData.apothecary.owned; },
+    effectText:"Cure sick workers" }),
 new Unit({ id:"cleric", name:"clerics", singular:"cleric", plural:"clerics",
     alignment:"player", source:"unemployed",
     efficiency: 0.05,
     prereqs:{ temple: 1 },
-    effectText:"Generate piety, bury corpses"
-}),
+    limit: function() { return civData.temple.owned; },
+    effectText:"Generate piety, bury corpses" }),
 new Unit({ id:"labourer", name:"labourers", singular:"labourer", plural:"labourers",
     alignment:"player", source:"unemployed",
     efficiency: 1.0,
     prereqs:{ wonder: "building" }, //xxx This is a hack
-    effectText:"Use resources to build wonder"
-}),
+    effectText:"Use resources to build wonder" }),
 new Unit({ id:"soldier", name:"soldiers", singular:"soldier", plural:"soldiers",
     alignment:"player", source:"unemployed",
     efficiency_base: 0.05,
@@ -720,8 +663,8 @@ new Unit({ id:"soldier", name:"soldiers", singular:"soldier", plural:"soldiers",
     set efficiency(value) { this.efficiency_base = value; },
     prereqs:{ barracks: 1 },
     require:{ leather:10, metal:10 },
-    effectText:"Protect from attack"
-}),
+    limit: function() { return 10*civData.barracks.owned; },
+    effectText:"Protect from attack" }),
 new Unit({ id:"cavalry", name:"cavalry", singular:"cavalry", plural:"cavalry",
     alignment:"player", source:"unemployed",
     efficiency_base: 0.08,
@@ -729,27 +672,24 @@ new Unit({ id:"cavalry", name:"cavalry", singular:"cavalry", plural:"cavalry",
     set efficiency(value) { this.efficiency_base = value; },
     prereqs:{ stable: 1 },
     require:{ food:20, leather:20 },
-    effectText:"Protect from attack"
-}),
+    limit: function() { return 10*civData.stable.owned; },
+    effectText:"Protect from attack" }),
 new Unit({ id:"shade", name:"shades", singular:"shade", plural:"shades",
     alignment:"player",
-    effectText:"Insubstantial spirits"
-}),
+    effectText:"Insubstantial spirits" }),
 new Unit({ id:"wolf", name:"wolves", singular:"wolf", plural:"wolves",
     alignment:"animal",
     efficiency: 0.05,
     onWin: function() { doSlaughter(this); },
     killFatigue:(1.0), // Max fraction that leave after killing the last person
     killExhaustion:(1/2), // Chance of an attacker leaving after killing a person
-    effectText:"Eat your workers"
-}),
+    effectText:"Eat your workers" }),
 new Unit({ id:"bandit", name:"bandits", singular:"bandit", plural:"bandits",
     alignment:"mob",
     efficiency: 0.07,
     onWin: function() { doLoot(this); },
     lootFatigue:(1/8), // Max fraction that leave after cleaning out a resource
-    effectText:"Steal your resources"
-}),
+    effectText:"Steal your resources" }),
 new Unit({ id:"barbarian", name:"barbarians", singular:"barbarian", plural:"barbarians",
     alignment:"mob",
     efficiency: 0.09,
@@ -757,43 +697,36 @@ new Unit({ id:"barbarian", name:"barbarians", singular:"barbarian", plural:"barb
     lootFatigue:(1/24), // Max fraction that leave after cleaning out a resource
     killFatigue:(1/3), // Max fraction that leave after killing the last person
     killExhaustion:(1.0), // Chance of an attacker leaving after killing a person
-    effectText:"Slaughter, plunder, and burn"
-}),
+    effectText:"Slaughter, plunder, and burn" }),
 new Unit({ id:"esiege", name:"siege engines", singular:"Siege Engine", plural:"siege engines",
     alignment:"mob",
     efficiency: 0.1,  // 10% chance to hit
-    effectText:"Destroy your fortifications"
-}),
+    effectText:"Destroy your fortifications" }),
 new Unit({ id:"soldierParty", name:"soldiers", singular:"soldier", plural:"soldiers",
     alignment:"player", source:"soldier",
     efficiency_base: 0.05,
     get efficiency() { return this.efficiency_base + calcCombatMods(); },
     set efficiency(value) { this.efficiency_base = value; },
-    prereqs:{ standard: true, barracks: 1 }
-}),
+    prereqs:{ standard: true, barracks: 1 } }),
 new Unit({ id:"cavalryParty", name:"cavalry", singular:"cavalry", plural:"cavalry",
     alignment:"player", source:"cavalry",
     efficiency_base: 0.08,
     get efficiency() { return this.efficiency_base + calcCombatMods(); },
     set efficiency(value) { this.efficiency_base = value; },
-    prereqs:{ standard: true, stable: 1 }
-}),
+    prereqs:{ standard: true, stable: 1 } }),
 new Unit({ id:"siege", name:"siege engines", singular:"Siege Engine", plural:"siege engines",
     alignment:"player",
     efficiency: 0.1, // 10% chance to hit
     prereqs:{ standard: true, mathematics: true },
     require:{ wood:200, leather:50, metal:50 },
-    effectText:"Destroy enemy fortifications"
-}),
+    effectText:"Destroy enemy fortifications" }),
 new Unit({ id:"esoldier", name:"soldiers", singular:"soldier", plural:"soldiers",
     alignment:"mob",
-    efficiency: 0.05
-}),
+    efficiency: 0.05 }),
 // Not currently used.
 new Unit({ id:"ecavalry", name:"cavalry", singular:"cavalry", plural:"cavalry",
     alignment:"mob",
-    efficiency: 0.08
-}),
+    efficiency: 0.08 }),
 new Unit({ id:"efort", name:"fortifications", singular:"fortification", plural:"fortifications",
     alignment:"mob",
     efficiency: 0.01 // -1% damage
@@ -1037,20 +970,12 @@ function payFor(costObj, num)
 function canHire(job,num)
 {
     //xxx Need to validate job
-    var buildingLimit = Infinity; // Additional limit from buildings.
+    var buildingLimit = civData[job].limit(); // Additional limit from buildings.
 
     if (num === undefined) { num = Infinity; } // Default to as many as we can.
     num = Math.min(num, civData.unemployed.owned);  // Cap hiring by # of available workers.
     num = Math.max(num, -civData[job].owned);  // Cap firing by # in that job.
     
-    // See if this job has limits from buildings or resource costs.
-    if (job == "tanner")     { buildingLimit =    civData.tannery.owned; }
-    if (job == "blacksmith") { buildingLimit =    civData.smithy.owned; }
-    if (job == "healer")     { buildingLimit =    civData.apothecary.owned; }
-    if (job == "cleric")     { buildingLimit =    civData.temple.owned; }
-    if (job == "soldier")    { buildingLimit = 10*civData.barracks.owned; }
-    if (job == "cavalry")    { buildingLimit = 10*civData.stable.owned; }
-
     // Check the building limit against the current numbers (including sick and
     // partied units, if applicable).
     num = Math.min(num, buildingLimit - civData[job].owned - curCiv[job+"Ill"].owned 
@@ -1092,16 +1017,17 @@ function getCostNote(civObj)
 // Pass this the building definition object.
 // Also pass 'true' to only generate the x1 button (for mills and fortifications)
 // Or pass nothing, to create a blank row.
-function getBuildingRowText(buildingObj, onlyOnes)
+function getBuildingRowText(buildingObj)
 {
     if (buildingObj===null || buildingObj===undefined) { return "<tr><td colspan='8'/>&nbsp;</tr>"; }
 
     var bldId = buildingObj.id;
-    var bldName = buildingObj.name;
     var s = "<tr id='"+bldId+"Row'>";
     // Note that updateBuildingRow() relies on the <tr>'s children being in this particular layout.
-    s += "<td><button class='build' onmousedown=\"createBuilding('"+bldId+"',1)\">Build "+bldName+"</button></td>";
-    if (onlyOnes===undefined || onlyOnes !== true) {
+    s += "<td class='buildingnames'>"+buildingObj.plural+": </td>";
+    s += "<td class='number'><span data-action='display' data-target='"+bldId+"'>0</span></td>";
+    s += "<td class='building1'><button class='build' onmousedown=\"createBuilding('"+bldId+"',1)\">build</button></td>";
+    if (!buildingObj.hasVariableCost()) {
     s += "<td class='building10'><button class='x10' onmousedown=\"createBuilding('"+bldId+"',10)\">x10</button></td>";
     s += "<td class='building100'><button class='x100' onmousedown=\"createBuilding('"+bldId+"',100)\">x100</button></td>";
     s += "<td class='building1000'><button class='x1000' onmousedown=\"createBuilding('"+bldId+"',1000)\">x1k</button></td>";
@@ -1111,36 +1037,17 @@ function getBuildingRowText(buildingObj, onlyOnes)
     s += "<td class='building10'></td><td class='building100'></td>" +
          "<td class='building1000'></td><td class='buildingCustom'></td>";
     }
-    s += "<td class='buildingnames'>"+buildingObj.plural+": </td>";
-    s += "<td class='number'><span data-action='display' data-target='"+bldId+"'>0</span></td>";
     s += "<td>" + getCostNote(buildingObj) + "</td>";
     s += "</tr>";
+
     return s;
 }
 // Dynamically create the building controls table.
 function addBuildingRows()
 {
-    document.getElementById("buildings").innerHTML += 
-          getBuildingRowText(civData.tent)
-        + getBuildingRowText(civData.hut)
-        + getBuildingRowText(civData.cottage)
-        + getBuildingRowText(civData.house)
-        + getBuildingRowText(civData.mansion)
-        + getBuildingRowText()
-        + getBuildingRowText(civData.barn)
-        + getBuildingRowText(civData.woodstock)
-        + getBuildingRowText(civData.stonestock)
-        + getBuildingRowText()
-        + getBuildingRowText(civData.tannery)
-        + getBuildingRowText(civData.smithy)
-        + getBuildingRowText(civData.apothecary)
-        + getBuildingRowText(civData.temple)
-        + getBuildingRowText(civData.barracks)
-        + getBuildingRowText(civData.stable)
-        + getBuildingRowText()
-        + getBuildingRowText(civData.graveyard)
-        + getBuildingRowText(civData.mill,true)
-        + getBuildingRowText(civData.fortification,true);
+    var s="";
+    buildingData.forEach(function(elem) { if (elem.subType == "normal") { s += getBuildingRowText(elem); } });
+    document.getElementById("buildings").innerHTML += s;
 }
 
 //xxx This should become an onGain() member method of the building classes
@@ -1155,28 +1062,25 @@ function updateBuildingRow(buildingObj){
     var numBuildable = canAfford(buildingObj.require);
     var buildingRow = document.getElementById(buildingObj.id + "Row");
 
-    // Reveal the row if prereqs are met
-    //xxx We don't hide it again if the prereq is later unmet, because we don't want to orphan workers.
-    if (meetsPrereqs(buildingObj.prereqs)) { setElemDisplay(buildingRow,true); }
+    // Reveal the row if prereqs are met (or if we have any already)
+    setElemDisplay(buildingRow,((buildingObj.owned > 0) || meetsPrereqs(buildingObj.prereqs)));
 
-    for (i=0;i<4;i++){
-        try { // try-catch required because fortifications, mills, and altars do not have more than one child button. 
-              // This should probably be cleaned up in the future.
-              // Fortunately the index numbers of the children map directly onto the powers of 10 used by the buttons
-                buildingRow.children[i].children[0].disabled = (numBuildable < Math.pow(10,i));
-        } catch(ignore){}
+    // If the building's cost is variable, update its requirements.
+    if (buildingObj.hasVariableCost()) { updateRequirements(buildingObj); }
+
+    var buttonElem = null;
+    for (i=0;i<5;i++) {
+        // Check required because fortifications, mills, and altars do not have more than one child button. 
+        //xxx This should probably be cleaned up in the future.
+        // Fortunately the index numbers of the children can map onto the powers of 10 used by the buttons
+        buttonElem = buildingRow.children[i+2].firstChild;
+        if (buttonElem) { buttonElem.disabled = (numBuildable < Math.pow(10,i%4)); } // %4 makes custom button work too.
     }        
-    try { buildingRow.children[4].children[0].disabled = (numBuildable < 1); } catch(ignore){} //Custom button
 }
+//enables/disabled building buttons - calls each type of building in turn
 function updateBuildingButtons(){
-    var i;
-    //enables/disabled building buttons - calls each type of building in turn
     //Can't do altars; they're not in the proper format.
-    var buildingList = [civData.tent,civData.hut,civData.cottage,civData.house,civData.mansion,civData.barn,
-                        civData.woodstock,civData.stonestock,civData.tannery,civData.smithy,civData.apothecary,
-                        civData.temple,civData.barracks,civData.stable,civData.graveyard,civData.mill,civData.fortification];
-
-    for (i=0;i<buildingList.length;++i) { updateBuildingRow(buildingList[i]); }
+    buildingData.forEach(function(elem) { if (elem.subType == "normal") { updateBuildingRow(elem); } });
 }
 
 
@@ -1205,14 +1109,14 @@ function getJobRowText(jobObj, onlyOnes, funcName, displayClass, allowSell)
          "<td class='job100'></td><td class='job10'></td>";
     }
     if (funcName && allowSell) {
-    s += "<td><button onmousedown=\""+funcName+"('"+jobId+"',-1)\">&lt;</button></td>";
+    s += "<td><button onmousedown=\""+funcName+"('"+jobId+"',-1)\">-</button></td>";
     } else {
     s += "<td></td>";
     }
     s += "<td class='"+displayClass+"'>"+jobObj.name+": </td>";
     s += "<td class='number'><span data-action='"+action+"' data-target='"+jobId+"'>0</span></td>";
     if (funcName) {
-    s += "<td><button onmousedown='"+funcName+"(\""+jobId+"\",1)'>&gt;</button></td>";
+    s += "<td><button onmousedown='"+funcName+"(\""+jobId+"\",1)'>+</button></td>";
     } else {
     s += "<td></td>";
     }
@@ -1932,7 +1836,7 @@ function updateWonder() {
     // Display this section if we have any wonders or could build one.
     setElemDisplay(document.getElementById("wondersContainer"),(haveTech || wonder.total > 0));
 
-	// Can start building a wonder, but haven't yet.
+    // Can start building a wonder, but haven't yet.
     setElemDisplay(document.getElementById("startWonderLine"),(haveTech && !wonder.building && !wonder.completed));
     document.getElementById("startWonder").disabled = (!haveTech || wonder.building || wonder.completed); 
 
@@ -1947,7 +1851,7 @@ function updateWonder() {
     }
 
     // Finished, but haven't picked the resource yet.
-	setElemDisplay(document.getElementById("wonderCompleted"),(wonder.building && wonder.completed));
+    setElemDisplay(document.getElementById("wonderCompleted"),(wonder.building && wonder.completed));
  
     updateWonderList();
 }
@@ -3805,7 +3709,7 @@ function doSack(attacker)
 {
     var burnable=[civData.tent,civData.hut,civData.cottage,civData.house,civData.mansion,civData.barn,civData.woodstock,
                 civData.stonestock,civData.tannery,civData.smithy,civData.apothecary,civData.temple,civData.fortification,
-                civData.stable,civData.mill];
+                civData.stable,civData.mill,civData.barracks];
 
     //Destroy buildings
     var target = burnable[Math.floor(Math.random() * burnable.length)];

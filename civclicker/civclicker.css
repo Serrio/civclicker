@@ -127,11 +127,11 @@ button{
     font-size:1.0em;
     font-weight:500;
 }
-button:hover{
+button:hover:enabled{
     background-color:#eee;
 }
 button:disabled{
-    color:#ccc;
+    border-color:#ccc;
     font-weight:normal;
 }
 #jobs button{
@@ -351,6 +351,7 @@ button.build{
     margin-right:3px;
 }
 
+.x1,
 .x10,
 .x100,
 .x1000{
