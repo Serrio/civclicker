@@ -204,7 +204,7 @@ function Upgrade(props) // props is an object containing the desired properties.
     copyProps(this,props,null,true);
     // Occasional Properties: subType, efficiency, extraText, onGain
     if (this.subType == "prayer") { this.initOwned = undefined; } // Prayers don't get initial values.
-    if (this.subType == "pantheon") { this.prestigue = true; } // Pantheon upgrades are not lost on reset.
+    if (this.subType == "pantheon") { this.prestige = true; } // Pantheon upgrades are not lost on reset.
 }
 // Common Properties: type="upgrade"
 Upgrade.prototype = new CivObj({
