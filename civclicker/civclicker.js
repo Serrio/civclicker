@@ -31,7 +31,7 @@ VersionData.prototype.toNumber = function() { return this.major*1000 + this.mino
 VersionData.prototype.toString = function() { return String(this.major) + "." 
     + String(this.minor) + "." + String(this.sub) + String(this.mod); };
 
-var versionData = new VersionData(1,1,44,"alpha");
+var versionData = new VersionData(1,1,45,"alpha");
 
 var saveTag = "civ";
 var saveTag2 = saveTag + "2"; // For old saves.
@@ -631,6 +631,7 @@ new Upgrade({ id:"grace", name:"Grace", subType: "prayer",
 // Units
 new Unit({ id:"totalSick", name:"sick", singular:"sick", plural:"sick",
     require: undefined,  // Cannot be purchased.
+    salable: false,  // Cannot be sold.
     //xxx This (alternate data location) could probably be cleaner.
     get owned() { return population[this.id]; },
     set owned(value) { population[this.id]= value; },
@@ -1033,8 +1034,9 @@ function canHire(job,num)
     num = Math.max(num, -jobObj.owned);  // Can't fire more than we have.
     
     // Check the building limit against the current numbers (including sick and
-    // partied units, if applicable).
-    num = Math.min(num, jobObj.limit - jobObj.total);
+    // partied units, if applicable).  Don't check for units that are
+    // trasferring, since that doesn't change the total.
+    if (!jobObj.isDestUnit()) { num = Math.min(num, jobObj.limit - jobObj.total); }
 
     // See if we can afford them; return fewer if we can't afford them all
     return Math.min(num,canAfford(jobObj.require));
