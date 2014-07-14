@@ -208,6 +208,7 @@ button:disabled{
 }
 .job{
     width:120px;
+    text-transform:capitalize;
 }
 .note{
     /*width: 380px;*/
@@ -280,6 +281,7 @@ button:disabled{
 .enemy{
     color:red;
     font-weight:bold;
+    text-transform:capitalize;
 }
 #customJobIncrement{
     display:none;
@@ -288,14 +290,11 @@ button:disabled{
     margin-left:1em;
     display:none;
 }
-#customArmyIncrement{
+#customPartyIncrement{
     display:none;
 }
 #customSpawnIncrement{
     display:none;
-}
-.job{
-    text-transform:capitalize;
 }
 
 #tannerRow,
@@ -306,10 +305,6 @@ button:disabled{
 #soldierRow,
 #cavalryRow{
     display:none;
-}
-
-.enemy{
-    text-transform:capitalize;
 }
 
 #wolfRow,
@@ -338,6 +333,10 @@ button:disabled{
 }
 button.build{
     text-transform:capitalize;
+}
+
+button.build{
+	width: 4em;
 }
 
 .building10,

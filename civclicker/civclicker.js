@@ -128,13 +128,15 @@ var population = {
     totalSick:0
 };
 
+var civData;
+
 //xxxTODO: Create a mechanism to automate the creation of a class hierarchy,
 // specifying base class, shared props, instance props.
 function CivObj(props, asProto)
 {
     if (!(this instanceof CivObj)) { return new CivObj(props); } // Prevent accidental namespace pollution
     //xxx Should these just be taken off the prototype's property names?
-    var names = asProto ? null : ["id","name","subType","owned","prereqs","require","effectText","prestige"
+    var names = asProto ? null : ["id","name","subType","owned","prereqs","require","salable","effectText","prestige"
                                  ,"initOwned","init","reset","limit","hasVariableCost"];
     Object.call(this,props);
     copyProps(this,props,names,true);
@@ -148,14 +150,15 @@ CivObj.prototype = {
     set owned(value) { curCiv[this.id].owned = value; },
     prereqs: {},
     require: {},
+    salable: false,
     effectText: "",
     prestige: false,
     initOwned: 0,  // Override this to undefined to inhibit initialization.  Also sets the type of the 'owned' property.
     init: function() { if (this.initOwned !== undefined) { curCiv[this.id] = {}; this.owned = this.initOwned; } },
     reset: function() { if (!this.prestige) { return this.init(); } }, // Default reset behavior is to re-init non-prestige items.
-    //xxx Should this be implemented as a getter?
-    limit: function() { return (typeof this.initOwned == "number") ? Infinity // Default is no limit for numbers
-                             : (typeof this.initOwned == "boolean") ? true : 0; }, // true (1) for booleans, 0 otherwise.
+    get limit() { return (typeof this.initOwned == "number" ) ? Infinity // Default is no limit for numbers
+                       : (typeof this.initOwned == "boolean") ? true : 0; }, // true (1) for booleans, 0 otherwise.
+    set limit(value) { return this.limit; }, // Only here for JSLint.
     //xxx This is a hack; it assumes that any CivObj with a getter for its
     // 'require' has a variable cost.  Which is currently true, but might not
     // always be.
@@ -187,10 +190,11 @@ function Building(props) // props is an object containing the desired properties
     // Occasional Properties: subType, efficiency, devotion
     // plural should get moved during I18N.
 }
-// Common Properties: type="building"
+// Common Properties: type="building", customQtyId
 Building.prototype = new CivObj({
     constructor: Building,
-    type: "building"
+    type: "building",
+    customQtyId: "buildingCustomQty"
 },true);
 
 function Upgrade(props) // props is an object containing the desired properties.
@@ -207,7 +211,8 @@ Upgrade.prototype = new CivObj({
     constructor: Upgrade,
     type: "upgrade",
     initOwned: false,
-    limit: function() { return 1; } // Can't re-buy these.
+    get limit() { return 1; }, // Can't re-buy these.
+    set limit(value) { return this.limit; } // Only here for JSLint.
 },true);
 
 function Unit(props) // props is an object containing the desired properties.
@@ -216,12 +221,36 @@ function Unit(props) // props is an object containing the desired properties.
     CivObj.call(this,props);
     copyProps(this,props,null,true);
     // Occasional Properties: singular, plural, subType, prereqs, require, effectText, alignment,
-    // source, efficiency_base, efficiency, onWin, lootFatigue, killFatigue, killExhaustion
+    // source, efficiency_base, efficiency, onWin, lootFatigue, killFatigue, killExhaustion, species
+    // location, ill
 }
 // Common Properties: type="unit"
 Unit.prototype = new CivObj({
     constructor: Unit,
-    type: "unit"
+    type: "unit",
+    salable: true,
+    get customQtyId() { return this.location + "CustomQty"; },
+    set customQtyId(value) { return this.customQtyId; }, // Only here for JSLint.
+    alignment:"player", // Also: "enemy"
+    species: "human", // Also:  "animal", "mechanical", "undead"
+    location: "home", // Also:  "party"
+    get illObj() { return curCiv[this.id+"Ill"]; },
+    set illObj(value) { return this.illObj; }, // Only here for JSLint.
+    get ill() { return isValid(this.illObj) ? this.illObj.owned : undefined; },
+    set ill(value) { if (isValid(this.illObj)) { this.illObj.owned = value; } },
+    get partyObj() { return civData[this.id+"Party"]; },
+    set partyObj(value) { return this.partyObj; }, // Only here for JSLint.
+    get party() { return isValid(this.partyObj) ? this.partyObj.owned : undefined; },
+    set party(value) { if (isValid(this.partyObj)) { this.partyObj.owned = value; } },
+    // Is this unit just some other sort of unit in a different location (but in the same limit pool)?
+    isDestUnit: function() { return (this.source !== undefined) && (civData[this.source].partyObj === this); },
+    get limit() { return (this.isDestUnit()) ? civData[this.source].limit 
+                                             : Object.getOwnPropertyDescriptor(CivObj.prototype,"limit").get.call(this); },
+    set limit(value) { return this.limit; }, // Only here for JSLint.
+
+    // The total quantity of this unit, regardless of status or location.
+    get total() { return (this.isDestUnit()) ? civData[this.source].total : (this.owned + (this.ill||0) + (this.party||0)); },
+    set total(value) { return this.total; } // Only here for JSLint.
 },true);
 
 function Achievement(props) // props is an object containing the desired properties.
@@ -237,7 +266,8 @@ Achievement.prototype = new CivObj({
     type: "achievement",
     initOwned: false,
     prestige : true, // Achievements are not lost on reset.
-    limit: function() { return 1; } // Can't re-buy these.
+    get limit() { return 1; }, // Can't re-buy these.
+    set limit(value) { return this.limit; } // Only here for JSLint.
 },true);
 
 // Initialize Data
@@ -277,13 +307,13 @@ new Building({ id:"mansion", name:"mansion", plural:"mansions",
     effectText:"+50 max pop." }),
 new Building({ id:"barn", name:"barn", plural:"barns",
     require:{ wood:100 },
-    effectText:"store +200 food" }),
+    effectText:"+200 food storage" }),
 new Building({ id:"woodstock", name:"wood stockpile", plural:"wood stockpiles",
     require:{ wood:100 },
-    effectText:"store +200 wood" }),
+    effectText:"+200 wood storage" }),
 new Building({ id:"stonestock", name:"stone stockpile", plural:"stone stockpiles",
     require:{ wood:100 },
-    effectText:"store +200 stone" }),
+    effectText:"+200 stone storage" }),
 new Building({ id:"tannery", name:"tannery", plural:"tanneries",
     prereqs:{ masonry: true },
     require:{ wood:30, stone:70, skins:2 },
@@ -316,12 +346,12 @@ new Building({ id:"mill", name:"mill", plural:"mills",
     prereqs:{ wheel: true },
     get require() { return { wood  : 100 * (this.owned + 1) * Math.pow(1.05,this.owned),
                              stone : 100 * (this.owned + 1) * Math.pow(1.05,this.owned) }; },
-    set require(value) { return this.require; },
+    set require(value) { return this.require; }, // Only here for JSLint.
     effectText:"improves farmers" }),
 new Building({ id:"fortification", name:"fortification", plural:"fortifications", efficiency: 0.01,
     prereqs:{ architecture: true },
     get require() { return { stone : 100 * (this.owned + 1) * Math.pow(1.05,this.owned) }; },
-    set require(value) { return this.require; },
+    set require(value) { return this.require; }, // Only here for JSLint.
     effectText:"helps protect against attack" }),
 // Altars
 // The 'name' on the altars is really the label on the button to make them.
@@ -329,23 +359,23 @@ new Building({ id:"fortification", name:"fortification", plural:"fortifications"
 new Building({ id:"battleAltar", name:"Build Altar", plural:"battle altars", subType: "altar", devotion:1,
     prereqs:{ deity: "battle" },
     get require() { return { stone:200, piety:200, metal : 50 + (50 * this.owned) }; },
-    set require(value) { return this.require; },
+    set require(value) { return this.require; }, // Only here for JSLint.
     effectText:"+1 Devotion" }),
 new Building({ id:"fieldsAltar", name:"Build Altar", plural:"fields altars", subType: "altar", devotion:1,
     prereqs:{ deity: "fields" },
     get require() { return { stone:200, piety:200,
             food : 500 + (250 * this.owned), wood : 500 + (250 * this.owned) }; },
-    set require(value) { return this.require; },
+    set require(value) { return this.require; }, // Only here for JSLint.
     effectText:"+1 Devotion" }),
 new Building({ id:"underworldAltar", name:"Build Altar", plural:"underworld altars", subType: "altar", devotion:1,
     prereqs:{ deity: "underworld" },
     get require() { return { stone:200, piety:200, corpses : 1 + this.owned }; },
-    set require(value) { return this.require; },
+    set require(value) { return this.require; }, // Only here for JSLint.
     effectText:"+1 Devotion" }),
 new Building({ id:"catAltar", name:"Build Altar", plural:"cat altars", subType: "altar", devotion:1,
     prereqs:{ deity: "cats" },
     get require() { return { stone:200, piety:200, herbs : 100 + (50 * this.owned) }; },
-    set require(value) { return this.require; },
+    set require(value) { return this.require; }, // Only here for JSLint.
     effectText:"+1 Devotion" }),
 // Upgrades
 new Upgrade({ id:"skinning", name:"Skinning", subType: "upgrade",
@@ -599,9 +629,6 @@ new Upgrade({ id:"grace", name:"Grace", subType: "prayer",
     require: { piety: 1000 }, //xxx This is not fixed; see curCiv.graceCost
     effectText:"Increase Happiness" }),
 // Units
-new Unit({ id:"unemployed", name:"unemployed", singular:"unemployed", plural:"unemployed",
-    alignment:"player",
-    effectText:"Unassigned Workers" }),
 new Unit({ id:"totalSick", name:"sick", singular:"sick", plural:"sick",
     require: undefined,  // Cannot be purchased.
     //xxx This (alternate data location) could probably be cleaner.
@@ -609,8 +636,12 @@ new Unit({ id:"totalSick", name:"sick", singular:"sick", plural:"sick",
     set owned(value) { population[this.id]= value; },
     init: function() { this.owned = this.initOwned; },
     effectText:"Sick workers" }),
+new Unit({ id:"unemployed", name:"unemployed", singular:"unemployed", plural:"unemployed",
+    require: undefined,  // Cannot be purchased (through normal controls) xxx Maybe change this?
+    salable: false,  // Cannot be sold.
+    customQtyId:"spawnCustomQty",
+    effectText:"Unassigned Workers" }),
 new Unit({ id:"farmer", name:"farmers", singular:"farmer", plural:"farmers",
-    alignment:"player",
     source:"unemployed",
     efficiency_base: 0.2,
     get efficiency() { return this.efficiency_base + (0.1 * (
@@ -620,78 +651,88 @@ new Unit({ id:"farmer", name:"farmers", singular:"farmer", plural:"farmers",
     set efficiency(value) { this.efficiency_base = value; },
     effectText:"Automatically gather food" }),
 new Unit({ id:"woodcutter", name:"woodcutters", singular:"woodcutter", plural:"woodcutters",
-    alignment:"player", source:"unemployed",
+    source:"unemployed",
     efficiency: 0.5,
     effectText:"Automatically gather wood" }),
 new Unit({ id:"miner", name:"miners", singular:"miner", plural:"miners",
-    alignment:"player", source:"unemployed",
+    source:"unemployed",
     efficiency: 0.2,
     effectText:"Automatically gather stone" }),
 new Unit({ id:"tanner", name:"tanners", singular:"tanner", plural:"tanners",
-    alignment:"player", source:"unemployed",
+    source:"unemployed",
     efficiency: 0.5,
     prereqs:{ tannery: 1 },
-    limit: function() { return civData.tannery.owned; },
+    get limit() { return civData.tannery.owned; },
+    set limit(value) { return this.limit; }, // Only here for JSLint.
     effectText:"Convert skins to leather" }),
 new Unit({ id:"blacksmith", name:"blacksmiths", singular:"blacksmith", plural:"blacksmiths",
-    alignment:"player", source:"unemployed",
+    source:"unemployed",
     efficiency: 0.5,
     prereqs:{ smithy: 1 },
-    limit: function() { return civData.smithy.owned; },
+    get limit() { return civData.smithy.owned; },
+    set limit(value) { return this.limit; }, // Only here for JSLint.
     effectText:"Convert ore to metal" }),
 new Unit({ id:"healer", name:"healers", singular:"healer", plural:"healers",
-    alignment:"player", source:"unemployed",
+    source:"unemployed",
     efficiency: 0.1,
     prereqs:{ apothecary: 1 },
-    limit: function() { return civData.apothecary.owned; },
+    get limit() { return civData.apothecary.owned; },
+    set limit(value) { return this.limit; }, // Only here for JSLint.
     effectText:"Cure sick workers" }),
 new Unit({ id:"cleric", name:"clerics", singular:"cleric", plural:"clerics",
-    alignment:"player", source:"unemployed",
+    source:"unemployed",
     efficiency: 0.05,
     prereqs:{ temple: 1 },
-    limit: function() { return civData.temple.owned; },
+    get limit() { return civData.temple.owned; },
+    set limit(value) { return this.limit; }, // Only here for JSLint.
     effectText:"Generate piety, bury corpses" }),
 new Unit({ id:"labourer", name:"labourers", singular:"labourer", plural:"labourers",
-    alignment:"player", source:"unemployed",
+    source:"unemployed",
     efficiency: 1.0,
     prereqs:{ wonder: "building" }, //xxx This is a hack
     effectText:"Use resources to build wonder" }),
 new Unit({ id:"soldier", name:"soldiers", singular:"soldier", plural:"soldiers",
-    alignment:"player", source:"unemployed",
+    source:"unemployed",
     efficiency_base: 0.05,
     get efficiency() { return this.efficiency_base + calcCombatMods(); },
     set efficiency(value) { this.efficiency_base = value; },
     prereqs:{ barracks: 1 },
     require:{ leather:10, metal:10 },
-    limit: function() { return 10*civData.barracks.owned; },
+    get limit() { return 10*civData.barracks.owned; },
+    set limit(value) { return this.limit; }, // Only here for JSLint.
     effectText:"Protect from attack" }),
 new Unit({ id:"cavalry", name:"cavalry", singular:"cavalry", plural:"cavalry",
-    alignment:"player", source:"unemployed",
+    source:"unemployed",
     efficiency_base: 0.08,
     get efficiency() { return this.efficiency_base + calcCombatMods(); },
     set efficiency(value) { this.efficiency_base = value; },
     prereqs:{ stable: 1 },
     require:{ food:20, leather:20 },
-    limit: function() { return 10*civData.stable.owned; },
+    get limit() { return 10*civData.stable.owned; },
+    set limit(value) { return this.limit; }, // Only here for JSLint.
     effectText:"Protect from attack" }),
 new Unit({ id:"shade", name:"shades", singular:"shade", plural:"shades",
-    alignment:"player",
+    prereqs: undefined,  // Cannot be purchased (through normal controls) xxx Maybe change this?
+    require: undefined,  // Cannot be purchased.
+    salable: false,  // Cannot be sold.
+    species:"undead",
     effectText:"Insubstantial spirits" }),
 new Unit({ id:"wolf", name:"wolves", singular:"wolf", plural:"wolves",
-    alignment:"animal",
+    alignment:"enemy",
     efficiency: 0.05,
     onWin: function() { doSlaughter(this); },
     killFatigue:(1.0), // Max fraction that leave after killing the last person
     killExhaustion:(1/2), // Chance of an attacker leaving after killing a person
+    species:"animal",
     effectText:"Eat your workers" }),
 new Unit({ id:"bandit", name:"bandits", singular:"bandit", plural:"bandits",
-    alignment:"mob",
+    alignment:"enemy",
     efficiency: 0.07,
     onWin: function() { doLoot(this); },
     lootFatigue:(1/8), // Max fraction that leave after cleaning out a resource
     effectText:"Steal your resources" }),
 new Unit({ id:"barbarian", name:"barbarians", singular:"barbarian", plural:"barbarians",
-    alignment:"mob",
+    alignment:"enemy",
     efficiency: 0.09,
     onWin: function() { doHavoc(this); },
     lootFatigue:(1/24), // Max fraction that leave after cleaning out a resource
@@ -699,38 +740,50 @@ new Unit({ id:"barbarian", name:"barbarians", singular:"barbarian", plural:"barb
     killExhaustion:(1.0), // Chance of an attacker leaving after killing a person
     effectText:"Slaughter, plunder, and burn" }),
 new Unit({ id:"esiege", name:"siege engines", singular:"Siege Engine", plural:"siege engines",
-    alignment:"mob",
+    alignment:"enemy",
     efficiency: 0.1,  // 10% chance to hit
+    species:"mechanical",
     effectText:"Destroy your fortifications" }),
 new Unit({ id:"soldierParty", name:"soldiers", singular:"soldier", plural:"soldiers",
-    alignment:"player", source:"soldier",
+    source:"soldier",
     efficiency_base: 0.05,
     get efficiency() { return this.efficiency_base + calcCombatMods(); },
     set efficiency(value) { this.efficiency_base = value; },
-    prereqs:{ standard: true, barracks: 1 } }),
+    prereqs:{ standard: true, barracks: 1 },
+    location: "party",
+    effectText:"Your raiding party" }),
 new Unit({ id:"cavalryParty", name:"cavalry", singular:"cavalry", plural:"cavalry",
-    alignment:"player", source:"cavalry",
+    source:"cavalry",
     efficiency_base: 0.08,
     get efficiency() { return this.efficiency_base + calcCombatMods(); },
     set efficiency(value) { this.efficiency_base = value; },
-    prereqs:{ standard: true, stable: 1 } }),
+    prereqs:{ standard: true, stable: 1 },
+    location: "party",
+    effectText:"Your mounted raiders" }),
 new Unit({ id:"siege", name:"siege engines", singular:"Siege Engine", plural:"siege engines",
-    alignment:"player",
     efficiency: 0.1, // 10% chance to hit
     prereqs:{ standard: true, mathematics: true },
     require:{ wood:200, leather:50, metal:50 },
+    species:"mechanical",
+    location: "party",
+    salable: false,
     effectText:"Destroy enemy fortifications" }),
 new Unit({ id:"esoldier", name:"soldiers", singular:"soldier", plural:"soldiers",
-    alignment:"mob",
-    efficiency: 0.05 }),
+    alignment:"enemy",
+    efficiency: 0.05,
+    location: "party",
+    effectText:"Defending enemy troops" }),
 // Not currently used.
 new Unit({ id:"ecavalry", name:"cavalry", singular:"cavalry", plural:"cavalry",
-    alignment:"mob",
-    efficiency: 0.08 }),
+    alignment:"enemy",
+    efficiency: 0.08,
+    location: "party" }),
 new Unit({ id:"efort", name:"fortifications", singular:"fortification", plural:"fortifications",
-    alignment:"mob",
-    efficiency: 0.01 // -1% damage
-}),
+    alignment:"enemy",
+    efficiency: 0.01, // -1% damage
+    species:"mechanical",
+    location: "party",
+    effectText:"Reduce enemy casualties"}),
 // Achievements
     //conquest
 new Achievement({id:"raiderAch"        , name:"Raider"            , test:function() { return raiding.victory; }}),
@@ -905,10 +958,10 @@ function getReqText(costObj)
 }
 
 // Returns when the player meets the given upgrade prereqs.
-// Undefined prereqs are assumed to be nonexistent.
+// Undefined prereqs are assumed to mean the item is unpurchasable
 function meetsPrereqs(prereqObj)
 {
-    if (!isValid(prereqObj)) { prereqObj = {}; }
+    if (!isValid(prereqObj)) { return false; }
     var i;
     for(i in prereqObj)
     {
@@ -970,19 +1023,21 @@ function payFor(costObj, num)
 function canHire(job,num)
 {
     //xxx Need to validate job
-    var buildingLimit = civData[job].limit(); // Additional limit from buildings.
-
     if (num === undefined) { num = Infinity; } // Default to as many as we can.
-    num = Math.min(num, civData.unemployed.owned);  // Cap hiring by # of available workers.
-    num = Math.max(num, -civData[job].owned);  // Cap firing by # in that job.
+
+    var jobObj = civData[job];
+
+    // Can't hire more than our source pool.
+    if (jobObj.source) { num = Math.min(num, civData[jobObj.source].owned); }
+
+    num = Math.max(num, -jobObj.owned);  // Can't fire more than we have.
     
     // Check the building limit against the current numbers (including sick and
     // partied units, if applicable).
-    num = Math.min(num, buildingLimit - civData[job].owned - curCiv[job+"Ill"].owned 
-        - (isValid(civData[job+"Party"]) ? civData[job+"Party"].owned : 0) );
+    num = Math.min(num, jobObj.limit - jobObj.total);
 
-    // See if we can afford them; returns fewer if we can't afford them all
-    return Math.min(num,canAfford(civData[job].require));
+    // See if we can afford them; return fewer if we can't afford them all
+    return Math.min(num,canAfford(jobObj.require));
 }
 
 // Interface initialization code
@@ -1024,6 +1079,7 @@ function getBuildingRowText(buildingObj)
     var bldId = buildingObj.id;
     var s = "<tr id='"+bldId+"Row'>";
     // Note that updateBuildingRow() relies on the <tr>'s children being in this particular layout.
+    //xxx Add sell options here, based on 'salable' flag.
     s += "<td class='buildingnames'>"+buildingObj.plural+": </td>";
     s += "<td class='number'><span data-action='display' data-target='"+bldId+"'>0</span></td>";
     s += "<td class='building1'><button class='build' onmousedown=\"createBuilding('"+bldId+"',1)\">build</button></td>";
@@ -1085,52 +1141,49 @@ function updateBuildingButtons(){
 
 
 // Pass this the job definition object.
-// Also pass 'true' to only generate the x1 buttons 
 // Or pass nothing, to create a blank row.
-function getJobRowText(jobObj, onlyOnes, funcName, displayClass, allowSell)
+function getJobRowText(jobObj)
 {
     if (jobObj===null || jobObj===undefined) { return "<tr><td colspan='13'/>&nbsp;</tr>"; }
-    if (onlyOnes===undefined) { onlyOnes = false; }
-    if (funcName===undefined) { funcName = "hire"; }
-    if (displayClass===undefined) { displayClass = "job"; }
-    if (allowSell===undefined) { allowSell = true; }
+
+    var hasBuy  = (jobObj.alignment == "player" && (jobObj.require !== undefined));
+    var hasSell = (jobObj.alignment == "player" && (jobObj.salable));
+
+    var funcName = "hire";
+
+    var enemyFlag = (jobObj.alignment == "enemy") ? " enemy" : "";
 
     var jobId = jobObj.id;
     var action = (isValid(population[jobId])) ? "display_pop" : "display"; //xxx Hack
     var s = "<tr id='"+jobId+"Row'>";
     // Note that updateJobRow() relies on the <tr>'s children being in this particular layout.
-    if (!onlyOnes && funcName && allowSell) {
-    s += "<td class='jobNone'><button onmousedown=\""+funcName+"('"+jobId+"',-Infinity)\">-All</button></td>";
-    s += "<td class='jobCustom'><button onmousedown=\""+funcName+"('"+jobId+"','-custom')\">-Custom</button></td>";
-    s += "<td class='job100'><button onmousedown=\""+funcName+"('"+jobId+"',-100)\">x100</button></td>";
-    s += "<td class='job10'><button onmousedown=\""+funcName+"('"+jobId+"',-10)\">x10</button></td>";
+    if (hasSell) {
+        s += "<td class='jobNone'><button onmousedown=\""+funcName+"('"+jobId+"',-Infinity)\">-All</button></td>";
+        s += "<td class='jobCustom'><button onmousedown=\""+funcName+"('"+jobId+"','-custom')\">-Custom</button></td>";
+        s += "<td class='job100'><button onmousedown=\""+funcName+"('"+jobId+"',-100)\">x100</button></td>";
+        s += "<td class='job10'><button onmousedown=\""+funcName+"('"+jobId+"',-10)\">x10</button></td>";
+        s += "<td><button onmousedown=\""+funcName+"('"+jobId+"',-1)\">&minus;</button></td>";
     } else {
-    s += "<td class='jobNone'></td><td class='jobCustom'></td>" +
-         "<td class='job100'></td><td class='job10'></td>";
+        s += "<td class='jobNone'></td><td class='jobCustom'></td>" +
+             "<td class='job100'></td><td class='job10'></td><td></td>";
     }
-    if (funcName && allowSell) {
-    s += "<td><button onmousedown=\""+funcName+"('"+jobId+"',-1)\">-</button></td>";
-    } else {
-    s += "<td></td>";
-    }
-    s += "<td class='"+displayClass+"'>"+jobObj.name+": </td>";
+
+    s += "<td class='job"+enemyFlag+"'>"+jobObj.name+": </td>";
     s += "<td class='number'><span data-action='"+action+"' data-target='"+jobId+"'>0</span></td>";
-    if (funcName) {
-    s += "<td><button onmousedown='"+funcName+"(\""+jobId+"\",1)'>+</button></td>";
+
+    if (hasBuy) {
+        s += "<td><button onmousedown='"+funcName+"(\""+jobId+"\",1)'>+</button></td>";
+        s += "<td class='job10'><button onmousedown=\""+funcName+"('"+jobId+"',10)\">x10</button></td>";
+        s += "<td class='job100'><button onmousedown=\""+funcName+"('"+jobId+"',100)\">x100</button></td>";
+        s += "<td class='jobCustom'><button onmousedown=\""+funcName+"('"+jobId+"','custom')\">+Custom</button></td>";
+        s += "<td class='jobAll'>";
+        // Don't allow 'Max' on things we can't sell back.
+        var maxButton = hasSell ? { label:"Max", value: Infinity } : { label:"x1k", value:1000 };
+        s += "<button onmousedown=\""+funcName+"('"+jobId+"',"+maxButton.value+")\">"+maxButton.label+"</button>";
+        s += "</td>";
     } else {
-    s += "<td></td>";
-    }
-    if (!onlyOnes && funcName) {
-    s += "<td class='job10'><button onmousedown=\""+funcName+"('"+jobId+"',10)\">x10</button></td>";
-    s += "<td class='job100'><button onmousedown=\""+funcName+"('"+jobId+"',100)\">x100</button></td>";
-    s += "<td class='jobCustom'><button onmousedown=\""+funcName+"('"+jobId+"','custom')\">+Custom</button></td>";
-    s += "<td class='jobAll'>";
-    // Don't allow 'Max' on things we can't sell back.
-    if (allowSell) { s += "<button onmousedown=\""+funcName+"('"+jobId+"',Infinity)\">Max</button></td>"; }
-    s += "</td>";
-    } else {
-    s += "<td class='job10'></td><td class='job100'></td>" +
-         "<td class='jobCustom'></td><td class='jobAll'></td>";
+        s += "<td></td><td class='job10'></td><td class='job100'></td>" +
+             "<td class='jobCustom'></td><td class='jobAll'></td>";
     }
     s += "<td>" + getCostNote(jobObj) + "</td>";
     s += "</tr>";
@@ -1139,137 +1192,60 @@ function getJobRowText(jobObj, onlyOnes, funcName, displayClass, allowSell)
 // Dynamically create the job controls table.
 function addJobRows()
 {
-    document.getElementById("jobs").innerHTML += 
-          getJobRowText(civData.unemployed,false,null,"job")
-        + getJobRowText(civData.totalSick,false,null,"job")
-        + getJobRowText(civData.farmer)
-        + getJobRowText(civData.woodcutter)
-        + getJobRowText(civData.miner)
-        + getJobRowText(civData.tanner)
-        + getJobRowText(civData.blacksmith)
-        + getJobRowText(civData.healer)
-        + getJobRowText(civData.cleric)
-        + getJobRowText(civData.labourer)
-        + getJobRowText(civData.soldier)
-        + getJobRowText(civData.cavalry)
-        + getJobRowText(civData.shade,false,null,"job")
-        + getJobRowText(civData.wolf,false,null,"enemy")
-        + getJobRowText(civData.bandit,false,null,"enemy")
-        + getJobRowText(civData.barbarian,false,null,"enemy")
-        + getJobRowText(civData.esiege,false,null,"enemy");
+    var s="";
+    unitData.forEach(function(elem) { if (elem.location == "home") { s += getJobRowText(elem); } });
+    document.getElementById("jobs").innerHTML += s;
 }
-
-// job - The job ID to update
-function updateJobButtons(job){
-//xxx Need to validate job.
-    var elem = document.getElementById(job + "Row");
-
-    // Reveal the row if prereqs are met
-    //xxx We don't hide it again if the prereq is later unmet, because we don't want to orphan workers.
-    if (meetsPrereqs(civData[job].prereqs)) { setElemDisplay(elem,true); }
-
-    var numHire = canHire(job);
-    var numFire = -canHire(job,-Infinity);
-
-    elem.children[ 0].children[0].disabled = (numFire <   1); // -   All
-    elem.children[ 1].children[0].disabled = (numFire <   1); // -Custom
-    elem.children[ 2].children[0].disabled = (numFire < 100); // -   100
-    elem.children[ 3].children[0].disabled = (numFire <  10); // -    10
-    elem.children[ 4].children[0].disabled = (numFire <   1); // -     1
-    elem.children[ 7].children[0].disabled = (numHire <   1); //       1
-    elem.children[ 8].children[0].disabled = (numHire <  10); //      10
-    elem.children[ 9].children[0].disabled = (numHire < 100); //     100
-    elem.children[10].children[0].disabled = (numHire <   1); //  Custom
-    elem.children[11].children[0].disabled = (numHire <   1); //     Max
-}
-function updateJobs(){
-    //Update the page with the latest worker distribution and stats
-    updateJobButtons("farmer");
-    updateJobButtons("woodcutter");
-    updateJobButtons("miner");
-    updateJobButtons("tanner");
-    updateJobButtons("blacksmith");
-    updateJobButtons("healer");
-    updateJobButtons("cleric");
-    updateJobButtons("labourer");
-    updateJobButtons("soldier");
-    updateJobButtons("cavalry");
-}
-
-function updateMobs(){
-    //Check through each mob type and hide as necessary.
-    setElemDisplay(document.getElementById("wolfRow"), (civData.wolf.owned > 0));
-    setElemDisplay(document.getElementById("banditRow"), (civData.bandit.owned > 0));
-    setElemDisplay(document.getElementById("barbarianRow"), (civData.barbarian.owned > 0));
-    setElemDisplay(document.getElementById("esiegeRow"), (civData.esiege.owned > 0));
-    setElemDisplay(document.getElementById("shadeRow"), (civData.shade.owned > 0));
-}
-
-
 // Dynamically create the Party controls table.
 function addPartyRows()
 {
-    document.getElementById("party").innerHTML += 
-          getJobRowText(civData.soldierParty,false,"party","job")
-        + getJobRowText(civData.cavalryParty,false,"party","job")
-        + getJobRowText(civData.siege,false,"party","job",false)
-        + getJobRowText(civData.esoldier,false,null,"enemy")
-        + getJobRowText(civData.efort,false,null,"enemy");
+    var s="";
+    unitData.forEach(function(elem) { if (elem.location == "party") { s += getJobRowText(elem); } });
+    document.getElementById("party").innerHTML += s;
 }
 
-function updatePartyRow(job) {
-    var elem = document.getElementById(job + "Row");
-    var pacifist = !civData.standard.owned;
-    var limit;
+// job - The job ID to update
+function updateJobRow(job){
+//xxx Need to validate job.
+    var jobObj = civData[job];
 
-    // Reveal the row if prereqs are met
-    //xxx We don't hide it again if the prereq is later unmet, because we don't want to orphan workers.
-    if (meetsPrereqs(civData[job].prereqs)) { setElemDisplay(elem,true); }
+    var hasBuy  = (jobObj.alignment == "player" && (jobObj.require !== undefined));
+    var hasSell = (jobObj.alignment == "player" && (jobObj.salable));
 
-    // If we have a designated source, limit to what it can provide.  Otherwise
-    // assume no limit.
-    limit = (isValid(civData[job].source)) ?  civData[civData[job].source].owned : Infinity;
+    // Can't buy army units without a battle standard.
+    var blockBuy = ((jobObj.location == "party") && (!civData.standard.owned));
 
-    elem.children[ 0].children[0].disabled = pacifist || (civData[job].owned <   1); //    None
-    elem.children[ 1].children[0].disabled = pacifist || (civData[job].owned <   1); // -Custom
-    elem.children[ 2].children[0].disabled = pacifist || (civData[job].owned < 100); // -   100
-    elem.children[ 3].children[0].disabled = pacifist || (civData[job].owned <  10); // -    10
-    elem.children[ 4].children[0].disabled = pacifist || (civData[job].owned <   1); // -     1
-    elem.children[ 7].children[0].disabled = pacifist || (limit           <   1); //       1
-    elem.children[ 8].children[0].disabled = pacifist || (limit           <  10); //      10
-    elem.children[ 9].children[0].disabled = pacifist || (limit           < 100); //     100
-    elem.children[10].children[0].disabled = pacifist || (limit           <   1); //  Custom
-    elem.children[11].children[0].disabled = pacifist || (limit           <   1); //     Max
+    var elem = document.getElementById(jobObj.id + "Row");
+
+    // Reveal the row if there are any, or if it's our unit and we meet the prereqs.
+    setElemDisplay(elem,(jobObj.owned > 0) || ((jobObj.alignment=="player")&&(meetsPrereqs(jobObj.prereqs))));
+
+    var numHire = canHire(job);
+    var numFire = canHire(job,-Infinity);
+
+    if (hasSell){
+        elem.children[ 0].children[0].disabled = (numFire >  -1); // -   All
+        elem.children[ 1].children[0].disabled = (numFire >  -1); // -Custom
+        elem.children[ 2].children[0].disabled = (numFire >-100); // -   100
+        elem.children[ 3].children[0].disabled = (numFire > -10); // -    10
+        elem.children[ 4].children[0].disabled = (numFire >  -1); // -     1
+    }
+    if (hasBuy){
+        elem.children[ 7].children[0].disabled = blockBuy || (numHire <   1); //       1
+        elem.children[ 8].children[0].disabled = blockBuy || (numHire <  10); //      10
+        elem.children[ 9].children[0].disabled = blockBuy || (numHire < 100); //     100
+        elem.children[10].children[0].disabled = blockBuy || (numHire <   1); //  Custom
+        elem.children[11].children[0].disabled = blockBuy || (numHire <   1); //     Max
+    }
+}
+function updateJobButtons(){
+    //Update the page with the latest worker distribution and stats
+    unitData.forEach(function(elem) { if (elem.location == "home") { updateJobRow(elem.id); } });
 }
 
 function updatePartyButtons(){
-    var elem;
-    var pacifist = !civData.standard.owned;
-    var limit;
-
-    updatePartyRow("soldierParty");
-    updatePartyRow("cavalryParty");
-
-    //xxx This part should be merged with updatePartyRow eventually
-    var job = "siege";
-    elem = document.getElementById(job+"Row");
-    // Reveal the row if prereqs are met
-    //xxx We don't hide it again if the prereq is later unmet, because we don't want to orphan workers.
-    if (meetsPrereqs(civData[job].prereqs)) { setElemDisplay(elem,true); }
-
-    limit = canAfford(civData[job].require);
-    
-    elem.children[ 7].children[0].disabled = pacifist || (limit <   1); //       1
-    elem.children[ 8].children[0].disabled = pacifist || (limit <  10); //      10
-    elem.children[ 9].children[0].disabled = pacifist || (limit < 100); //     100
-    elem.children[10].children[0].disabled = pacifist || (limit <   1); //  Custom
-    // Siege max disabled; too easy to overspend.
-    // elem.children[11].children[0].disabled = pacifist || (limit <  1); // Max
-}
-function updateParty(){
     //updates the party (and enemies)
-    setElemDisplay(document.getElementById("esoldierRow"),(civData.esoldier.owned > 0));
-    setElemDisplay(document.getElementById("efortRow"),(civData.efort.owned > 0));
+    unitData.forEach(function(elem) { if (elem.location == "party") { updateJobRow(elem.id); } });
 }
 
 
@@ -1547,9 +1523,8 @@ function updatePopulation(){
     var maxSpawn = Math.max(0,Math.min((population.cap - population.current),logSearchFn(calcWorkerCost,curCiv.food.owned)));
     document.getElementById("workerNumMax").innerHTML = prettify(Math.round(maxSpawn));
     document.getElementById("workerCostMax").innerHTML = prettify(Math.round(calcWorkerCost(maxSpawn)));
-    updateJobs(); //handles the display of individual worker types
-    updateMobs(); //handles the display of enemies
-    updateParty();
+    updateJobButtons(); //handles the display of units in the player's kingdom.
+    updatePartyButtons(); // handles the display of units out on raids.
     updateHappiness();
     updateAchievements(); //handles display of achievements
 }
@@ -1895,17 +1870,14 @@ function update(){
     //call each existing update subfunction in turn
     updateResourceTotals(); //need to remove call to updatePopulation, move references to upgrades
     updateBuildingButtons();
-    updatePopulation(); //move enabling/disabling by space to updateJobs, remove calls to updateJobs, updateMobs, updateHappiness, updateAchievements
-    updateJobs();
+    updatePopulation(); //move enabling/disabling by space to updateJobButtons, remove calls to updateJobButtons, updateHappiness, updateAchievements
     updateJobButtons();
     updateUpgrades();
     //updateDeity(); --- only needs to be called on initialisation and deity-related interactions ---
     //makeDeitiesTables(); --- only needs to be called on initialisation and deity-related interactions ---
-    updateMobs();
     updateDevotion(); //need to add else clauses to disable buttons, change the way updates are revealed (unhidden as devotion increases)
     //updateRequirements(); --- only needs to be called on building-related interactions, though must subsequently call the update() function ---
     updateAchievements(); //should probably include else clauses
-    updateParty(); //wrap in an "if(civData.standard.owned){" clause in to short-circuit this when it's unnecessary
     updatePartyButtons();
     //updateTargets();  --- only to be called at initialisation and targetMax alterations
     updateHappiness();
@@ -1955,22 +1927,22 @@ function increment(materialId){
 }
 
 function createBuilding(buildingId,num){
-    if (num == "undefined") { num = 1; }
-    if (num == "custom") { num = getCustomBuildNumber(); }
-    if (num == "-custom") { num = -getCustomBuildNumber(); }
+    var buildingObj = civData[buildingId];
 
-    var building = civData[buildingId];
+    if (num == "undefined") { num = 1; }
+    if (num == "custom") { num = getCustomNumber(buildingObj); }
+    if (num == "-custom") { num = -getCustomNumber(buildingObj); }
 
     //First check the building requirements
     //Then deduct resources
-    num = payFor(building.require,num);
+    num = payFor(buildingObj.require,num);
     if (num > 0) {
         //Then increment the total number of that building
-        building.owned += num;
+        buildingObj.owned += num;
         curCiv.freeLand.owned -= num;
         //Increase devotion if the building was an altar.
-        if (isValid(building.devotion)) { 
-            curCiv.devotion.owned += building.devotion * num; 
+        if (isValid(buildingObj.devotion)) { 
+            curCiv.devotion.owned += buildingObj.devotion * num; 
             // If we've exceeded this deity's prior max, raise it too.
             if (curCiv.deities[0].maxDev < curCiv.devotion.owned) {
                 curCiv.deities[0].maxDev = curCiv.devotion.owned;
@@ -1978,29 +1950,31 @@ function createBuilding(buildingId,num){
             }
         }
         //If building was graveyard, create graves
-        if (building == civData.graveyard) { digGraves(num); }
+        if (buildingObj === civData.graveyard) { digGraves(num); }
         //if building was temple and aesthetics has been activated, increase happiness
-        if (building == civData.temple && civData.aesthetics.owned){
+        if (buildingObj === civData.temple && civData.aesthetics.owned){
             var templeProp = num * 25 / population.current; //if population is large, temples have less effect
             mood(templeProp);
         }
         updateBuildingButtons(); //Update the buttons themselves
         updateDevotion(); //might be necessary if building was an altar
-        updateRequirements(building); //Increases buildings' costs
+        updateRequirements(buildingObj); //Increases buildings' costs
         updateResourceTotals(); //Update page with lower resource values and higher building total
         //Then check for overcrowding
         if (curCiv.freeLand.owned < 0){
             gameLog("You are suffering from overcrowding.");
             mood(Math.max(num,-curCiv.freeLand.owned) * -0.0025 * (civData.codeoflaws.owned ? 0.5 : 1.0));
         }
-        updateJobs(); //Update page with individual worker numbers, can't remember why this is called here
+        updateJobButtons(); //Update page with individual worker numbers, can't remember why this is called here
     } else {
         gameLog("Could not build, insufficient resources.");
     }
 }
 
-function getCustomNumber(elemId){
-    var elem = document.getElementById(elemId);
+function getCustomNumber(civObj){
+    var elem = document.getElementById(civObj.customQtyId);
+    if (!elem) { return undefined; }
+
     var num = Number(elem.value);
 
     // Check the above operations haven't returned NaN
@@ -2016,10 +1990,7 @@ function getCustomNumber(elemId){
 
     return num;
 }
-function getCustomBuildNumber() { return getCustomNumber("buildCustom"); }
-function getCustomSpawnNumber() { return getCustomNumber("spawnCustom"); }
-function getCustomJobNumber()   { return getCustomNumber("jobCustom"  ); }
-function getCustomArmyNumber()  { return getCustomNumber("armyCustom" ); }
+
 
 //Calculates and returns the cost of adding a certain number of workers at the present population
 function calcWorkerCost(num, curPop){
@@ -2038,11 +2009,12 @@ function spawnCat()
 
 // Creates or destroys workers
 function spawn(num){
-    if (num == "custom") { num = getCustomSpawnNumber(); }
-    if (num == "-custom") { num = -getCustomSpawnNumber(); }
+    var jobObj = civData.unemployed;
+    if (num == "custom" ) { num =  getCustomNumber(jobObj); }
+    if (num == "-custom") { num = -getCustomNumber(jobObj); }
 
     // Find the most workers we can spawn
-    num = Math.max(num, -civData.unemployed.owned);  // Cap firing by # in that job.
+    num = Math.max(num, -jobObj.owned);  // Cap firing by # in that job.
     num = Math.min(num,logSearchFn(calcWorkerCost,curCiv.food.owned));
 
     // Apply population cap, and only allow whole workers.
@@ -2053,7 +2025,7 @@ function spawn(num){
 
     // New workers enter as farmers, but we only destroy unemployed ones.
     if (num >= 0) { civData.farmer.owned += num; }
-    else          { civData.unemployed.owned += num; }
+    else          { jobObj.owned += num; }
 
     population.current += num;
 
@@ -2121,20 +2093,24 @@ function starve(num) {
 // Pass "custom" or "-custom" to use the custom increment.
 // Returns the actual number hired or fired (negative if fired).
 function hire(job,num){
-    if (num ==  "custom") { num =  getCustomJobNumber(); }
-    if (num == "-custom") { num = -getCustomJobNumber(); }
+    var jobObj = civData[job];
+    if (num ==  "custom") { num =  getCustomNumber(jobObj); }
+    if (num == "-custom") { num = -getCustomNumber(jobObj); }
 
     num = canHire(job,num);  // How many can we actually get?
 
     // Pay for them if we're buying
-    payFor(civData[job].require,num);
+    payFor(jobObj.require,num);
 
     // Do the actual hiring
-    civData[job].owned += num;
-    civData.unemployed.owned -= num;
+    jobObj.owned += num;
+    if (jobObj.source) { civData[jobObj.source].owned -= num; }
 
-    updateResourceTotals(); //update with new resource number
-    updatePopulation(); // Updates the page with the num in each job.
+    updateResourceTotals(); //updates the food/second
+    updatePopulation(); //updates the army display
+    updatePartyButtons(); //updates the buttons
+    updateTargets(); // might enable/disable raiding
+    updateJobButtons(); //updates the general pool
 
     return num;
 }
@@ -2149,8 +2125,8 @@ function hire(job,num){
 // Returns the actual number created or destroyed (negative if destroyed).
 function raiseDead(num){
     if (num === undefined) { num = 1; }
-    if (num == "custom") { num = getCustomSpawnNumber(); }
-    if (num == "-custom") { num = -getCustomSpawnNumber(); }
+    if (num == "custom") { num = getCustomNumber(civData.unemployed); }
+    if (num == "-custom") { num = -getCustomNumber(civData.unemployed); }
 
     // Find the most zombies we can raise
     num = Math.min(num, curCiv.corpses.owned);
@@ -2214,7 +2190,7 @@ function selectDeity(domain,force){
 
     document.getElementById(domain+"Upgrades").style.display = "inline";
     document.getElementById("deityDomains").style.display = "none";
-    updateDeity();
+    makeDeitiesTables();
 }
 
 function digGraves(num){
@@ -2403,7 +2379,7 @@ function spawnMob(mobtype){
     } 
     gameLog(msg);
     document.getElementById(mobtype+"Row").style.display = "table-row";
-    updateMobs(); //updates page with numbers
+    updateJobButtons(); //updates page with numbers
 
     return num_mob;
 }
@@ -2426,43 +2402,10 @@ function smite(){
     smiteMob("bandit");
     smiteMob("wolf");
     updateResourceTotals();
-    updateMobs();
+    updateJobButtons();
 }
 
 /* War Functions */
-
-//Adds or removes units from army
-function party(job,num){
-    if (num == "custom") { num = getCustomArmyNumber(); }
-    if (num == "-custom") { num = -getCustomArmyNumber(); }
-
-    //xxx HACK: This should be done more elegantly
-    // The autogeneration routines want to use the actual unit ID,
-    // but this function wants the base unit type.
-    if (job == "soldierParty") { job = "soldier"; }
-    if (job == "cavalryParty") { job = "cavalry"; }
-
-    if (job == "soldier" || job == "cavalry"){
-        // checks that there are sufficient units in pool
-        num = Math.min(num, civData[job].owned);
-        // checks that there are sufficient units in army
-        num = Math.max(num, -civData[job+"Party"].owned);
-        civData[job+"Party"].owned += num;
-        civData[job].owned -= num;
-    }
-    if (job == "siege"){
-        num = Math.min(num,Math.floor(curCiv.wood.owned/200),Math.floor(curCiv.metal.owned/50),Math.floor(curCiv.leather.owned/50));
-        civData.siege.owned += num;
-        curCiv.wood.owned -= 200 * num;
-        curCiv.metal.owned -= 50 * num;
-        curCiv.leather.owned -= 50 * num;
-    }
-    updateResourceTotals(); //updates the food/second
-    updatePopulation(); //updates the army display
-    updatePartyButtons(); //updates the buttons
-    updateTargets();
-    updateJobs(); //updates the general pool
-}
 
 function invade(ecivtype){
     //invades a certain type of civilisation based on the button clicked
@@ -2495,7 +2438,7 @@ function invade(ecivtype){
     };
 
     updateTargets(); //updates largest raid target
-    updateParty();
+    updatePartyButtons();
     updatePopulation();
     updateResourceTotals();
     document.getElementById("raidGroup").style.display = "none"; //Hides raid buttons until the raid is finished
@@ -3078,12 +3021,12 @@ function load(loadType){
     updateRequirements(civData.underworldAltar);
     updateRequirements(civData.catAltar);
     updateResourceTotals();
-    updateMobs();
+    updateJobButtons();
     makeDeitiesTables();
     updateDeity();
     updateUpgrades();
     updateDevotion();
-    updateParty();
+    updatePartyButtons();
     updateHappiness();
     updateWonder();
     document.getElementById("clicks").innerHTML = prettify(Math.round(curCiv.resourceClicks));
@@ -3405,8 +3348,8 @@ function reset(){
     makeDeitiesTables();
     updateDevotion();
     updateTargets();
-    updateMobs();
-    updateParty();
+    updateJobButtons();
+    updatePartyButtons();
     updateWonder();
     //Reset upgrades and other interface elements that might have been unlocked
     document.getElementById("renameDeity").disabled = "true";
@@ -3665,7 +3608,7 @@ function doFight(attacker,defender)
 
 function doSlaughter(attacker)
 {
-    var killVerb = (attacker.alignment == "animal") ? "eaten" : "killed";
+    var killVerb = (attacker.species == "animal") ? "eaten" : "killed";
     var target = randomHealthyWorker(); //Choose random worker
     if (target != "") { 
         if (Math.random() < attacker.killExhaustion) { // An attacker may disappear after killing
@@ -3674,13 +3617,13 @@ function doSlaughter(attacker)
         --population.current;
         --civData[target].owned;
 
-        if (attacker.alignment != "animal") { ++curCiv.corpses.owned; } // Animals will eat the corpse
+        if (attacker.species != "animal") { ++curCiv.corpses.owned; } // Animals will eat the corpse
         gameLog(getJobSingular(target) + " " + killVerb + " by " + attacker.name);
         updatePopulation();
     } else { // Attackers slowly leave once everyone is dead
         var leaving = Math.ceil(civData[attacker.id].owned * Math.random() * attacker.killFatigue);
         civData[attacker.id].owned -= leaving;
-        updateMobs();
+        updateJobButtons();
     }
 }
 
@@ -3698,7 +3641,7 @@ function doLoot(attacker)
         //some will leave
         var leaving = Math.ceil(civData[attacker.id].owned * Math.random() * attacker.lootFatigue);
         civData[attacker.id].owned -= leaving;
-        updateMobs();
+        updateJobButtons();
     }
     civData[attacker.id].owned -= 1; // Attackers leave after stealing something.
     updateResourceTotals();
@@ -3726,7 +3669,7 @@ function doSack(attacker)
         //some will leave
         var leaving = Math.ceil(civData[attacker.id].owned * Math.random() * (1/112));
         civData[attacker.id].owned -= leaving;
-        updateMobs();
+        updateJobButtons();
     }
 
     civData[attacker.id].owned -= 1;
@@ -3792,14 +3735,14 @@ function doEsiege()
         if (civData.mathematics.owned){ //Can we use them?
             gameLog("Captured " + prettify(civData.esiege.owned) + " enemy siege engines.");
             civData.siege.owned += civData.esiege.owned; //capture them
-            updateParty(); //show them in conquest pane
+            updatePartyButtons(); //show them in conquest pane
         } else {
             //we can't use them, therefore simply destroy them
             gameLog("Destroyed " + prettify(civData.esiege.owned) + " enemy siege engines.");
         }
         civData.esiege.owned = 0;
     }
-    updateMobs();
+    updateJobButtons();
 }
 
 function doSiege()
@@ -3899,7 +3842,7 @@ function doRaid() {
                 raidWin();
                 updateTargets(); //update the new target
             }
-            updateParty(); //display new totals for army soldiers and enemy soldiers
+            updatePartyButtons(); //display new totals for army soldiers and enemy soldiers
         } else if (raiding.victory){
             //handles the victory outcome
             document.getElementById("victoryGroup").style.display = "block";
@@ -3916,7 +3859,7 @@ function doRaid() {
         raiding.raiding = false;
         raiding.epop = 0;
         raiding.plunderLoot = {};
-        updateParty();
+        updatePartyButtons();
     }
 }
 
@@ -4036,7 +3979,7 @@ window.setInterval(function(){
         num_starve = starve(Math.ceil(population.current/1000));
         if (num_starve == 1) { gameLog("A worker starved to death"); }
         if (num_starve > 1) { gameLog(prettify(num_starve) + " workers starved to death"); }
-        updateJobs();
+        updateJobButtons();
         mood(-0.01);
         curCiv.food.owned = 0;
         updatePopulation(); //Called because starve() doesn't. May just change starve()?
@@ -4155,7 +4098,7 @@ window.setInterval(function(){
     
     updateUpgrades();
     updateBuildingButtons();
-    updateJobs();
+    updateJobButtons();
     updatePartyButtons();
     updateTargets();
     updateSpawnButtons();
@@ -4205,7 +4148,7 @@ function toggleCustomIncrements(){
     document.getElementById("toggleCustomIncrements").innerHTML = 
         settings.customIncr ? "Disable Custom Increments" : "Enable Custom Increments";
     setElemDisplay(document.getElementById("customJobIncrement"),settings.customIncr);
-    setElemDisplay(document.getElementById("customArmyIncrement"),settings.customIncr);
+    setElemDisplay(document.getElementById("customPartyIncrement"),settings.customIncr);
     setElemDisplay(document.getElementById("customBuildIncrement"),settings.customIncr);
     setElemDisplay(document.getElementById("customSpawnIncrement"),settings.customIncr);
     setElemDisplay(document.getElementById("spawn1group"),!settings.customIncr);
