@@ -122,7 +122,7 @@ button{
     width:190px;
     border:2px solid black;
     background-color:#fff;
-    margin-right:10px;
+    margin-right:0.8em;
     padding:0.1em;
     font-size:1.0em;
     font-weight:500;
@@ -135,27 +135,27 @@ button:disabled{
     font-weight:normal;
 }
 #jobs button{
-    width:48px;
+    width:3.5em;
     text-shadow:none;
     font-weight:normal;
     font-size:0.9em;
-    margin-right:5px;
+    margin-right:0.3em;
 }
 #jobs .jobCustom button{
-    width:90px;
+    width:6em;
 }
 #party .jobCustom button{
-    width:90px;
+    width:6em;
 }
 #buildings .buildingCustom button{
-    width:90px;
+    width:6em;
 }
 #party button{
-    width:48px;
+    width:3.5em;
     text-shadow:none;
     font-weight:normal;
     font-size:0.9em;
-    margin-right:5px;
+    margin-right:0.3em;
 }
 
 .paneSelector{
@@ -207,7 +207,7 @@ button:disabled{
     display:none;
 }
 .job{
-    width:120px;
+    width:8em;
     text-transform:capitalize;
 }
 .note{
@@ -226,11 +226,11 @@ button:disabled{
     margin-right:-1em;
 }
 #jobs .note{
-    width:300px;
+    width:35em;
 }
 .number{
     text-align:right;
-    padding-right:5px;
+    padding-right:0.3em;
 }
 .icon{
     padding-right:10px;
@@ -260,7 +260,7 @@ button:disabled{
 }
 
 .deityDomain{
-    padding-right:20px;
+    padding-right:2em;
 }
 #oldDeities{
     display:none;
@@ -328,7 +328,7 @@ button:disabled{
     display:none;
 }
 .buildingnames{
-    padding-left:5px;
+    padding-left:0.3em;
     text-transform:capitalize;
 }
 button.build{
@@ -347,14 +347,14 @@ button.build{
 }
 
 #buildings button{
-    margin-right:3px;
+    margin-right:0.3em;
 }
 
 .x1,
 .x10,
 .x100,
 .x1000{
-    width:48px;
+    width:3.5em;
     text-shadow:none;
     font-weight:normal;
     font-size:0.9em;
@@ -454,7 +454,7 @@ button.build{
 }
 #wondersContainer{
     display:none;
-    padding-bottom:0.5em;
+    padding-bottom:0.3em;
 }
 #startWonderLine{
     display:none;
@@ -504,8 +504,8 @@ button.build{
 }
 #tradeContainer{
     display:none;
-    padding:0.5em 0 0.8em 0;
-    margin:0.8em 0;
+    padding:0.3em 0 0.5em 0;
+    margin:0.5em 0;
     width:50%;
     text-align:center;
     background-color:#9d9;
@@ -536,16 +536,16 @@ button.build{
 }
 
 #basicResources{
-    margin-left:0.5em;
+    margin-left:0.3em;
 }
 #basicResources button{
     padding:0.3em;
 }
 #specialResourcesContainer{
-    margin-bottom:0.5em;
+    margin-bottom:0.3em;
 }
 #specialResourcesContainer .number{
-    padding:0 0.5em 0.3em 0.5em;
+    padding:0 0.3em 0.3em 0.3em;
 }
 #specialResourcesContainer img{
     padding-right:5em;
