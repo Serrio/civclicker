@@ -134,29 +134,6 @@ button:disabled{
     border-color:#ccc;
     font-weight:normal;
 }
-#jobs button{
-    width:3.5em;
-    text-shadow:none;
-    font-weight:normal;
-    font-size:0.9em;
-    margin-right:0.3em;
-}
-#jobs .jobCustom button{
-    width:6em;
-}
-#party .jobCustom button{
-    width:6em;
-}
-#buildings .buildingCustom button{
-    width:6em;
-}
-#party button{
-    width:3.5em;
-    text-shadow:none;
-    font-weight:normal;
-    font-size:0.9em;
-    margin-right:0.3em;
-}
 
 .paneSelector{
     width:12%;
@@ -206,16 +183,13 @@ button:disabled{
 #conquest{
     display:none;
 }
-.job{
-    width:8em;
-    text-transform:capitalize;
-}
 .note{
     /*width: 380px;*/
     text-align:right;
     font-style:italic;
     color:#555;
     padding-left:1em;
+    width:35em;
 }
 .cost{
     white-space:nowrap;
@@ -224,9 +198,6 @@ button:disabled{
     color:#555;
     padding-left:1em;
     margin-right:-1em;
-}
-#jobs .note{
-    width:35em;
 }
 .number{
     text-align:right;
@@ -242,21 +213,6 @@ button:disabled{
 #population{
     float:left;
     width:50%;
-}
-
-#spawn10,
-#spawn100,
-#spawn1000,
-#spawnMax{
-    display:none;
-}
-
-.job10,
-.job100,
-.jobCustom,
-.jobAll,
-.jobNone{
-    display:none;
 }
 
 .deityDomain{
@@ -281,20 +237,16 @@ button:disabled{
 .enemy{
     color:red;
     font-weight:bold;
-    text-transform:capitalize;
 }
-#customJobIncrement{
+
+#customJobIncrement,
+#customBuildIncrement,
+#customPartyIncrement,
+#customSpawnIncrement{
     display:none;
 }
 #customBuildIncrement{
     margin-left:1em;
-    display:none;
-}
-#customPartyIncrement{
-    display:none;
-}
-#customSpawnIncrement{
-    display:none;
 }
 
 #tannerRow,
@@ -303,22 +255,13 @@ button:disabled{
 #clericRow,
 #labourerRow,
 #soldierRow,
-#cavalryRow{
-    display:none;
-}
-
+#cavalryRow,
 #wolfRow,
 #banditRow,
 #barbarianRow,
-#esiegeRow{
-    display:none;
-}
-
+#esiegeRow,
 #cavalryPartyRow,
-#siegeRow{
-    display:none;
-}
-
+#siegeRow,
 #esoldierRow,
 #efortRow{
     display:none;
@@ -327,38 +270,47 @@ button:disabled{
 #victoryGroup{
     display:none;
 }
-.buildingnames{
+
+.itemname{
     padding-left:0.3em;
     text-transform:capitalize;
 }
+
+/*
 button.build{
+    text-transform:capitalize;
+	width: 4em;
+}
+*/
+
+#jobs button,
+#party button,
+#buildings button{
+    width:3.5em;
+    text-shadow:none;
+    font-weight:normal;
+    font-size:0.9em;
+    margin-right:0.3em;
     text-transform:capitalize;
 }
 
-button.build{
-	width: 4em;
+.buycustom button{
+    width:6em !important; /* Need to make this override the above */
 }
 
 .building10,
 .building100,
 .building1000,
-.buildingCustom{
+.buildingInfinity,
+.unit10,
+.unit100,
+.unit1000,
+.unitInfinity,
+.buycustom {
     display:none;
 }
 
-#buildings button{
-    margin-right:0.3em;
-}
 
-.x1,
-.x10,
-.x100,
-.x1000{
-    width:3.5em;
-    text-shadow:none;
-    font-weight:normal;
-    font-size:0.9em;
-}
 #zombieWorkers{
     display:none;
 }
@@ -563,15 +515,9 @@ button.build{
     line-height:1.5em;
 }
 
-#resetNote{
-    display:none;
-}
-#resetDeity{
-    display:none;
-}
-#resetBoth{
-    display:none;
-}
+#resetNote,
+#resetDeity,
+#resetBoth,
 #resetWonder{
     display:none;
 }

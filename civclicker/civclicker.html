@@ -304,11 +304,11 @@
             <br />
         </div>
         <div id="populationCreate">
-            <div id="spawn1group"><button id="spawn1" onmousedown="spawn(1)" disabled="disabled">Create Worker</button><span class="cost"><span id="workerCost">20</span> food</span><span class="note">: Create a new worker</span><br /></div>
-            <div id='spawn10'><button id="spawn10button" onmousedown="spawn(10)">Create 10 Workers</button><span class="cost"><span id="workerCost10">200</span> food</span><span class="note">: Create 10 new workers</span></div>
-            <div id='spawn100'><button id="spawn100button" onmousedown="spawn(100)">Create 100 Workers</button><span class="cost"><span id="workerCost100">2000</span> food</span><span class="note">: Create 100 new workers</span></div>
-            <div id='spawn1000'><button id="spawn1000button" onmousedown="spawn(1000)">Create 1000 Workers</button><span class="cost"><span id="workerCost1000">20000</span> food</span><span class="note">: Create 1000 new workers</span></div>
-            <div id='spawnMax'><button id="spawnMaxbutton" onmousedown="spawn(Infinity)">Create <span id="workerNumMax">Max</span> Workers</button><span class="cost"><span id="workerCostMax"></span> food</span><span class="note">: Create as many new workers as possible</span></div>
+            <div class="unit1"><button id="spawn1button" onmousedown="spawn(1)" disabled="disabled">Create Worker</button><span class="cost"><span id="workerCost">20</span> food</span><span class="note">: Create a new worker</span><br /></div>
+            <div class='unit10'><button id="spawn10button" onmousedown="spawn(10)">Create 10 Workers</button><span class="cost"><span id="workerCost10">200</span> food</span><span class="note">: Create 10 new workers</span></div>
+            <div class='unit100'><button id="spawn100button" onmousedown="spawn(100)">Create 100 Workers</button><span class="cost"><span id="workerCost100">2000</span> food</span><span class="note">: Create 100 new workers</span></div>
+            <div class='unit1000'><button id="spawn1000button" onmousedown="spawn(1000)">Create 1000 Workers</button><span class="cost"><span id="workerCost1000">20000</span> food</span><span class="note">: Create 1000 new workers</span></div>
+            <div class='unitInfinity'><button id="spawnMaxbutton" onmousedown="spawn(Infinity)">Create <span id="workerNumMax">Max</span> Workers</button><span class="cost"><span id="workerCostMax"></span> food</span><span class="note">: Create as many new workers as possible</span></div>
             <div id="customSpawnIncrement"><button id="spawnCustomButton" onmousedown="spawn('custom')">Create Workers</button><input id="spawnCustomQty" type="number" min="1" step="1" value="1" />
             </div>
         </div>

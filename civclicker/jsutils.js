@@ -133,6 +133,9 @@ function mergeObj(o1, o2)
 // May not support all HTML elements.
 function setElemDisplay(htmlElem,visible)
 {
+    if (!htmlElem) {
+        return;
+    }
     var tagName = htmlElem.tagName.toUpperCase();
 
 /* xxx This is disabled because browser support for visibility: collapse is too inconsistent.
