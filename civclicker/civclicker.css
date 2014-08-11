@@ -126,6 +126,7 @@ button{
     padding:0.1em;
     font-size:1.0em;
     font-weight:500;
+    border-radius:0.5em;
 }
 button:hover:enabled{
     background-color:#eee;
@@ -136,49 +137,53 @@ button:disabled{
 }
 
 .paneSelector{
-    width:12%;
     float:left;
     text-align:center;
     margin:1em 0;
+    padding:0 0.5em;
     line-height:2em;
     border:2px solid black;
     background-color:#fff;
+    border-top-left-radius:0.5em;
+    border-top-right-radius:0.5em;
 }
 .paneSelector:hover{
     text-decoration:underline;
     text-shadow: none;
     cursor:pointer;
 }
+
 #deitySelect,
 #conquestSelect,
 #tradeSelect{ 
     display: none; 
 }
 
-.selected{
+.paneSelector.selected{
     border-bottom:none;
     background:none;
     color:white;
     text-shadow: 2px 0 0 #000, -2px 0 0 #000, 0 2px 0 #000, 0 -2px 0 #000, 1px 1px #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
 }
-.selected:hover{
+.paneSelector.selected:hover{
     text-decoration:none;
     cursor:auto;
-    background:none;
     text-shadow: 2px 0 0 #000, -2px 0 0 #000, 0 2px 0 #000, 0 -2px 0 #000, 1px 1px #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
 }
+
+.selectPane {
+    display: none;
+}
+.selectPane.selected {
+    /* Note that this will cause a problem for non-block elements */
+    /* We should use 'default', but it's not sufficiently supported yet */
+    display: block; 
+}
+
 .devcost{
     padding-right:1em;
 }
 
-#upgradesPane,
-#deityPane,
-#conquestPane,
-#tradePane,
-#achievementsPane,
-#settingsPane {
-    display:none;
-}
 
 #conquest{
     display:none;
@@ -239,13 +244,13 @@ button:disabled{
     font-weight:bold;
 }
 
-#customJobIncrement,
-#customBuildIncrement,
-#customPartyIncrement,
-#customSpawnIncrement{
+#customJobQuantity,
+#customBuildQuantity,
+#customPartyQuantity,
+#customSpawnQuantity{
     display:none;
 }
-#customBuildIncrement{
+#customBuildQuantity{
     margin-left:1em;
 }
 
@@ -283,6 +288,7 @@ button.build{
 }
 */
 
+#textSize button,
 #jobs button,
 #party button,
 #buildings button{
@@ -295,7 +301,7 @@ button.build{
 }
 
 .buycustom button{
-    width:6em !important; /* Need to make this override the above */
+    width:7.5em !important; /* Need to make this override the above */
 }
 
 .building10,

@@ -1,7 +1,7 @@
 "use strict";
 /*jslint browser: true, devel: true, passfail: false, continue: true, eqeq: true, plusplus: true, vars: true, white: true, indent: 4, maxerr: 999 */
 /* jshint laxbreak: true, laxcomma: true */
-/* global updateJobButtons,updatePurchaseRow,updateResourceTotals,updateBuildingTotals,updateMobs,updateDeity,updateUpgrades,updateOldDeities,updateDevotion,updateParty,updateHappiness,updateWonder,updatePopulation,calcCost,updateJobs,updateAchievements,updateTargets,updateWonderList,digGraves,renameDeity,spawnMob,renameWonder,mood,versionAlert,gameLog,prettify,LZString,bake_cookie,read_cookie,prettify,updateRequirements,calcWorkerCost,mergeObj,isValid,setElemDisplay,rndRound,calcCombatMods,dataset,copyProps,updatePopulationUI,calcZombieCost,logSearchFn,getCustomNumber,calcArithSum,SecurityError,doSlaughter,doLoot,doHavoc,valOf */
+/* global updateJobButtons,updatePurchaseRow,updateResourceTotals,updateBuildingTotals,updateMobs,updateDeity,updateUpgrades,updateOldDeities,updateDevotion,updateParty,updateHappiness,updateWonder,updatePopulation,calcCost,updateJobs,updateAchievements,updateTargets,updateWonderList,digGraves,renameDeity,spawnMob,renameWonder,mood,versionAlert,gameLog,prettify,LZString,bake_cookie,read_cookie,prettify,updateRequirements,calcWorkerCost,mergeObj,isValid,setElemDisplay,rndRound,calcCombatMods,dataset,copyProps,updatePopulationUI,calcZombieCost,logSearchFn,getCustomNumber,calcArithSum,SecurityError,doSlaughter,doLoot,doHavoc,valOf,setAutosave,setCustomQuantities,textSize,setDelimiters,setShadow,setNotes,setWorksafe,setIcons
 /**
     CivClicker
     Copyright (C) 2014; see the AUTHORS file for authorship.
@@ -33,7 +33,7 @@ VersionData.prototype.toNumber = function() { return this.major*1000 + this.mino
 VersionData.prototype.toString = function() { return String(this.major) + "." 
     + String(this.minor) + "." + String(this.sub) + String(this.mod); };
 
-var versionData = new VersionData(1,1,47,"alpha");
+var versionData = new VersionData(1,1,48,"alpha");
 
 var saveTag = "civ";
 var saveTag2 = saveTag + "2"; // For old saves.
@@ -328,7 +328,9 @@ new Building({ id:"cottage", name:"cottage", plural:"cottages",
 new Building({ id:"house", name:"house", plural:"houses",
     prereqs:{ construction: true },
     require:{ wood:30, stone:70 },
-    effectText:"+10 max pop." }), //xxx Dynamically generate this to adjust for changes.
+    //xxx Need to make this dynamically update
+    get effectText() { var num = 10 + 2*(civData.slums.owned + civData.tenements.owned); return "+"+num+" max pop."; },
+    set effectText(value) { return this.require; }}), // Only here for JSLint.
 new Building({ id:"mansion", name:"mansion", plural:"mansions",
     prereqs:{ architecture: true },
     require:{ wood:200, stone:200, leather:20 },
@@ -547,7 +549,7 @@ new Upgrade({ id:"guilds", name:"Guilds", subType: "upgrade",
 new Upgrade({ id:"serfs", name:"Serfs", subType: "upgrade",
     prereqs:{ civilservice: true },
     require: { piety: 20000 },
-    effectText:"Unemployed workers increase resources from clicking" }),
+    effectText:"Idle workers increase resources from clicking" }),
 new Upgrade({ id:"nationalism", name:"Nationalism", subType: "upgrade",
     prereqs:{ civilservice: true },
     require: { piety: 50000 },
@@ -660,19 +662,20 @@ new Upgrade({ id:"grace", name:"Grace", subType: "prayer",
     require: { piety: 1000 }, //xxx This is not fixed; see curCiv.graceCost
     effectText:"Increase Happiness" }),
 // Units
-new Unit({ id:"totalSick", name:"sick", singular:"sick", plural:"sick", subType:"special",
+new Unit({ id:"totalSick", name:"sick worker", singular:"sick worker", plural:"sick workers", subType:"special",
+    prereqs: undefined,  // Hide until we get one.
     require: undefined,  // Cannot be purchased.
     salable: false,  // Cannot be sold.
     //xxx This (alternate data location) could probably be cleaner.
     get owned() { return population[this.id]; },
     set owned(value) { population[this.id]= value; },
     init: function() { this.owned = this.initOwned; },
-    effectText:"Sick workers" }),
-new Unit({ id:"unemployed", name:"unemployed", singular:"unemployed", plural:"unemployed",
+    effectText:"Use healers and herbs to cure them" }),
+new Unit({ id:"unemployed", name:"idle worker", singular:"idle worker", plural:"idle workers",
     require: undefined,  // Cannot be purchased (through normal controls) xxx Maybe change this?
     salable: false,  // Cannot be sold.
     customQtyId:"spawnCustomQty",
-    effectText:"Unassigned Workers" }),
+    effectText:"Playing idle games" }),
 new Unit({ id:"farmer", name:"farmers", singular:"farmer", plural:"farmers",
     source:"unemployed",
     efficiency_base: 0.2,
@@ -959,10 +962,12 @@ var settings = {
     autosaveCounter : 1,
     autosaveTime : 60, //Currently autosave is every minute. Might change to 5 mins in future.
     customIncr : false,
-    usingWords : false,
-    worksafe : false,
     fontSize : 1,
-    delimiters : true
+    delimiters : true,
+    textShadow : false,
+    notes : true,
+    worksafe : false,
+    useIcons : true
 };
 
 var body = document.getElementsByTagName("body")[0];
@@ -1515,7 +1520,7 @@ function updatePopulationUI() {
         if (!settings.customIncr){    
             elems = document.getElementsByClassName("unit10");
             for(i = 0; i < elems.length; i++) {
-                setElemDisplay(elems[i],true);
+                setElemDisplay(elems[i],!settings.customincr);
             }
         }
     }
@@ -1523,11 +1528,11 @@ function updatePopulationUI() {
         if (!settings.customIncr){
             elems = document.getElementsByClassName("building10");
             for(i = 0; i < elems.length; i++) {
-                setElemDisplay(elems[i],true);
+                setElemDisplay(elems[i],!settings.customincr);
             }
             elems = document.getElementsByClassName("unit100");
             for(i = 0; i < elems.length; i++) {
-                setElemDisplay(elems[i],true);
+                setElemDisplay(elems[i],!settings.customincr);
             }
         }
     }
@@ -1535,24 +1540,23 @@ function updatePopulationUI() {
         if (!settings.customIncr){
             elems = document.getElementsByClassName("building100");
             for(i = 0; i < elems.length; i++) {
-                setElemDisplay(elems[i],true);
+                setElemDisplay(elems[i],!settings.customincr);
             }
             elems = document.getElementsByClassName("unit1000");
             for(i = 0; i < elems.length; i++) {
-                setElemDisplay(elems[i],true);
+                setElemDisplay(elems[i],!settings.customincr);
             }
-        }
-
-        elems = document.getElementsByClassName("unitInfinity");
-        for(i = 0; i < elems.length; i++) {
-            setElemDisplay(elems[i],true);
+            elems = document.getElementsByClassName("unitInfinity");
+            for(i = 0; i < elems.length; i++) {
+                setElemDisplay(elems[i],!settings.customincr);
+            }
         }
     }
     if (population.current + curCiv.zombie.owned >= 10000) {
         if (!settings.customIncr){
             elems = document.getElementsByClassName("building1000");
             for(i = 0; i < elems.length; i++) {
-                setElemDisplay(elems[i],true);
+                setElemDisplay(elems[i],!settings.customincr);
             }
         }
     }
@@ -1874,6 +1878,29 @@ function updateReset(){
     setElemDisplay(document.getElementById("resetBoth"  ), (civData.worship.owned && wonder.completed));
 }
 
+function updateSettings(){
+    // Here, we ensure that UI is properly configured for our settings.
+    //xxx Should we make the settings functions set these when passed no param?
+    document.getElementById("toggleAutosave").checked = settings.autosave;
+    document.getElementById("toggleCustomQuantities").checked = settings.customIncr;
+    document.getElementById("toggleDelimiters").checked = settings.delimiters;
+    document.getElementById("toggleShadow").checked = settings.textShadow;
+    document.getElementById("toggleNotes").checked = settings.notes;
+    document.getElementById("toggleWorksafe").checked = settings.worksafe;
+    //xxx document.getElementById("toggle").checked = settings.fontSize;
+    // document.getElementById("toggleIcons").checked = settings.useIcons;
+ 
+    // Calling these with no parameter makes them update the UI for the current values.
+    setAutosave();
+    setCustomQuantities();
+    textSize(0);
+    setDelimiters();
+    setShadow();
+    setNotes();
+    setWorksafe();
+    setIcons();
+}
+
 function update(){
 
     //unified update function. NOT YET IMPLEMENTED
@@ -2035,7 +2062,7 @@ function spawn(num){
     // Update numbers and resource levels
     curCiv.food.owned -= calcWorkerCost(num);
 
-    // New workers enter as farmers, but we only destroy unemployed ones.
+    // New workers enter as farmers, but we only destroy idle ones.
     if (num >= 0) { civData.farmer.owned += num; }
     else          { jobObj.owned += num; }
 
@@ -2152,7 +2179,7 @@ function unitPurchase(job,num){
 
 // Creates or destroys zombies
 // Pass a positive number to create, a negative number to destroy.
-// Only unemployed zombies can be destroyed.
+// Only idle zombies can be destroyed.
 // If it can't create/destroy as many as requested, does as many as it can.
 // Pass Infinity/-Infinity as the num to get the max possible.
 // Pass "custom" or "-custom" to use the custom increment.
@@ -3045,6 +3072,7 @@ function load(loadType){
         raiding = mergeObj(raiding, loadVar.raiding);
     }
     if (isValid(loadVar.targetMax)) { targetMax = mergeObj(targetMax, loadVar.targetMax); }
+
     if (isValid(settingsVar)){ settings = mergeObj(settings,settingsVar); }
  
     mood(0);
@@ -3068,7 +3096,8 @@ function load(loadType){
     document.getElementById("rulerName").innerHTML = curCiv.rulerName;
     document.getElementById("wonderNameP").innerHTML = wonder.name;
     document.getElementById("wonderNameC").innerHTML = wonder.name;
-    document.getElementById("toggleAutosave").innerHTML = settings.autosave ? "Disable Autosave" : "Enable Autosave";
+
+    updateSettings();
 }
 
 function save(savetype){
@@ -3143,12 +3172,8 @@ function save(savetype){
     }
 }
 
-function toggleAutosave(){
-    //Turns autosave on or off. Default on.
-    settings.autosave = !settings.autosave;
-    console.log("Autosave toggled to " + (settings.autosave ? "on" : "off"));
-    document.getElementById("toggleAutosave").innerHTML = settings.autosave ? "Disable Autosave" : "Enable Autosave";
-}
+function setAutosave(value){ if (value !== undefined) { settings.autosave = value; } }
+function onToggleAutosave(control){ return setAutosave(control.checked); }
 
 function deleteSave(){
     //Deletes the current savegame by setting the game's cookies to expire in the past.
@@ -3945,7 +3970,7 @@ function initCivclicker() {
         body.classList.add("hasBackground");
     } else {
         body.classList.remove("hasBackground");
-        if (!settings.usingWords){
+        if (settings.useIcons){
             var elems = document.getElementsByClassName("icon");
             var i;
             for(i = 0; i < elems.length; i++) {
@@ -4094,83 +4119,27 @@ window.setInterval(function(){
 /* UI functions */
 
 // Called when user switches between the various panes on the left hand side of the interface
-//xxx This should eventually be replaced with classList calls (Req. FF21+, IE10+)
-function paneSelect(name){
-    // Turn them all off.
-    document.getElementById("buildingsPane").style.display = "none";
-    document.getElementById("upgradesPane").style.display = "none";
-    document.getElementById("deityPane").style.display = "none";
-    document.getElementById("conquestPane").style.display = "none";
-    document.getElementById("tradePane").style.display = "none";
-    document.getElementById("achievementsPane").style.display = "none";
-    document.getElementById("settingsPane").style.display = "none";
-    //xxx DOM CSS should be able to add class here more cleanly.
-    document.getElementById("buildingsSelect").className = "paneSelector";
-    document.getElementById("upgradesSelect").className = "paneSelector";
-    document.getElementById("deitySelect").className = "paneSelector";
-    document.getElementById("conquestSelect").className = "paneSelector";
-    document.getElementById("tradeSelect").className = "paneSelector";
-    document.getElementById("achievementsSelect").className = "paneSelector";
-    document.getElementById("settingsSelect").className = "paneSelector";
+function paneSelect(control){
+    var i,oldTarget;
 
-    // Turn the desired ones back on.
-    document.getElementById(name + "Pane").style.display = "block";
-    document.getElementById(name + "Select").className = "paneSelector selected";
-}
+    // Identify the target pane to be activated, and the currently active
+    // selector tab(s).
+    var newTarget = dataset(control,"target");
+    var selectors = document.getElementById("selectors");
+    if (!selectors) { console.log("No selectors found"); return false; }
+    var curSelects = selectors.getElementsByClassName("selected");
 
-function toggleCustomIncrements(){
-    var i;
-    var elems;
-    var curPop = population.current + curCiv.zombie.owned;
-
-    settings.customIncr = !settings.customIncr;
-    document.getElementById("toggleCustomIncrements").innerHTML = 
-        settings.customIncr ? "Disable Custom Increments" : "Enable Custom Increments";
-    setElemDisplay(document.getElementById("customJobIncrement"),settings.customIncr);
-    setElemDisplay(document.getElementById("customPartyIncrement"),settings.customIncr);
-    setElemDisplay(document.getElementById("customBuildIncrement"),settings.customIncr);
-    setElemDisplay(document.getElementById("customSpawnIncrement"),settings.customIncr);
-
-    elems = document.getElementsByClassName("unit10");
-    for (i = 0; i < elems.length; ++i) { setElemDisplay(elems[i],!settings.customIncr && (curPop >= 10)); }
-
-    elems = document.getElementsByClassName("unit100");
-    for (i = 0; i < elems.length; ++i) { setElemDisplay(elems[i],!settings.customIncr && (curPop >= 100)); }
-
-    elems = document.getElementsByClassName("unit1000");
-    for (i = 0; i < elems.length; ++i) { setElemDisplay(elems[i],!settings.customIncr && (curPop >= 1000)); }
-
-    elems = document.getElementsByClassName("building10");
-    for (i = 0; i < elems.length; ++i) { setElemDisplay(elems[i],!settings.customIncr && (curPop >= 100)); }
-
-    elems = document.getElementsByClassName("building100");
-    for (i = 0; i < elems.length; ++i) { setElemDisplay(elems[i],!settings.customIncr && (curPop >= 1000)); }
-
-    elems = document.getElementsByClassName("building1000");
-    for (i = 0; i < elems.length; ++i) { setElemDisplay(elems[i],!settings.customIncr && (curPop >= 10000)); }
-
-    elems = document.getElementsByClassName("buycustom");
-    for (i = 0; i < elems.length; ++i) { setElemDisplay(elems[i],settings.customIncr); }
-}
-
-// Toggles the display of the .notes class
-//xxx It seems like it would be better to make a setting variable for this.
-function toggleNotes(){
-    var i;
-    var elems = document.getElementsByClassName("note");
-    for(i = 0; i < elems.length; i++) {
-        if (elems[i].style.display == "none"){
-            elems[i].style.display = "inline";
-        } else {
-            elems[i].style.display = "none";
-        }
+    // Deselect the old panels.
+    for (i = 0; i < curSelects.length; ++i) { 
+        oldTarget = dataset(curSelects[i],"target");
+        if (oldTarget == newTarget) { continue; }
+        document.getElementById(oldTarget).classList.remove("selected");
+        curSelects[i].classList.remove("selected");
     }
-    //then toggles the button itself
-    if (document.getElementById("toggleNotes").innerHTML == "Disable Notes"){
-        document.getElementById("toggleNotes").innerHTML = "Enable Notes";
-    } else {
-        document.getElementById("toggleNotes").innerHTML = "Disable Notes";
-    }
+
+    // Select the new panel.
+    control.classList.add("selected");
+    document.getElementById(newTarget).classList.add("selected");
 }
 
 function impExp(){
@@ -4187,56 +4156,100 @@ function versionAlert(){
     document.getElementById("versionAlert").style.display = "inline";
 }
 
-function text(scale){
-    if (scale > 0){
-        settings.fontSize += 0.1 * scale;
-        document.getElementById("smallerText").disabled = false;
-    } else {
-        if (settings.fontSize > 0.7){
-            settings.fontSize += 0.1 * scale;
-            if (settings.fontSize <= 0.7) { document.getElementById("smallerText").disabled = true; }
-        }
-    }
-    body.style.fontSize = settings.fontSize + "em";
-}
-
-function textShadow(){
-    if (body.style.textShadow != "none"){
-        body.style.textShadow = "none";
-        document.getElementById("textShadow").innerHTML = "Enable Text Shadow";
-    } else {
-        body.style.textShadow = "3px 0 0 #fff, -3px 0 0 #fff, 0 3px 0 #fff, 0 -3px 0 #fff, 2px 2px 0 #fff, -2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff";
-        document.getElementById("textShadow").innerHTML = "Disable Text Shadow";
-    }
-}
-
-// Does nothing yet, will probably toggle display for "icon" and "word" classes 
-// as that's probably the simplest way to do this.
-function iconToggle(){
-    settings.usingWords = !settings.usingWords;
-    document.getElementById("iconToggle").innerHTML = (settings.usingWords) ? "Use Icons" : "Use Words";
-}
-
 function prettify(input){
     //xxx TODO: Add appropriate format options
     return (settings.delimiters) ? Number(input).toLocaleString() : input.toString();
 }
 
-function toggleDelimiters(){
-    settings.delimiters = !settings.delimiters;
-    var action = settings.delimiters ? "Disable" : "Enable";
-    document.getElementById("toggleDelimiters").innerHTML = action + " Delimiters";
 
-    updateResourceTotals();
+function setCustomQuantities(value){
+    var i;
+    var elems;
+    var curPop = population.current + curCiv.zombie.owned;
+
+    if (value !== undefined) { settings.customIncr = value; }
+
+    setElemDisplay(document.getElementById("customJobQuantity"),settings.customIncr);
+    setElemDisplay(document.getElementById("customPartyQuantity"),settings.customIncr);
+    setElemDisplay(document.getElementById("customBuildQuantity"),settings.customIncr);
+    setElemDisplay(document.getElementById("customSpawnQuantity"),settings.customIncr);
+
+    elems = document.getElementsByClassName("unit10");
+    for (i = 0; i < elems.length; ++i) { setElemDisplay(elems[i],!settings.customIncr && (curPop >= 10)); }
+
+    elems = document.getElementsByClassName("unit100");
+    for (i = 0; i < elems.length; ++i) { setElemDisplay(elems[i],!settings.customIncr && (curPop >= 100)); }
+
+    elems = document.getElementsByClassName("unit1000");
+    for (i = 0; i < elems.length; ++i) { setElemDisplay(elems[i],!settings.customIncr && (curPop >= 1000)); }
+
+    elems = document.getElementsByClassName("unitInfinity");
+    for (i = 0; i < elems.length; ++i) { setElemDisplay(elems[i],!settings.customIncr && (curPop >= 1000)); }
+
+    elems = document.getElementsByClassName("building10");
+    for (i = 0; i < elems.length; ++i) { setElemDisplay(elems[i],!settings.customIncr && (curPop >= 100)); }
+
+    elems = document.getElementsByClassName("building100");
+    for (i = 0; i < elems.length; ++i) { setElemDisplay(elems[i],!settings.customIncr && (curPop >= 1000)); }
+
+    elems = document.getElementsByClassName("building1000");
+    for (i = 0; i < elems.length; ++i) { setElemDisplay(elems[i],!settings.customIncr && (curPop >= 10000)); }
+
+    elems = document.getElementsByClassName("buildingInfinity");
+    for (i = 0; i < elems.length; ++i) { setElemDisplay(elems[i],!settings.customIncr && (curPop >= 10000)); }
+
+    elems = document.getElementsByClassName("buycustom");
+    for (i = 0; i < elems.length; ++i) { setElemDisplay(elems[i],settings.customIncr); }
+}
+function onToggleCustomQuantities(control){ return setCustomQuantities(control.checked); }
+
+// Toggles the display of the .notes class
+function setNotes(value){
+    if (value !== undefined) { settings.notes = value; }
+    var i;
+    var elems = document.getElementsByClassName("note");
+    for(i = 0; i < elems.length; ++i) {
+        setElemDisplay(elems[i],settings.notes);
+    }
+}
+function onToggleNotes(control){ return setNotes(control.checked); }
+
+// value is the desired change in 0.1em units.
+function textSize(value){
+    if (value !== undefined) { settings.fontSize += 0.1 * value; }
+    document.getElementById("smallerText").disabled = (settings.fontSize <= 0.5); 
+
+    //xxx Should this be applied to the document instead of the body?
+    body.style.fontSize = settings.fontSize + "em";
 }
 
-function toggleWorksafe(){
+function setShadow(value){
+    if (value !== undefined) { settings.textShadow = value; }
+    var shadowStyle = "3px 0 0 #fff, -3px 0 0 #fff, 0 3px 0 #fff, 0 -3px 0 #fff"
+                    + ", 2px 2px 0 #fff, -2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff";
+    body.style.textShadow = settings.textShadow ? shadowStyle : "none";
+}
+function onToggleShadow(control){ return setShadow(control.checked); }
+
+// Does nothing yet, will probably toggle display for "icon" and "word" classes 
+// as that's probably the simplest way to do this.
+function setIcons(value){ if (value !== undefined) { settings.useIcons = value; } }
+function onToggleIcons(control){ return setIcons(control.checked); }
+
+function setDelimiters(value){
+    if (value !== undefined) { settings.delimiters = value; }
+    updateResourceTotals();
+}
+function onToggleDelimiters(control){ return setDelimiters(control.checked); }
+
+function setWorksafe(value){
     var i;
     var elems;
 
-    settings.worksafe = !settings.worksafe;
-    body.classList.toggle("hasBackground");
-    if (!settings.usingWords)
+    if (value !== undefined) { settings.worksafe = value; }
+    //xxx Should this be applied to the document instead of the body?
+    body.classList.toggle("hasBackground"); //xxx Note that classList doesn't work in IE < 10.
+    if (settings.useIcons)
     {
         elems = document.getElementsByClassName("icon");
         for(i = 0; i < elems.length; i++) {
@@ -4244,6 +4257,7 @@ function toggleWorksafe(){
         }
     }
 }
+function onToggleWorksafe(control){ return setWorksafe(control.checked); }
 
 
 /* Debug functions */

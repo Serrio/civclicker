@@ -25,8 +25,11 @@
     <link rel="canonical" href="http://civclicker.sourceforge.net/civclicker/civclicker.html" />
     <meta name="description" content="CivClicker: Build a Civilisation In Your Browser" />
 
+    <!-- JS utilities -->
     <script type="application/javascript" src="lz-string.js"></script>
     <script type="application/javascript" src="jsutils.js"></script>
+    <!-- Polyfill from https://developer.mozilla.org/en-US/docs/Web/API/Element.classList -->
+    <script type="application/javascript" src="classList.js"></script>
 </head>
 <body class="hasBackground">
 
@@ -63,7 +66,7 @@
                     <td>Food: </td>
                     <td class="number"><span data-action="display" data-target="food">0</span></td>
                     <td class="icon"><img src="images/food.png" class="icon icon-lg" alt="Food"/></td>
-                    <td class="number">(Max storage: <span id="maxfood">200</span>)</td>
+                    <td class="number">(Max: <span id="maxfood">200</span>)</td>
                     <td class="number net"><span data-action="displayNet" data-target="food">0</span>/s</td>
                 </tr>
                 <tr>
@@ -71,7 +74,7 @@
                     <td>Wood: </td>
                     <td class="number"><span data-action="display" data-target="wood">0</span></td>
                     <td class="icon"><img src="images/wood.png" class="icon icon-lg" alt="Wood"/></td>
-                    <td class="number">(Max storage: <span id="maxwood">200</span>)</td>
+                    <td class="number">(Max: <span id="maxwood">200</span>)</td>
                     <td class="number net"><span data-action="displayNet" data-target="wood">0</span>/s</td>
                 </tr>
                 <tr>
@@ -79,7 +82,7 @@
                     <td>Stone: </td>
                     <td class="number"><span data-action="display" data-target="stone">0</span></td>
                     <td class="icon"><img src="images/stone.png" class="icon icon-lg" alt="Stone"/></td>
-                    <td class="number">(Max storage: <span id="maxstone">200</span>)</td>
+                    <td class="number">(Max: <span id="maxstone">200</span>)</td>
                     <td class="number net"><span data-action="displayNet" data-target="stone">0</span>/s</td>
                 </tr>
             </table>
@@ -122,27 +125,27 @@
     </div>
     <div id="panesSelectors">
         <div id="selectors">
-            <div id="buildingsSelect" class="paneSelector selected" onclick="paneSelect('buildings')">Buildings</div>
-            <div id="upgradesSelect" class="paneSelector" onclick="paneSelect('upgrades')">Upgrades</div>
-            <div id="deitySelect" class="paneSelector" onclick="paneSelect('deity')">Deity</div>
-            <div id="conquestSelect" class="paneSelector" onclick="paneSelect('conquest')">Conquest</div>
-            <div id="tradeSelect" class="paneSelector" onclick="paneSelect('trade')">Trade</div>
-            <div id="achievementsSelect" class="paneSelector" onclick="paneSelect('achievements')">Achievements</div>
-            <div id="settingsSelect" class="paneSelector" onclick="paneSelect('settings')">Settings</div>
+            <div id="buildingsSelect" class="paneSelector selected" data-target="buildingsPane" onclick="paneSelect(this)">Buildings</div>
+            <div id="upgradesSelect" class="paneSelector" data-target="upgradesPane" onclick="paneSelect(this)">Upgrades</div>
+            <div id="deitySelect" class="paneSelector" data-target="deityPane" onclick="paneSelect(this)">Deity</div>
+            <div id="conquestSelect" class="paneSelector" data-target="conquestPane" onclick="paneSelect(this)">Conquest</div>
+            <div id="tradeSelect" class="paneSelector" data-target="tradePane" onclick="paneSelect(this)">Trade</div>
+            <div id="achievementsSelect" class="paneSelector" data-target="achievementsPane" onclick="paneSelect(this)">Achievements</div>
+            <div id="settingsSelect" class="paneSelector" data-target="settingsPane" onclick="paneSelect(this)">Settings</div>
             <div style="clear:both;"></div>
         </div>
         
-        <div id="buildingsPane">
-            <p id="customBuildIncrement">
-                Custom Increment: <input id="buildingCustomQty" type="number" min="1" step="1" value="1" />
+        <div id="buildingsPane" class="selectPane selected">
+            <p id="customBuildQuantity">
+                Custom Quantity <input id="buildingCustomQty" type="number" min="1" step="1" value="1" />
             </p>
             <span>Available Land: <span id="freeLand">1000</span></span>
             <table id="buildings"></table>
         </div>
         
-        <div id="upgradesPane"></div>
+        <div id="upgradesPane" class="selectPane"></div>
         
-        <div id="deityPane">
+        <div id="deityPane" class="selectPane">
             <span id="worshipLine"></span>
             <div id="deityDomains">
                 <button id="battleDeity" onmousedown="selectDeity('battle')">Battle<br />(500 piety)</button><span class="note">Note: you can only pick one of these</span><br />
@@ -210,12 +213,12 @@
                 <div id="purchasedPantheon"></div>
             </div>
         </div>
-        <div id="conquestPane">
+        <div id="conquestPane" class="selectPane">
             <span id="standardLine"></span>
             <div id="conquest">
                 <h4>Army</h4>
-                <p id="customPartyIncrement">
-                    Custom Increment: <input id="partyCustomQty" type="number" min="1" step="1" value="1" />
+                <p id="customPartyQuantity">
+                    Custom Quantity <input id="partyCustomQty" type="number" min="1" step="1" value="1" />
                 </p>
                 <table id="party"></table>
                 <br />
@@ -231,7 +234,7 @@
                 </div>
             </div>
         </div>
-        <div id="tradePane">
+        <div id="tradePane" class="selectPane">
             <span id="tradeLine"></span>
             <div id="tradeUpgradeContainer">
                 <span id="currencyLine"></span>
@@ -247,33 +250,33 @@
                 <button class="tradeResource" onmousedown="buy('metal')">Buy 250 Metal</button><br />
             </div>
         </div>
-        <div id="achievementsPane">
+        <div id="achievementsPane" class="selectPane">
             <div id="achievements">
                 <h3>Achievements</h3>
             </div>
         </div>
-        <div id="settingsPane">
+        <div id="settingsPane" class="selectPane">
             <div id="settings">
                 <h3>Settings</h3>
                 <button onmousedown="save('manual')" title="Save your current stats">Manual Save</button><br />
-                <button id="toggleAutosave" onmousedown="toggleAutosave()" title="Autosave toggle">Disable Autosave</button><br />
-                <button onmousedown="deleteSave()" title="Delete your saved stats">Delete Save File</button><br />
-                <br />
+                <input id="toggleAutosave" type="checkbox" onclick="onToggleAutosave(this)" title="Autosave">Autosave</button><br />
                 <button onmousedown="reset()" title="Reset your game">Reset Game</button><span class="note"><span id="resetNote"><br/>Resetting allows you to </span><span id="resetDeity">gain another deity</span><span id="resetBoth"><br/> and </span><span id="resetWonder">build another Wonder</span></span><br />
+                <br />
+                <button onmousedown="deleteSave()" title="Delete your saved stats">Delete Save File</button><br />
                 <br />
                 <button onmousedown="renameCiv()" title="Rename your civilisation">Rename Civilisation</button><br />
                 <button id="renameRuler" onmousedown="renameRuler()" title="Rename yourself">Rename Yourself</button><br />
                 <button id="renameDeity" onmousedown="renameDeity()" title="Rename your deity" disabled="disabled">Rename Current Deity</button><br />
                 <br />
-                <button id="toggleCustomIncrements" onmousedown="toggleCustomIncrements()" title="Custom Increment toggle">Enable Custom Increments</button><br />
+                <span id="textSize"><button id="smallerText" onmousedown="textSize(-1)" title="Smaller Text">&minus;</button>Text Size
+                <button id="largerText" onmousedown="textSize(1)" title="Larger Text">+</button></span><br />
                 <br />
-                <button id="smallerText" onmousedown="text(-1)" title="Smaller Text">Smaller Text</button><br />
-                <button id="largerText" onmousedown="text(1)" title="Larger Text">Larger Text</button><br />
-                <button id="toggleDelimiters" onmousedown="toggleDelimiters()" title="Toggle Delimiters">Disable Delimiters</button><br />
-                <button id="textShadow" onmousedown="textShadow()" title="Toggle Text Shadow">Enable Text Shadow</button><br />
-                <button id="toggleNotes" onmousedown="toggleNotes()" title="Toggle Notes">Disable Notes</button><br />
-                <button id="toggleWorksafe" onmousedown="toggleWorksafe()" title="Toggle Worksafe Mode">Toggle Worksafe Mode</button><br />
-                <!--<button id="iconToggle" onmousedown="iconToggle()" title="Toggle Icons">Use Words</button><br />-->
+                <input id="toggleCustomQuantities" type="checkbox" onclick="onToggleCustomQuantities(this)" title="Custom Quantity">Use Custom Quantities</button><br />
+                <input id="toggleDelimiters" type="checkbox" onclick="onToggleDelimiters(this)" title="Toggle Delimiters">Number Delimiters</button><br />
+                <input id="toggleShadow" type="checkbox" onclick="onToggleShadow(this)" title="Toggle Text Shadow">Text Shadows</button><br />
+                <input id="toggleNotes" type="checkbox" onclick="onToggleNotes(this)" title="Toggle Notes">Show Notes</button><br />
+                <input id="toggleWorksafe" type="checkbox" onclick="onToggleWorksafe(this)" title="Toggle Worksafe Mode">Worksafe Mode</button><br />
+                <!--<input id="toggleIcons" type="checkbox" onclick="onToggleIcons(this)" title="Toggle Icons">Use Icons</button><br />-->
             </div>
         </div>
     </div>
@@ -309,14 +312,14 @@
             <div class='unit100'><button id="spawn100button" onmousedown="spawn(100)">Create 100 Workers</button><span class="cost"><span id="workerCost100">2000</span> food</span><span class="note">: Create 100 new workers</span></div>
             <div class='unit1000'><button id="spawn1000button" onmousedown="spawn(1000)">Create 1000 Workers</button><span class="cost"><span id="workerCost1000">20000</span> food</span><span class="note">: Create 1000 new workers</span></div>
             <div class='unitInfinity'><button id="spawnMaxbutton" onmousedown="spawn(Infinity)">Create <span id="workerNumMax">Max</span> Workers</button><span class="cost"><span id="workerCostMax"></span> food</span><span class="note">: Create as many new workers as possible</span></div>
-            <div id="customSpawnIncrement"><button id="spawnCustomButton" onmousedown="spawn('custom')">Create Workers</button><input id="spawnCustomQty" type="number" min="1" step="1" value="1" />
+            <div id="customSpawnQuantity"><button id="spawnCustomButton" onmousedown="spawn('custom')">Create Workers</button><input id="spawnCustomQty" type="number" min="1" step="1" value="1" />
             </div>
         </div>
     </div>
     <div id="jobsContainer">
         <h3>Jobs</h3>
-        <p id="customJobIncrement">
-            Custom Increment: <input id="homeCustomQty" type="number" min="1" step="1" value="1" />
+        <p id="customJobQuantity">
+            Custom Quantity <input id="homeCustomQty" type="number" min="1" step="1" value="1" />
         </p>
         <table id="jobs"></table>
     </div>
