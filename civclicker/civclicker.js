@@ -1,7 +1,7 @@
 "use strict";
 /*jslint browser: true, devel: true, passfail: false, continue: true, eqeq: true, plusplus: true, vars: true, white: true, indent: 4, maxerr: 999 */
 /* jshint laxbreak: true, laxcomma: true */
-/* global updateJobButtons,updatePurchaseRow,updateResourceTotals,updateBuildingTotals,updateMobs,updateDeity,updateUpgrades,updateOldDeities,updateDevotion,updateParty,updateHappiness,updateWonder,updatePopulation,calcCost,updateJobs,updateAchievements,updateTargets,updateWonderList,digGraves,renameDeity,spawnMob,renameWonder,mood,versionAlert,gameLog,prettify,LZString,bake_cookie,read_cookie,prettify,updateRequirements,calcWorkerCost,mergeObj,isValid,setElemDisplay,rndRound,calcCombatMods,dataset,copyProps,updatePopulationUI,calcZombieCost,logSearchFn,getCustomNumber,calcArithSum,SecurityError,doSlaughter,doLoot,doHavoc,valOf,setAutosave,setCustomQuantities,textSize,setDelimiters,setShadow,setNotes,setWorksafe,setIcons
+/* global updateJobButtons,updatePurchaseRow,updateResourceTotals,updateBuildingTotals,updateMobs,updateDeity,updateUpgrades,updateOldDeities,updateDevotion,updateParty,updateHappiness,updateWonder,updatePopulation,calcCost,updateJobs,updateAchievements,updateTargets,updateWonderList,digGraves,renameDeity,spawnMob,renameWonder,mood,versionAlert,gameLog,prettify,LZString,bake_cookie,read_cookie,prettify,updateRequirements,calcWorkerCost,mergeObj,isValid,setElemDisplay,rndRound,calcCombatMods,dataset,copyProps,updatePopulationUI,calcZombieCost,logSearchFn,getCustomNumber,calcArithSum,SecurityError,doSlaughter,doLoot,doHavoc,valOf,setAutosave,setCustomQuantities,textSize,setDelimiters,setShadow,setNotes,setWorksafe,setIcons */
 /**
     CivClicker
     Copyright (C) 2014; see the AUTHORS file for authorship.
@@ -328,9 +328,9 @@ new Building({ id:"cottage", name:"cottage", plural:"cottages",
 new Building({ id:"house", name:"house", plural:"houses",
     prereqs:{ construction: true },
     require:{ wood:30, stone:70 },
-    //xxx Need to make this dynamically update
     get effectText() { var num = 10 + 2*(civData.slums.owned + civData.tenements.owned); return "+"+num+" max pop."; },
-    set effectText(value) { return this.require; }}), // Only here for JSLint.
+    set effectText(value) { return this.require; }, // Only here for JSLint.
+    update: function() { document.getElementById(this.id+"Note").innerHTML = ": "+this.effectText; } }),
 new Building({ id:"mansion", name:"mansion", plural:"mansions",
     prereqs:{ architecture: true },
     require:{ wood:200, stone:200, leather:20 },
@@ -962,7 +962,7 @@ var settings = {
     autosaveCounter : 1,
     autosaveTime : 60, //Currently autosave is every minute. Might change to 5 mins in future.
     customIncr : false,
-    fontSize : 1,
+    fontSize : 1.0,
     delimiters : true,
     textShadow : false,
     notes : true,
@@ -1139,8 +1139,8 @@ function getCostNote(civObj)
     var effectText = (isValid(civObj.effectText)) ? civObj.effectText : "";
     var separator = (reqText && effectText) ? ": " : "";
 
-    return "<span id='"+civObj.id+"Cost'class='cost'>" + reqText + "</span>"
-         + "<span class='note'>" + separator + civObj.effectText + "</span>";
+    return "<span id='"+civObj.id+"Cost' class='cost'>" + reqText + "</span>"
+         + "<span id='"+civObj.id+"Note' class='note'>" + separator + civObj.effectText + "</span>";
 }
 
 // Number format utility functions.
@@ -1500,6 +1500,8 @@ function updatePopulationUI() {
         elem = displayElems[i];
         elem.innerHTML = prettify(Math.floor(population[dataset(elem,"target")]));
     }
+
+    civData.house.update(); //xxx Effect might change dynamically.  Need a more general way to do this.
 
     setElemDisplay(document.getElementById("graveTotal"),(curCiv.grave.owned > 0));
 
@@ -1880,16 +1882,6 @@ function updateReset(){
 
 function updateSettings(){
     // Here, we ensure that UI is properly configured for our settings.
-    //xxx Should we make the settings functions set these when passed no param?
-    document.getElementById("toggleAutosave").checked = settings.autosave;
-    document.getElementById("toggleCustomQuantities").checked = settings.customIncr;
-    document.getElementById("toggleDelimiters").checked = settings.delimiters;
-    document.getElementById("toggleShadow").checked = settings.textShadow;
-    document.getElementById("toggleNotes").checked = settings.notes;
-    document.getElementById("toggleWorksafe").checked = settings.worksafe;
-    //xxx document.getElementById("toggle").checked = settings.fontSize;
-    // document.getElementById("toggleIcons").checked = settings.useIcons;
- 
     // Calling these with no parameter makes them update the UI for the current values.
     setAutosave();
     setCustomQuantities();
@@ -2709,9 +2701,9 @@ function load(loadType){
         var settingsString;
         var msg;
         try {
+            settingsString = localStorage.getItem(saveSettingsTag);
             string1 = localStorage.getItem(saveTag);
             string2 = localStorage.getItem(saveTag2);
-            settingsString = localStorage.getItem(saveSettingsTag);
         } catch(err) {
             if (!string1) { // It could be fine if string2 or settingsString fail.
                 if (err instanceof SecurityError)
@@ -3096,8 +3088,6 @@ function load(loadType){
     document.getElementById("rulerName").innerHTML = curCiv.rulerName;
     document.getElementById("wonderNameP").innerHTML = wonder.name;
     document.getElementById("wonderNameC").innerHTML = wonder.name;
-
-    updateSettings();
 }
 
 function save(savetype){
@@ -3171,9 +3161,6 @@ function save(savetype){
         console.log("XMLHttpRequest failed");
     }
 }
-
-function setAutosave(value){ if (value !== undefined) { settings.autosave = value; } }
-function onToggleAutosave(control){ return setAutosave(control.checked); }
 
 function deleteSave(){
     //Deletes the current savegame by setting the game's cookies to expire in the past.
@@ -3963,21 +3950,8 @@ function initCivclicker() {
         renameRuler();
     }
 
-    load("localStorage");//immediately attempts to load
-
-    body.style.fontSize = settings.fontSize + "em";
-    if (!settings.worksafe){
-        body.classList.add("hasBackground");
-    } else {
-        body.classList.remove("hasBackground");
-        if (settings.useIcons){
-            var elems = document.getElementsByClassName("icon");
-            var i;
-            for(i = 0; i < elems.length; i++) {
-                elems[i].style.visibility = "hidden";
-            }
-        }
-    }
+    load("localStorage"); //immediately attempts to load
+    updateSettings();
 }
 initCivclicker();
 
@@ -4162,12 +4136,19 @@ function prettify(input){
 }
 
 
+function setAutosave(value){ 
+    if (value !== undefined) { settings.autosave = value; } 
+    document.getElementById("toggleAutosave").checked = settings.autosave;
+}
+function onToggleAutosave(control){ return setAutosave(control.checked); }
+
 function setCustomQuantities(value){
     var i;
     var elems;
     var curPop = population.current + curCiv.zombie.owned;
 
     if (value !== undefined) { settings.customIncr = value; }
+    document.getElementById("toggleCustomQuantities").checked = settings.customIncr;
 
     setElemDisplay(document.getElementById("customJobQuantity"),settings.customIncr);
     setElemDisplay(document.getElementById("customPartyQuantity"),settings.customIncr);
@@ -4206,6 +4187,8 @@ function onToggleCustomQuantities(control){ return setCustomQuantities(control.c
 // Toggles the display of the .notes class
 function setNotes(value){
     if (value !== undefined) { settings.notes = value; }
+    document.getElementById("toggleNotes").checked = settings.notes;
+
     var i;
     var elems = document.getElementsByClassName("note");
     for(i = 0; i < elems.length; ++i) {
@@ -4225,6 +4208,7 @@ function textSize(value){
 
 function setShadow(value){
     if (value !== undefined) { settings.textShadow = value; }
+    document.getElementById("toggleShadow").checked = settings.textShadow;
     var shadowStyle = "3px 0 0 #fff, -3px 0 0 #fff, 0 3px 0 #fff, 0 -3px 0 #fff"
                     + ", 2px 2px 0 #fff, -2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff";
     body.style.textShadow = settings.textShadow ? shadowStyle : "none";
@@ -4233,29 +4217,38 @@ function onToggleShadow(control){ return setShadow(control.checked); }
 
 // Does nothing yet, will probably toggle display for "icon" and "word" classes 
 // as that's probably the simplest way to do this.
-function setIcons(value){ if (value !== undefined) { settings.useIcons = value; } }
+function setIcons(value){ 
+    if (value !== undefined) { settings.useIcons = value; } 
+    document.getElementById("toggleIcons").checked = settings.useIcons;
+
+    var i;
+    var elems = document.getElementsByClassName("icon");
+    for(i = 0; i < elems.length; ++i) {
+        // Worksafe implies no icons.
+        elems[i].style.visibility = (settings.useIcons && !settings.worksafe) ? "visible" : "hidden";
+    }
+}
 function onToggleIcons(control){ return setIcons(control.checked); }
 
 function setDelimiters(value){
     if (value !== undefined) { settings.delimiters = value; }
+    document.getElementById("toggleDelimiters").checked = settings.delimiters;
     updateResourceTotals();
 }
 function onToggleDelimiters(control){ return setDelimiters(control.checked); }
 
 function setWorksafe(value){
-    var i;
-    var elems;
-
     if (value !== undefined) { settings.worksafe = value; }
+    document.getElementById("toggleWorksafe").checked = settings.worksafe;
+
     //xxx Should this be applied to the document instead of the body?
-    body.classList.toggle("hasBackground"); //xxx Note that classList doesn't work in IE < 10.
-    if (settings.useIcons)
-    {
-        elems = document.getElementsByClassName("icon");
-        for(i = 0; i < elems.length; i++) {
-            elems[i].style.visibility = settings.worksafe ? "hidden" : "visible";
-        }
+    if (settings.worksafe){
+        body.classList.remove("hasBackground");
+    } else {
+        body.classList.add("hasBackground");
     }
+
+    setIcons(); // Worksafe overrides icon settings.
 }
 function onToggleWorksafe(control){ return setWorksafe(control.checked); }
 
