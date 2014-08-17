@@ -136,6 +136,43 @@ button:disabled{
     font-weight:normal;
 }
 
+/* Use two columns on large displays */
+@media screen and (min-width: 800px) {
+.mainContent {
+    /* Two-column display */
+    column-count: 2;
+    -moz-column-count: 2;
+}
+}
+
+/* Don't allow column breaks inside sections */
+/*xxx Unfortunately, support for these properties is very sketchy. */
+.civColumn,
+.civSection {
+    break-inside: avoid;
+    /* The above is stnadard, but poorly supported. */
+    /* Use inline-block to mimic its effect */
+    /* display: inline-block; */
+    -webkit-break-inside: avoid;
+    -moz-break-inside: avoid;
+    -webkit-column-break-inside: avoid;
+    -moz-column-break-inside: avoid;
+}
+
+/* Because column break support is poor, we put each column into inline-block
+ * mode, which essentially forces them each into their own column. */
+.civColumn { display: inline-block; }
+
+/* Put the column breaks where we want them */
+/*xxx Unfortunately, support for these properties is very sketchy. */
+#rightColumn {
+    break-before: column;
+    -webkit-break-before: column;
+    -moz-break-before: column;
+    -webkit-column-break-before: always;
+    -moz-column-break-before: always;
+}
+
 .paneSelector{
     float:left;
     text-align:center;
@@ -210,14 +247,6 @@ button:disabled{
 }
 .icon{
     padding-right:10px;
-}
-#resources{
-    float:left;
-    width:50%;
-}
-#population{
-    float:left;
-    width:50%;
 }
 
 .deityDomain{
@@ -329,16 +358,10 @@ button.build{
     padding-right:20px;
 }
 
-#stats{
-    width:50%;
-    float:left;
-}
 #graveTotal{
     display:none;
 }
 #settings{
-    width:50%;
-    float:left;
 }
 
 #strip{
@@ -370,7 +393,6 @@ button.build{
 }
 .break{
     display:block;
-    float:left;
     width:20px;
 }
 .unlockedAch{
@@ -433,7 +455,6 @@ button.build{
     width:5em;
 }
 #progressContainer{
-    width:50%;
     border:1px solid black;
 }
 #progressBar{
@@ -465,7 +486,6 @@ button.build{
     display:none;
     padding:0.3em 0 0.5em 0;
     margin:0.5em 0;
-    width:50%;
     text-align:center;
     background-color:#9d9;
     border-radius:1.5em;

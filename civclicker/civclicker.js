@@ -1,7 +1,7 @@
 "use strict";
 /*jslint browser: true, devel: true, passfail: false, continue: true, eqeq: true, plusplus: true, vars: true, white: true, indent: 4, maxerr: 999 */
 /* jshint laxbreak: true, laxcomma: true */
-/* global updateJobButtons,updatePurchaseRow,updateResourceTotals,updateBuildingTotals,updateMobs,updateDeity,updateUpgrades,updateOldDeities,updateDevotion,updateParty,updateHappiness,updateWonder,updatePopulation,calcCost,updateJobs,updateAchievements,updateTargets,updateWonderList,digGraves,renameDeity,spawnMob,renameWonder,mood,versionAlert,gameLog,prettify,LZString,bake_cookie,read_cookie,prettify,updateRequirements,calcWorkerCost,mergeObj,isValid,setElemDisplay,rndRound,calcCombatMods,dataset,copyProps,updatePopulationUI,calcZombieCost,logSearchFn,getCustomNumber,calcArithSum,SecurityError,doSlaughter,doLoot,doHavoc,valOf,setAutosave,setCustomQuantities,textSize,setDelimiters,setShadow,setNotes,setWorksafe,setIcons */
+/* global updateJobButtons,updatePurchaseRow,updateResourceTotals,updateBuildingTotals,updateMobs,updateDeity,updateUpgrades,updateOldDeities,updateDevotion,updateParty,updateHappiness,updateWonder,updatePopulation,calcCost,updateJobs,updateAchievements,updateTargets,updateWonderList,digGraves,renameDeity,spawnMob,renameWonder,mood,versionAlert,gameLog,prettify,LZString,bake_cookie,read_cookie,prettify,updateRequirements,calcWorkerCost,mergeObj,isValid,setElemDisplay,rndRound,calcCombatMods,dataset,copyProps,updatePopulationUI,calcZombieCost,logSearchFn,getCustomNumber,calcArithSum,SecurityError,doSlaughter,doLoot,doHavoc,valOf,setAutosave,setCustomQuantities,textSize,setDelimiters,setShadow,setNotes,setWorksafe,setIcons,deleteCookie */
 /**
     CivClicker
     Copyright (C) 2014; see the AUTHORS file for authorship.
@@ -33,7 +33,7 @@ VersionData.prototype.toNumber = function() { return this.major*1000 + this.mino
 VersionData.prototype.toString = function() { return String(this.major) + "." 
     + String(this.minor) + "." + String(this.sub) + String(this.mod); };
 
-var versionData = new VersionData(1,1,49,"alpha");
+var versionData = new VersionData(1,1,50,"alpha");
 
 var saveTag = "civ";
 var saveTag2 = saveTag + "2"; // For old saves.
@@ -867,7 +867,7 @@ function augmentCivData() {
     var i;
     var testCivSizeAch = function() { return (this.id == civSizes.getCivSize(population.current).id+"Ach"); };
     // Add the civ size based achivements to the front of the data, so that they come first.
-    for (i=1;i<civSizes.length;++i) {
+    for (i=civSizes.length-1;i>0;--i) {
         civData.unshift(new Achievement({id:civSizes[i].id+"Ach", name:civSizes[i].name, test:testCivSizeAch}));
     }
     //xxx TODO: Add deity domain based achievements here too.
@@ -1179,7 +1179,7 @@ function getPurchaseCellText(purchaseObj, qty) {
     var qtyParamQuote = (typeof qty == "string") ? "'" : ""; // Need to add quotes if this is a string.
     if (allowPurchase()) 
     { 
-        s +="<button class='x"+abs(qty)+"' onmousedown=\""+ purchaseObj.type+"Purchase"
+        s +="<button class='x"+abs(qty)+"' disabled='disabled' onmousedown=\""+ purchaseObj.type+"Purchase"
         +"('"+purchaseObj.id+"',"+qtyParamQuote+qty+qtyParamQuote+")\">"+fmtnum(qty)+"</button>"; 
     }
     s += "</td>";
@@ -1731,34 +1731,23 @@ function updateDevotion(){
 }
 
 
-// achId can be:
+// achObj can be:
 //   true:  Generate a line break
 //   false: Generate a gap
-//   An achievement ID (or civ size ID) string: Generate the display of that achievement
-function getAchRowText(achId, name)
+//   An achievement (or civ size) object: Generate the display of that achievement
+function getAchRowText(achObj)
 {
-    if (achId===true)  { return "<div style='clear:both;'><br /></div>"; }
-    if (achId===false) { return "<div class='break'>&nbsp;</div>"; }
-    return "<div class='achievement' title='"+name+"'>"+
-            "<div class='unlockedAch' id='"+achId+"'>"+name+"</div></div>";
+    if (achObj===true)  { return "<div style='clear:both;'><br /></div>"; }
+    if (achObj===false) { return "<div class='break'>&nbsp;</div>"; }
+    return "<div class='achievement' title='"+achObj.name+"'>"+
+            "<div class='unlockedAch' id='"+achObj.id+"'>"+achObj.name+"</div></div>";
 }
 
 // Dynamically create the achievement display
 function addAchievementRows()
 {
-    var i, s="";
-    // Start from 1 because there's no achievement for 'thorp'.
-    for (i=1;i<civSizes.length;++i) {
-        s += getAchRowText(civSizes[i].id+"Ach", (isValid(civSizes[i].name) ? civSizes[i].name : undefined));
-    }
-
-    // The specification for the achievements grid.  true->newline, false->gap
-    [true, "raiderAch", "engineerAch", "dominationAch", false, "hatedAch", "lovedAch", false, 
-    "catAch", "glaringAch", "clowderAch", false, 
-    "plaguedAch", false, "ghostTownAch", true, "battleAch", "fieldsAch", "underworldAch", "catsAch", "fullHouseAch", false, 
-    "wonderAch", "sevenAch", false, "merchantAch", "rushedAch", false, "neverclickAch"]
-    .forEach(function(element) { s += getAchRowText(element, ((typeof element != "boolean") ? civData[element].name : undefined)); });
-
+    var s="";
+    achData.forEach(function(elem) { s += getAchRowText(elem); });
     document.getElementById("achievements").innerHTML += s;
 }
 
@@ -2670,6 +2659,17 @@ function speedWonder(){
 
 // Game infrastructure functions
 
+function handleStorageError(err)
+{
+    var msg;
+    if ((err instanceof DOMException) && (err.code == DOMException.SECURITY_ERR))
+        { msg = "Browser security settings blocked access to local storage."; }
+    else 
+        { msg = "Cannot access localStorage - browser may not support localStorage, or storage may be corrupt"; }
+    console.log(err.toString());
+    console.log(msg);
+}
+
 // Load in saved data
 function load(loadType){
     //define load variables
@@ -2699,27 +2699,23 @@ function load(loadType){
         var string1;
         var string2;
         var settingsString;
-        var msg;
         try {
             settingsString = localStorage.getItem(saveSettingsTag);
             string1 = localStorage.getItem(saveTag);
             string2 = localStorage.getItem(saveTag2);
+
+            if (!string1) {
+                console.log("Unable to find variables in localStorage. Attempting to load cookie.");
+                return load("cookie");
+            }
+
         } catch(err) {
             if (!string1) { // It could be fine if string2 or settingsString fail.
-                if (err instanceof SecurityError)
-                    { msg = "Browser security settings blocked access to local storage."; }
-                else 
-                    { msg = "Cannot access localStorage - browser may not support localStorage, or storage may be corrupt"; }
-                console.log(msg);
+                handleStorageError(err);
                 return load("cookie");
             }
         }
         
-        if (!string1) {
-            console.log("Unable to find variables in localStorage. Attempting to load cookie.");
-            return load("cookie");
-        }
-
         // Try to parse the strings
         if (string1) { try { loadVar  = JSON.parse(string1); } catch(ignore){} }
         if (string2) { try { loadVar2 = JSON.parse(string1); } catch(ignore){} }
@@ -3112,29 +3108,28 @@ function save(savetype){
 
     ////////////////////////////////////////////////////
 
-    // Delete the old cookie-based save to avoid mismatched saves
-    document.cookie = [saveTag, "=; expires=Thu, 01-Jan-1970 00:00:01 GMT; path=/; domain=.", window.location.host.toString()].join("");
-    document.cookie = [saveTag2, "=; expires=Thu, 01-Jan-1970 00:00:01 GMT; path=/; domain=.", window.location.host.toString()].join("");
-
-    //set localstorage
-    try {
-        localStorage.setItem(saveTag, JSON.stringify(saveVar));
-        localStorage.setItem(saveSettingsTag, JSON.stringify(settingsVar));
-    } catch(err) {
-        console.log("Cannot access localStorage - browser may be old or storage may be corrupt");
-        alert("Save Failed!");
-    }
-    //Update console for debugging, also the player depending on the type of save (manual/auto)
-    console.log("Attempted save");
+    // Handle export
     if (savetype == "export"){
         var savestring = "[" + JSON.stringify(saveVar) + "]";
         var compressed = LZString.compressToBase64(savestring);
         console.log("Compressed save from " + savestring.length + " to " + compressed.length + " characters");
         document.getElementById("impexpField").value = compressed;
-        gameLog("Saved game and exported to base64");
+        gameLog("Exported game to base64");
+        return true;
     }
-    if (localStorage.getItem(saveTag)) {
-        console.log("Savegame exists");
+
+    //set localstorage
+    try {
+        // Delete the old cookie-based save to avoid mismatched saves
+        deleteCookie(saveTag);
+        deleteCookie(saveTag2);
+
+        localStorage.setItem(saveTag, JSON.stringify(saveVar));
+
+        // We always save the game settings.
+        localStorage.setItem(saveSettingsTag, JSON.stringify(settingsVar));
+
+        //Update console for debugging, also the player depending on the type of save (manual/auto)
         if (savetype == "auto"){
             console.log("Autosave");
             gameLog("Autosaved");
@@ -3143,7 +3138,19 @@ function save(savetype){
             console.log("Manual Save");
             gameLog("Saved game");
         }
+    } catch(err) {
+        handleStorageError(err);
+
+        if (savetype == "auto"){
+            console.log("Autosave Failed");
+            gameLog("Autosave Failed");
+        } else if (savetype == "manual"){
+            alert("Save Failed!");
+            console.log("Save Failed");
+            gameLog("Save Failed");
+        }
     }
+
     try {
         xmlhttp = new XMLHttpRequest();
         xmlhttp.overrideMimeType("text/plain");
@@ -3166,12 +3173,17 @@ function deleteSave(){
     //Deletes the current savegame by setting the game's cookies to expire in the past.
     if (!confirm("Really delete save?")) { return; } //Check the player really wanted to do that.
 
-    document.cookie = [saveTag, "=; expires=Thu, 01-Jan-1970 00:00:01 GMT; path=/; domain=.", window.location.host.toString()].join("");
-    document.cookie = [saveTag2, "=; expires=Thu, 01-Jan-1970 00:00:01 GMT; path=/; domain=.", window.location.host.toString()].join("");
-    localStorage.removeItem(saveTag);
-    localStorage.removeItem(saveTag2);
-    localStorage.removeItem(saveSettingsTag);
-    gameLog("Save Deleted");
+    try {
+        deleteCookie(saveTag);
+        deleteCookie(saveTag2);
+        localStorage.removeItem(saveTag);
+        localStorage.removeItem(saveTag2);
+        localStorage.removeItem(saveSettingsTag);
+        gameLog("Save Deleted");
+    } catch(err) {
+        handleStorageError(err);
+        alert("Save Deletion Failed!");
+    }
 }
 
 function renameCiv(newName){
@@ -3552,7 +3564,7 @@ function getNextPatient()
 { 
     var i;
     //xxx Need to generalize this list.
-    var jobs=["healer","farmer","soldier","cavalry","cleric","labourer",
+    var jobs=["healer","cleric","farmer","soldier","cavalry","labourer",
         "woodcutter","miner","tanner","blacksmith","unemployed"];
     for (i=0;i<jobs.length;++i)
     {
@@ -3712,12 +3724,12 @@ function doSack(attacker)
     updatePopulation(); // Limits might change
 }
 
-function doHavoc()
+function doHavoc(attacker)
 {
     var havoc = Math.random(); //barbarians do different things
-    if      (havoc < 0.3) { doSlaughter(civData.barbarian); } 
-    else if (havoc < 0.6) { doLoot(civData.barbarian); } 
-    else                  { doSack(civData.barbarian); }
+    if      (havoc < 0.3) { doSlaughter(attacker); } 
+    else if (havoc < 0.6) { doLoot(attacker); } 
+    else                  { doSack(attacker); }
 }
 
 function doShades()
@@ -3944,13 +3956,11 @@ function initCivclicker() {
     addRaidRows();
     makeDeitiesTables();
 
-    //Prompt player for names
-    if (!localStorage.getItem(saveTag) && !read_cookie(saveTag)) {
+    if (!load("localStorage")) { //immediately attempts to load
+        //Prompt player for names
         renameCiv();
         renameRuler();
     }
-
-    load("localStorage"); //immediately attempts to load
     updateSettings();
 }
 initCivclicker();
@@ -4117,11 +4127,11 @@ function paneSelect(control){
 }
 
 function impExp(){
-    if (document.getElementById("impexp").style.display == "block"){
-        document.getElementById("impexp").style.display = "none";
-        document.getElementById("impexpField").value = "";
+    var elem = document.getElementById("impexp");
+    if (elem.style.display == "block"){
+        elem.style.display = "none";
     } else {
-        document.getElementById("impexp").style.display = "block";
+        elem.style.display = "block";
     }
 }
 

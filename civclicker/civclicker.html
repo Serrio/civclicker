@@ -26,10 +26,12 @@
     <meta name="description" content="CivClicker: Build a Civilisation In Your Browser" />
 
     <!-- JS utilities -->
-    <script type="application/javascript" src="lz-string.js"></script>
-    <script type="application/javascript" src="jsutils.js"></script>
+    <script type="application/javascript" src="lz-string.js" async="async"></script>
+    <script type="application/javascript" src="jsutils.js" async="async"></script>
     <!-- Polyfill from https://developer.mozilla.org/en-US/docs/Web/API/Element.classList -->
-    <script type="application/javascript" src="classList.js"></script>
+    <script type="application/javascript" src="classList.js" async="async"></script>
+    <!-- Main program -->
+    <script type="application/javascript" src="civclicker.js" defer="defer"></script>
 </head>
 <body class="hasBackground">
 
@@ -56,74 +58,72 @@
     <div style="clear:both;"></div>
 </div>
 
-<div id="resources">
-    <div id="resourcesContainer">
-        <div id="basicResourcesContainer">
-            <h3>Basic Resources</h3>
-            <table id="basicResources">
-                <tr>
-                    <td><button onmousedown="increment('food')">Gather Food</button></td>
-                    <td>Food: </td>
-                    <td class="number"><span data-action="display" data-target="food">0</span></td>
-                    <td class="icon"><img src="images/food.png" class="icon icon-lg" alt="Food"/></td>
-                    <td class="number">(Max: <span id="maxfood">200</span>)</td>
-                    <td class="number net"><span data-action="displayNet" data-target="food">0</span>/s</td>
-                </tr>
-                <tr>
-                    <td><button onmousedown="increment('wood')">Cut Wood</button></td>
-                    <td>Wood: </td>
-                    <td class="number"><span data-action="display" data-target="wood">0</span></td>
-                    <td class="icon"><img src="images/wood.png" class="icon icon-lg" alt="Wood"/></td>
-                    <td class="number">(Max: <span id="maxwood">200</span>)</td>
-                    <td class="number net"><span data-action="displayNet" data-target="wood">0</span>/s</td>
-                </tr>
-                <tr>
-                    <td><button onmousedown="increment('stone')">Mine Stone</button></td>
-                    <td>Stone: </td>
-                    <td class="number"><span data-action="display" data-target="stone">0</span></td>
-                    <td class="icon"><img src="images/stone.png" class="icon icon-lg" alt="Stone"/></td>
-                    <td class="number">(Max: <span id="maxstone">200</span>)</td>
-                    <td class="number net"><span data-action="displayNet" data-target="stone">0</span>/s</td>
-                </tr>
-            </table>
-        </div>
-        <div id="specialResourcesContainer">
-            <h3>Special Resources</h3>
-            <table>
-                <tr>
-                    <td>Skins: </td>
-                    <td class="number"><span data-action="display" data-target="skins">0</span></td>
-                    <td><img src="images/skins.png" class="icon icon-lg" alt="Skins"/></td>
-                    <td>Leather: </td>
-                    <td class="number"><span data-action="display" data-target="leather">0</span></td>
-                    <td class="icon"><img src="images/leather.png" class="icon icon-lg" alt="Leather"/></td>
-                </tr>
-                <tr>
-                    <td>Herbs: </td>
-                    <td class="number"><span data-action="display" data-target="herbs">0</span></td>
-                    <td><img src="images/herbs.png" class="icon icon-lg" alt="Herbs"/></td>
-                    <td>Piety: </td>
-                    <td class="number"><span data-action="display" data-target="piety">0</span></td>
-                    <td class="icon"><img src="images/piety.png" class="icon icon-lg" alt="Piety"/></td>
-                </tr>
-                <tr>
-                    <td>Ore: </td>
-                    <td class="number"><span data-action="display" data-target="ore">0</span></td>
-                    <td><img src="images/ore.png" class="icon icon-lg" alt="Ore"/></td>
-                    <td>Metal: </td>
-                    <td class="number"><span data-action="display" data-target="metal">0</span></td>
-                    <td class="icon"><img src="images/metal.png" class="icon icon-lg" alt="Metal"/></td>
-                </tr>
-                <tr id="goldRow">
-                    <td>Gold: </td>
-                    <td class="number"><span data-action="display" data-target="gold">0</span></td>
-                    <td class="icon"><img src="images/gold.png" class="icon icon-lg" alt="Gold"/></td>
-                    <td colspan="3"></td>
-                </tr>
-            </table>
-        </div>
+<div class="mainContent"><div id="leftColumn" class="civColumn">
+    <div id="basicResourcesContainer" class="civSection">
+        <h3>Basic Resources</h3>
+        <table id="basicResources">
+            <tr>
+                <td><button onmousedown="increment('food')">Gather Food</button></td>
+                <td>Food: </td>
+                <td class="number"><span data-action="display" data-target="food">0</span></td>
+                <td class="icon"><img src="images/food.png" class="icon icon-lg" alt="Food"/></td>
+                <td class="number">(Max: <span id="maxfood">200</span>)</td>
+                <td class="number net"><span data-action="displayNet" data-target="food">0</span>/s</td>
+            </tr>
+            <tr>
+                <td><button onmousedown="increment('wood')">Cut Wood</button></td>
+                <td>Wood: </td>
+                <td class="number"><span data-action="display" data-target="wood">0</span></td>
+                <td class="icon"><img src="images/wood.png" class="icon icon-lg" alt="Wood"/></td>
+                <td class="number">(Max: <span id="maxwood">200</span>)</td>
+                <td class="number net"><span data-action="displayNet" data-target="wood">0</span>/s</td>
+            </tr>
+            <tr>
+                <td><button onmousedown="increment('stone')">Mine Stone</button></td>
+                <td>Stone: </td>
+                <td class="number"><span data-action="display" data-target="stone">0</span></td>
+                <td class="icon"><img src="images/stone.png" class="icon icon-lg" alt="Stone"/></td>
+                <td class="number">(Max: <span id="maxstone">200</span>)</td>
+                <td class="number net"><span data-action="displayNet" data-target="stone">0</span>/s</td>
+            </tr>
+        </table>
     </div>
-    <div id="panesSelectors">
+    <div id="specialResourcesContainer" class="civSection">
+        <h3>Special Resources</h3>
+        <table>
+            <tr>
+                <td>Skins: </td>
+                <td class="number"><span data-action="display" data-target="skins">0</span></td>
+                <td><img src="images/skins.png" class="icon icon-lg" alt="Skins"/></td>
+                <td>Leather: </td>
+                <td class="number"><span data-action="display" data-target="leather">0</span></td>
+                <td class="icon"><img src="images/leather.png" class="icon icon-lg" alt="Leather"/></td>
+            </tr>
+            <tr>
+                <td>Herbs: </td>
+                <td class="number"><span data-action="display" data-target="herbs">0</span></td>
+                <td><img src="images/herbs.png" class="icon icon-lg" alt="Herbs"/></td>
+                <td>Piety: </td>
+                <td class="number"><span data-action="display" data-target="piety">0</span></td>
+                <td class="icon"><img src="images/piety.png" class="icon icon-lg" alt="Piety"/></td>
+            </tr>
+            <tr>
+                <td>Ore: </td>
+                <td class="number"><span data-action="display" data-target="ore">0</span></td>
+                <td><img src="images/ore.png" class="icon icon-lg" alt="Ore"/></td>
+                <td>Metal: </td>
+                <td class="number"><span data-action="display" data-target="metal">0</span></td>
+                <td class="icon"><img src="images/metal.png" class="icon icon-lg" alt="Metal"/></td>
+            </tr>
+            <tr id="goldRow">
+                <td>Gold: </td>
+                <td class="number"><span data-action="display" data-target="gold">0</span></td>
+                <td class="icon"><img src="images/gold.png" class="icon icon-lg" alt="Gold"/></td>
+                <td colspan="3"></td>
+            </tr>
+        </table>
+    </div>
+    <div id="panesSelectors" class="civSection">
         <div id="selectors">
             <div id="buildingsSelect" class="paneSelector selected" data-target="buildingsPane" onclick="paneSelect(this)">Buildings</div>
             <div id="upgradesSelect" class="paneSelector" data-target="upgradesPane" onclick="paneSelect(this)">Upgrades</div>
@@ -259,7 +259,7 @@
             <div id="settings">
                 <h3>Settings</h3>
                 <button onmousedown="save('manual')" title="Save your current stats">Manual Save</button><br />
-                <input id="toggleAutosave" type="checkbox" onclick="onToggleAutosave(this)" title="Autosave">Autosave</button><br />
+                <label><input id="toggleAutosave" type="checkbox" onclick="onToggleAutosave(this)" title="Autosave"/>Autosave</label><br />
                 <button onmousedown="reset()" title="Reset your game">Reset Game</button><span class="note"><span id="resetNote"><br/>Resetting allows you to </span><span id="resetDeity">gain another deity</span><span id="resetBoth"><br/> and </span><span id="resetWonder">build another Wonder</span></span><br />
                 <br />
                 <button onmousedown="deleteSave()" title="Delete your saved stats">Delete Save File</button><br />
@@ -271,19 +271,17 @@
                 <span id="textSize"><button id="smallerText" onmousedown="textSize(-1)" title="Smaller Text">&minus;</button>Text Size
                 <button id="largerText" onmousedown="textSize(1)" title="Larger Text">+</button></span><br />
                 <br />
-                <input id="toggleCustomQuantities" type="checkbox" onclick="onToggleCustomQuantities(this)" title="Custom Quantity">Use Custom Quantities</button><br />
-                <input id="toggleDelimiters" type="checkbox" onclick="onToggleDelimiters(this)" title="Toggle Delimiters">Number Delimiters</button><br />
-                <input id="toggleShadow" type="checkbox" onclick="onToggleShadow(this)" title="Toggle Text Shadow">Text Shadows</button><br />
-                <input id="toggleNotes" type="checkbox" onclick="onToggleNotes(this)" title="Toggle Notes">Show Notes</button><br />
-                <input id="toggleWorksafe" type="checkbox" onclick="onToggleWorksafe(this)" title="Toggle Worksafe Mode">Worksafe Mode</button><br />
-                <input id="toggleIcons" type="checkbox" onclick="onToggleIcons(this)" title="Toggle Icons">Use Icons</button><br />
+                <label><input id="toggleCustomQuantities" type="checkbox" onclick="onToggleCustomQuantities(this)" title="Custom Quantity"/>Use Custom Quantities</label><br />
+                <label><input id="toggleDelimiters" type="checkbox" onclick="onToggleDelimiters(this)" title="Toggle Delimiters"/>Number Delimiters</label><br />
+                <label><input id="toggleShadow" type="checkbox" onclick="onToggleShadow(this)" title="Toggle Text Shadow"/>Text Shadows</label><br />
+                <label><input id="toggleNotes" type="checkbox" onclick="onToggleNotes(this)" title="Toggle Notes"/>Show Notes</label><br />
+                <label><input id="toggleWorksafe" type="checkbox" onclick="onToggleWorksafe(this)" title="Toggle Worksafe Mode"/>Worksafe Mode</label><br />
+                <label><input id="toggleIcons" type="checkbox" onclick="onToggleIcons(this)" title="Toggle Icons"/>Use Icons</label><br />
             </div>
         </div>
     </div>
-</div>
-
-<div id="population">
-    <div id="populationContainer">
+    </div><div id="rightColumn" class="civColumn">
+    <div id="populationContainer" class="civSection">
         <h3>Population</h3>
         <div id="populationNumbers">
             <table>
@@ -316,7 +314,7 @@
             </div>
         </div>
     </div>
-    <div id="jobsContainer">
+    <div id="jobsContainer" class="civSection">
         <h3>Jobs</h3>
         <p id="customJobQuantity">
             Custom Quantity <input id="homeCustomQty" type="number" min="1" step="1" value="1" />
@@ -327,7 +325,7 @@
         Trader offers 1 gold for <span id="tradeRequested">0</span> <span id="tradeType">food</span><br />
         <button id="trader" onmousedown="trade()">Trade</button>
     </div>
-    <div id="eventsContainer">
+    <div id="eventsContainer" class="civSection">
         <h3>Events</h3>
         <table id="logTable">
             <tr id="log0"><td id="logT"></td><td id="logL"></td><td id="logR"></td></tr>
@@ -342,11 +340,11 @@
             <tr id="log9"><td colspan="3"></td></tr> -->
         </table>
     </div>
-    <div id="deityContainer">
+    <div id="deityContainer" class="civSection">
         <h3>Current Deity</h3>
         <table id="activeDeity"><tr><td></td></tr></table>
     </div>
-    <div id="wondersContainer">
+    <div id="wondersContainer" class="civSection">
         <h3>Wonders</h3>
         <span id="startWonderLine"><button id="startWonder" onmousedown="startWonder()">Start Building Wonder</button></span>
         <div id="wonderInProgress">
@@ -370,7 +368,7 @@
         </div>
         <table id="pastWonders"><tr><td></td></tr></table>
     </div>
-    <div id="stats">
+    <div id="statsContainer" class="civSection">
         <h3>Stats</h3>
         Resource clicks: <span id="clicks">0</span><br />
         Total Land: <span id="totalLand">1000</span><br />
@@ -382,9 +380,6 @@
         <br />
         Cats: <span data-action="display" data-target="cat">0</span><br />
     </div>
-</div>
-
-<script type="application/javascript" src="civclicker.js"></script>
-
+</div></div>
 </body>
 </html>

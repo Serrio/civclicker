@@ -205,3 +205,8 @@ function copyProps(dest,src,names,deleteOld)
     });
 }
 
+// Delete the specified named cookie
+function deleteCookie(cookieName)
+{
+    document.cookie = [cookieName, "=; expires=Thu, 01-Jan-1970 00:00:01 GMT; path=/; domain=.", window.location.host.toString()].join("");
+}
