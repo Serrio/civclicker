@@ -159,9 +159,9 @@ button:disabled{
     -moz-column-break-inside: avoid;
 }
 
-/* Because column break support is poor, we put each column into inline-block
- * mode, which essentially forces them each into their own column. */
-.civColumn { display: inline-block; }
+/* Because column break support is poor, we put the right column into 
+ * inline-block mode, which forces the column break where we want it. */
+.rightColumn { display: inline-block; }
 
 /* Put the column breaks where we want them */
 /*xxx Unfortunately, support for these properties is very sketchy. */
