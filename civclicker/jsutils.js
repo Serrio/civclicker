@@ -172,10 +172,14 @@ function setElemDisplay(htmlElem,visible)
 
 
 // Workaround for IE's lack of support for the dataset property.
+// Returns "true" and "false" as actual booleans.
 //xxx Maybe make this search up the DOM tree on lookups, to mimic inheritance
 function dataset(elem,attr,value)
 {
-    if (value === undefined) { return elem.getAttribute("data-"+attr); }
+    if (value === undefined) { 
+        var val = elem.getAttribute("data-"+attr); 
+        return (val=="true")?true:(val=="false")?false:val;
+    }
 
     return elem.setAttribute("data-"+attr,value);
 }
@@ -209,4 +213,24 @@ function copyProps(dest,src,names,deleteOld)
 function deleteCookie(cookieName)
 {
     document.cookie = [cookieName, "=; expires=Thu, 01-Jan-1970 00:00:01 GMT; path=/; domain=.", window.location.host.toString()].join("");
+}
+
+// Get the fundamental object of the given type
+function getStdObj(typeName)
+{
+    switch(typeName)
+    {
+        case "object": return Object;
+        case "boolean": return Boolean;
+        case "number": return Number;
+        case "string": return String;
+        case "function": return Function;
+        default: return undefined;
+    }
+}
+
+// Return one variable, coerced to the type of another.
+function matchType(inVar, toMatch)
+{
+    return getStdObj(typeof toMatch)(inVar);
 }

@@ -1,7 +1,7 @@
 "use strict";
 /*jslint browser: true, devel: true, passfail: false, continue: true, eqeq: true, plusplus: true, vars: true, white: true, indent: 4, maxerr: 999 */
 /* jshint laxbreak: true, laxcomma: true */
-/* global updateJobButtons,updatePurchaseRow,updateResourceTotals,updateBuildingTotals,updateMobs,updateDeity,updateUpgrades,updateOldDeities,updateDevotion,updateParty,updateHappiness,updateWonder,updatePopulation,calcCost,updateJobs,updateAchievements,updateTargets,updateWonderList,digGraves,renameDeity,spawnMob,renameWonder,mood,versionAlert,gameLog,prettify,LZString,bake_cookie,read_cookie,prettify,updateRequirements,calcWorkerCost,mergeObj,isValid,setElemDisplay,rndRound,calcCombatMods,dataset,copyProps,updatePopulationUI,calcZombieCost,logSearchFn,getCustomNumber,calcArithSum,SecurityError,doSlaughter,doLoot,doHavoc,valOf,setAutosave,setCustomQuantities,textSize,setDelimiters,setShadow,setNotes,setWorksafe,setIcons,deleteCookie */
+/* global updateJobButtons,updatePurchaseRow,updateResourceTotals,updateBuildingTotals,updateMobs,updateDeity,updateUpgrades,updateOldDeities,updateDevotion,updateParty,updateHappiness,updateWonder,updatePopulation,calcCost,updateJobs,updateAchievements,updateTargets,updateWonderList,digGraves,renameDeity,spawnMob,renameWonder,mood,versionAlert,gameLog,prettify,LZString,bake_cookie,read_cookie,prettify,updateRequirements,calcWorkerCost,mergeObj,isValid,setElemDisplay,rndRound,calcCombatMods,dataset,copyProps,updatePopulationUI,calcZombieCost,logSearchFn,getCustomNumber,calcArithSum,SecurityError,doSlaughter,doLoot,doHavoc,valOf,setAutosave,setCustomQuantities,textSize,setDelimiters,setShadow,setNotes,setWorksafe,setIcons,deleteCookie,matchType,addPUpgradeRows */
 /**
     CivClicker
     Copyright (C) 2014; see the AUTHORS file for authorship.
@@ -33,7 +33,7 @@ VersionData.prototype.toNumber = function() { return this.major*1000 + this.mino
 VersionData.prototype.toString = function() { return String(this.major) + "." 
     + String(this.minor) + "." + String(this.sub) + String(this.mod); };
 
-var versionData = new VersionData(1,1,50,"alpha");
+var versionData = new VersionData(1,1,51,"alpha");
 
 var saveTag = "civ";
 var saveTag2 = saveTag + "2"; // For old saves.
@@ -192,7 +192,9 @@ Resource.prototype = new CivObj({
     get net() { return curCiv[this.id].net; },
     set net(value) { curCiv[this.id].net = value; },
     increment: 0,
-    specialChance: 0
+    specialChance: 0,
+    specialMaterial: "",
+    activity: "gathering" //I18N
 },true);
 
 function Building(props) // props is an object containing the desired properties.
@@ -292,15 +294,18 @@ Achievement.prototype = new CivObj({
 // Initialize Data
 var civData = [
 // Resources
-new Resource({ id:"food", name:"food", increment:1, specialchance:0.1,
+new Resource({ id:"food", name:"food", increment:1, specialChance:0.1,
+    specialMaterial: "skins", activity: "foraging", //I18N
     get limit() { return 200 + (curCiv.barn.owned * (civData.granaries.owned?2:1) * 200); },
     set limit(value) { return this.limit; } // Only here for JSLint.
 }),
-new Resource({ id:"wood", name:"wood", increment:1, specialchance:0.1,
+new Resource({ id:"wood", name:"wood", increment:1, specialChance:0.1,
+    specialMaterial: "herbs", activity: "woodcutting", //I18N
     get limit() { return 200 + (curCiv.woodstock.owned  * 200); },
     set limit(value) { return this.limit; } // Only here for JSLint.
 }),
-new Resource({ id:"stone", name:"stone", increment:1, specialchance:0.1,
+new Resource({ id:"stone", name:"stone", increment:1, specialChance:0.1,
+    specialMaterial: "ore", activity: "mining", //I18N
     get limit() { return 200 + (curCiv.stonestock.owned  * 200); },
     set limit(value) { return this.limit; } // Only here for JSLint.
 }),
@@ -313,8 +318,13 @@ new Resource({ id:"piety", name:"piety", vulnerable:false }), // Can't be stolen
 new Resource({ id:"gold", name:"gold", vulnerable:false }), // Can't be stolen
 new Resource({ id:"corpses", name:"corpses", vulnerable:false }), // Can't be stolen
 new Resource({ id:"devotion", name:"devotion", vulnerable:false }), // Can't be stolen
-new Resource({ id:"freeLand", name:"land", vulnerable:false, initOwned:1000 }), // Can't be stolen
 // Buildings
+new Building({ id:"freeLand", name:"free land", plural:"free land", 
+    prereqs: undefined,  // Cannot be purchased.
+    require: undefined,  // Cannot be purchased.
+    vulnerable:false, 
+    initOwned:1000,  // Can't be stolen
+    effectText:"Remaining room to expand" }),
 new Building({ id:"tent", name:"tent", plural:"tents",
     require: { wood:2, skins:2 },
     effectText:"+1 max pop." }),
@@ -359,7 +369,10 @@ new Building({ id:"apothecary", name:"apothecary", plural:"apothecaries",
 new Building({ id:"temple", name:"temple", plural:"temples",
     prereqs:{ masonry: true },
     require:{ wood:30, stone:120 },
-    effectText:"allows 1 cleric" }),
+    effectText:"allows 1 cleric",
+    //if purchase was a temple and aesthetics has been activated, increase happiness
+    //if population is large, temples have less effect.
+    onGain: function(num) { if (civData.aesthetics && civData.aesthetics.owned) { mood(num * 25 / population.current); } }}),
 new Building({ id:"barracks", name:"barracks", plural:"barracks",
     prereqs:{ masonry: true },
     require:{ food:20, wood:60, stone:120, metal:10 },
@@ -372,7 +385,8 @@ new Building({ id:"graveyard", name:"graveyard", plural:"graveyards",
     prereqs:{ masonry: true },
     require:{ wood:50, stone:200, herbs:50 },
     vulnerable: false, // Graveyards can't be sacked
-    effectText:"contains 100 graves" }),
+    effectText:"contains 100 graves",
+    onGain: function(num) { if (num === undefined) { num = 1; } digGraves(num); }}),
 new Building({ id:"mill", name:"mill", plural:"mills",
     prereqs:{ wheel: true },
     get require() { return { wood  : 100 * (this.owned + 1) * Math.pow(1.05,this.owned),
@@ -746,6 +760,13 @@ new Unit({ id:"cavalry", name:"cavalry", singular:"cavalry", plural:"cavalry",
     get limit() { return 10*civData.stable.owned; },
     set limit(value) { return this.limit; }, // Only here for JSLint.
     effectText:"Protect from attack" }),
+new Unit({ id:"cat", name:"cats", singular:"cat", plural:"cats", subType:"special",
+    require: undefined,  // Cannot be purchased (through normal controls)
+    prereqs:{ cat: 1 }, // Only visible if you have one.
+    prestige : true, // Not lost on reset.
+    salable: false,  // Cannot be sold.
+    species:"animal",
+    effectText:"Our feline companions" }),
 new Unit({ id:"shade", name:"shades", singular:"shade", plural:"shades", subType:"special",
     prereqs: undefined,  // Cannot be purchased (through normal controls) xxx Maybe change this?
     require: undefined,  // Cannot be purchased.
@@ -1038,13 +1059,16 @@ function meetsPrereqs(prereqObj)
 // Returns how many of this item the player can afford.
 // Looks only at the item's cost and the player's resources, and not
 // at any other limits.
+// Negative quantities are always fully permitted.
 // An undefined cost structure is assumed to mean it cannot be purchased.
-//xxx DOES NOT WORK for nonlinear cost items
+// A boolean quantity is converted to +1 (true) -1 (false)
+//xxx Caps nonlinear purchases at +1, blocks nonlinear sales.
 // costObj - The cost substructure of the object to purchase
 function canAfford(costObj, qty)
 {
     if (!isValid(costObj)) { return 0; }
     if (qty === undefined) { qty = Infinity; } // default to as many as we can
+    if (qty === false) { qty = -1; } // Selling back a boolean item.
     var i;
     for(i in costObj)
     {
@@ -1052,7 +1076,8 @@ function canAfford(costObj, qty)
 
         //xxx We don't handle nonlinear costs here yet.
         // Cap nonlinear purchases to one at a time.
-        if (typeof costObj[i] == "function") { qty = Math.min(qty,1); }
+        // Block nonlinear sales.
+        if (typeof costObj[i] == "function") { qty = Math.max(0,Math.min(1,qty)); }
 
         qty = Math.min(qty,Math.floor(civData[i].owned/valOf(costObj[i])));
         if (qty === 0) { return qty; }
@@ -1067,9 +1092,10 @@ function canAfford(costObj, qty)
 //xxx DOES NOT WORK for nonlinear building cost items!
 function payFor(costObj, qty)
 {
+    if (qty === undefined) { qty = 1; } // default to 1
+    if (qty === false) { qty = -1; } // Selling back a boolean item.
     costObj = valOf(costObj,qty); // valOf evals it if it's a function
     if (!isValid(costObj)) { return 0; }
-    if (qty === undefined) { qty = 1; } // default to 1
 
     qty = Math.min(qty,canAfford(costObj));
     if (qty === 0) { return 0; }
@@ -1095,6 +1121,7 @@ function canPurchase(purchaseObj,qty)
 {
     if (!purchaseObj) { return 0; }
     if (qty === undefined) { qty = Infinity; } // Default to as many as we can.
+    if (qty === false) { qty = -1; } // Selling back a boolean item.
 
     // Can't buy if we don't meet the prereqs.
     if (!meetsPrereqs(purchaseObj.prereqs)) { qty = Math.min(qty, 0); }
@@ -1146,23 +1173,36 @@ function getCostNote(civObj)
 // Number format utility functions.
 // - Allows testing the sign of strings that might be prefixed with '-' (like "-custom")
 // - Output format uses the proper HTML entities for minus sign and infinity.
+// Note that the sign of boolean false is treated as -1, since it indicates a
+//   decrease in quantity (from 1 to 0).
 function sgnnum(x) { return (x > 0) ? 1 : (x < 0) ? -1 : 0; }
 function sgnstr(x) { return (x.length === 0) ? 0 : (x[0] == "-") ? -1 : 1; }
+function sgnbool(x) { return (x ? 1 : -1); }
 function absstr(x) { return (x.length === 0) ? "" : (x[0] == "-") ? x.slice(1) : x; }
-function sgn(x) { return (typeof x == "number") ? sgnnum(x) : (typeof x == "string") ? sgnstr(x) : 0; }
+function sgn(x) { return (typeof x == "number") ? sgnnum(x) 
+                       : (typeof x == "string") ? sgnstr(x) 
+                       : (typeof x == "boolean") ? sgnbool(x) : 0; }
 function abs(x) { return (typeof x == "number") ? Math.abs(x) : (typeof x == "string") ? absstr(x) : x; }
 
-function getPurchaseCellText(purchaseObj, qty) {
+function getPurchaseCellText(purchaseObj, qty, inTable) {
+    if (inTable === undefined) { inTable = true; }
     // Internal utility functions.
     function sgnchr(x) { return (x > 0) ? "+" : (x < 0) ? "&minus;" : ""; }
-    //xxx Hack: Special formatting for Infinity and 1k.
+    //xxx Hack: Special formatting for booleans, Infinity and 1k.
     function infchr(x) { return (x == Infinity) ? "&infin;" : (x == 1000) ? "1k" : x; }
-    function fmtnum(x) { return sgnchr(sgn(x))+infchr(abs(x)); }
+    function fmtbool(x) {
+        var neg = (sgn(x) < 0);
+        return (neg ? "(" : "") + purchaseObj.name + (neg ? ")" : "");
+    }
+    function fmtqty(x) { return (typeof x == "boolean") ? fmtbool(x) : sgnchr(sgn(x))+infchr(abs(x)); }
     function allowPurchase() {
         if (!qty) { return false; } // No-op
 
         // Can't buy/sell items not controlled by player
         if (purchaseObj.alignment && (purchaseObj.alignment != "player")) { return false; }
+
+        // Quantities > 1 are meaningless for boolean items.
+        if ((typeof purchaseObj.initOwned == "boolean")&&(abs(qty) > 1)) { return false; }
 
         // Don't buy/sell unbuyable/unsalable items.
         if ((sgn(qty) > 0) && (purchaseObj.require === undefined)) { return false; }
@@ -1174,15 +1214,15 @@ function getPurchaseCellText(purchaseObj, qty) {
         return true;
     }
 
+    var tagName = inTable ? "td" : "span";
     var className = (abs(qty) == "custom") ? "buy" : purchaseObj.type;  // 'custom' buttons all use the same class.
-    var s = "<td class='"+className+abs(qty)+"'>";
-    var qtyParamQuote = (typeof qty == "string") ? "'" : ""; // Need to add quotes if this is a string.
+    var s = "<"+tagName+" class='"+className+abs(qty)+"'>";
     if (allowPurchase()) 
     { 
-        s +="<button class='x"+abs(qty)+"' disabled='disabled' onmousedown=\""+ purchaseObj.type+"Purchase"
-        +"('"+purchaseObj.id+"',"+qtyParamQuote+qty+qtyParamQuote+")\">"+fmtnum(qty)+"</button>"; 
+        s +="<button class='x"+abs(qty)+"' data-action='purchase' data-quantity='"+qty+"' data-target='"+purchaseObj.id+"' "
+        +" disabled='disabled'" +" onmousedown=\"onPurchase(this)\">"+fmtqty(qty)+"</button>"; 
     }
-    s += "</td>";
+    s += "</"+tagName+">";
     return s;
 }
 
@@ -1190,29 +1230,23 @@ function getPurchaseCellText(purchaseObj, qty) {
 // Or pass nothing, to create a blank row.
 function getPurchaseRowText(purchaseObj)
 {
-    if (!purchaseObj) { return "<tr><td colspan='13'/>&nbsp;</tr>"; }
+    if (!purchaseObj) { return "<tr class='purchaseRow'><td colspan='13'/>&nbsp;</tr>"; }
 
     var objId = purchaseObj.id;
-    var s = "<tr id='"+objId+"Row'>";
-    // Note that updateXXXXRow() relies on the <tr>'s children being in this particular layout.
-    s += getPurchaseCellText(purchaseObj, -Infinity);
-    s += getPurchaseCellText(purchaseObj, "-custom");
-    s += getPurchaseCellText(purchaseObj, -100);
-    s += getPurchaseCellText(purchaseObj, -10);
-    s += getPurchaseCellText(purchaseObj, -1);
+    var s = "<tr id='"+objId+"Row' class='purchaseRow'>";
+ 
+    [-Infinity, "-custom", -100, -10, -1]
+    .forEach(function(elem) { s += getPurchaseCellText(purchaseObj, elem); });
 
     var enemyFlag = (purchaseObj.alignment == "enemy") ? " enemy" : "";
-    var action = (isValid(population[objId])) ? "display_pop" : "display"; //xxx Hack
     s += "<td class='itemname"+enemyFlag+"'>"+purchaseObj.plural+": </td>";
+
+    var action = (isValid(population[objId])) ? "display_pop" : "display"; //xxx Hack
     s += "<td class='number'><span data-action='"+action+"' data-target='"+objId+"'>0</span></td>";
 
-    s += getPurchaseCellText(purchaseObj, 1);
-    s += getPurchaseCellText(purchaseObj, 10);
-    s += getPurchaseCellText(purchaseObj, 100);
-    s += getPurchaseCellText(purchaseObj, "custom");
-
-    var maxBuy = (purchaseObj.salable) ? Infinity : 1000; // Don't allow Infinite (max) purchase on things we can't sell back.
-    s += getPurchaseCellText(purchaseObj, maxBuy);
+    // Don't allow Infinite (max) purchase on things we can't sell back.
+    [1, 10, 100, "custom", ((purchaseObj.salable) ? Infinity : 1000)]
+    .forEach(function(elem) { s += getPurchaseCellText(purchaseObj, elem); });
 
     s += "<td>" + getCostNote(purchaseObj) + "</td>";
     s += "</tr>";
@@ -1251,35 +1285,37 @@ function updatePurchaseRow(purchaseObj){
     if (!purchaseObj) { return; }
 
     var elem = document.getElementById(purchaseObj.id + "Row");
+    if (!elem) { console.log("Missing UI for "+purchaseObj.id); return; }
 
-    // Reveal the row if there are any, or if prereqs are met
-    setElemDisplay(elem,(purchaseObj.owned > 0) || meetsPrereqs(purchaseObj.prereqs));
-
-    var numBuy = canPurchase(purchaseObj);
-    var numSell = canPurchase(purchaseObj,-Infinity);
-
-    // If the building's cost is variable, update its requirements.
+    // If the item's cost is variable, update its requirements.
     if (purchaseObj.hasVariableCost()) { updateRequirements(purchaseObj); }
 
-    // This works by trying to access the children of the table rows containing the buttons in sequence
-    //xxx These should be stored and accessed by a data- attribute instead.
-    function disableChild(elem, i, disable) { 
-        if ((elem.children.length <= i) || (elem.children[i].children.length === 0)) { return false; }
-        elem.children[i].children[0].disabled = disable;
-        return true;
-    }
+    // Already having one reveals it as though we met the prereq.
+    var havePrereqs = (purchaseObj.owned > 0) || meetsPrereqs(purchaseObj.prereqs);
 
-    disableChild(elem, 0, (numSell >  -1)); // -Infinity
-    disableChild(elem, 1, (numSell >  -1)); // -Custom
-    disableChild(elem, 2, (numSell >-100)); // -   100
-    disableChild(elem, 3, (numSell > -10)); // -    10
-    disableChild(elem, 4, (numSell >  -1)); // -     1
-    disableChild(elem, 7, (numBuy  <   1)); //       1
-    disableChild(elem, 8, (numBuy  <  10)); //      10
-    disableChild(elem, 9, (numBuy  < 100)); //     100
-    disableChild(elem,10, (numBuy  <   1)); //  Custom
-    var maxBuy = (purchaseObj.salable) ? 1 : 1000; // Only allow max buy if they can be sold.
-    disableChild(elem,11, (numBuy  <maxBuy)); // Max or 1000 (if unsalable)
+    // Special check: Hide one-shot upgrades after purchase; they're
+    // redisplayed elsewhere.
+    var hideBoughtUpgrade = ((purchaseObj.type == "upgrade") && (purchaseObj.owned == purchaseObj.limit) && !purchaseObj.salable);
+
+    // Reveal the row if  prereqs are met
+    setElemDisplay(elem,havePrereqs && !hideBoughtUpgrade);
+
+    var maxQty = canPurchase(purchaseObj);
+    var minQty = canPurchase(purchaseObj,-Infinity);
+
+    var buyElems=elem.querySelectorAll("[data-action='purchase']");
+    var i, purchaseQty,absQty,curElem;
+    for (i=0;i<buyElems.length;++i)
+    {
+        curElem = buyElems[i];
+        purchaseQty = dataset(curElem,"quantity");
+        // Treat 'custom' or Infinity as +/-1.
+        //xxx Should we treat 'custom' as its appropriate value instead?
+        absQty = abs(purchaseQty);
+        if ((absQty == "custom") || (absQty == Infinity)) { purchaseQty = sgn(purchaseQty); }
+
+        curElem.disabled = ((purchaseQty > maxQty) || (purchaseQty < minQty));
+    }
 }
 
 //enables/disabled building buttons - calls each type of building in turn
@@ -1297,41 +1333,58 @@ function updatePartyButtons(){
 }
 
 
-function setUpgradeRowText(upgradeObj)
+// We have a separate row generation function for upgrades, because their
+// layout is differs greatly from buildings/units:
+//  - Upgrades are boolean, so they don't need multi-purchase buttons.
+//  - Upgrades don't need quantity labels, and put the name in the button.
+//  - Upgrades are sometimes generated in a table with <tr>, but sometimes
+//    outside of one with <span>.
+function getUpgradeRowText(upgradeObj, inTable)
 {
-    if (upgradeObj===null || upgradeObj===undefined) { return ""; }
-    var elem = document.getElementById(upgradeObj.id+"Line");
-    if (elem===null) { return elem; }
+    if (inTable === undefined) { inTable = true; }
+    var cellTagName = inTable ? "td" : "span";
+    var rowTagName = inTable ? "tr" : "span";
+    if (!upgradeObj) { return inTable ? "<"+rowTagName+" class='purchaseRow'><td colspan='2'/>&nbsp;</"+rowTagName+">" : ""; }
 
-    elem.outerHTML = "<span id='"+upgradeObj.id+"Line' class='upgradeLine'>"
-    +    "<button id='"+upgradeObj.id+"' onmousedown=\"upgrade('"+upgradeObj.id+"')\">"
-    +    upgradeObj.name+"</button>"
-    +    getCostNote(upgradeObj)
-    +    "<br /></span>";
+    var s=  "<"+rowTagName+" id='"+upgradeObj.id+"Row' class='purchaseRow'>";
+    s +=    getPurchaseCellText(upgradeObj, true);
+    s +=    "<"+cellTagName+">" + getCostNote(upgradeObj) + "</"+cellTagName+">";
+    if (!inTable) { s += "<br />"; }
+    s +=    "</"+rowTagName+">";
+    return s;
+}
+function getPantheonUpgradeRowText(upgradeObj)
+{
+    if (!upgradeObj) { return ""; }
+
+    var s = "<tr id='"+upgradeObj.id+"Row' class='purchaseRow'>";
+    // Don't include devotion if it isn't valid.
+    //xxx Should write a chained dereference eval
+    s += "<td class='devcost'>";
+    s +=     ((isValid(upgradeObj.prereqs) && isValid(upgradeObj.prereqs.devotion)) 
+            ? (upgradeObj.prereqs.devotion +"d&nbsp;") : "") +"</td>";
+    //xxx The 'fooRow' id is added to make altars work, but should be redesigned.
+    s += "<td class='"+upgradeObj.type+"true'><button id='"+upgradeObj.id+"' class='xtrue'";
+    s += " data-action='purchase' data-quantity='true' data-target="+upgradeObj.id;
+    s += " disabled='disabled' onmousedown=\"";
+    // The event handler can take three forms, depending on whether this is
+    // an altar, a prayer, or a pantheon upgrade.
+    s += ((upgradeObj.subType == "prayer") ? (upgradeObj.id+"()")
+                                           : ("onPurchase(this)"));
+    s += "\">" + upgradeObj.name + "</button>";
+    s += (isValid(upgradeObj.extraText) ? upgradeObj.extraText : "")+"</td>";
+    s += "<td>" + getCostNote(upgradeObj) + "</td>";
+    s += "</tr>";
+
+    return s;
 }
 function setPantheonUpgradeRowText(upgradeObj)
 {
-    if (upgradeObj===null || upgradeObj===undefined) { return ""; }
-    var elem = document.getElementById(upgradeObj.id+"Line");
-    if (elem===null) { return elem; }
+    if (!upgradeObj) { return ""; }
+    var elem = document.getElementById(upgradeObj.id+"Row");
+    if (!elem) { return elem; }
 
-    elem.outerHTML = "<tr id='"+upgradeObj.id+"Line'>"
-    // Don't include devotion if it isn't valid.
-    //xxx Should write a chained dereference eval
-        +"<td class='devcost'>"
-        +    ((isValid(upgradeObj.prereqs) && isValid(upgradeObj.prereqs.devotion)) 
-                ? (upgradeObj.prereqs.devotion +"d&nbsp;") : "") +"</td>"
-        //xxx The 'fooRow' id is added to make altars work, but should be redesigned.
-        +"<td id='"+upgradeObj.id+"Row'><button id='"+upgradeObj.id+"' onmousedown=\""
-        // The event handler can take three forms, depending on whether this is
-        // an altar, a prayer, or a pantheon upgrade.
-         +   ((upgradeObj.subType == "altar" ) ? ("buildingPurchase('"+upgradeObj.id+"')")
-             :(upgradeObj.subType == "prayer") ? (upgradeObj.id+"()")
-                                              : ("upgrade('"+upgradeObj.id + "')"))
-        +"\" disabled='disabled'>" + upgradeObj.name + "</button>"
-        +(isValid(upgradeObj.extraText) ? upgradeObj.extraText : "")+"</td>"
-        +"<td>" + getCostNote(upgradeObj) + "</td>"
-        +"</tr>";
+    elem.outerHTML = getPantheonUpgradeRowText(upgradeObj);
 }
 // Dynamically create the upgrade purchase buttons.
 function addUpgradeRows()
@@ -1339,45 +1392,42 @@ function addUpgradeRows()
     var s="";
 
     // Place the stubs for most upgrades under the upgrades tab.
+    upgradeData.forEach( function(elem){ if (elem.subType=="upgrade") { s += getUpgradeRowText(elem); } });
+    document.getElementById("upgrades").innerHTML = s;
+
+    document.getElementById("upgradesPane").innerHTML += 
+       "<h3>Purchased Upgrades</h3>" + "<div id='purchasedUpgrades'></div>";
+
+    // Fill in any pre-existing stubs.
     upgradeData.forEach( function(elem){ 
-        if (elem.subType=="upgrade") { s += "<span id='"+elem.id+"Line' class='upgradeLine'></span>"; }
-    });
-
-    s += "<h3>Purchased Upgrades</h3>"
-       + "<div id='purchased'></div>";
-
-    document.getElementById("upgradesPane").innerHTML += s;
-
-    // Fill in the stubs we just added, as well as any pre-existing stubs.
-    upgradeData.forEach( function(elem){ 
+        if (elem.subType == "upgrade") { return; } // Did these above.
         if (elem.subType == "pantheon") { setPantheonUpgradeRowText(elem); }
-        else { setUpgradeRowText(elem); }
+        else { // One of the 'atypical' upgrades not displayed in the main upgrade list.
+            var stubElem = document.getElementById(elem.id+"Row");
+            if (!stubElem) { console.log("Missing UI element for "+elem.id); return; }
+            stubElem.outerHTML = getUpgradeRowText(elem, false);
+        }
     });
-
-    upgradeData.forEach(function(elem) { if (elem.subType == "pantheon") { setPantheonUpgradeRowText(elem); } });
 
     // Altars
     buildingData.forEach(function(elem) { if (elem.subType == "altar") { setPantheonUpgradeRowText(elem); } });
 
     // Deity granted powers
     powerData.forEach(function(elem) { if (elem.subType == "prayer") { setPantheonUpgradeRowText(elem); } });
-}
 
-// Dynamically create the lists of purchased upgrades.
-// Pantheon upgrades go in a separate list.
-function addPUpgradeRows()
-{
+    // Dynamically create two lists for purchased upgrades.
+    // One for regular upgrades, one for pantheon upgrades.
     var text="", standardUpgStr="", pantheonUpgStr="";
 
     upgradeData.forEach( function(upgradeObj){ 
         text = "<span id='P"+upgradeObj.id +"' class='Pupgrade'>"
             +"<strong>"+upgradeObj.name+"</strong>"
-            +" - "+upgradeObj.effectText+"<br/></span>";
+            +" &ndash; "+upgradeObj.effectText+"<br/></span>";
         if (upgradeObj.subType == "pantheon") { pantheonUpgStr += text; }
         else { standardUpgStr += text; }
     });
 
-    document.getElementById("purchased").innerHTML += standardUpgStr;
+    document.getElementById("purchasedUpgrades").innerHTML += standardUpgStr;
     document.getElementById("purchasedPantheon").innerHTML = pantheonUpgStr;
 }
 
@@ -1421,7 +1471,6 @@ function updateResourceTotals(){
 
     if (curCiv.gold.owned >= 1){
         setElemDisplay(document.getElementById("goldRow"),true);
-        if (!civData.trade.owned) { document.getElementById("trade").disabled = false; }
     }
 
     //Update page with building numbers, also stockpile limits.
@@ -1431,13 +1480,13 @@ function updateResourceTotals(){
 
     //Update land values
     totalBuildings = countTotalBuildings(curCiv);
-    document.getElementById("freeLand").innerHTML = prettify(curCiv.freeLand.owned);
     document.getElementById("totalLand").innerHTML = prettify(curCiv.freeLand.owned + totalBuildings);
     document.getElementById("totalBuildings").innerHTML = prettify(totalBuildings);
 
     // Unlock advanced control tabs as they become enabled (they never disable)
     // Temples unlock Deity, barracks unlock Conquest, having gold unlocks Trade.
-    if (curCiv.temple.owned > 0) { setElemDisplay(document.getElementById("deitySelect"),true); }
+    // Deity is also unlocked if there are any prior deities present.
+    if ((curCiv.temple.owned > 0)||(curCiv.deities.length > 1)) { setElemDisplay(document.getElementById("deitySelect"),true); }
     if (curCiv.barracks.owned > 0) { setElemDisplay(document.getElementById("conquestSelect"),true); }
     if (curCiv.gold.owned > 0) { setElemDisplay(document.getElementById("tradeSelect"),true); }
 
@@ -1575,7 +1624,7 @@ function updatePopulationUI() {
 
     var canRaise = (getCurDeityDomain() == "underworld" && civData.devotion.owned >= 20);
     var maxRaise = canRaise ? logSearchFn(calcZombieCost,curCiv.piety.owned) : 0;
-    setElemDisplay(document.getElementById("raiseDeadLine"), canRaise);
+    setElemDisplay(document.getElementById("raiseDeadRow"), canRaise);
     document.getElementById("raiseDead").disabled = (maxRaise < 1);
     document.getElementById("raiseDeadMax").disabled = (maxRaise < 1);
     document.getElementById("raiseDead100").disabled = (maxRaise < 100);
@@ -1610,24 +1659,18 @@ function idToType(domainId) {
     return domainId;
 }
 
+
 // Check to see if the player has an upgrade and hide as necessary
 // Check also to see if the player can afford an upgrade and enable/disable as necessary
 function updateUpgrades(){
     var deitySpecEnable;
-    var havePrice, havePrereqs, haveUpgrade;
 
     // Update all of the upgrades
     upgradeData.forEach( function(elem){ 
-        havePrice = (canAfford(elem.require) > 0);
-        havePrereqs = meetsPrereqs(elem.prereqs);
-        haveUpgrade = civData[elem.id].owned;
+        updatePurchaseRow(elem);  // Update the purchase row.
 
-        // Only show the purchase button if we have the prereqs, but haven't bought it yet.
-        setElemDisplay(document.getElementById(elem.id+"Line"),(havePrereqs && !haveUpgrade));
         // Show the already-purchased line if we've already bought it.
-        setElemDisplay(document.getElementById("P"+elem.id),haveUpgrade);
-        // Only enable the button if we are able to buy, but haven't.
-        document.getElementById(elem.id).disabled = (!havePrereqs || !havePrice || haveUpgrade);
+        setElemDisplay(document.getElementById("P"+elem.id),elem.owned);
     });
 
     //deity techs
@@ -1646,13 +1689,16 @@ function updateUpgrades(){
         document.getElementById("underworldDeity").disabled = !deitySpecEnable;
         document.getElementById("catsDeity").disabled = !deitySpecEnable;
     }
+
     //standard
     setElemDisplay(document.getElementById("raidGroup"),civData.standard.owned && !raiding.raiding);
-    if (civData.standard.owned) { setElemDisplay(document.getElementById("conquest"),true); }
-    if (civData.standard.owned) { updateTargets(); }
+    if (civData.standard.owned) { 
+        setElemDisplay(document.getElementById("conquest"),true);
+        updateTargets(); 
+    }
 
-    // trade
-    setElemDisplay(document.getElementById("tradeUpgradeContainer"),civData.trade.owned); //xxx Eliminate this?
+    // Trade
+    setElemDisplay(document.getElementById("tradeUpgradeContainer"),civData.trade.owned);
 }
 
 
@@ -1707,7 +1753,7 @@ function updateDevotion(){
 
     // Process altars
     buildingData.forEach(function(elem) { if (elem.subType == "altar") {
-        setElemDisplay(document.getElementById(elem.id+"Line"), meetsPrereqs(elem.prereqs));
+        setElemDisplay(document.getElementById(elem.id+"Row"), meetsPrereqs(elem.prereqs));
         document.getElementById(elem.id).disabled = (!(meetsPrereqs(elem.prereqs) && canAfford(elem.require)));
     }});
 
@@ -1715,7 +1761,7 @@ function updateDevotion(){
     powerData.forEach(function(elem) { if (elem.subType == "prayer") {
         //xxx raiseDead buttons updated by UpdatePopulationUI
         if (elem.id == "raiseDead") { return; }
-        setElemDisplay(document.getElementById(elem.id+"Line"), meetsPrereqs(elem.prereqs));
+        setElemDisplay(document.getElementById(elem.id+"Row"), meetsPrereqs(elem.prereqs));
         document.getElementById(elem.id).disabled = !(meetsPrereqs(elem.prereqs) && canAfford(elem.require));
     }});
 
@@ -1918,79 +1964,106 @@ function update(){
 
 // Game functions
 
-function increment(materialId){
-    var material = civData[materialId];
-    var specialchance = material.specialchance, specialAmount, specialMaterial, activity;
-    //This function is called every time a player clicks on a primary resource button
-    ++curCiv.resourceClicks;
-    material.owned += material.increment + (material.increment * 9 * (civData.civilservice.owned)) + (material.increment * 40 * (civData.feudalism.owned)) + ((civData.serfs.owned) * Math.floor(Math.log(civData.unemployed.owned * 10 + 1))) + ((civData.nationalism.owned) * Math.floor(Math.log((civData.soldier.owned + civData.cavalry.owned) * 10 + 1)));
+//This function is called every time a player clicks on a primary resource button
+function increment(objId){
+    var purchaseObj = civData[objId];
+    if (!purchaseObj) { console.log("Unknown purchase: "+objId); return; }
+
+    purchaseObj.owned += purchaseObj.increment 
+      + (purchaseObj.increment * 9 * (civData.civilservice.owned)) 
+      + (purchaseObj.increment * 40 * (civData.feudalism.owned)) 
+      + ((civData.serfs.owned) * Math.floor(Math.log(civData.unemployed.owned * 10 + 1))) 
+      + ((civData.nationalism.owned) * Math.floor(Math.log((civData.soldier.owned + civData.cavalry.owned) * 10 + 1)));
+
     //Handles random collection of special resources.
-    if ((material === civData.food) && (civData.flensing.owned))    { specialchance += 0.1; }
-    if ((material === civData.stone) && (civData.macerating.owned)) { specialchance += 0.1; }
-    if (Math.random() < specialchance){
-        specialAmount = material.increment * (1 + (9 * (civData.guilds.owned)));
-        if (material === civData.food)  { specialMaterial = civData.skins; activity = "foraging"; }
-        if (material === civData.wood)  { specialMaterial = civData.herbs; activity = "woodcutting"; }
-        if (material === civData.stone) { specialMaterial = civData.ore; activity = "mining"; }
-        specialMaterial.owned += specialAmount;
-        gameLog("Found " + specialMaterial.name + " while " + activity);
+    var specialChance = purchaseObj.specialChance;
+    if (specialChance && purchaseObj.specialMaterial && civData[purchaseObj.specialMaterial]) {
+        if ((purchaseObj === civData.food) && (civData.flensing.owned))    { specialChance += 0.1; }
+        if ((purchaseObj === civData.stone) && (civData.macerating.owned)) { specialChance += 0.1; }
+        if (Math.random() < specialChance){
+            var specialMaterial = civData[purchaseObj.specialMaterial];
+            specialMaterial.owned += purchaseObj.increment * (1 + (9 * (civData.guilds.owned)));
+            gameLog("Found " + specialMaterial.name + " while " + purchaseObj.activity); // I18N
+        }
     }
     //Checks to see that resources are not exceeding their caps
-    if (civData.food.owned > civData.food.limit) { civData.food.owned = civData.food.limit; }
-    if (civData.wood.owned > civData.wood.limit) { civData.wood.owned = civData.wood.limit; }
-    if (civData.stone.owned > civData.stone.limit) { civData.stone.owned = civData.stone.limit; }
+    if (purchaseObj.owned > purchaseObj.limit) { purchaseObj.owned = purchaseObj.limit; }
 
-    document.getElementById("clicks").innerHTML = prettify(Math.round(curCiv.resourceClicks));
+    document.getElementById("clicks").innerHTML = prettify(Math.round(++curCiv.resourceClicks));
     updateResourceTotals(); //Update the page with totals
 }
 
-function buildingPurchase(buildingId,num){
-    var buildingObj = civData[buildingId];
+// Buys or sells a unit, building, or upgrade.
+// Pass a positive number to buy, a negative number to sell.
+// If it can't add/remove as many as requested, does as many as it can.
+// Pass Infinity/-Infinity as the num to get the max possible.
+// Pass "custom" or "-custom" to use the custom increment.
+// Returns the actual number bought or sold (negative if fired).
+function doPurchase(objId,num){
+    var purchaseObj = civData[objId];
+    if (!purchaseObj) { console.log("Unknown purchase: "+objId); return; }
+    if (num === undefined) { num = 1; }
+    if (abs(num) ==  "custom") { num =  sgn(num) * getCustomNumber(purchaseObj); }
 
-    if (num == "undefined") { num = 1; }
-    if (num == "custom") { num = getCustomNumber(buildingObj); }
-    if (num == "-custom") { num = -getCustomNumber(buildingObj); }
+    num = canPurchase(purchaseObj,num);  // How many can we actually get?
 
-    //First check the building requirements
-    //Then deduct resources
-    num = payFor(buildingObj.require,num);
-    if (num > 0) {
-        //Then increment the total number of that building
-        buildingObj.owned += num;
-        curCiv.freeLand.owned -= num;
-        //Increase devotion if the building was an altar.
-        if (isValid(buildingObj.devotion)) { 
-            curCiv.devotion.owned += buildingObj.devotion * num; 
-            // If we've exceeded this deity's prior max, raise it too.
-            if (curCiv.deities[0].maxDev < curCiv.devotion.owned) {
-                curCiv.deities[0].maxDev = curCiv.devotion.owned;
-                makeDeitiesTables();
-            }
-        }
-        //If building was graveyard, create graves
-        if (buildingObj === civData.graveyard) { digGraves(num); }
-        //if building was temple and aesthetics has been activated, increase happiness
-        if (buildingObj === civData.temple && civData.aesthetics.owned){
-            var templeProp = num * 25 / population.current; //if population is large, temples have less effect
-            mood(templeProp);
-        }
-        updateBuildingButtons(); //Update the buttons themselves
-        updateJobButtons(); //Update page with individual worker numbers, since limits might have changed.
-        updatePartyButtons(); 
-        updateDevotion(); //might be necessary if building was an altar
-        updateRequirements(buildingObj); //Increases buildings' costs
-        updateResourceTotals(); //Update page with lower resource values and higher building total
-        //Then check for overcrowding
-        if (curCiv.freeLand.owned < 0){
-            gameLog("You are suffering from overcrowding.");
-            mood(Math.max(num,-curCiv.freeLand.owned) * -0.0025 * (civData.codeoflaws.owned ? 0.5 : 1.0));
-        }
-    } else {
-        gameLog("Could not build, insufficient resources.");
+    // Pay for them
+    num = payFor(purchaseObj.require,num);
+    if (abs(num) < 1) { 
+        gameLog("Could not build, insufficient resources."); // I18N
+        return 0;
     }
+
+    //Then increment the total number of that building
+    // Do the actual purchase; coerce to the proper type if needed
+    purchaseObj.owned = matchType(purchaseObj.owned + num,purchaseObj.initOwned);
+    if (purchaseObj.source) { civData[purchaseObj.source].owned -= num; }
+
+    // Post-purchase triggers
+    if (isValid(purchaseObj.onGain)) { purchaseObj.onGain(); } // Take effect
+
+    //Increase devotion if the purchase provides it.
+    if (isValid(purchaseObj.devotion)) { 
+        curCiv.devotion.owned += purchaseObj.devotion * num; 
+        // If we've exceeded this deity's prior max, raise it too.
+        if (curCiv.deities[0].maxDev < curCiv.devotion.owned) {
+            curCiv.deities[0].maxDev = curCiv.devotion.owned;
+            makeDeitiesTables();
+        }
+    }
+
+    //Then check for overcrowding
+    if ((purchaseObj.type == "building") && --curCiv.freeLand.owned < 0){
+        gameLog("You are suffering from overcrowding.");  // I18N
+        mood(Math.max(num,-curCiv.freeLand.owned) * -0.0025 * (civData.codeoflaws.owned ? 0.5 : 1.0));
+    }
+
+    updateRequirements(purchaseObj); //Increases buildings' costs
+    updateResourceTotals(); //Update page with lower resource values and higher building total
+    updatePopulationUI(); //updates the army display
+    updateBuildingButtons(); //Update the buttons themselves
+    updateJobButtons(); //Update page with individual worker numbers, since limits might have changed.
+    updatePartyButtons(); 
+    updateUpgrades(); //Update which upgrades are available to the player
+    updateDevotion(); //might be necessary if building was an altar
+    updateTargets(); // might enable/disable raiding
+
+    return num;
 }
 
+function onPurchase(control) { 
+    var objId = dataset(control,"target");
+    var qty = dataset(control,"quantity");
+
+    var purchaseObj = civData[objId];
+    if (!purchaseObj) { return false; }
+    
+    return doPurchase(objId, qty);
+}
+
+
 function getCustomNumber(civObj){
+    if (!civObj||!civObj.customQtyId) { return undefined; }
     var elem = document.getElementById(civObj.customQtyId);
     if (!elem) { return undefined; }
 
@@ -2023,7 +2096,7 @@ function calcZombieCost(num){ return calcWorkerCost(num, curCiv.zombie.owned)/5;
 // Create a cat
 function spawnCat()
 {
-    ++curCiv.cat.owned;
+    ++civData.cat.owned;
     gameLog("Found a cat!");
 }
 
@@ -2128,35 +2201,6 @@ function doStarve() {
     }
 }
 
-// Hires or fires workers to/from a specific job.
-// Pass a positive number to hire, a negative number to fire.
-// If it can't add/remove as many as requested, does as many as it can.
-// Pass Infinity/-Infinity as the num to get the max possible.
-// Pass "custom" or "-custom" to use the custom increment.
-// Returns the actual number hired or fired (negative if fired).
-function unitPurchase(job,num){
-    var jobObj = civData[job];
-    if (num ==  "custom") { num =  getCustomNumber(jobObj); }
-    if (num == "-custom") { num = -getCustomNumber(jobObj); }
-
-    num = canPurchase(jobObj,num);  // How many can we actually get?
-
-    // Pay for them if we're buying
-    payFor(jobObj.require,num);
-
-    // Do the actual hiring
-    jobObj.owned += num;
-    if (jobObj.source) { civData[jobObj.source].owned -= num; }
-
-    updateResourceTotals(); //updates the food/second
-    updatePopulationUI(); //updates the army display
-    updatePartyButtons(); //updates the buttons
-    updateTargets(); // might enable/disable raiding
-    updateJobButtons(); //updates the general pool
-
-    return num;
-}
-
 
 // Creates or destroys zombies
 // Pass a positive number to create, a negative number to destroy.
@@ -2203,22 +2247,6 @@ function summonShade(){
     civData.shade.owned += num;
 
     return num;
-}
-
-//Called whenever player clicks a button to try to buy an upgrade.
-function upgrade(name){
-    //If the player has the resources, toggles the upgrade on and does stuff dependent on the upgrade.
-    if (!isValid(civData[name])||(civData[name].type != "upgrade" )) 
-        { console.log("Unknown upgrade: "+name); return; }
-
-    if (!meetsPrereqs(civData[name].prereqs)) { return; } // Check prereqs
-    if (payFor(civData[name].require) < 1) { return; } // Try to pay
-
-    civData[name].owned = true; // Mark upgrade
-    if (isValid(civData[name].onGain)) {civData[name].onGain(); } // Take effect
-
-    updateUpgrades(); //Update which upgrades are available to the player
-    updateResourceTotals(); //Update reduced resource totals as appropriate.
 }
 
 //Deity Domains upgrades
@@ -2340,7 +2368,7 @@ function pestControl(length){
     if (length === undefined) { length = 10; }
     if (curCiv.piety.owned < (10 * length)) { return; }
     curCiv.piety.owned -= (10 * length);
-    curCiv.pestTimer = length * curCiv.cat.owned;
+    curCiv.pestTimer = length * civData.cat.owned;
     gameLog("The vermin are exterminated.");
 }
 
@@ -3436,17 +3464,18 @@ function reset(){
     setElemDisplay(document.getElementById("conquestSelect"),(curCiv.barracks.owned > 0));
     setElemDisplay(document.getElementById("tradeSelect"),(curCiv.gold.owned > 0));
 
+    //xxx Most of this probably isn't needed anymore; the update routines will handle it.
     document.getElementById("battleUpgrades").style.display = "none";
     document.getElementById("fieldsUpgrades").style.display = "none";
     document.getElementById("underworldUpgrades").style.display = "none";
     document.getElementById("catsUpgrades").style.display = "none";
-    document.getElementById("constructionLine").style.display = "none";
-    document.getElementById("architectureLine").style.display = "none";
-    document.getElementById("tenementsLine").style.display = "none";
-    document.getElementById("slumsLine").style.display = "none";
-    document.getElementById("granariesLine").style.display = "none";
-    document.getElementById("palisadeLine").style.display = "none";
-    document.getElementById("civilserviceLine").style.display = "none";
+    document.getElementById("constructionRow").style.display = "none";
+    document.getElementById("architectureRow").style.display = "none";
+    document.getElementById("tenementsRow").style.display = "none";
+    document.getElementById("slumsRow").style.display = "none";
+    document.getElementById("granariesRow").style.display = "none";
+    document.getElementById("palisadeRow").style.display = "none";
+    document.getElementById("civilserviceRow").style.display = "none";
     document.getElementById("cottageRow").style.display = "none";
     document.getElementById("houseRow").style.display = "none";
     document.getElementById("mansionRow").style.display = "none";
@@ -3478,14 +3507,14 @@ function reset(){
 }
 
 function doFarmers() {
-    var specialchance = civData.food.specialchance + (0.1 * civData.flensing.owned);
+    var specialChance = civData.food.specialChance + (0.1 * civData.flensing.owned);
     var millMod = 1;
     if (population.current > 0 || curCiv.zombie.owned > 0) { millMod = population.current / (population.current + curCiv.zombie.owned); }
     curCiv.food.net = civData.farmer.owned * (1 + (civData.farmer.efficiency * efficiency.happiness)) * ((curCiv.pestTimer > 0) ? 1.01 : 1) * (1 + (wonder.food/10)) * (1 + curCiv.walkTotal/120) * (1 + curCiv.mill.owned * millMod / 200); //Farmers farm food
     curCiv.food.net -= population.current; //The living population eats food.
     curCiv.food.owned += curCiv.food.net;
     if (civData.skinning.owned && civData.farmer.owned > 0){ //and sometimes get skins
-        var num_skins = specialchance * (civData.food.increment + ((civData.butchering.owned) * civData.farmer.owned / 15.0)) * (1 + (wonder.skins/10));
+        var num_skins = specialChance * (civData.food.increment + ((civData.butchering.owned) * civData.farmer.owned / 15.0)) * (1 + (wonder.skins/10));
         curCiv.skins.owned += rndRound(num_skins);
     }
 }
@@ -3493,17 +3522,17 @@ function doWoodcutters() {
     curCiv.wood.net = civData.woodcutter.owned * (civData.woodcutter.efficiency * efficiency.happiness) * (1 + (wonder.wood/10)); //Woodcutters cut wood
     curCiv.wood.owned += curCiv.wood.net;
     if (civData.harvesting.owned && civData.woodcutter.owned > 0){ //and sometimes get herbs
-        var num_herbs = civData.wood.specialchance * (civData.wood.increment + ((civData.gardening.owned) * civData.woodcutter.owned / 5.0)) * (1 + (wonder.wood/10));
+        var num_herbs = civData.wood.specialChance * (civData.wood.increment + ((civData.gardening.owned) * civData.woodcutter.owned / 5.0)) * (1 + (wonder.wood/10));
         curCiv.herbs.owned += rndRound(num_herbs);
     }
 }
 
 function doMiners() {
-    var specialchance = civData.stone.specialchance + (civData.macerating.owned ? 0.1 : 0);
+    var specialChance = civData.stone.specialChance + (civData.macerating.owned ? 0.1 : 0);
     curCiv.stone.net = civData.miner.owned * (civData.miner.efficiency * efficiency.happiness) * (1 + (wonder.stone/10)); //Miners mine stone
     curCiv.stone.owned += curCiv.stone.net;
     if (civData.prospecting.owned && civData.miner.owned > 0){ //and sometimes get ore
-        var num_ore = specialchance * (civData.stone.increment + ((civData.extraction.owned) * civData.miner.owned / 5.0)) * (1 + (wonder.ore/10));
+        var num_ore = specialChance * (civData.stone.increment + ((civData.extraction.owned) * civData.miner.owned / 5.0)) * (1 + (wonder.ore/10));
         curCiv.ore.owned += rndRound(num_ore);
     }
 }
@@ -3576,7 +3605,7 @@ function getNextPatient()
 
 function doHealers() {
     var job, numHealed = 0;
-    var numHealers = civData.healer.owned + (curCiv.cat.owned * (civData.companion.owned));
+    var numHealers = civData.healer.owned + (civData.cat.owned * (civData.companion.owned));
 
     // How much healing can we do?
     curCiv.cureCounter += (numHealers * civData.healer.efficiency * efficiency.happiness);
@@ -3951,7 +3980,6 @@ function initCivclicker() {
     addJobRows();
     addPartyRows();
     addUpgradeRows();
-    addPUpgradeRows();
     addAchievementRows();
     addRaidRows();
     makeDeitiesTables();
@@ -3977,7 +4005,8 @@ window.setInterval(function(){
     //Autosave
     if (settings.autosave && (++settings.autosaveCounter >= settings.autosaveTime)){ 
         settings.autosaveCounter = 0;
-        save("auto");
+        // If autosave fails, disable it.
+        if (!save("auto")) { settings.autosave = false; }
     }
     
     //Resource-related

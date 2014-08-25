@@ -139,14 +139,15 @@
             <p id="customBuildQuantity">
                 Custom Quantity <input id="buildingCustomQty" type="number" min="1" step="1" value="1" />
             </p>
-            <span>Available Land: <span id="freeLand">1000</span></span>
             <table id="buildings"></table>
         </div>
         
-        <div id="upgradesPane" class="selectPane"></div>
+        <div id="upgradesPane" class="selectPane">
+            <table id="upgrades"></table>
+        </div>
         
         <div id="deityPane" class="selectPane">
-            <span id="worshipLine"></span>
+            <span id="worshipRow"></span>
             <div id="deityDomains">
                 <button id="battleDeity" onmousedown="selectDeity('battle')">Battle<br />(500 piety)</button><span class="note">Note: you can only pick one of these</span><br />
                 <button id="fieldsDeity" onmousedown="selectDeity('fields')">The Fields<br />(500 piety)</button><span class="note">Note: you can only pick one of these</span><br />
@@ -156,52 +157,51 @@
             <div id="battleUpgrades">
                 <h3>The Strength of Battle</h3>
                 <table>
-                    <tr id="battleAltarLine"><td></td></tr>
-                    <tr id="riddleLine"><td></td></tr>
-                    <tr id="smiteLine"><td></td></tr>
-                    <tr id="throneLine"><td></td></tr>
-                    <tr id="gloryLine"><td></td></tr>
-                    <tr id="lamentLine"><td></td></tr>
+                    <tr id="battleAltarRow"><td></td></tr>
+                    <tr id="riddleRow"><td></td></tr>
+                    <tr id="smiteRow"><td></td></tr>
+                    <tr id="throneRow"><td></td></tr>
+                    <tr id="gloryRow"><td></td></tr>
+                    <tr id="lamentRow"><td></td></tr>
                 </table>
             </div>
             <div id="fieldsUpgrades">
                 <h3>The Bounty of the Fields</h3>
                 <table>
-                    <tr id="fieldsAltarLine"><td></td></tr>
-                    <tr id="blessingLine"><td></td></tr>
-                    <tr id="wickermanLine"><td></td></tr>
-                    <tr id="wasteLine"><td></td></tr>
-                    <tr id="walkLine"><td></td></tr>
-                    <tr id="stayLine"><td></td></tr>
+                    <tr id="fieldsAltarRow"><td></td></tr>
+                    <tr id="blessingRow"><td></td></tr>
+                    <tr id="wickermanRow"><td></td></tr>
+                    <tr id="wasteRow"><td></td></tr>
+                    <tr id="walkRow"><td></td></tr>
+                    <tr id="stayRow"><td></td></tr>
                 </table>
             </div>
             <div id="underworldUpgrades">
                 <h3>The Dread Power of the Underworld</h3>
                 <table>
-                    <tr id="underworldAltarLine"><td></td></tr>
-                    <tr id="bookLine"><td></td></tr>
-                    <tr id="raiseDeadLine"><td></td></tr>
-                    <tr id="feastLine"><td></td></tr>
-                    <tr id="summonShadeLine"><td></td></tr>
-                    <tr id="secretsLine"><td></td></tr>
+                    <tr id="underworldAltarRow"><td></td></tr>
+                    <tr id="bookRow"><td></td></tr>
+                    <tr id="raiseDeadRow"><td></td></tr>
+                    <tr id="feastRow"><td></td></tr>
+                    <tr id="summonShadeRow"><td></td></tr>
+                    <tr id="secretsRow"><td></td></tr>
                 </table>
             </div>
             <div id="catsUpgrades">
                 <h3>The Grace of Cats</h3>
                 <table>
-                    <tr id="catAltarLine"><td></td></tr>
-                    <tr id="lureLine"><td></td></tr>
-                    <tr id="pestControlLine"><td></td></tr>
-                    <tr id="companionLine"><td></td></tr>
-                    <tr id="graceLine"><td></td></tr>
-                    <tr id="comfortLine"><td></td></tr>
+                    <tr id="catAltarRow"><td></td></tr>
+                    <tr id="lureRow"><td></td></tr>
+                    <tr id="pestControlRow"><td></td></tr>
+                    <tr id="companionRow"><td></td></tr>
+                    <tr id="graceRow"><td></td></tr>
+                    <tr id="comfortRow"><td></td></tr>
                 </table>
             </div>
             <div id="iconoclasmGroup">
-                <br />
                 <button id="iconoclasm" onmousedown="iconoclasmList()">Iconoclasm</button>
-				<span id="iconoclasmCost" class="cost">1000 piety</span>
-				<span class="note">: Remove an old deity to gain gold</span><br />
+				<span id="iconoclasmCost" class="cost">1,000 piety</span>
+				<span id="iconoclasmNote" class="note">: Remove an old deity to gain gold</span><br />
                 <div id="iconoclasmList"></div>
             </div>
             <div id="pantheonContainer">
@@ -214,7 +214,7 @@
             </div>
         </div>
         <div id="conquestPane" class="selectPane">
-            <span id="standardLine"></span>
+            <span id="standardRow"></span>
             <div id="conquest">
                 <h4>Army</h4>
                 <p id="customPartyQuantity">
@@ -235,10 +235,10 @@
             </div>
         </div>
         <div id="tradePane" class="selectPane">
-            <span id="tradeLine"></span>
+            <span id="tradeRow"></span>
             <div id="tradeUpgradeContainer">
-                <span id="currencyLine"></span>
-                <span id="commerceLine"></span>
+                <span id="currencyRow"></span>
+                <span id="commerceRow"></span>
                 <h4>Buy Resources (1 gold)</h4>
                 <button class="tradeResource" onmousedown="buy('food')">Buy 5000 Food</button><br />
                 <button class="tradeResource" onmousedown="buy('wood')">Buy 5000 Wood</button><br />
@@ -377,8 +377,6 @@
         Unburied Corpses: <span data-action="display" data-target="corpses">0</span><br />
         <span id="graveTotal">Unfilled Graves: <span data-action="display" data-target="grave">0</span><br /></span>
         <span id="walkGroup"><br />Walk: <span id="walkStat">0</span> workers per second<br /></span>
-        <br />
-        Cats: <span data-action="display" data-target="cat">0</span><br />
     </div>
 </div></div>
 </body>

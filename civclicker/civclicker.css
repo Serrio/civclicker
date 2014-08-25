@@ -150,18 +150,11 @@ button:disabled{
 .civColumn,
 .civSection {
     break-inside: avoid;
-    /* The above is stnadard, but poorly supported. */
-    /* Use inline-block to mimic its effect */
-    /* display: inline-block; */
     -webkit-break-inside: avoid;
     -moz-break-inside: avoid;
     -webkit-column-break-inside: avoid;
     -moz-column-break-inside: avoid;
 }
-
-/* Because column break support is poor, we put the right column into 
- * inline-block mode, which forces the column break where we want it. */
-.rightColumn { display: inline-block; }
 
 /* Put the column breaks where we want them */
 /*xxx Unfortunately, support for these properties is very sketchy. */
@@ -283,21 +276,7 @@ button:disabled{
     margin-left:1em;
 }
 
-#tannerRow,
-#blacksmithRow,
-#healerRow,
-#clericRow,
-#labourerRow,
-#soldierRow,
-#cavalryRow,
-#wolfRow,
-#banditRow,
-#barbarianRow,
-#esiegeRow,
-#cavalryPartyRow,
-#siegeRow,
-#esoldierRow,
-#efortRow{
+.purchaseRow{
     display:none;
 }
 
@@ -375,12 +354,6 @@ button.build{
     z-index:1;
     width:100%;
 }
-#totalSickRow{
-    display:none;
-}
-#shadeRow{
-    display:none;
-}
 
 .achievement{
     display:block;
@@ -406,25 +379,6 @@ button.build{
     font-weight:normal;
     background-color:#fff;
     display:none; /* Initially */
-}
-
-#upgradesPane .upgradeLine {
-    display:none;
-}
-
-#cottageRow,
-#houseRow,
-#mansionRow,
-#tanneryRow,
-#smithyRow,
-#apothecaryRow,
-#templeRow,
-#barracksRow,
-#stableRow,
-#graveyardRow,
-#millRow,
-#fortificationRow{
-    display:none;
 }
 
 #gloryGroup{
@@ -535,10 +489,10 @@ button.build{
 }
 
 
-#purchased, #purchasedPantheon{
+#purchasedUpgrades, #purchasedPantheon{
     margin-left:1em;
 }
-#purchased *, #purchasedPantheon * {
+#purchasedUpgrades *, #purchasedPantheon * {
     line-height:1.5em;
 }
 
