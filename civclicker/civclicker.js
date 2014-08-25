@@ -33,7 +33,7 @@ VersionData.prototype.toNumber = function() { return this.major*1000 + this.mino
 VersionData.prototype.toString = function() { return String(this.major) + "." 
     + String(this.minor) + "." + String(this.sub) + String(this.mod); };
 
-var versionData = new VersionData(1,1,51,"alpha");
+var versionData = new VersionData(1,1,52,"alpha");
 
 var saveTag = "civ";
 var saveTag2 = saveTag + "2"; // For old saves.
@@ -130,7 +130,7 @@ var population = {
     totalSick:0
 };
 
-var civData;
+var civData; //xxx Should this be deleted?
 
 //xxxTODO: Create a mechanism to automate the creation of a class hierarchy,
 // specifying base class, shared props, instance props.
@@ -142,6 +142,7 @@ function CivObj(props, asProto)
                                  ,"prestige","initOwned","init","reset","limit","hasVariableCost"];
     Object.call(this,props);
     copyProps(this,props,names,true);
+    return this;
 }
 
 // Common Properties: id, name, owned, prereqs, require, effectText,
@@ -158,8 +159,8 @@ CivObj.prototype = {
     effectText: "",
     prestige: false,
     initOwned: 0,  // Override this to undefined to inhibit initialization.  Also sets the type of the 'owned' property.
-    init: function() { if (this.initOwned !== undefined) { curCiv[this.id] = {}; this.owned = this.initOwned; } },
-    reset: function() { if (!this.prestige) { return this.init(); } }, // Default reset behavior is to re-init non-prestige items.
+    init: function() { if (this.initOwned !== undefined) { curCiv[this.id] = {}; this.owned = this.initOwned; }; return true; },
+    reset: function() { return (this.prestige) ? true : this.init(); }, // Default reset behavior is to re-init non-prestige items.
     get limit() { return (typeof this.initOwned == "number" ) ? Infinity // Default is no limit for numbers
                        : (typeof this.initOwned == "boolean") ? true : 0; }, // true (1) for booleans, 0 otherwise.
     set limit(value) { return this.limit; }, // Only here for JSLint.
@@ -175,6 +176,7 @@ CivObj.prototype = {
         if (requireDesc.get !== undefined) { return true; }
         // If our requirements contain a function, assume variable.
         for(i in this.require) { if (typeof this.require[i] == "function") { return true; } }
+        return false;
     }
 };
 
@@ -184,6 +186,7 @@ function Resource(props) // props is an object containing the desired properties
     CivObj.call(this,props);
     copyProps(this,props,null,true);
     // Occasional Properties: increment, specialChance, net
+    return this;
 }
 Resource.prototype = new CivObj({
     constructor: Resource,
@@ -204,6 +207,7 @@ function Building(props) // props is an object containing the desired properties
     copyProps(this,props,null,true);
     // Occasional Properties: subType, efficiency, devotion
     // plural should get moved during I18N.
+    return this;
 }
 // Common Properties: type="building",customQtyId
 Building.prototype = new CivObj({
@@ -222,6 +226,7 @@ function Upgrade(props) // props is an object containing the desired properties.
     // Occasional Properties: subType, efficiency, extraText, onGain
     if (this.subType == "prayer") { this.initOwned = undefined; } // Prayers don't get initial values.
     if (this.subType == "pantheon") { this.prestige = true; } // Pantheon upgrades are not lost on reset.
+    return this;
 }
 // Common Properties: type="upgrade"
 Upgrade.prototype = new CivObj({
@@ -241,6 +246,7 @@ function Unit(props) // props is an object containing the desired properties.
     // Occasional Properties: singular, plural, subType, prereqs, require, effectText, alignment,
     // source, efficiency_base, efficiency, onWin, lootFatigue, killFatigue, killExhaustion, species
     // location, ill
+    return this;
 }
 // Common Properties: type="unit"
 Unit.prototype = new CivObj({
@@ -279,6 +285,7 @@ function Achievement(props) // props is an object containing the desired propert
     CivObj.call(this,props);
     copyProps(this,props,null,true);
     // Occasional Properties: test
+    return this;
 }
 // Common Properties: type="achievement"
 Achievement.prototype = new CivObj({
@@ -372,7 +379,7 @@ new Building({ id:"temple", name:"temple", plural:"temples",
     effectText:"allows 1 cleric",
     //if purchase was a temple and aesthetics has been activated, increase happiness
     //if population is large, temples have less effect.
-    onGain: function(num) { if (civData.aesthetics && civData.aesthetics.owned) { mood(num * 25 / population.current); } }}),
+    onGain: function(num) { if (civData.aesthetics && civData.aesthetics.owned && num) { mood(num * 25 / population.current); } }}),
 new Building({ id:"barracks", name:"barracks", plural:"barracks",
     prereqs:{ masonry: true },
     require:{ food:20, wood:60, stone:120, metal:10 },
@@ -1378,13 +1385,15 @@ function getPantheonUpgradeRowText(upgradeObj)
 
     return s;
 }
+// Returns the new element
 function setPantheonUpgradeRowText(upgradeObj)
 {
-    if (!upgradeObj) { return ""; }
+    if (!upgradeObj) { return null; }
     var elem = document.getElementById(upgradeObj.id+"Row");
-    if (!elem) { return elem; }
+    if (!elem) { return null; }
 
     elem.outerHTML = getPantheonUpgradeRowText(upgradeObj);
+    return elem;
 }
 // Dynamically create the upgrade purchase buttons.
 function addUpgradeRows()
@@ -1491,7 +1500,7 @@ function updateResourceTotals(){
     if (curCiv.gold.owned > 0) { setElemDisplay(document.getElementById("tradeSelect"),true); }
 
     // Need to have enough resources to trade
-    document.getElementById("trader").disabled = (trader.time === 0) ||
+    document.getElementById("trader").disabled = !trader || !trader.time ||
         (trader.material.owned < trader.requested);
 
     // Cheaters don't get names.
@@ -1810,6 +1819,7 @@ function testAchievements(){
         if (isValid(achObj.test) && !achObj.test()) { return false; }
         civData[achObj.id].owned = true;
         gameLog("Achievement Unlocked: "+achObj.name);
+        return true;
     });
 
     updateAchievements();
@@ -2001,7 +2011,7 @@ function increment(objId){
 // Returns the actual number bought or sold (negative if fired).
 function doPurchase(objId,num){
     var purchaseObj = civData[objId];
-    if (!purchaseObj) { console.log("Unknown purchase: "+objId); return; }
+    if (!purchaseObj) { console.log("Unknown purchase: "+objId); return 0; }
     if (num === undefined) { num = 1; }
     if (abs(num) ==  "custom") { num =  sgn(num) * getCustomNumber(purchaseObj); }
 
@@ -2020,7 +2030,7 @@ function doPurchase(objId,num){
     if (purchaseObj.source) { civData[purchaseObj.source].owned -= num; }
 
     // Post-purchase triggers
-    if (isValid(purchaseObj.onGain)) { purchaseObj.onGain(); } // Take effect
+    if (isValid(purchaseObj.onGain)) { purchaseObj.onGain(num); } // Take effect
 
     //Increase devotion if the purchase provides it.
     if (isValid(purchaseObj.devotion)) { 
@@ -3112,6 +3122,8 @@ function load(loadType){
     document.getElementById("rulerName").innerHTML = curCiv.rulerName;
     document.getElementById("wonderNameP").innerHTML = wonder.name;
     document.getElementById("wonderNameC").innerHTML = wonder.name;
+
+    return true;
 }
 
 function save(savetype){
@@ -3177,6 +3189,7 @@ function save(savetype){
             console.log("Save Failed");
             gameLog("Save Failed");
         }
+        return false;
     }
 
     try {
@@ -3195,6 +3208,8 @@ function save(savetype){
     } catch (err) {
         console.log("XMLHttpRequest failed");
     }
+
+    return true;
 }
 
 function deleteSave(){
@@ -3504,6 +3519,8 @@ function reset(){
 
     renameCiv();
     renameRuler();
+
+    return true;
 }
 
 function doFarmers() {
@@ -4132,6 +4149,7 @@ window.setInterval(function(){
 /* UI functions */
 
 // Called when user switches between the various panes on the left hand side of the interface
+// Returns the target pane element.
 function paneSelect(control){
     var i,oldTarget;
 
@@ -4139,7 +4157,7 @@ function paneSelect(control){
     // selector tab(s).
     var newTarget = dataset(control,"target");
     var selectors = document.getElementById("selectors");
-    if (!selectors) { console.log("No selectors found"); return false; }
+    if (!selectors) { console.log("No selectors found"); return null; }
     var curSelects = selectors.getElementsByClassName("selected");
 
     // Deselect the old panels.
@@ -4152,7 +4170,9 @@ function paneSelect(control){
 
     // Select the new panel.
     control.classList.add("selected");
-    document.getElementById(newTarget).classList.add("selected");
+    var targetElem = document.getElementById(newTarget);
+    if (targetElem) { targetElem.classList.add("selected"); }
+    return targetElem;
 }
 
 function impExp(){
