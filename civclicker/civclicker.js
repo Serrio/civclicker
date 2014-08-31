@@ -86,17 +86,6 @@ var curCiv = {
     zombie: { owned:0 },
     grave: { owned:0 },
     enemySlain: { owned:0 },
-    unemployedIll: { owned:0 },
-    farmerIll: { owned:0 },
-    woodcutterIll: { owned:0 },
-    minerIll: { owned:0 },
-    tannerIll: { owned:0 },
-    blacksmithIll: { owned:0 },
-    healerIll: { owned:0 },
-    clericIll: { owned:0 },
-    labourerIll: { owned:0 },
-    soldierIll: { owned:0 },
-    cavalryIll: { owned:0 },
 
     resourceClicks : 0, // For NeverClick
     attackCounter : 0, // How long since last attack?
@@ -260,8 +249,20 @@ Unit.prototype = new CivObj({
     location: "home", // Also:  "party"
     get vulnerable() { return ((this.location == "home")&&(this.alignment=="player")&&(this.subType=="normal")); },
     set vulnerable(value) { return this.vulnerable; }, // Only here for JSLint.
+    init: function() { if (this.initOwned === undefined) { return false; }
+        curCiv[this.id] = {}; 
+        this.owned = this.initOwned; 
+        // Right now, only vulnerable human units can get sick.
+        if (this.vulnerable() && (this.species=="human")) {
+            this.illObj = { owned: 0 };
+        }; 
+        return true; 
+    },
+    //xxx Right now, ill numbers are being stored as a separate structure inside curCiv.
+    // It would probably be better to make it an actual 'ill' property of the Unit.
+    // That will require migration code.
     get illObj() { return curCiv[this.id+"Ill"]; },
-    set illObj(value) { return this.illObj; }, // Only here for JSLint.
+    set illObj(value) { curCiv[this.id+"Ill"] = value; }, 
     get ill() { return isValid(this.illObj) ? this.illObj.owned : undefined; },
     set ill(value) { if (isValid(this.illObj)) { this.illObj.owned = value; } },
     get partyObj() { return civData[this.id+"Party"]; },
@@ -1685,26 +1686,21 @@ function updateUpgrades(){
     //deity techs
     document.getElementById("renameDeity").disabled = (!civData.worship.owned);
     setElemDisplay(document.getElementById("deityDomains"),((civData.worship.owned) && (getCurDeityDomain() === "")));
-    if (civData.worship.owned){
-        setElemDisplay(document.getElementById("battleUpgrades"),(getCurDeityDomain() == "battle"));
-        setElemDisplay(document.getElementById("fieldsUpgrades"),(getCurDeityDomain() == "fields"));
-        setElemDisplay(document.getElementById("underworldUpgrades"),(getCurDeityDomain() == "underworld"));
-        setElemDisplay(document.getElementById("zombieWorkers"), (curCiv.zombie.owned > 0));
-        setElemDisplay(document.getElementById("catsUpgrades"),(getCurDeityDomain() == "cats"));
+    setElemDisplay(document.getElementById("battleUpgrades"),(getCurDeityDomain() == "battle"));
+    setElemDisplay(document.getElementById("fieldsUpgrades"),(getCurDeityDomain() == "fields"));
+    setElemDisplay(document.getElementById("underworldUpgrades"),(getCurDeityDomain() == "underworld"));
+    setElemDisplay(document.getElementById("zombieWorkers"), (curCiv.zombie.owned > 0));
+    setElemDisplay(document.getElementById("catsUpgrades"),(getCurDeityDomain() == "cats"));
 
-        deitySpecEnable = civData.worship.owned && (getCurDeityDomain() === "") && (curCiv.piety.owned >= 500);
-        document.getElementById("battleDeity").disabled = !deitySpecEnable;
-        document.getElementById("fieldsDeity").disabled = !deitySpecEnable;
-        document.getElementById("underworldDeity").disabled = !deitySpecEnable;
-        document.getElementById("catsDeity").disabled = !deitySpecEnable;
-    }
+    deitySpecEnable = civData.worship.owned && (getCurDeityDomain() === "") && (curCiv.piety.owned >= 500);
+    document.getElementById("battleDeity").disabled = !deitySpecEnable;
+    document.getElementById("fieldsDeity").disabled = !deitySpecEnable;
+    document.getElementById("underworldDeity").disabled = !deitySpecEnable;
+    document.getElementById("catsDeity").disabled = !deitySpecEnable;
 
     //standard
     setElemDisplay(document.getElementById("raidGroup"),civData.standard.owned && !raiding.raiding);
-    if (civData.standard.owned) { 
-        setElemDisplay(document.getElementById("conquest"),true);
-        updateTargets(); 
-    }
+    setElemDisplay(document.getElementById("conquest"),civData.standard.owned);
 
     // Trade
     setElemDisplay(document.getElementById("tradeUpgradeContainer"),civData.trade.owned);
@@ -3113,6 +3109,7 @@ function load(loadType){
     makeDeitiesTables();
     updateDeity();
     updateUpgrades();
+    updateTargets();
     updateDevotion();
     updatePartyButtons();
     updateHappiness();
@@ -3315,17 +3312,6 @@ function reset(){
         zombie: { owned:0 },
         grave: { owned:0 },
         enemySlain: { owned:0 },
-        unemployedIll: { owned:0 },
-        farmerIll: { owned:0 },
-        woodcutterIll: { owned:0 },
-        minerIll: { owned:0 },
-        tannerIll: { owned:0 },
-        blacksmithIll: { owned:0 },
-        healerIll: { owned:0 },
-        clericIll: { owned:0 },
-        labourerIll: { owned:0 },
-        soldierIll: { owned:0 },
-        cavalryIll: { owned:0 },
 
         //Pantheon upgrades are permanent across resets
         deities : curCiv.deities,
@@ -3387,9 +3373,7 @@ function reset(){
 
     // Let each data subpoint re-init.
     //xxx It might be better not to replace the curCiv object above.
-    civData.forEach( function(elem){ 
-        elem.reset();
-    });
+    civData.forEach( function(elem){ elem.reset(); });
 
     // If our current deity is powerless, delete it.
     if (!curCiv.deities[0].maxDev) {
@@ -3453,6 +3437,7 @@ function reset(){
     updatePartyButtons();
     updateWonder();
     //Reset upgrades and other interface elements that might have been unlocked
+    //xxx Some of this probably isn't needed anymore; the update routines will handle it.
     document.getElementById("renameDeity").disabled = "true";
     document.getElementById("raiseDead").disabled = "true";
     document.getElementById("raiseDead100").disabled = "true";
@@ -3479,36 +3464,6 @@ function reset(){
     setElemDisplay(document.getElementById("conquestSelect"),(curCiv.barracks.owned > 0));
     setElemDisplay(document.getElementById("tradeSelect"),(curCiv.gold.owned > 0));
 
-    //xxx Most of this probably isn't needed anymore; the update routines will handle it.
-    document.getElementById("battleUpgrades").style.display = "none";
-    document.getElementById("fieldsUpgrades").style.display = "none";
-    document.getElementById("underworldUpgrades").style.display = "none";
-    document.getElementById("catsUpgrades").style.display = "none";
-    document.getElementById("constructionRow").style.display = "none";
-    document.getElementById("architectureRow").style.display = "none";
-    document.getElementById("tenementsRow").style.display = "none";
-    document.getElementById("slumsRow").style.display = "none";
-    document.getElementById("granariesRow").style.display = "none";
-    document.getElementById("palisadeRow").style.display = "none";
-    document.getElementById("civilserviceRow").style.display = "none";
-    document.getElementById("cottageRow").style.display = "none";
-    document.getElementById("houseRow").style.display = "none";
-    document.getElementById("mansionRow").style.display = "none";
-    document.getElementById("tanneryRow").style.display = "none";
-    document.getElementById("smithyRow").style.display = "none";
-    document.getElementById("apothecaryRow").style.display = "none";
-    document.getElementById("templeRow").style.display = "none";
-    document.getElementById("barracksRow").style.display = "none";
-    document.getElementById("stableRow").style.display = "none";
-    document.getElementById("millRow").style.display = "none";
-    document.getElementById("fortificationRow").style.display = "none";
-    document.getElementById("tannerRow").style.display = "none";
-    document.getElementById("blacksmithRow").style.display = "none";
-    document.getElementById("healerRow").style.display = "none";
-    document.getElementById("clericRow").style.display = "none";
-    document.getElementById("labourerRow").style.display = "none";
-    document.getElementById("soldierRow").style.display = "none";
-    document.getElementById("cavalryRow").style.display = "none";
     document.getElementById("conquest").style.display = "none";
 
     document.getElementById("tradeContainer").style.display = "none";

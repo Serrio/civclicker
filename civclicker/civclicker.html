@@ -62,7 +62,7 @@
     <div id="basicResourcesContainer" class="civSection">
         <h3>Basic Resources</h3>
         <table id="basicResources">
-            <tr>
+            <tr id="foodRow">
                 <td><button onmousedown="increment('food')">Gather Food</button></td>
                 <td>Food: </td>
                 <td class="number"><span data-action="display" data-target="food">0</span></td>
@@ -70,7 +70,7 @@
                 <td class="number">(Max: <span id="maxfood">200</span>)</td>
                 <td class="number net"><span data-action="displayNet" data-target="food">0</span>/s</td>
             </tr>
-            <tr>
+            <tr id="woodRow">
                 <td><button onmousedown="increment('wood')">Cut Wood</button></td>
                 <td>Wood: </td>
                 <td class="number"><span data-action="display" data-target="wood">0</span></td>
@@ -78,7 +78,7 @@
                 <td class="number">(Max: <span id="maxwood">200</span>)</td>
                 <td class="number net"><span data-action="displayNet" data-target="wood">0</span>/s</td>
             </tr>
-            <tr>
+            <tr id="stoneRow">
                 <td><button onmousedown="increment('stone')">Mine Stone</button></td>
                 <td>Stone: </td>
                 <td class="number"><span data-action="display" data-target="stone">0</span></td>
