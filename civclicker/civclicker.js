@@ -253,7 +253,7 @@ Unit.prototype = new CivObj({
         curCiv[this.id] = {}; 
         this.owned = this.initOwned; 
         // Right now, only vulnerable human units can get sick.
-        if (this.vulnerable() && (this.species=="human")) {
+        if (this.vulnerable && (this.species=="human")) {
             this.illObj = { owned: 0 };
         }; 
         return true; 
