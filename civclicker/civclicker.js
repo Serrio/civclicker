@@ -33,7 +33,7 @@ VersionData.prototype.toNumber = function() { return this.major*1000 + this.mino
 VersionData.prototype.toString = function() { return String(this.major) + "." 
     + String(this.minor) + "." + String(this.sub) + String(this.mod); };
 
-var versionData = new VersionData(1,1,52,"alpha");
+var versionData = new VersionData(1,1,53,"alpha");
 
 var saveTag = "civ";
 var saveTag2 = saveTag + "2"; // For old saves.
@@ -1501,7 +1501,7 @@ function updateResourceTotals(){
     if (curCiv.gold.owned > 0) { setElemDisplay(document.getElementById("tradeSelect"),true); }
 
     // Need to have enough resources to trade
-    document.getElementById("trader").disabled = !trader || !trader.time ||
+    document.getElementById("trader").disabled = !trader || !trader.timer ||
         (trader.material.owned < trader.requested);
 
     // Cheaters don't get names.
