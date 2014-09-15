@@ -299,7 +299,9 @@ button.build{
 #textSize button,
 #jobs button,
 #party button,
-#buildings button{
+#buildings button,
+#deityPane button.xInfinity, /* Needed for Raise Dead */
+#deityPane button.x100{
     width:3.5em;
     text-shadow:none;
     font-weight:normal;
