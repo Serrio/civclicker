@@ -33,7 +33,7 @@ VersionData.prototype.toNumber = function() { return this.major*1000 + this.mino
 VersionData.prototype.toString = function() { return String(this.major) + "." 
     + String(this.minor) + "." + String(this.sub) + String(this.mod); };
 
-var versionData = new VersionData(1,1,53,"alpha");
+var versionData = new VersionData(1,1,54,"alpha");
 
 var saveTag = "civ";
 var saveTag2 = saveTag + "2"; // For old saves.
@@ -148,7 +148,7 @@ CivObj.prototype = {
     effectText: "",
     prestige: false,
     initOwned: 0,  // Override this to undefined to inhibit initialization.  Also sets the type of the 'owned' property.
-    init: function() { if (this.initOwned !== undefined) { curCiv[this.id] = {}; this.owned = this.initOwned; }; return true; },
+    init: function() { if (this.initOwned !== undefined) { curCiv[this.id] = {}; this.owned = this.initOwned; } return true; },
     reset: function() { return (this.prestige) ? true : this.init(); }, // Default reset behavior is to re-init non-prestige items.
     get limit() { return (typeof this.initOwned == "number" ) ? Infinity // Default is no limit for numbers
                        : (typeof this.initOwned == "boolean") ? true : 0; }, // true (1) for booleans, 0 otherwise.
@@ -202,6 +202,8 @@ function Building(props) // props is an object containing the desired properties
 Building.prototype = new CivObj({
     constructor: Building,
     type: "building",
+    alignment:"player",
+    place: "home",
     get vulnerable() { return this.subType != "altar"; }, // Altars can't be sacked.
     set vulnerable(value) { return this.vulnerable; }, // Only here for JSLint.
     customQtyId: "buildingCustomQty"
@@ -234,7 +236,7 @@ function Unit(props) // props is an object containing the desired properties.
     copyProps(this,props,null,true);
     // Occasional Properties: singular, plural, subType, prereqs, require, effectText, alignment,
     // source, efficiency_base, efficiency, onWin, lootFatigue, killFatigue, killExhaustion, species
-    // location, ill
+    // place, ill
     return this;
 }
 // Common Properties: type="unit"
@@ -242,12 +244,14 @@ Unit.prototype = new CivObj({
     constructor: Unit,
     type: "unit",
     salable: true,
-    get customQtyId() { return this.location + "CustomQty"; },
+    get customQtyId() { return this.place + "CustomQty"; },
     set customQtyId(value) { return this.customQtyId; }, // Only here for JSLint.
     alignment:"player", // Also: "enemy"
     species: "human", // Also:  "animal", "mechanical", "undead"
-    location: "home", // Also:  "party"
-    get vulnerable() { return ((this.location == "home")&&(this.alignment=="player")&&(this.subType=="normal")); },
+    place: "home", // Also:  "party"
+    isCombatant: false, 
+    onWin: function() { return; }, // Do nothing.
+    get vulnerable() { return ((this.place == "home")&&(this.alignment=="player")&&(this.subType=="normal")); },
     set vulnerable(value) { return this.vulnerable; }, // Only here for JSLint.
     init: function() { if (this.initOwned === undefined) { return false; }
         curCiv[this.id] = {}; 
@@ -255,7 +259,7 @@ Unit.prototype = new CivObj({
         // Right now, only vulnerable human units can get sick.
         if (this.vulnerable && (this.species=="human")) {
             this.illObj = { owned: 0 };
-        }; 
+        } 
         return true; 
     },
     //xxx Right now, ill numbers are being stored as a separate structure inside curCiv.
@@ -269,13 +273,13 @@ Unit.prototype = new CivObj({
     set partyObj(value) { return this.partyObj; }, // Only here for JSLint.
     get party() { return isValid(this.partyObj) ? this.partyObj.owned : undefined; },
     set party(value) { if (isValid(this.partyObj)) { this.partyObj.owned = value; } },
-    // Is this unit just some other sort of unit in a different location (but in the same limit pool)?
+    // Is this unit just some other sort of unit in a different place (but in the same limit pool)?
     isDest: function() { return (this.source !== undefined) && (civData[this.source].partyObj === this); },
     get limit() { return (this.isDest()) ? civData[this.source].limit 
                                              : Object.getOwnPropertyDescriptor(CivObj.prototype,"limit").get.call(this); },
     set limit(value) { return this.limit; }, // Only here for JSLint.
 
-    // The total quantity of this unit, regardless of status or location.
+    // The total quantity of this unit, regardless of status or place.
     get total() { return (this.isDest()) ? civData[this.source].total : (this.owned + (this.ill||0) + (this.party||0)); },
     set total(value) { return this.total; } // Only here for JSLint.
 },true);
@@ -332,7 +336,7 @@ new Building({ id:"freeLand", name:"free land", plural:"free land",
     require: undefined,  // Cannot be purchased.
     vulnerable:false, 
     initOwned:1000,  // Can't be stolen
-    effectText:"Remaining room to expand" }),
+    effectText:"Conquer more from your neighbors." }),
 new Building({ id:"tent", name:"tent", plural:"tents",
     require: { wood:2, skins:2 },
     effectText:"+1 max pop." }),
@@ -670,7 +674,8 @@ new Upgrade({ id:"raiseDead", name:"Raise Dead", subType: "prayer",
     prereqs:{ deity: "underworld", devotion: 20 },
     require: { corpses: 1, piety: 4 }, //xxx Nonlinear cost
     effectText:"Piety to raise the next zombie",
-    extraText:"<button onmousedown='raiseDead(100)' id='raiseDead100' class='x100' disabled='disabled'>x100</button><button onmousedown='raiseDead(Infinity)' id='raiseDeadMax' class='x100' disabled='disabled'>Max</button>" }),
+    extraText:"<button onmousedown='raiseDead(100)' id='raiseDead100' class='x100' disabled='disabled'"
+              +">+100</button><button onmousedown='raiseDead(Infinity)' id='raiseDeadMax' class='xInfinity' disabled='disabled'>+&infin;</button>" }),
 new Upgrade({ id:"summonShade", name:"Summon Shades", subType: "prayer",
     prereqs:{ deity: "underworld", devotion: 40 },
     require: { piety: 1000 },  //xxx Also need slainEnemies
@@ -750,6 +755,7 @@ new Unit({ id:"labourer", name:"labourers", singular:"labourer", plural:"laboure
     effectText:"Use resources to build wonder" }),
 new Unit({ id:"soldier", name:"soldiers", singular:"soldier", plural:"soldiers",
     source:"unemployed",
+    isCombatant: true, 
     efficiency_base: 0.05,
     get efficiency() { return this.efficiency_base + calcCombatMods(); },
     set efficiency(value) { this.efficiency_base = value; },
@@ -760,6 +766,7 @@ new Unit({ id:"soldier", name:"soldiers", singular:"soldier", plural:"soldiers",
     effectText:"Protect from attack" }),
 new Unit({ id:"cavalry", name:"cavalry", singular:"cavalry", plural:"cavalry",
     source:"unemployed",
+    isCombatant: true, 
     efficiency_base: 0.08,
     get efficiency() { return this.efficiency_base + calcCombatMods(); },
     set efficiency(value) { this.efficiency_base = value; },
@@ -783,6 +790,7 @@ new Unit({ id:"shade", name:"shades", singular:"shade", plural:"shades", subType
     effectText:"Insubstantial spirits" }),
 new Unit({ id:"wolf", name:"wolves", singular:"wolf", plural:"wolves",
     alignment:"enemy",
+    isCombatant: true, 
     prereqs: undefined, // Cannot be purchased.
     efficiency: 0.05,
     onWin: function() { doSlaughter(this); },
@@ -792,6 +800,7 @@ new Unit({ id:"wolf", name:"wolves", singular:"wolf", plural:"wolves",
     effectText:"Eat your workers" }),
 new Unit({ id:"bandit", name:"bandits", singular:"bandit", plural:"bandits",
     alignment:"enemy",
+    isCombatant: true, 
     prereqs: undefined, // Cannot be purchased.
     efficiency: 0.07,
     onWin: function() { doLoot(this); },
@@ -799,6 +808,7 @@ new Unit({ id:"bandit", name:"bandits", singular:"bandit", plural:"bandits",
     effectText:"Steal your resources" }),
 new Unit({ id:"barbarian", name:"barbarians", singular:"barbarian", plural:"barbarians",
     alignment:"enemy",
+    isCombatant: true, 
     prereqs: undefined, // Cannot be purchased.
     efficiency: 0.09,
     onWin: function() { doHavoc(this); },
@@ -814,46 +824,50 @@ new Unit({ id:"esiege", name:"siege engines", singular:"Siege Engine", plural:"s
     effectText:"Destroy your fortifications" }),
 new Unit({ id:"soldierParty", name:"soldiers", singular:"soldier", plural:"soldiers",
     source:"soldier",
+    isCombatant: true, 
     efficiency_base: 0.05,
     get efficiency() { return this.efficiency_base + calcCombatMods(); },
     set efficiency(value) { this.efficiency_base = value; },
     prereqs:{ standard: true, barracks: 1 },
-    location: "party",
+    place: "party",
     effectText:"Your raiding party" }),
 new Unit({ id:"cavalryParty", name:"cavalry", singular:"cavalry", plural:"cavalry",
     source:"cavalry",
+    isCombatant: true, 
     efficiency_base: 0.08,
     get efficiency() { return this.efficiency_base + calcCombatMods(); },
     set efficiency(value) { this.efficiency_base = value; },
     prereqs:{ standard: true, stable: 1 },
-    location: "party",
+    place: "party",
     effectText:"Your mounted raiders" }),
 new Unit({ id:"siege", name:"siege engines", singular:"Siege Engine", plural:"siege engines",
     efficiency: 0.1, // 10% chance to hit
     prereqs:{ standard: true, mathematics: true },
     require:{ wood:200, leather:50, metal:50 },
     species:"mechanical",
-    location: "party",
+    place: "party",
     salable: false,
     effectText:"Destroy enemy fortifications" }),
 new Unit({ id:"esoldier", name:"soldiers", singular:"soldier", plural:"soldiers",
     alignment:"enemy",
+    isCombatant: true, 
     prereqs: undefined, // Cannot be purchased.
     efficiency: 0.05,
-    location: "party",
+    place: "party",
     effectText:"Defending enemy troops" }),
 // Not currently used.
 new Unit({ id:"ecavalry", name:"cavalry", singular:"cavalry", plural:"cavalry",
     alignment:"enemy",
+    isCombatant: true, 
     prereqs: undefined, // Cannot be purchased.
     efficiency: 0.08,
-    location: "party" }),
+    place: "party" }),
 new Unit({ id:"efort", name:"fortifications", singular:"fortification", plural:"fortifications",
     alignment:"enemy",
     prereqs: undefined, // Cannot be purchased.
     efficiency: 0.01, // -1% damage
     species:"mechanical",
-    location: "party",
+    place: "party",
     effectText:"Reduce enemy casualties"}),
 // Achievements
     //conquest
@@ -879,6 +893,7 @@ new Achievement({id:"battleAch"        , name:"Battle"            , test:functio
 new Achievement({id:"fieldsAch"        , name:"Fields"            , test:function() { return getCurDeityDomain() == "fields"; }}),
 new Achievement({id:"underworldAch"    , name:"Under&shy;world"    , test:function() { return getCurDeityDomain() == "underworld"; }}),
 new Achievement({id:"catsAch"        , name:"Cats"            , test:function() { return getCurDeityDomain() == "cats"; }}),
+    //xxx It might be better if this checked for all domains in the Pantheon at once (no iconoclasming old ones away).
 new Achievement({id:"fullHouseAch"    , name:"Full House"        , test:function() { return curCiv.battleAch.owned && curCiv.fieldsAch.owned && curCiv.underworldAch.owned && curCiv.catsAch.owned; }}),
     //wonders
 new Achievement({id:"wonderAch"        , name:"Wonder"            , test:function() { return wonder.completed; }}),
@@ -978,12 +993,26 @@ var trader = {
 },
 targetMax = "thorp";
 raiding = {
-    raiding:false,
-    victory:false,
-    epop:0,
-    plunderLoot: {},
+    raiding:false, // Are we in a raid right now?
+    victory:false, // Are we in a "raid succeeded" (Plunder-enabled) state right now?
+    epop:0,  // Population of enemy we're raiding.
+    plunderLoot: {}, // Loot we get if we win.
     last:""
 };
+
+// Reset the raid data.
+function resetRaiding()
+{
+    raiding.raiding = false;
+    raiding.victory = false;
+    raiding.epop = 0;
+    raiding.plunderLoot = {};
+    raiding.last = "";
+
+    // Also reset the enemy party units.
+    unitData.filter(function(elem) { return ((elem.alignment == "enemy") && (elem.place == "party")); })
+            .forEach(function(elem) { elem.reset(); });
+}
 
 // These are settings that should probably be tied to the browser.
 var settings = {
@@ -1272,14 +1301,14 @@ function addBuildingRows()
 function addJobRows()
 {
     var s="";
-    unitData.forEach(function(elem) { if (elem.location == "home") { s += getPurchaseRowText(elem); } });
+    unitData.forEach(function(elem) { if (elem.place == "home") { s += getPurchaseRowText(elem); } });
     document.getElementById("jobs").innerHTML += s;
 }
 // Dynamically create the party controls table.
 function addPartyRows()
 {
     var s="";
-    unitData.forEach(function(elem) { if (elem.location == "party") { s += getPurchaseRowText(elem); } });
+    unitData.forEach(function(elem) { if (elem.place == "party") { s += getPurchaseRowText(elem); } });
     document.getElementById("party").innerHTML += s;
 }
 
@@ -1333,11 +1362,11 @@ function updateBuildingButtons(){
 }
 function updateJobButtons(){
     //Update the page with the latest worker distribution and stats
-    unitData.forEach(function(elem) { if (elem.location == "home") { updatePurchaseRow(elem); } });
+    unitData.forEach(function(elem) { if (elem.place == "home") { updatePurchaseRow(elem); } });
 }
 function updatePartyButtons(){
     //updates the party (and enemies)
-    unitData.forEach(function(elem) { if (elem.location == "party") { updatePurchaseRow(elem); } });
+    unitData.forEach(function(elem) { if (elem.place == "party") { updatePurchaseRow(elem); } });
 }
 
 
@@ -1508,7 +1537,7 @@ function updateResourceTotals(){
     document.getElementById("renameRuler").disabled = (curCiv.rulerName == "Cheater");
 
     updatePopulation(); //updatePopulation() handles the population caps, which are determined by buildings.
-    updatePopulationUI();
+    updatePopulationUI(); //xxx Maybe remove this?
 }
 
 function updatePopulation(){
@@ -1526,8 +1555,8 @@ function updatePopulation(){
     population.healthy -= curCiv.zombie.owned;
 
     //Calculate housed/fed population (excludes zombies)
-    population.current = population.healthy + population.totalSick + civData.soldierParty.owned + civData.cavalryParty.owned;
-    unitData.forEach(function(elem) { if ((elem.alignment == "player")&&(elem.subType == "normal")&&(elem.location == "party")) 
+    population.current = population.healthy + population.totalSick;
+    unitData.forEach(function(elem) { if ((elem.alignment == "player")&&(elem.subType == "normal")&&(elem.place == "party")) 
     { population.current += elem.owned; } });
 
     //Zombie soldiers dying can drive population.current negative if they are killed and zombies are the only thing left.
@@ -1699,7 +1728,6 @@ function updateUpgrades(){
     document.getElementById("catsDeity").disabled = !deitySpecEnable;
 
     //standard
-    setElemDisplay(document.getElementById("raidGroup"),civData.standard.owned && !raiding.raiding);
     setElemDisplay(document.getElementById("conquest"),civData.standard.owned);
 
     // Trade
@@ -1839,13 +1867,22 @@ function addRaidRows()
 function updateTargets(){
     var i;
     var raidButtons = document.getElementsByClassName("raid");
-    var haveArmy = ((civData.soldierParty.owned + civData.cavalryParty.owned) > 0);
-    var curElem;
-    for(i=0;i<raidButtons.length;++i)
+    var haveArmy = false;
+
+    setElemDisplay(document.getElementById("victoryGroup"), raiding.victory);
+
+    // Raid buttons are only visible when not already raiding.
+    if (setElemDisplay(document.getElementById("raidGroup"), !raiding.raiding))
     {
-        // Disable if we have no standard, no army, or they are too big a target.
-        curElem = raidButtons[i];
-        curElem.disabled = (!civData.standard.owned||!haveArmy || (civSizes[dataset(curElem,"civtype")] > civSizes[targetMax]));
+        if (getCombatants("party", "player").length > 0) { haveArmy = true; }
+
+        var curElem;
+        for(i=0;i<raidButtons.length;++i)
+        {
+            // Disable if we have no standard, no army, or they are too big a target.
+            curElem = raidButtons[i];
+            curElem.disabled = (!civData.standard.owned||!haveArmy || (civSizes[dataset(curElem,"civtype")] > civSizes[targetMax]));
+        }
     }
 }
 
@@ -1975,11 +2012,16 @@ function increment(objId){
     var purchaseObj = civData[objId];
     if (!purchaseObj) { console.log("Unknown purchase: "+objId); return; }
 
+    var numArmy = 0;
+    unitData.forEach(function(elem) { if ((elem.alignment == "player")&&(elem.species=="human")
+                                        &&(elem.isCombatant)&&(elem.place == "home")) 
+    { numArmy += elem.owned; } }); // Nationalism adds military units.
+
     purchaseObj.owned += purchaseObj.increment 
       + (purchaseObj.increment * 9 * (civData.civilservice.owned)) 
       + (purchaseObj.increment * 40 * (civData.feudalism.owned)) 
       + ((civData.serfs.owned) * Math.floor(Math.log(civData.unemployed.owned * 10 + 1))) 
-      + ((civData.nationalism.owned) * Math.floor(Math.log((civData.soldier.owned + civData.cavalry.owned) * 10 + 1)));
+      + ((civData.nationalism.owned) * Math.floor(Math.log(numArmy * 10 + 1)));
 
     //Handles random collection of special resources.
     var specialChance = purchaseObj.specialChance;
@@ -2140,9 +2182,7 @@ function spawn(num){
 
 // Picks the next worker to starve.  Kills the sick first, then the healthy.
 // Deployed military starve last.
-// Return a structure with two fields:
-//   job: The job ID of the selected target.
-//   base: The base occupation of the selected target.
+// Return the job ID of the selected target.
 function pickStarveTarget() {
     var modNum,jobNum;
     var modList=["Ill",""]; // The sick starve first
@@ -2154,33 +2194,33 @@ function pickStarveTarget() {
         for (jobNum=0;jobNum<jobList.length;++jobNum)
         {
             if (curCiv[jobList[jobNum]+modList[modNum]].owned > 0) 
-                { return {job:  jobList[jobNum]+modList[modNum], 
-                          base: jobList[jobNum]}; }
+                { return jobList[jobNum]+modList[modNum]; }
         }
     }
     // These don't have Ill variants at the moment.
-    if (civData.cavalryParty.owned > 0) { return {job: civData.cavalryParty.id, base: civData.cavalryParty.source}; }
-    if (civData.soldierParty.owned > 0) { return {job: civData.soldierParty.id, base: civData.soldierParty.source}; }
+    if (civData.cavalryParty.owned > 0) { return civData.cavalryParty.id; }
+    if (civData.soldierParty.owned > 0) { return civData.soldierParty.id; }
 
-    return {job: "", base:""};
+    return "";
 }
 
 // Culls workers when they starve.
 function starve(num) {
-    var target,i;
+    var targetId,i;
     if (num === undefined) { num = 1; }
     num = Math.min(num,population.current);
 
     for (i=0;i<num;++i)
     {
-        target = pickStarveTarget();
-        if (!target.job) { return i; }
+        targetId = pickStarveTarget();
+        if (!targetId) { return i; }
 
-        --curCiv[target.job].owned;
+        --curCiv[targetId].owned;
 
         ++curCiv.corpses.owned; //Increments corpse number
         //Workers dying may trigger Book of the Dead
         if (civData.book.owned) { curCiv.piety.owned += 10; }
+        updatePopulation();
     }
 
     return num;
@@ -2200,10 +2240,8 @@ function doStarve() {
         num_starve = starve(Math.ceil(population.current/1000));
         if (num_starve == 1) { gameLog("A worker starved to death"); }
         if (num_starve > 1) { gameLog(prettify(num_starve) + " workers starved to death"); }
-        updateJobButtons();
         mood(-0.01);
         civData.food.owned = 0;
-        updatePopulation(); //Called because starve() doesn't. May just change starve()?
     }
 }
 
@@ -2458,7 +2496,6 @@ function spawnMob(mobtype){
     } 
     gameLog(msg);
     document.getElementById(mobtype+"Row").style.display = "table-row";
-    updateJobButtons(); //updates page with numbers
 
     return num_mob;
 }
@@ -2516,39 +2553,46 @@ function invade(ecivtype){
         freeLand: Math.round(baseLoot * (1 + (civData.administration.owned)))
     };
 
-    //Hides raid buttons until the raid is finished
-    setElemDisplay(document.getElementById("raidGroup"),civData.standard.owned && !raiding.raiding);
+    updateTargets(); //Hides raid buttons until the raid is finished
 }
 function onInvade(event) { return invade(dataset(event.target,"civtype")); }
 
 function plunder(){
     var plunderMsg = "";
 
-    //add loot
-    updateResourceTotals();
+    // If we fought our largest eligible foe, but not the largest possible, raise the limit.
+    if ((targetMax != civSizes[civSizes.length-1].id) && raiding.last == targetMax)
+    {
+        targetMax = civSizes[civSizes[targetMax] + 1].id;
+    }
+
+    // Improve mood based on size of defeated foe.
+    mood((civSizes[raiding.last] + 1)/100);
+
+    // Lamentation
+    if (civData.lament.owned) { curCiv.attackCounter -= Math.ceil(raiding.epop/2000); }
+
+    // Collect loot
     payFor(raiding.plunderLoot,-1);  // We pay for -1 of these to receive them.
 
-    // create message to notify player
+    // Create message to notify player
     plunderMsg = civSizes[civSizes[raiding.last]].name + " defeated! ";
     plunderMsg += "Plundered " + getReqText(raiding.plunderLoot) + ". ";
     gameLog(plunderMsg); 
 
-    raiding.plunderLoot = {};
-    raiding.raiding = false; //ends the raid state
-    raiding.victory = false; //ends the victory state
-    raiding.epop = 0;
-    raiding.last = "";
-    document.getElementById("victoryGroup").style.display = "none";
+    // Victory outcome has been handled, end raid
+    resetRaiding();
+    updateResourceTotals();
+    updateTargets();
 }
 
 function glory(time){
     if (time === undefined) { time = 180; }
-    if (curCiv.piety.owned >= 1000){ //check it can be bought
-        curCiv.gloryTimer = time; //set timer
-        curCiv.piety.owned -= 1000; //decrement resources
-        document.getElementById("gloryTimer").innerHTML = curCiv.gloryTimer; //update timer to player
-        document.getElementById("gloryGroup").style.display = "block";
-    }
+    if (!payFor(civData.glory.require)) { return; } //check it can be bought
+
+    curCiv.gloryTimer = time; //set timer
+    document.getElementById("gloryTimer").innerHTML = curCiv.gloryTimer; //update timer to player
+    document.getElementById("gloryGroup").style.display = "block";
 }
 
 function grace(delta){
@@ -3420,10 +3464,8 @@ function reset(){
         happiness:1
     };
 
-    raiding = {
-        raiding:false,
-        victory:false
-    };
+    resetRaiding();
+
     document.getElementById("graceCost").innerHTML = prettify(curCiv.graceCost);
     targetMax = "thorp";
     //Update page with all new values
@@ -3632,8 +3674,19 @@ function doCorpses() {
     }
 }
 
+// Returns all of the combatants present for a given place and alignment that.
+function getCombatants(place, alignment)
+{
+    return unitData.filter(function(elem) { 
+        return ((elem.alignment == alignment) && (elem.place == place)
+             && (elem.isCombatant)            && (elem.owned > 0));
+    });
+}
+
 function doFight(attacker,defender)
 {
+    if ((attacker.owned <= 0) || (defender.owned <= 0 )) { return; }
+
     // Defenses vary depending on whether the player is attacking or defending.
     var fortMod = (defender.alignment == "player" ? (curCiv.fortification.owned * civData.fortification.efficiency)
                                                   : (civData.efort.owned * civData.efort.efficiency));
@@ -3641,11 +3694,11 @@ function doFight(attacker,defender)
 
     // Determine casualties on each side.  Round fractional casualties
     // probabilistically, and don't inflict more than 100% casualties.
-    var attackerCas = Math.min(civData[attacker.id].owned,rndRound(getCasualtyMod(defender.id,attacker.id) * civData[defender.id].owned * civData[defender.id].efficiency));
-    var defenderCas = Math.min(civData[defender.id].owned,rndRound(getCasualtyMod(attacker.id,defender.id) * civData[attacker.id].owned * (civData[attacker.id].efficiency - palisadeMod) * Math.max(1 - fortMod, 0)));
+    var attackerCas = Math.min(attacker.owned,rndRound(getCasualtyMod(defender.id,attacker.id) * defender.owned * defender.efficiency));
+    var defenderCas = Math.min(defender.owned,rndRound(getCasualtyMod(attacker.id,defender.id) * attacker.owned * (attacker.efficiency - palisadeMod) * Math.max(1 - fortMod, 0)));
 
-    civData[attacker.id].owned -= attackerCas;
-    civData[defender.id].owned -= defenderCas;
+    attacker.owned -= attackerCas;
+    defender.owned -= defenderCas;
 
     // Give player credit for kills.
     var playerCredit = ((attacker.alignment == "player") ? defenderCas :
@@ -3656,6 +3709,9 @@ function doFight(attacker,defender)
     if (civData.throne.owned) { curCiv.throneCount += playerCredit; }
     curCiv.corpses.owned += (attackerCas + defenderCas);
     if (civData.book.owned) { curCiv.piety.owned += (attackerCas + defenderCas) * 10; }
+
+    //Updates population figures (including total population)
+    updatePopulation();
 }
 
 
@@ -3676,7 +3732,6 @@ function doSlaughter(attacker)
     } else { // Attackers slowly leave once everyone is dead
         var leaving = Math.ceil(civData[attacker.id].owned * Math.random() * attacker.killFatigue);
         civData[attacker.id].owned -= leaving;
-        updateJobButtons();
     }
 }
 
@@ -3692,7 +3747,6 @@ function doLoot(attacker)
         //some will leave
         var leaving = Math.ceil(civData[attacker.id].owned * Math.random() * attacker.lootFatigue);
         civData[attacker.id].owned -= leaving;
-        updateJobButtons();
     }
     civData[attacker.id].owned -= 1; // Attackers leave after stealing something.
     updateResourceTotals();
@@ -3715,7 +3769,6 @@ function doSack(attacker)
         //some will leave
         var leaving = Math.ceil(civData[attacker.id].owned * Math.random() * (1/112));
         civData[attacker.id].owned -= leaving;
-        updateJobButtons();
     }
 
     civData[attacker.id].owned -= 1;
@@ -3735,177 +3788,102 @@ function doHavoc(attacker)
 
 function doShades()
 {
-    if (civData.shade.owned <= 0) { return; }
+    var defender = civData.shade;
+    if (defender.owned <= 0) { return; }
 
-    function shadeAttack(attacker,defender)
-    {
-        var num = Math.min((civData[attacker.id].owned/4),civData[defender.id].owned);
+    // Attack each enemy in turn.
+    getCombatants(defender.place, "enemy").forEach(function(attacker) { 
+        var num = Math.floor(Math.min((attacker.owned/4),defender.owned));
         //xxx Should we give book and throne credit here?
-        civData[defender.id].owned -= Math.floor(num);
-        civData[attacker.id].owned -= Math.floor(num);
-    }
+        defender.owned -= num;
+        attacker.owned -= num;
+    });
 
-    shadeAttack(civData.wolf, civData.shade);
-    shadeAttack(civData.bandit, civData.shade);
-    shadeAttack(civData.barbarian, civData.shade);
-
-    civData.shade.owned = Math.floor(civData.shade.owned * 0.95);
-    if (civData.shade.owned < 0) { civData.shade.owned = 0; }
+    // Shades fade away even if not killed.
+    defender.owned = Math.max(Math.floor(defender.owned * 0.95), 0);
 }
 
-function doEsiege()
+// Deals with potentially capturing enemy siege engines.
+function doEsiege(siegeObj, targetObj)
 {
-    if (civData.esiege.owned <= 0) { return; }
+    if (siegeObj.owned <= 0) { return; }
 
-    var i, hit, firing;
     //First check there are enemies there defending them
-    if (civData.bandit.owned > 0 || civData.barbarian.owned > 0){
-        if (curCiv.fortification.owned > 0){ //needs to be something to fire at
-            firing = Math.ceil(Math.min(civData.esiege.owned/2,100)); //At most half or 100 can fire at a time
-            for (i = 0; i < firing; i++){
-                if (curCiv.fortification.owned > 0){ //still needs to be something to fire at
-                    hit = Math.random();
-                    if (hit < civData.esiege.efficiency){
-                        curCiv.fortification.owned -= 1;
-                        gameLog("Enemy siege engine damaged our fortifications");
-                    } else if (hit > 0.95){ //each siege engine has 5% to misfire and destroy itself
-                        civData.esiege.owned -= 1;
-                    }
-                }
-            }
-            updateRequirements(curCiv.fortification);
-            updateResourceTotals();
-        }
-    } else if (civData.soldier.owned > 0 || civData.cavalry.owned > 0) {
-        //the siege engines are undefended
-        if (civData.mathematics.owned){ //Can we use them?
-            gameLog("Captured " + prettify(civData.esiege.owned) + " enemy siege engines.");
-            civData.siege.owned += civData.esiege.owned; //capture them
-            updatePartyButtons(); //show them in conquest pane
-        } else {
-            //we can't use them, therefore simply destroy them
-            gameLog("Destroyed " + prettify(civData.esiege.owned) + " enemy siege engines.");
-        }
-        civData.esiege.owned = 0;
-    }
-    updateJobButtons();
-}
-
-function doSiege()
-{
-    var i, hit;
-    var firing = Math.ceil(Math.min(civData.siege.owned/2,civData.efort.owned*2));
-    if (firing > civData.siege.owned) { firing = civData.siege.owned; } //should never happen
-    for (i = 0; i < firing; i++){
-        if (civData.efort.owned > 0){ //still needs to be something to fire at
-            hit = Math.random();
-            if (hit < civData.siege.efficiency){ //each siege engine has 10% to hit
-                civData.efort.owned -= 1;
-            } else if (hit > 0.95){ //each siege engine has 5% to misfire and destroy itself
-                civData.siege.owned -= 1;
-                updateRequirements(curCiv.fortification);
-            }
-        }
-    }
-}
-
-function doSkirmish(attacker)
-{
-    if (civData[attacker.id].owned <= 0) { return; }
-
-    if (civData.soldier.owned > 0 || civData.cavalry.owned > 0){ //FIGHT!
-        //handles cavalry
-        if (civData.cavalry.owned > 0){
-            doFight(attacker,civData.cavalry);
-        }
-        //handles soldiers
-        if (civData.soldier.owned > 0){
-            doFight(attacker,civData.soldier);
-        }
-        //Updates population figures (including total population)
-        updatePopulation();
-        updatePopulationUI();
-    } else {
-        attacker.onWin();
-    }
-}
-
-//Handling mob attacks
-function doMobs() {
-    doSkirmish(civData.wolf);
-    doSkirmish(civData.bandit);
-    doSkirmish(civData.barbarian);
-    doShades();
-    doEsiege();
-}
-
-function raidWin() {
-    gameLog("Raid victorious!"); //notify player
-    raiding.victory = true; //set victory for future handling
-
-    if ((targetMax != civSizes[civSizes.length-1].id) && raiding.last == targetMax)
+    if (!getCombatants( siegeObj.place,  siegeObj.alignment).length &&
+         getCombatants(targetObj.place, targetObj.alignment).length)
     {
-        // We fought our largest eligible foe, but not the largest possible.  Raise the limit.
-        targetMax = civSizes[civSizes[targetMax] + 1].id;
+        //the siege engines are undefended; maybe capture them.
+        if ((targetObj.alignment == "player") && civData.mathematics.owned){ //Can we use them?
+            gameLog("Captured " + prettify(siegeObj.owned) + " enemy siege engines.");
+            civData.siege.owned += siegeObj.owned; //capture them
+        }
+        siegeObj.owned = 0;
     }
-        // Improve mood based on size of defeated foe.
-    mood((civSizes[raiding.last] + 1)/100);
-
-    //lamentation
-    if (civData.lament.owned){
-        curCiv.attackCounter -= Math.ceil(raiding.epop/2000);
+    else if (doSiege(siegeObj, targetObj) > 0) {
+        if (targetObj.id === "fortification") {
+            updateRequirements(targetObj);
+            gameLog("Enemy siege engine damaged our fortifications");
+        }
     }
 }
 
+// Process siege engine attack.
+// Returns the number of hits.
+function doSiege(siegeObj, targetObj)
+{
+    var i, hit, hits = 0;
+    // Only half can fire every round due to reloading time.
+    // We also allow no more than 2 per defending fortification.
+    var firing = Math.ceil(Math.min(siegeObj.owned/2,targetObj.owned*2));
+    for (i = 0; i < firing; ++i){
+        hit = Math.random();
+        if (hit > 0.95) { --siegeObj.owned; } // misfire; destroys itself
+        if (hit >= siegeObj.efficiency) { continue; } // miss
+        ++hits; // hit
+        if (--targetObj.owned <= 0) { break; }
+    }
 
-function doRaid() {
-    setElemDisplay(document.getElementById("raidGroup"),civData.standard.owned && !raiding.raiding);
+    return hits;
+}
+
+
+//Handling raids
+function doRaid(place, attackerID, defenderID) {
     if (!raiding.raiding){ return; } // We're not raiding right now.
 
-    if (((civData.soldierParty.owned + civData.cavalryParty.owned) > 0) || raiding.victory){ //technically you can win, then remove all your soldiers
-        if (civData.esoldier.owned > 0){
-            /* FIGHT! */
-            //Handles cavalry
-            if (civData.cavalryParty.owned > 0){
-                doFight(civData.cavalryParty,civData.esoldier);
-            }
-            //Handles infantry
-            if (civData.soldierParty.owned > 0){
-                doFight(civData.soldierParty,civData.esoldier);
-            }
-            //Handles siege engines
-            if (civData.siege.owned > 0 && civData.efort.owned > 0){ //need to be siege weapons and something to fire at
-                doSiege();
-            }
-            /* END FIGHT! */
-            
-            //checks victory conditions (needed here because of the order of tests)
-            if (civData.esoldier.owned <= 0){
-                civData.esoldier.owned = 0; //ensure esoldier is 0
-                civData.efort.owned = 0; //ensure efort is 0
-                raidWin();
-                updateTargets(); //update the new target
-            }
-            updatePartyButtons(); //display new totals for army soldiers and enemy soldiers
-        } else if (raiding.victory){
-            //handles the victory outcome
-            document.getElementById("victoryGroup").style.display = "block";
-        } else {
-            //victory outcome has been handled, end raid
-            raiding.raiding = false;
-            raiding.epop = 0;
-        }
-    } else {
-        gameLog("Raid defeated");
-        civData.esoldier.owned = 0;
-        civData.efort.owned = 0;
-        civData.siege.owned = 0;
-        raiding.raiding = false;
-        raiding.epop = 0;
-        raiding.plunderLoot = {};
-        updatePartyButtons();
+    var attackers = getCombatants(place, attackerID);
+    var defenders = getCombatants(place, defenderID);
+
+    if (attackers.length && !defenders.length) { // Win check.
+        // Slaughter any losing noncombatant units.
+        //xxx Should give throne and corpses for any human ones?
+        unitData.filter(function(elem) { return ((elem.alignment == defenderID) && (elem.place == place)); })
+          .forEach(function(elem) { elem.owned = 0; });
+
+        if (!raiding.victory) { gameLog("Raid victorious!"); } // Notify player on initial win.
+        raiding.victory = true;  // Flag victory for future handling
     }
+
+    if (!attackers.length && defenders.length) { // Loss check.
+        // Slaughter any losing noncombatant units.
+        //xxx Should give throne and corpses for any human ones?
+        unitData.filter(function(elem) { return ((elem.alignment == attackerID) && (elem.place == place)); })
+          .forEach(function(elem) { elem.owned = 0; });
+
+        gameLog("Raid defeated");  // Notify player
+        resetRaiding();
+        return;
+    }
+
+    // Do the actual combat.
+    attackers.forEach(function(attacker) { 
+        defenders.forEach(function(defender) { doFight(attacker,defender); }); // FIGHT!
+    });
+
+    // Handle siege engines
+    doSiege(civData.siege, civData.efort);
 }
+
 
 function doLabourers() {
     var wonderResources = [curCiv.food,curCiv.wood,curCiv.stone,curCiv.skins,curCiv.herbs,curCiv.ore,
@@ -4005,7 +3983,7 @@ window.setInterval(function(){
     //Timers - routines that do not occur every second
     
     //Checks when mobs will attack
-    //xxx Perhaps this should go after the doMobs() call, so we give 1 turn's warning?
+    //xxx Perhaps this should go after the mobs attack, so we give 1 turn's warning?
     var mobType, choose;
     if (population.current + curCiv.zombie.owned > 0) { ++curCiv.attackCounter; } // No attacks if deserted.
     if (population.current + curCiv.zombie.owned > 0 && curCiv.attackCounter > (60 * 5)){ //Minimum 5 minutes
@@ -4034,10 +4012,21 @@ window.setInterval(function(){
         document.getElementById("gloryGroup").style.display = "none";
     }
     
-    //Population-related
-    doMobs();
-    doRaid();
+    //Handling mob attacks
+    getCombatants("home", "enemy").forEach(function(attacker) { 
+        if (attacker.owned <= 0) { return; }
 
+        var defenders = getCombatants(attacker.place,"player");
+        if (!defenders.length) { attacker.onWin(); return; } // Undefended 
+
+        defenders.forEach(function(defender) { doFight(attacker,defender); }); // FIGHT!
+    });
+
+    doShades();
+    doEsiege(civData.esiege, civData.fortification);
+    doRaid("party","player","enemy");
+
+    //Population-related
     doGraveyards();
     doHealers(); 
     doCorpses();

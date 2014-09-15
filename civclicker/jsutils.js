@@ -131,11 +131,16 @@ function mergeObj(o1, o2)
 // Pass true as the 2nd param to be visible, false to be hidden.
 // Compensates for IE's lack of support for the "initial" property value.
 // May not support all HTML elements.
+// Returns the input visibility state, or undefined on an error.
 function setElemDisplay(htmlElem,visible)
 {
+    // If we're passed a string, assume it's the element ID.
+    if (typeof htmlElem === "string") { htmlElem = document.getElementById(htmlElem); }
+
     if (!htmlElem) {
-        return;
+        return undefined;
     }
+
     var tagName = htmlElem.tagName.toUpperCase();
 
 /* xxx This is disabled because browser support for visibility: collapse is too inconsistent.
@@ -168,6 +173,8 @@ function setElemDisplay(htmlElem,visible)
         }
     }
     htmlElem.style.display = displayVal;
+
+    return visible;
 }
 
 
