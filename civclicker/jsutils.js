@@ -128,7 +128,9 @@ function mergeObj(o1, o2)
 
 
 // Wrapper to set an HTML element's visibility.
-// Pass true as the 2nd param to be visible, false to be hidden.
+// Pass the element object or ID as the 1st param.
+// Pass true as the 2nd param to be visible, false to be hidden, no value to
+// toggle.
 // Compensates for IE's lack of support for the "initial" property value.
 // May not support all HTML elements.
 // Returns the input visibility state, or undefined on an error.
@@ -140,6 +142,9 @@ function setElemDisplay(htmlElem,visible)
     if (!htmlElem) {
         return undefined;
     }
+
+    // If the visibility is unspecified, toggle it.
+    if (visible === undefined) { visible = (htmlElem.style.display == "none"); }
 
     var tagName = htmlElem.tagName.toUpperCase();
 
@@ -241,3 +246,16 @@ function matchType(inVar, toMatch)
 {
     return getStdObj(typeof toMatch)(inVar);
 }
+
+// Adds indices for the specified array.
+// Looks for the specified attribute in each array entry, and adds an alias for
+// it at the top level.
+function indexArrayByAttr(inArray, attr) {
+    inArray.forEach( function(elem,ignore,arr){
+        // Add a named alias to each entry.
+        if (isValid(elem[attr]) && !isValid(arr[elem[attr]])) {
+            Object.defineProperty(arr, elem.id, { value : elem, enumerable:false });
+        }
+        else { console.log("Duplicate or missing "+attr+" attribute in array: "+elem[attr]); }
+}); }
+
