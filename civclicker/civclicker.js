@@ -33,7 +33,7 @@ VersionData.prototype.toNumber = function() { return this.major*1000 + this.mino
 VersionData.prototype.toString = function() { return String(this.major) + "." 
     + String(this.minor) + "." + String(this.sub) + String(this.mod); };
 
-var versionData = new VersionData(1,1,55,"alpha");
+var versionData = new VersionData(1,1,56,"alpha");
 
 var saveTag = "civ";
 var saveTag2 = saveTag + "2"; // For old saves.
@@ -254,7 +254,7 @@ Unit.prototype = new CivObj({
     onWin: function() { return; }, // Do nothing.
     get vulnerable() { return ((this.place == "home")&&(this.alignment=="player")&&(this.subType=="normal")); },
     set vulnerable(value) { return this.vulnerable; }, // Only here for JSLint.
-    init: function() { CivObj.prototype.init.call(this);
+    init: function(fullInit) { CivObj.prototype.init.call(this,fullInit);
         // Right now, only vulnerable human units can get sick.
         if (this.vulnerable && (this.species=="human")) {
             this.illObj = { owned: 0 };
@@ -710,7 +710,7 @@ new Unit({ id:"totalSick", name:"sick worker", singular:"sick worker", plural:"s
     //xxx This (alternate data location) could probably be cleaner.
     get owned() { return population[this.id]; },
     set owned(value) { population[this.id]= value; },
-    init: function() { this.owned = this.initOwned; },
+    init: function() { this.owned = this.initOwned; }, //xxx Verify this override is needed.
     effectText:"Use healers and herbs to cure them" }),
 new Unit({ id:"unemployed", name:"idle worker", singular:"idle worker", plural:"idle workers",
     require: undefined,  // Cannot be purchased (through normal controls) xxx Maybe change this?
@@ -941,7 +941,7 @@ augmentCivData();
 indexArrayByAttr(civData,"id");
 
 // Initialize our data. //xxx Should this move to initCivclicker()?
-civData.forEach(function(elem) { elem.init(); });
+civData.forEach( function(elem){ if (elem instanceof CivObj) { elem.init(); } });
 
 // Build a variety of additional indices so that we can iterate over specific
 // subsets of our civ objects.
@@ -956,6 +956,7 @@ var lootable= []; // All resources that can be stolen
 var killable= []; // All units that can be destroyed
 
 civData.forEach( function(elem){ 
+    if (!(elem instanceof CivObj)) { return; }  // Unknown type
     if (elem.type == "resource") { resourceData.push(elem); } 
     if (elem.type == "building") { buildingData.push(elem); } 
     if (elem.subType == "prayer") { powerData.push(elem); }
@@ -1503,6 +1504,7 @@ function updateResourceTotals(){
     for (i=0;i<displayElems.length;++i)
     {
         elem = displayElems[i];
+        //xxx Have to use curCiv here because of zombies and other non-civData displays.
         elem.innerHTML = prettify(Math.floor(curCiv[dataset(elem,"target")].owned));
     }
 
@@ -1512,7 +1514,7 @@ function updateResourceTotals(){
     for (i=0;i<displayElems.length;++i)
     {
         elem = displayElems[i];
-        val = curCiv[dataset(elem,"target")].net;
+        val = civData[dataset(elem,"target")].net;
         if (!isValid(val)) { continue; }
 
         // Colourise net production values.
@@ -1523,7 +1525,7 @@ function updateResourceTotals(){
         elem.innerHTML = prettify(val.toFixed(1));
     }
 
-    if (curCiv.gold.owned >= 1){
+    if (civData.gold.owned >= 1){
         setElemDisplay("goldRow",true);
     }
 
@@ -1533,16 +1535,16 @@ function updateResourceTotals(){
     document.getElementById("maxstone").innerHTML = prettify(civData.stone.limit);
 
     //Update land values
-    totalBuildings = countTotalBuildings(curCiv);
-    document.getElementById("totalLand").innerHTML = prettify(curCiv.freeLand.owned + totalBuildings);
+    totalBuildings = countTotalBuildings(civData);
+    document.getElementById("totalLand").innerHTML = prettify(civData.freeLand.owned + totalBuildings);
     document.getElementById("totalBuildings").innerHTML = prettify(totalBuildings);
 
     // Unlock advanced control tabs as they become enabled (they never disable)
     // Temples unlock Deity, barracks unlock Conquest, having gold unlocks Trade.
     // Deity is also unlocked if there are any prior deities present.
-    if ((curCiv.temple.owned > 0)||(curCiv.deities.length > 1)) { setElemDisplay("deitySelect",true); }
-    if (curCiv.barracks.owned > 0) { setElemDisplay("conquestSelect",true); }
-    if (curCiv.gold.owned > 0) { setElemDisplay("tradeSelect",true); }
+    if ((civData.temple.owned > 0)||(curCiv.deities.length > 1)) { setElemDisplay("deitySelect",true); }
+    if (civData.barracks.owned > 0) { setElemDisplay("conquestSelect",true); }
+    if (civData.gold.owned > 0) { setElemDisplay("tradeSelect",true); }
 
     // Need to have enough resources to trade
     document.getElementById("trader").disabled = !trader || !trader.timer ||
@@ -1557,7 +1559,7 @@ function updateResourceTotals(){
 
 function updatePopulation(){
     //Update population cap by multiplying out housing numbers
-    population.cap = curCiv.tent.owned + (curCiv.hut.owned * 3) + (curCiv.cottage.owned * 6) + (curCiv.house.owned * (10 + ((civData.tenements.owned) * 2) + ((civData.slums.owned) * 2))) + (curCiv.mansion.owned * 50);
+    population.cap = civData.tent.owned + (civData.hut.owned * 3) + (civData.cottage.owned * 6) + (civData.house.owned * (10 + ((civData.tenements.owned) * 2) + ((civData.slums.owned) * 2))) + (civData.mansion.owned * 50);
 
     //Update sick workers
     population.totalSick = 0;
@@ -1670,7 +1672,7 @@ function updatePopulationUI() {
     }
 
     //Turning on/off buttons based on free space.
-    var maxSpawn = Math.max(0,Math.min((population.cap - population.current),logSearchFn(calcWorkerCost,curCiv.food.owned)));
+    var maxSpawn = Math.max(0,Math.min((population.cap - population.current),logSearchFn(calcWorkerCost,civData.food.owned)));
 
     document.getElementById("spawn1button").disabled = (maxSpawn < 1);
     document.getElementById("spawnCustomButton").disabled = (maxSpawn < 1);
@@ -1680,7 +1682,7 @@ function updatePopulationUI() {
     document.getElementById("spawn1000button").disabled = (maxSpawn < 1000);
 
     var canRaise = (getCurDeityDomain() == "underworld" && civData.devotion.owned >= 20);
-    var maxRaise = canRaise ? logSearchFn(calcZombieCost,curCiv.piety.owned) : 0;
+    var maxRaise = canRaise ? logSearchFn(calcZombieCost,civData.piety.owned) : 0;
     setElemDisplay("raiseDeadRow", canRaise);
     document.getElementById("raiseDead").disabled = (maxRaise < 1);
     document.getElementById("raiseDeadMax").disabled = (maxRaise < 1);
@@ -1739,7 +1741,7 @@ function updateUpgrades(){
     setElemDisplay("zombieWorkers", (curCiv.zombie.owned > 0));
     setElemDisplay("catsUpgrades",(getCurDeityDomain() == "cats"));
 
-    deitySpecEnable = civData.worship.owned && (getCurDeityDomain() === "") && (curCiv.piety.owned >= 500);
+    deitySpecEnable = civData.worship.owned && (getCurDeityDomain() === "") && (civData.piety.owned >= 500);
     document.getElementById("battleDeity").disabled = !deitySpecEnable;
     document.getElementById("fieldsDeity").disabled = !deitySpecEnable;
     document.getElementById("underworldDeity").disabled = !deitySpecEnable;
@@ -1757,7 +1759,7 @@ function updateDeity(){
     //Update page with deity details
     document.getElementById("deityAName").innerHTML = curCiv.deities[0].name;
     document.getElementById("deityADomain").innerHTML = getCurDeityDomain() ? ", deity of "+idToType(getCurDeityDomain()) : "";
-    document.getElementById("deityADevotion").innerHTML = curCiv.devotion.owned;
+    document.getElementById("deityADevotion").innerHTML = civData.devotion.owned;
 
     // Display if we have an active deity, or any old ones.
     setElemDisplay("deityContainer",(curCiv.deities[0].name));
@@ -1800,7 +1802,7 @@ function makeDeitiesTables()
 // Enables or disables availability of activated religious powers.
 // Passive religious benefits are handled by the upgrade system.
 function updateDevotion(){
-    document.getElementById("deityA"+"Devotion").innerHTML = curCiv.devotion.owned;
+    document.getElementById("deityA"+"Devotion").innerHTML = civData.devotion.owned;
 
     // Process altars
     buildingData.forEach(function(elem) { if (elem.subType == "altar") {
@@ -2089,18 +2091,18 @@ function doPurchase(objId,num){
 
     //Increase devotion if the purchase provides it.
     if (isValid(purchaseObj.devotion)) { 
-        curCiv.devotion.owned += purchaseObj.devotion * num; 
+        civData.devotion.owned += purchaseObj.devotion * num; 
         // If we've exceeded this deity's prior max, raise it too.
-        if (curCiv.deities[0].maxDev < curCiv.devotion.owned) {
-            curCiv.deities[0].maxDev = curCiv.devotion.owned;
+        if (curCiv.deities[0].maxDev < civData.devotion.owned) {
+            curCiv.deities[0].maxDev = civData.devotion.owned;
             makeDeitiesTables();
         }
     }
 
     //Then check for overcrowding
-    if ((purchaseObj.type == "building") && --curCiv.freeLand.owned < 0){
+    if ((purchaseObj.type == "building") && --civData.freeLand.owned < 0){
         gameLog("You are suffering from overcrowding.");  // I18N
-        mood(Math.max(num,-curCiv.freeLand.owned) * -0.0025 * (civData.codeoflaws.owned ? 0.5 : 1.0));
+        mood(Math.max(num,-civData.freeLand.owned) * -0.0025 * (civData.codeoflaws.owned ? 0.5 : 1.0));
     }
 
     updateRequirements(purchaseObj); //Increases buildings' costs
@@ -2174,13 +2176,13 @@ function spawn(num){
 
     // Find the most workers we can spawn
     num = Math.max(num, -jobObj.owned);  // Cap firing by # in that job.
-    num = Math.min(num,logSearchFn(calcWorkerCost,curCiv.food.owned));
+    num = Math.min(num,logSearchFn(calcWorkerCost,civData.food.owned));
 
     // Apply population cap, and only allow whole workers.
     num = Math.min(num, (population.cap - population.current));
 
     // Update numbers and resource levels
-    curCiv.food.owned -= calcWorkerCost(num);
+    civData.food.owned -= calcWorkerCost(num);
 
     // New workers enter as farmers, but we only destroy idle ones.
     if (num >= 0) { civData.farmer.owned += num; }
@@ -2210,7 +2212,7 @@ function pickStarveTarget() {
     {
         for (jobNum=0;jobNum<jobList.length;++jobNum)
         {
-            if (curCiv[jobList[jobNum]+modList[modNum]].owned > 0) 
+            if (civData[jobList[jobNum]+modList[modNum]].owned > 0) 
                 { return jobList[jobNum]+modList[modNum]; }
         }
     }
@@ -2232,12 +2234,12 @@ function starve(num) {
         targetId = pickStarveTarget();
         if (!targetId) { return i; }
 
-        --curCiv[targetId].owned;
+        --civData[targetId].owned;
         updatePopulation();
 
-        ++curCiv.corpses.owned; //Increments corpse number
+        ++civData.corpses.owned; //Increments corpse number
         //Workers dying may trigger Book of the Dead
-        if (civData.book.owned) { curCiv.piety.owned += 10; }
+        if (civData.book.owned) { civData.piety.owned += 10; }
     }
 
     return num;
@@ -2276,15 +2278,15 @@ function raiseDead(num){
     if (num == "-custom") { num = -getCustomNumber(civData.unemployed); }
 
     // Find the most zombies we can raise
-    num = Math.min(num, curCiv.corpses.owned);
+    num = Math.min(num, civData.corpses.owned);
     num = Math.max(num, -curCiv.zombie.owned);  // Cap firing by # in that job.
-    num = Math.min(num,logSearchFn(calcZombieCost,curCiv.piety.owned));
+    num = Math.min(num,logSearchFn(calcZombieCost,civData.piety.owned));
 
     //Update numbers and resource levels
-    curCiv.piety.owned -= calcZombieCost(num);
+    civData.piety.owned -= calcZombieCost(num);
     curCiv.zombie.owned += num;
     civData.unemployed.owned += num;
-    curCiv.corpses.owned -= num;
+    civData.corpses.owned -= num;
 
     //Notify player
     if      (num ==  1) { gameLog("A corpse rises, eager to do your bidding."); } 
@@ -2313,8 +2315,8 @@ function summonShade(){
 //Deity Domains upgrades
 function selectDeity(domain,force){
     if (!force) {
-        if (curCiv.piety.owned < 500) { return; } // Can't pay
-        curCiv.piety.owned -= 500;
+        if (civData.piety.owned < 500) { return; } // Can't pay
+        civData.piety.owned -= 500;
     }
     curCiv.deities[0].domain = domain;
 
@@ -2390,7 +2392,7 @@ function wickerman(){
     //xxx Note that this presumes the price is 500 wood.
     if (resource == "wood") { qty = (qty/2) + 500; } // Guaranteed to at least restore initial cost.
 
-    curCiv[resource].owned += Math.floor(Math.random() * 1000);
+    civData[resource].owned += Math.floor(Math.random() * 1000);
 
     gameLog("Burned a " + getJobSingular(job) + ". " + msg);
     updateResourceTotals(); //Adds new resources
@@ -2430,8 +2432,8 @@ function tickWalk() {
 // Give a temporary bonus based on the number of cats owned.
 function pestControl(length){
     if (length === undefined) { length = 10; }
-    if (curCiv.piety.owned < (10 * length)) { return; }
-    curCiv.piety.owned -= (10 * length);
+    if (civData.piety.owned < (10 * length)) { return; }
+    civData.piety.owned -= (10 * length);
     civData.pestControl.timer = length * civData.cat.owned;
     gameLog("The vermin are exterminated.");
 }
@@ -2442,8 +2444,8 @@ function pestControl(length){
 function iconoclasmList(){
     var i;
     //Lists the deities for removing
-    if (curCiv.piety.owned >= 1000){
-        curCiv.piety.owned -= 1000;
+    if (civData.piety.owned >= 1000){
+        civData.piety.owned -= 1000;
         updateResourceTotals();
         document.getElementById("iconoclasm").disabled = true;
         var append = "<br />";
@@ -2463,12 +2465,12 @@ function iconoclasm(index){
     document.getElementById("iconoclasm").disabled = false;
     if ((index == "cancel")||(index >= curCiv.deities.length)){
         //return the piety
-        curCiv.piety.owned += 1000;
+        civData.piety.owned += 1000;
         return;
     } 
 
     //give gold
-    curCiv.gold.owned += Math.floor(Math.pow(curCiv.deities[index].maxDev,1/1.25));
+    civData.gold.owned += Math.floor(Math.pow(curCiv.deities[index].maxDev,1/1.25));
 
     //remove the deity
     curCiv.deities.splice(index,1);
@@ -2480,8 +2482,8 @@ function iconoclasm(index){
 
 function summonMob(mobtype){
     //Calls spawnMob() if the player has the correct resources (was used by Deities of Battle)
-    if (curCiv.piety.owned >= 100){
-        curCiv.piety.owned -= 100;
+    if (civData.piety.owned >= 100){
+        civData.piety.owned -= 100;
         spawnMob(mobtype);
     }
 }
@@ -2522,13 +2524,13 @@ function spawnMob(mobtype){
 
 function smiteMob(mobtype) {
     if (!isValid(civData[mobtype].owned) || civData[mobtype].owned <= 0) { return 0; }
-    var num = Math.min(civData[mobtype].owned,Math.floor(curCiv.piety.owned/100));
-    curCiv.piety.owned -= num * 100;
+    var num = Math.min(civData[mobtype].owned,Math.floor(civData.piety.owned/100));
+    civData.piety.owned -= num * 100;
     civData[mobtype].owned -= num;
-    curCiv.corpses.owned += num; //xxx Should dead wolves count as corpses?
+    civData.corpses.owned += num; //xxx Should dead wolves count as corpses?
     curCiv.enemySlain.owned += num;
     if (civData.throne.owned) { civData.throne.count += num; }
-    if (civData.book.owned) { curCiv.piety.owned += num * 10; }
+    if (civData.book.owned) { civData.piety.owned += num * 10; }
     gameLog("Struck down " + num + " " + mobtype); // L10N
     return num;
 }
@@ -2619,8 +2621,8 @@ function glory(time){
 
 function grace(delta){
     if (delta === undefined) { delta = 0.1; }
-    if (curCiv.piety.owned >= civData.grace.cost){
-        curCiv.piety.owned -= civData.grace.cost;
+    if (civData.piety.owned >= civData.grace.cost){
+        civData.piety.owned -= civData.grace.cost;
         civData.grace.cost = Math.floor(civData.grace.cost * 1.2);
         document.getElementById("graceCost").innerHTML = prettify(civData.grace.cost);
         mood(delta);
@@ -2676,15 +2678,15 @@ function wonderBonus(material){
 
 function updateWonderLimited(){
     var lowItem = false;
-    if      (curCiv.food.owned    < 1) { lowItem = civData.food.name; }
-    else if (curCiv.wood.owned    < 1) { lowItem = civData.wood.name; }
-    else if (curCiv.stone.owned   < 1) { lowItem = civData.stone.name; }
-    else if (curCiv.skins.owned   < 1) { lowItem = civData.skins.name; }
-    else if (curCiv.herbs.owned   < 1) { lowItem = civData.herbs.name; }
-    else if (curCiv.ore.owned     < 1) { lowItem = civData.ore.name; }
-    else if (curCiv.leather.owned < 1) { lowItem = civData.leather.name; }
-    else if (curCiv.piety.owned   < 1) { lowItem = civData.piety.name; }
-    else if (curCiv.metal.owned   < 1) { lowItem = civData.metal.name; }
+    if      (civData.food.owned    < 1) { lowItem = civData.food.name; }
+    else if (civData.wood.owned    < 1) { lowItem = civData.wood.name; }
+    else if (civData.stone.owned   < 1) { lowItem = civData.stone.name; }
+    else if (civData.skins.owned   < 1) { lowItem = civData.skins.name; }
+    else if (civData.herbs.owned   < 1) { lowItem = civData.herbs.name; }
+    else if (civData.ore.owned     < 1) { lowItem = civData.ore.name; }
+    else if (civData.leather.owned < 1) { lowItem = civData.leather.name; }
+    else if (civData.piety.owned   < 1) { lowItem = civData.piety.name; }
+    else if (civData.metal.owned   < 1) { lowItem = civData.metal.name; }
 
     if (lowItem)
         { document.getElementById("limited").innerHTML = " by low " + lowItem; }
@@ -2731,15 +2733,15 @@ function trade(){
 
     //subtract resources, add gold
     trader.material.owned -= trader.requested;
-    ++curCiv.gold.owned;
+    ++civData.gold.owned;
     updateResourceTotals();
     gameLog("Traded " + trader.requested + " " + trader.material.name);
 }
 
 function buy(materialId){
     var material = civData[materialId];
-    if (curCiv.gold.owned < 1) { return; }
-    --curCiv.gold.owned;
+    if (civData.gold.owned < 1) { return; }
+    --civData.gold.owned;
 
     if (material == civData.food    || material == civData.wood  || material == civData.stone) { material.owned += 5000; }
     if (material == civData.skins   || material == civData.herbs || material == civData.ore)   { material.owned +=  500; }
@@ -2749,8 +2751,8 @@ function buy(materialId){
 }
 
 function speedWonder(){
-    if (curCiv.gold.owned < 100) { return; }
-    curCiv.gold.owned -= 100;
+    if (civData.gold.owned < 100) { return; }
+    civData.gold.owned -= 100;
 
     wonder.progress += 1 / (Math.pow(1.5,wonder.total));
     wonder.rushed = true;
@@ -3210,7 +3212,7 @@ function load(loadType){
         "." + saveVersion.minor + "." + saveVersion.sub + "(" + saveVersion.mod + ").");
     
     curCiv = loadVar.curCiv;
-    totalBuildings = countTotalBuildings(curCiv);
+    totalBuildings = countTotalBuildings(civData);
 
     if (isValid(loadVar.wonder)){
         wonder = mergeObj(wonder, loadVar.wonder);
@@ -3431,70 +3433,15 @@ function reset(){
     var msg = "Really reset? You will keep past deities and wonders (and cats)"; //Check player really wanted to do that.
     if (!confirm(msg)) { return false; } // declined
 
-    curCiv = {
-        civName : curCiv.civName,
-        rulerName : curCiv.rulerName,
-
-        cat:curCiv.cat, //Cats always carry over
-        zombie: { owned:0 },
-        grave: { owned:0 },
-        enemySlain: { owned:0 },
-
-        //Pantheon upgrades are permanent across resets
-        deities : curCiv.deities,
-        lure: curCiv.lure,
-        companion: curCiv.companion,
-        comfort: curCiv.comfort,
-        blessing: curCiv.blessing,
-        waste: curCiv.waste,
-        stay: curCiv.stay,
-        riddle: curCiv.riddle,
-        throne: curCiv.throne,
-        lament: curCiv.lament,
-        book: curCiv.book,
-        feast: curCiv.feast,
-        secrets: curCiv.secrets,
-
-        hamletAch: curCiv.hamletAch,
-        villageAch: curCiv.villageAch,
-        smallTownAch: curCiv.smallTownAch,
-        largeTownAch: curCiv.largeTownAch,
-        smallCityAch: curCiv.smallCityAch,
-        largeCityAch: curCiv.largeCityAch,
-        metropolisAch: curCiv.metropolisAch,
-        smallNationAch: curCiv.smallNationAch,
-        nationAch: curCiv.nationAch,
-        largeNationAch: curCiv.largeNationAch,
-        empireAch: curCiv.empireAch,
-        raiderAch: curCiv.raiderAch,
-        engineerAch: curCiv.engineerAch,
-        dominationAch: curCiv.dominationAch,
-        hatedAch: curCiv.hatedAch,
-        lovedAch: curCiv.lovedAch,
-        catAch: curCiv.catAch,
-        glaringAch: curCiv.glaringAch,
-        clowderAch: curCiv.clowderAch,
-        battleAch: curCiv.battleAch,
-        catsAch: curCiv.catsAch,
-        fieldsAch: curCiv.fieldsAch,
-        underworldAch: curCiv.underworldAch,
-        fullHouseAch: curCiv.fullHouseAch,
-        plaguedAch: curCiv.plaguedAch,
-        ghostTownAch: curCiv.ghostTownAch,
-        wonderAch: curCiv.wonderAch,
-        sevenAch: curCiv.sevenAch,
-        merchantAch: curCiv.merchantAch,
-        rushedAch: curCiv.rushedAch,
-        neverclickAch: curCiv.neverclickAch,
-
-        resourceClicks : 0, // For NeverClick
-        attackCounter : 0, // How long since last attack?
-        tradeCounter : 0 // How long since last trader?
-    };
-
     // Let each data subpoint re-init.
-    //xxx It might be better not to replace the curCiv object above.
-    civData.forEach( function(elem){ elem.reset(); });
+    civData.forEach( function(elem){ if (elem instanceof CivObj) { elem.reset(); } });
+
+    curCiv.zombie.owned = 0;
+    curCiv.grave.owned = 0;
+    curCiv.enemySlain.owned = 0;
+    curCiv.resourceClicks = 0; // For NeverClick
+    curCiv.attackCounter = 0; // How long since last attack?
+    curCiv.tradeCounter = 0; // How long since last trader?
 
     // If our current deity is powerless, delete it.
     if (!curCiv.deities[0].maxDev) {
@@ -3509,7 +3456,7 @@ function reset(){
     updateRequirements(civData.fieldsAltar);
     updateRequirements(civData.underworldAltar);
     updateRequirements(civData.catAltar);
-    totalBuildings = countTotalBuildings(curCiv);
+    totalBuildings = countTotalBuildings(civData);
 
     wonder = {
         total:wonder.total,
@@ -3579,9 +3526,9 @@ function reset(){
     document.getElementById("glory").disabled = "true";
     document.getElementById("summonShade").disabled = "true";
 
-    setElemDisplay("deitySelect",(curCiv.temple.owned > 0));
-    setElemDisplay("conquestSelect",(curCiv.barracks.owned > 0));
-    setElemDisplay("tradeSelect",(curCiv.gold.owned > 0));
+    setElemDisplay("deitySelect",(civData.temple.owned > 0));
+    setElemDisplay("conquestSelect",(civData.barracks.owned > 0));
+    setElemDisplay("tradeSelect",(civData.gold.owned > 0));
 
     document.getElementById("conquest").style.display = "none";
 
@@ -3609,55 +3556,55 @@ function doFarmers() {
     var specialChance = civData.food.specialChance + (0.1 * civData.flensing.owned);
     var millMod = 1;
     if (population.current > 0 || curCiv.zombie.owned > 0) { millMod = population.current / (population.current + curCiv.zombie.owned); }
-    curCiv.food.net = civData.farmer.owned * (1 + (civData.farmer.efficiency * efficiency.happiness)) * ((civData.pestControl.timer > 0) ? 1.01 : 1) * (1 + (wonder.food/10)) * (1 + civData.walk.rate/120) * (1 + civData.mill.owned * millMod / 200); //Farmers farm food
-    curCiv.food.net -= population.current; //The living population eats food.
-    curCiv.food.owned += curCiv.food.net;
+    civData.food.net = civData.farmer.owned * (1 + (civData.farmer.efficiency * efficiency.happiness)) * ((civData.pestControl.timer > 0) ? 1.01 : 1) * (1 + (wonder.food/10)) * (1 + civData.walk.rate/120) * (1 + civData.mill.owned * millMod / 200); //Farmers farm food
+    civData.food.net -= population.current; //The living population eats food.
+    civData.food.owned += civData.food.net;
     if (civData.skinning.owned && civData.farmer.owned > 0){ //and sometimes get skins
         var num_skins = specialChance * (civData.food.increment + ((civData.butchering.owned) * civData.farmer.owned / 15.0)) * (1 + (wonder.skins/10));
-        curCiv.skins.owned += rndRound(num_skins);
+        civData.skins.owned += rndRound(num_skins);
     }
 }
 function doWoodcutters() {
-    curCiv.wood.net = civData.woodcutter.owned * (civData.woodcutter.efficiency * efficiency.happiness) * (1 + (wonder.wood/10)); //Woodcutters cut wood
-    curCiv.wood.owned += curCiv.wood.net;
+    civData.wood.net = civData.woodcutter.owned * (civData.woodcutter.efficiency * efficiency.happiness) * (1 + (wonder.wood/10)); //Woodcutters cut wood
+    civData.wood.owned += civData.wood.net;
     if (civData.harvesting.owned && civData.woodcutter.owned > 0){ //and sometimes get herbs
         var num_herbs = civData.wood.specialChance * (civData.wood.increment + ((civData.gardening.owned) * civData.woodcutter.owned / 5.0)) * (1 + (wonder.wood/10));
-        curCiv.herbs.owned += rndRound(num_herbs);
+        civData.herbs.owned += rndRound(num_herbs);
     }
 }
 
 function doMiners() {
     var specialChance = civData.stone.specialChance + (civData.macerating.owned ? 0.1 : 0);
-    curCiv.stone.net = civData.miner.owned * (civData.miner.efficiency * efficiency.happiness) * (1 + (wonder.stone/10)); //Miners mine stone
-    curCiv.stone.owned += curCiv.stone.net;
+    civData.stone.net = civData.miner.owned * (civData.miner.efficiency * efficiency.happiness) * (1 + (wonder.stone/10)); //Miners mine stone
+    civData.stone.owned += civData.stone.net;
     if (civData.prospecting.owned && civData.miner.owned > 0){ //and sometimes get ore
         var num_ore = specialChance * (civData.stone.increment + ((civData.extraction.owned) * civData.miner.owned / 5.0)) * (1 + (wonder.ore/10));
-        curCiv.ore.owned += rndRound(num_ore);
+        civData.ore.owned += rndRound(num_ore);
     }
 }
 
 function doBlacksmiths() {
-    if (curCiv.ore.owned >= civData.blacksmith.owned * (civData.blacksmith.efficiency * efficiency.happiness)){
-        curCiv.metal.owned += civData.blacksmith.owned * (civData.blacksmith.efficiency * efficiency.happiness) * (1 + (wonder.metal/10));
-        curCiv.ore.owned -= civData.blacksmith.owned * (civData.blacksmith.efficiency * efficiency.happiness);
+    if (civData.ore.owned >= civData.blacksmith.owned * (civData.blacksmith.efficiency * efficiency.happiness)){
+        civData.metal.owned += civData.blacksmith.owned * (civData.blacksmith.efficiency * efficiency.happiness) * (1 + (wonder.metal/10));
+        civData.ore.owned -= civData.blacksmith.owned * (civData.blacksmith.efficiency * efficiency.happiness);
     } else if (civData.blacksmith.owned) {
-        curCiv.metal.owned += curCiv.ore.owned * (1 + (wonder.metal/10));
-        curCiv.ore.owned = 0;
+        civData.metal.owned += civData.ore.owned * (1 + (wonder.metal/10));
+        civData.ore.owned = 0;
     }
 }
 
 function doTanners() {
-    if (curCiv.skins.owned >= civData.tanner.owned * (civData.tanner.efficiency * efficiency.happiness)){
-        curCiv.leather.owned += civData.tanner.owned * (civData.tanner.efficiency * efficiency.happiness) * (1 + (wonder.leather/10));
-        curCiv.skins.owned -= civData.tanner.owned * (civData.tanner.efficiency * efficiency.happiness);
+    if (civData.skins.owned >= civData.tanner.owned * (civData.tanner.efficiency * efficiency.happiness)){
+        civData.leather.owned += civData.tanner.owned * (civData.tanner.efficiency * efficiency.happiness) * (1 + (wonder.leather/10));
+        civData.skins.owned -= civData.tanner.owned * (civData.tanner.efficiency * efficiency.happiness);
     } else if (civData.tanner.owned) {
-        curCiv.leather.owned += curCiv.skins.owned * (1 + (wonder.leather/10));
-        curCiv.skins.owned = 0;
+        civData.leather.owned += civData.skins.owned * (1 + (wonder.leather/10));
+        civData.skins.owned = 0;
     }
 }
 
 function doClerics() {
-    curCiv.piety.owned += civData.cleric.owned * (civData.cleric.efficiency + (civData.cleric.efficiency * (civData.writing.owned))) * (1 + ((civData.secrets.owned) * (1 - 100/(curCiv.graveyard.owned + 100)))) * efficiency.happiness * (1 + (wonder.piety/10));
+    civData.piety.owned += civData.cleric.owned * (civData.cleric.efficiency + (civData.cleric.efficiency * (civData.writing.owned))) * (1 + ((civData.secrets.owned) * (1 - 100/(civData.graveyard.owned + 100)))) * efficiency.happiness * (1 + (wonder.piety/10));
 }
 // Try to heal the specified number of people in the specified job
 // Makes them sick if the number is negative.
@@ -3713,12 +3660,12 @@ function doHealers() {
     civData.healer.cureCounter = Math.min(civData.healer.cureCounter, population.totalSick);
 
     // Cure people until we run out of healing capacity or herbs
-    while (civData.healer.cureCounter >= 1 && curCiv.herbs.owned >= 1) {
+    while (civData.healer.cureCounter >= 1 && civData.herbs.owned >= 1) {
         job = getNextPatient();
         if (!job) { break; }
         heal(job); 
         --civData.healer.cureCounter;
-        --curCiv.herbs.owned;
+        --civData.herbs.owned;
         ++numHealed;
     }
 
@@ -3728,11 +3675,11 @@ function doHealers() {
 function doGraveyards()
 {
     var i;
-    if (curCiv.corpses.owned > 0 && curCiv.grave.owned > 0){
+    if (civData.corpses.owned > 0 && curCiv.grave.owned > 0){
         //Clerics will bury corpses if there are graves to fill and corpses lying around
         for (i=0;i<civData.cleric.owned;i++){
-            if (curCiv.corpses.owned > 0 && curCiv.grave.owned > 0){
-                curCiv.corpses.owned -= 1;
+            if (civData.corpses.owned > 0 && curCiv.grave.owned > 0){
+                civData.corpses.owned -= 1;
                 curCiv.grave.owned -= 1;
             }
         }
@@ -3741,7 +3688,7 @@ function doGraveyards()
 }
 
 function doCorpses() {
-    if (curCiv.corpses.owned <= 0) { return; }
+    if (civData.corpses.owned <= 0) { return; }
 
     // Corpses lying around will occasionally make people sick.
     // 1-in-50 chance (1-in-100 with feast)
@@ -3773,7 +3720,7 @@ function doFight(attacker,defender)
     if ((attacker.owned <= 0) || (defender.owned <= 0 )) { return; }
 
     // Defenses vary depending on whether the player is attacking or defending.
-    var fortMod = (defender.alignment == "player" ? (curCiv.fortification.owned * civData.fortification.efficiency)
+    var fortMod = (defender.alignment == "player" ? (civData.fortification.owned * civData.fortification.efficiency)
                                                   : (civData.efort.owned * civData.efort.efficiency));
     var palisadeMod = ((defender.alignment == "player")&&(civData.palisade.owned)) * civData.palisade.efficiency;
 
@@ -3792,8 +3739,8 @@ function doFight(attacker,defender)
     //Increments enemies slain, corpses, and piety
     curCiv.enemySlain.owned += playerCredit;
     if (civData.throne.owned) { civData.throne.count += playerCredit; }
-    curCiv.corpses.owned += (attackerCas + defenderCas);
-    if (civData.book.owned) { curCiv.piety.owned += (attackerCas + defenderCas) * 10; }
+    civData.corpses.owned += (attackerCas + defenderCas);
+    if (civData.book.owned) { civData.piety.owned += (attackerCas + defenderCas) * 10; }
 
     //Updates population figures (including total population)
     updatePopulation();
@@ -3810,7 +3757,7 @@ function doSlaughter(attacker)
 
         --civData[target].owned;
 
-        if (attacker.species != "animal") { ++curCiv.corpses.owned; } // Animals will eat the corpse
+        if (attacker.species != "animal") { ++civData.corpses.owned; } // Animals will eat the corpse
         gameLog(getJobSingular(target) + " " + killVerb + " by " + attacker.name);
     } else { // Attackers slowly leave once everyone is dead
         var leaving = Math.ceil(civData[attacker.id].owned * Math.random() * attacker.killFatigue);
@@ -3847,7 +3794,7 @@ function doSack(attacker)
 
     if (target.owned > 0){
         --target.owned;
-        ++curCiv.freeLand.owned;
+        ++civData.freeLand.owned;
         gameLog(target.name + " " + destroyVerb + " by " + attacker.name);
     } else {
         //some will leave
@@ -3970,8 +3917,8 @@ function doRaid(place, attackerID, defenderID) {
 
 
 function doLabourers() {
-    var wonderResources = [curCiv.food,curCiv.wood,curCiv.stone,curCiv.skins,curCiv.herbs,curCiv.ore,
-                           curCiv.leather,curCiv.metal,curCiv.piety];
+    var wonderResources = [civData.food,civData.wood,civData.stone,civData.skins,civData.herbs,civData.ore,
+                           civData.leather,civData.metal,civData.piety];
     if (!wonder.building) { return; }
 
     if (wonder.progress >= 100){
@@ -4075,7 +4022,7 @@ function tickGlory() {
 function doThrone() {
     if (civData.throne.count >= 100){
         //If sufficient enemies have been slain, build new temples for free
-        curCiv.temple.owned += Math.floor(civData.throne.count/100);
+        civData.temple.owned += Math.floor(civData.throne.count/100);
         civData.throne.count = 0; //xxx This loses the leftovers.
         updateResourceTotals();
     }
@@ -4386,19 +4333,19 @@ function updateTest(){
 
 function ruinFun(){
     //Debug function adds loads of stuff for free to help with testing.
-    curCiv.food.owned += 1000000;
-    curCiv.wood.owned += 1000000;
-    curCiv.stone.owned += 1000000;
-    curCiv.barn.owned += 5000;
-    curCiv.woodstock.owned += 5000;
-    curCiv.stonestock.owned += 5000;
-    curCiv.herbs.owned += 1000000;
-    curCiv.skins.owned += 1000000;
-    curCiv.ore.owned += 1000000;
-    curCiv.leather.owned += 1000000;
-    curCiv.metal.owned += 1000000;
-    curCiv.piety.owned += 1000000;
-    curCiv.gold.owned += 10000;
+    civData.food.owned += 1000000;
+    civData.wood.owned += 1000000;
+    civData.stone.owned += 1000000;
+    civData.barn.owned += 5000;
+    civData.woodstock.owned += 5000;
+    civData.stonestock.owned += 5000;
+    civData.herbs.owned += 1000000;
+    civData.skins.owned += 1000000;
+    civData.ore.owned += 1000000;
+    civData.leather.owned += 1000000;
+    civData.metal.owned += 1000000;
+    civData.piety.owned += 1000000;
+    civData.gold.owned += 10000;
     renameRuler("Cheater");
     updatePopulation();
     updateUpgrades();
