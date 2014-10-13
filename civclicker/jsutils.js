@@ -184,16 +184,21 @@ function setElemDisplay(htmlElem,visible)
 
 
 // Workaround for IE's lack of support for the dataset property.
+// Also searches up the DOM tree on lookups, to mimic inheritance.
+// Pass 'value' to set the value, otherwise returns the value.
 // Returns "true" and "false" as actual booleans.
-//xxx Maybe make this search up the DOM tree on lookups, to mimic inheritance
 function dataset(elem,attr,value)
 {
-    if (value === undefined) { 
-        var val = elem.getAttribute("data-"+attr); 
-        return (val=="true")?true:(val=="false")?false:val;
-    }
+    if (value !== undefined) { return elem.setAttribute("data-"+attr,value); }
 
-    return elem.setAttribute("data-"+attr,value);
+    var val = null;
+    for (var i = elem; i; i = i.parentNode)
+    {
+        if (i.nodeType != Node.ELEMENT_NODE) { continue; }
+        val = i.getAttribute("data-"+attr); 
+        if (val !== null) { break; }
+    }
+    return (val=="true")?true:(val=="false")?false:val;
 }
 
 

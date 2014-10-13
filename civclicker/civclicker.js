@@ -33,7 +33,7 @@ VersionData.prototype.toNumber = function() { return this.major*1000 + this.mino
 VersionData.prototype.toString = function() { return String(this.major) + "." 
     + String(this.minor) + "." + String(this.sub) + String(this.mod); };
 
-var versionData = new VersionData(1,1,57,"alpha");
+var versionData = new VersionData(1,1,58,"alpha");
 
 var saveTag = "civ";
 var saveTag2 = saveTag + "2"; // For old saves.
@@ -315,17 +315,20 @@ Achievement.prototype = new CivObj({
 var civData = [
 // Resources
 new Resource({ id:"food", name:"food", increment:1, specialChance:0.1,
-    specialMaterial: "skins", activity: "foraging", //I18N
+    subType:"basic",
+    specialMaterial: "skins", verb: "gather", activity: "foraging", //I18N
     get limit() { return 200 + (civData.barn.owned * (civData.granaries.owned?2:1) * 200); },
     set limit(value) { return this.limit; } // Only here for JSLint.
 }),
 new Resource({ id:"wood", name:"wood", increment:1, specialChance:0.1,
-    specialMaterial: "herbs", activity: "woodcutting", //I18N
+    subType:"basic",
+    specialMaterial: "herbs", verb: "cut", activity: "woodcutting", //I18N
     get limit() { return 200 + (civData.woodstock.owned  * 200); },
     set limit(value) { return this.limit; } // Only here for JSLint.
 }),
 new Resource({ id:"stone", name:"stone", increment:1, specialChance:0.1,
-    specialMaterial: "ore", activity: "mining", //I18N
+    subType:"basic",
+    specialMaterial: "ore", verb: "mine", activity: "mining", //I18N
     get limit() { return 200 + (civData.stonestock.owned  * 200); },
     set limit(value) { return this.limit; } // Only here for JSLint.
 }),
@@ -1237,6 +1240,31 @@ function sgn(x) { return (typeof x == "number") ? sgnnum(x)
                        : (typeof x == "boolean") ? sgnbool(x) : 0; }
 function abs(x) { return (typeof x == "number") ? Math.abs(x) : (typeof x == "string") ? absstr(x) : x; }
 
+
+// Pass this the item definition object.
+// Or pass nothing, to create a blank row.
+function getResourceRowText(purchaseObj)
+{
+    // Make sure to update this if the number of columns changes.
+    if (!purchaseObj) { return "<tr class='purchaseRow'><td colspan='6'/>&nbsp;</tr>"; }
+
+    var objId = purchaseObj.id;
+    var objName = purchaseObj.getQtyName(0);
+    var s = "<tr id='"+objId+"Row' class='purchaseRow' data-target='"+objId+"'>";
+ 
+    s += "<td><button data-action='increment'>"+purchaseObj.verb+" "+objName+"</button></td>";
+    s += "<td class='itemname'>"+objName+": </td>";
+    s += "<td class='number'><span data-action='display'>0</span></td>";
+    s += "<td class='icon'><img src='images/"+objId+".png' class='icon icon-lg' alt='"+objName+"'/></td>";
+    s += "<td class='number'>(Max: <span id='max"+objId+"'>200</span>)</td>";
+    s += "<td class='number net'><span data-action='displayNet'>0</span>/s</td>";
+
+    s += "</tr>";
+
+    return s;
+}
+
+
 function getPurchaseCellText(purchaseObj, qty, inTable) {
     if (inTable === undefined) { inTable = true; }
     // Internal utility functions.
@@ -1269,11 +1297,11 @@ function getPurchaseCellText(purchaseObj, qty, inTable) {
 
     var tagName = inTable ? "td" : "span";
     var className = (abs(qty) == "custom") ? "buy" : purchaseObj.type;  // 'custom' buttons all use the same class.
-    var s = "<"+tagName+" class='"+className+abs(qty)+"'>";
+
+    var s = "<"+tagName+" class='"+className+abs(qty)+"' data-quantity='"+qty+"' >";
     if (allowPurchase()) 
     { 
-        s +="<button class='x"+abs(qty)+"' data-action='purchase' data-quantity='"+qty+"' data-target='"+purchaseObj.id+"' "
-        +" disabled='disabled'" +" onmousedown=\"onPurchase(this)\">"+fmtqty(qty)+"</button>"; 
+        s +="<button class='x"+abs(qty)+"' data-action='purchase'"+" disabled='disabled'>"+fmtqty(qty)+"</button>"; 
     }
     s += "</"+tagName+">";
     return s;
@@ -1283,19 +1311,20 @@ function getPurchaseCellText(purchaseObj, qty, inTable) {
 // Or pass nothing, to create a blank row.
 function getPurchaseRowText(purchaseObj)
 {
+    // Make sure to update this if the number of columns changes.
     if (!purchaseObj) { return "<tr class='purchaseRow'><td colspan='13'/>&nbsp;</tr>"; }
 
     var objId = purchaseObj.id;
-    var s = "<tr id='"+objId+"Row' class='purchaseRow'>";
+    var s = "<tr id='"+objId+"Row' class='purchaseRow' data-target='"+purchaseObj.id+"'>";
  
     [-Infinity, "-custom", -100, -10, -1]
     .forEach(function(elem) { s += getPurchaseCellText(purchaseObj, elem); });
 
     var enemyFlag = (purchaseObj.alignment == "enemy") ? " enemy" : "";
-    s += "<td class='itemname"+enemyFlag+"'>"+purchaseObj.plural+": </td>";
+    s += "<td class='itemname"+enemyFlag+"'>"+purchaseObj.getQtyName(0)+": </td>";
 
     var action = (isValid(population[objId])) ? "display_pop" : "display"; //xxx Hack
-    s += "<td class='number'><span data-action='"+action+"' data-target='"+objId+"'>0</span></td>";
+    s += "<td class='number'><span data-action='"+action+"'>0</span></td>";
 
     // Don't allow Infinite (max) purchase on things we can't sell back.
     [1, 10, 100, "custom", ((purchaseObj.salable) ? Infinity : 1000)]
@@ -1306,27 +1335,58 @@ function getPurchaseRowText(purchaseObj)
 
     return s;
 }
+
+// For efficiency, we set up a single bulk listener for all of the buttons, rather
+// than putting a separate listener on each button.
+function onBulkEvent(e)
+{
+    switch (dataset(e.target,"action")) 
+    {
+        case "increment": return onIncrement(e.target);
+        case "purchase" : return onPurchase(e.target);
+        case "raid"     : return onInvade(e.target);
+    }
+}
+
+// Dynamically create the basic resource table.
+function addResourceRows()
+{
+    var s="";
+    resourceData.forEach(function(elem) { if (elem.subType == "basic") { s += getResourceRowText(elem); } });
+
+    var groupElem = document.getElementById("basicResources");
+    groupElem.innerHTML += s;
+    groupElem.onmousedown = onBulkEvent;
+}
 // Dynamically create the building controls table.
 function addBuildingRows()
 {
     var s="";
     buildingData.forEach(function(elem) { if (elem.subType == "normal" || elem.subType == "land") 
         { s += getPurchaseRowText(elem); } });
-    document.getElementById("buildings").innerHTML += s;
+
+    var groupElem = document.getElementById("buildings");
+    groupElem.innerHTML += s;
+    groupElem.onmousedown = onBulkEvent;
 }
 // Dynamically create the job controls table.
 function addJobRows()
 {
     var s="";
     unitData.forEach(function(elem) { if (elem.place == "home") { s += getPurchaseRowText(elem); } });
-    document.getElementById("jobs").innerHTML += s;
+
+    var groupElem = document.getElementById("jobs");
+    groupElem.innerHTML += s;
+    groupElem.onmousedown = onBulkEvent;
 }
 // Dynamically create the party controls table.
 function addPartyRows()
 {
     var s="";
     unitData.forEach(function(elem) { if (elem.place == "party") { s += getPurchaseRowText(elem); } });
-    document.getElementById("party").innerHTML += s;
+    var groupElem = document.getElementById("party");
+    groupElem.innerHTML += s;
+    groupElem.onmousedown = onBulkEvent;
 }
 
 //xxx This should become an onGain() member method of the building classes
@@ -1372,6 +1432,10 @@ function updatePurchaseRow(purchaseObj){
     }
 }
 
+function updateResourceRows(){
+    //Only set up for the basic resources right now.
+    resourceData.forEach(function(elem) { if (elem.subType == "basic") { updatePurchaseRow(elem); } });
+}
 //enables/disabled building buttons - calls each type of building in turn
 function updateBuildingButtons(){
     //Can't do altars; they're not in the proper format.
@@ -1399,10 +1463,12 @@ function getUpgradeRowText(upgradeObj, inTable)
     if (inTable === undefined) { inTable = true; }
     var cellTagName = inTable ? "td" : "span";
     var rowTagName = inTable ? "tr" : "span";
+    // Make sure to update this if the number of columns changes.
     if (!upgradeObj) { return inTable ? "<"+rowTagName+" class='purchaseRow'><td colspan='2'/>&nbsp;</"+rowTagName+">" : ""; }
 
-    var s=  "<"+rowTagName+" id='"+upgradeObj.id+"Row' class='purchaseRow'>";
-    s +=    getPurchaseCellText(upgradeObj, true);
+    var s=  "<"+rowTagName+" id='"+upgradeObj.id+"Row' class='purchaseRow'";
+    s +=    " data-target='"+upgradeObj.id+"'>";
+    s +=    getPurchaseCellText(upgradeObj, true, inTable);
     s +=    "<"+cellTagName+">" + getCostNote(upgradeObj) + "</"+cellTagName+">";
     if (!inTable) { s += "<br />"; }
     s +=    "</"+rowTagName+">";
@@ -1440,20 +1506,22 @@ function setPantheonUpgradeRowText(upgradeObj)
     var elem = document.getElementById(upgradeObj.id+"Row");
     if (!elem) { return null; }
 
-    elem.outerHTML = getPantheonUpgradeRowText(upgradeObj);
-    return elem;
+    elem.outerHTML = getPantheonUpgradeRowText(upgradeObj); // Replaces elem
+    return document.getElementById(upgradeObj.id+"Row"); // Return replaced element
 }
 // Dynamically create the upgrade purchase buttons.
 function addUpgradeRows()
 {
     var s="";
 
-    // Place the stubs for most upgrades under the upgrades tab.
-    upgradeData.forEach( function(elem){ if (elem.subType=="upgrade") { s += getUpgradeRowText(elem); } });
-    document.getElementById("upgrades").innerHTML = s;
-
     document.getElementById("upgradesPane").innerHTML += 
        "<h3>Purchased Upgrades</h3>" + "<div id='purchasedUpgrades'></div>";
+
+    // Place the stubs for most upgrades under the upgrades tab.
+    upgradeData.forEach( function(elem){ if (elem.subType=="upgrade") { s += getUpgradeRowText(elem); } });
+    var groupElem = document.getElementById("upgrades");
+    groupElem.innerHTML = s;
+    groupElem.onmousedown = onBulkEvent;
 
     // Fill in any pre-existing stubs.
     upgradeData.forEach( function(elem){ 
@@ -1462,7 +1530,9 @@ function addUpgradeRows()
         else { // One of the 'atypical' upgrades not displayed in the main upgrade list.
             var stubElem = document.getElementById(elem.id+"Row");
             if (!stubElem) { console.log("Missing UI element for "+elem.id); return; }
-            stubElem.outerHTML = getUpgradeRowText(elem, false);
+            stubElem.outerHTML = getUpgradeRowText(elem, false); // Replaces stubElem
+            stubElem = document.getElementById(elem.id+"Row"); // Get stubElem again.
+            stubElem.onmousedown=onBulkEvent;
         }
     });
 
@@ -1497,9 +1567,9 @@ function updateResourceTotals(){
     var i,displayElems,elem,val;
 
     // Scan the HTML document for elements with a "data-action" element of
-    // "display".  The "data-target" of such elements is presumed to contain
+    // "display".  The "data-target" of such elements (or their ancestors) 
+    // is presumed to contain
     // the global variable name to be displayed as the element's content.
-    //xxx This should probably require data-target too.
     //xxx Note that this is now also updating nearly all updatable values,
     // including population.
     displayElems=document.querySelectorAll("[data-action='display']");
@@ -1881,11 +1951,13 @@ function addRaidRows()
 {
     var s="";
     civSizes.forEach(function(elem) { 
-        s += "<button class='raid' data-civtype='"+elem.id+"' onmousedown='onInvade(event)' disabled='disabled'>"+
+        s += "<button class='raid' data-action='raid' data-target='"+elem.id+"' disabled='disabled'>"+
         "Raid "+elem.name+"</button><br />"; //xxxL10N
     });
 
-    document.getElementById("raidGroup").innerHTML += s;
+    var group = document.getElementById("raidGroup");
+    group.innerHTML += s;
+    group.onmousedown=onBulkEvent;
 }
 
 // Enable the raid buttons for eligible targets.
@@ -1906,7 +1978,7 @@ function updateTargets(){
         {
             // Disable if we have no standard, no army, or they are too big a target.
             curElem = raidButtons[i];
-            curElem.disabled = (!civData.standard.owned||!haveArmy || (civSizes[dataset(curElem,"civtype")].idx > civSizes[targetMax].idx));
+            curElem.disabled = (!civData.standard.owned||!haveArmy || (civSizes[dataset(curElem,"target")].idx > civSizes[targetMax].idx));
         }
     }
 }
@@ -2007,6 +2079,7 @@ function update(){
     updateResourceTotals(); //need to remove call to updatePopulation, move references to upgrades
     updatePopulation(); //move enabling/disabling by space to updateJobButtons, remove calls to updateJobButtons, updateHappiness, updateAchievements
     updatePopulationUI();
+    updateResourceRows();
     updateBuildingButtons();
     updateJobButtons();
     updatePartyButtons();
@@ -2066,6 +2139,13 @@ function increment(objId){
     document.getElementById("clicks").innerHTML = prettify(Math.round(++curCiv.resourceClicks));
     updateResourceTotals(); //Update the page with totals
 }
+function onIncrement(control) { 
+    // We need a valid target to complete this action.
+    var targetId = dataset(control,"target");
+    if (targetId === null) { return false; }
+
+    return increment(targetId);
+}
 
 // Buys or sells a unit, building, or upgrade.
 // Pass a positive number to buy, a negative number to sell.
@@ -2114,7 +2194,8 @@ function doPurchase(objId,num){
 
     updateRequirements(purchaseObj); //Increases buildings' costs
     updateResourceTotals(); //Update page with lower resource values and higher building total
-    updatePopulationUI(); //updates the army display
+    updatePopulationUI(); //Updates the army display
+    updateResourceRows(); //Update resource display
     updateBuildingButtons(); //Update the buttons themselves
     updateJobButtons(); //Update page with individual worker numbers, since limits might have changed.
     updatePartyButtons(); 
@@ -2126,13 +2207,14 @@ function doPurchase(objId,num){
 }
 
 function onPurchase(control) { 
-    var objId = dataset(control,"target");
-    var qty = dataset(control,"quantity");
+    // We need a valid target and a quantity to complete this action.
+    var targetId = dataset(control,"target");
+    if (targetId === null) { return false; }
 
-    var purchaseObj = civData[objId];
-    if (!purchaseObj) { return false; }
-    
-    return doPurchase(objId, qty);
+    var qty = dataset(control,"quantity");
+    if (qty === null) { return false; }
+
+    return doPurchase(targetId, qty);
 }
 
 
@@ -2388,7 +2470,7 @@ function wickerman(){
         default       :  return "You gain " + rewardObj.getQtyName(qty) + "!"; 
     } }
 
-    gameLog("Burned a " + civData[job].singular + ". " + getRewardMessage(rewardObj));
+    gameLog("Burned a " + civData[job].getQtyName(1) + ". " + getRewardMessage(rewardObj));
     updateResourceTotals(); //Adds new resources
     updatePopulationUI();
 }
@@ -2492,8 +2574,8 @@ function spawnMob(mobObj, num){
     mobObj.owned += num;
     civData.esiege.owned += num_sge;
 
-    msg = prettify(num) + " " + mobObj.plural + " attacked";  //xxx L10N
-    if (num_sge > 0) { msg += ", with " + prettify(num_sge) + " siege engines"; }  //xxx L10N 
+    msg = prettify(num) + " " + mobObj.getQtyName(num) + " attacked";  //xxx L10N
+    if (num_sge > 0) { msg += ", with " + prettify(num_sge) + " " + civData.esiege.getQtyName(num_sge); }  //xxx L10N 
     gameLog(msg);
 
     return num;
@@ -2547,7 +2629,7 @@ function invade(ecivtype){
     updateTargets(); //Hides raid buttons until the raid is finished
     updatePartyButtons(); 
 }
-function onInvade(event) { return invade(dataset(event.target,"civtype")); }
+function onInvade(control) { return invade(dataset(control,"target")); }
 
 function plunder(){
     var plunderMsg = "";
@@ -3247,7 +3329,7 @@ function save(savetype){
         var compressed = LZString.compressToBase64(savestring);
         console.log("Compressed save from " + savestring.length + " to " + compressed.length + " characters");
         document.getElementById("impexpField").value = compressed;
-        gameLog("Exported game to base64");
+        gameLog("Exported game to text");
         return true;
     }
 
@@ -3738,14 +3820,16 @@ function doLoot(attacker)
     var target = lootable[Math.floor(Math.random() * lootable.length)];
     var stolenQty = Math.floor((Math.random() * 1000)); //Steal up to 1000.
     stolenQty = Math.min(stolenQty,target.owned);
-    if (stolenQty > 0) { gameLog(stolenQty + " " + target.name + " stolen by " + attacker.getQtyName(attacker.owned)); }
+    if (stolenQty > 0) { gameLog(stolenQty + " " + target.getQtyName(stolenQty) 
+                         + " stolen by " + attacker.getQtyName(attacker.owned)); }
     target.owned -= stolenQty;
     if (target.owned <= 0) {
         //some will leave
         var leaving = Math.ceil(attacker.owned * Math.random() * attacker.lootFatigue);
         attacker.owned -= leaving;
     }
-    --attacker.owned; // Attackers leave after stealing something.
+
+    if (--attacker.owned < 0) { attacker.owned = 0; } // Attackers leave after stealing something.
     updateResourceTotals();
 }
 
@@ -3768,8 +3852,7 @@ function doSack(attacker)
         attacker.owned -= leaving;
     }
 
-    --attacker.owned;
-    if (attacker.owned < 0) { attacker.owned = 0; }
+    if (--attacker.owned < 0) { attacker.owned = 0; } // Attackers leave after sacking something.
     updateRequirements(target);
     updateResourceTotals();
     updatePopulation(); // Limits might change
@@ -4006,6 +4089,7 @@ function tickGrace() {
 function initCivclicker() {
     document.title = "CivClicker ("+versionData+")"; //xxx Not in XML DOM.
 
+    addResourceRows();
     addBuildingRows();
     addJobRows();
     addPartyRows();
@@ -4070,6 +4154,7 @@ window.setInterval(function(){
     
     //Data changes should be done; now update the UI.
     updateUpgrades();
+    updateResourceRows(); //Update resource display
     updateBuildingButtons();
     updateJobButtons();
     updatePartyButtons();

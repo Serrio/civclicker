@@ -61,32 +61,7 @@
 <div class="mainContent"><div id="leftColumn" class="civColumn">
     <div id="basicResourcesContainer" class="civSection">
         <h3>Basic Resources</h3>
-        <table id="basicResources">
-            <tr id="foodRow">
-                <td><button onmousedown="increment('food')">Gather Food</button></td>
-                <td>Food: </td>
-                <td class="number"><span data-action="display" data-target="food">0</span></td>
-                <td class="icon"><img src="images/food.png" class="icon icon-lg" alt="Food"/></td>
-                <td class="number">(Max: <span id="maxfood">200</span>)</td>
-                <td class="number net"><span data-action="displayNet" data-target="food">0</span>/s</td>
-            </tr>
-            <tr id="woodRow">
-                <td><button onmousedown="increment('wood')">Cut Wood</button></td>
-                <td>Wood: </td>
-                <td class="number"><span data-action="display" data-target="wood">0</span></td>
-                <td class="icon"><img src="images/wood.png" class="icon icon-lg" alt="Wood"/></td>
-                <td class="number">(Max: <span id="maxwood">200</span>)</td>
-                <td class="number net"><span data-action="displayNet" data-target="wood">0</span>/s</td>
-            </tr>
-            <tr id="stoneRow">
-                <td><button onmousedown="increment('stone')">Mine Stone</button></td>
-                <td>Stone: </td>
-                <td class="number"><span data-action="display" data-target="stone">0</span></td>
-                <td class="icon"><img src="images/stone.png" class="icon icon-lg" alt="Stone"/></td>
-                <td class="number">(Max: <span id="maxstone">200</span>)</td>
-                <td class="number net"><span data-action="displayNet" data-target="stone">0</span>/s</td>
-            </tr>
-        </table>
+        <table id="basicResources"></table>
     </div>
     <div id="specialResourcesContainer" class="civSection">
         <h3>Special Resources</h3>

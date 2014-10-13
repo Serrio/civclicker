@@ -296,6 +296,10 @@ button.build{
 }
 */
 
+#basicResources button {
+    text-transform:capitalize;
+}
+
 #textSize button,
 #jobs button,
 #party button,
