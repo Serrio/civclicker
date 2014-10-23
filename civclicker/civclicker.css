@@ -254,6 +254,11 @@ button:disabled{
 #deityDomains{
     display:none;
 }
+#deityDomains .purchaseRow{
+    /* We control the display of these through #deityDomains, so */
+    /*   suppress the usual .purchaseRow display:none */
+    display:inline;
+}
 
 #battleUpgrades,
 #fieldsUpgrades,
@@ -390,7 +395,7 @@ button.build{
 #gloryGroup{
     display:none;
 }
-#happiness{
+#morale{
     color:#0d0;
 }
 #wondersContainer{
@@ -401,9 +406,6 @@ button.build{
     display:none;
 }
 
-#pastWonders {
-    padding-top:1em;
-}
 #pastWonders td {
     padding-right:1em;
 }
@@ -432,7 +434,7 @@ button.build{
     padding-top:1em;
     display:none;
 }
-.wonderBonus{
+.wonderCompleted button {
     width:5em;
 }
 #lowResources{
